@@ -74,6 +74,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <Components/ComponentContainer.h>
 #include <RunWidget.h>
 
+#include "CustomizedItemModel.h"
+
 WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     : WorkflowAppWidget(theService, parent)
 {
@@ -137,7 +139,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     //
 
     treeView = new QTreeView();
-    standardModel = new QStandardItemModel ;
+    standardModel = new CustomizedItemModel;// QStandardItemModel ;
     QStandardItem *rootNode = standardModel->invisibleRootItem();
 
     //defining bunch of items for inclusion in model
@@ -163,6 +165,24 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     treeView->expandAll();
     treeView->setHeaderHidden(true);
     treeView->setMaximumWidth(100);
+
+    //
+        // customize the apperance of the menu on the left
+        //
+
+        treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar
+        treeView->setObjectName("treeViewOnTheLeft");
+        treeView->setIndentation(0);
+        QFile file(":/styles/stylesheet.qss");
+        if(file.open(QFile::ReadOnly)) {
+            this->setStyleSheet(file.readAll());
+            file.close();
+            qDebug() << "Open Style File Successfully.";
+        }
+        else
+            qDebug() << "Open Style File Failed!";
+
+
 
     //
     // set up so that a slection change triggers the selectionChanged slot
