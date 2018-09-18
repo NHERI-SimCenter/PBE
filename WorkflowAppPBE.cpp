@@ -167,20 +167,20 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     treeView->setMaximumWidth(100);
 
     //
-        // customize the apperance of the menu on the left
-        //
+    // customize the apperance of the menu on the left
+    //
 
-        treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar
-        treeView->setObjectName("treeViewOnTheLeft");
-        treeView->setIndentation(0);
-        QFile file(":/styles/stylesheet.qss");
-        if(file.open(QFile::ReadOnly)) {
-            this->setStyleSheet(file.readAll());
-            file.close();
-            qDebug() << "Open Style File Successfully.";
-        }
-        else
-            qDebug() << "Open Style File Failed!";
+    treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar
+    treeView->setObjectName("treeViewOnTheLeft");
+    treeView->setIndentation(0);
+    QFile file(":/styles/stylesheet.qss");
+    if(file.open(QFile::ReadOnly)) {
+        this->setStyleSheet(file.readAll());
+        file.close();
+        qDebug() << "Open Style File Successfully.";
+    }
+    else
+        qDebug() << "Open Style File Failed!";
 
 
 
