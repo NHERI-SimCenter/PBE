@@ -71,7 +71,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
-
+#include <Components/ComponentContainer.h>
 #include <RunWidget.h>
 
 WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
@@ -88,7 +88,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theEvent = new InputWidgetEarthquakeEvent(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ = new InputWidgetSampling();
-    theContents = new QWidget();
+    theContents = new ComponentContainer(theRVs);
     theResults = new QWidget();
 
     localApp = new LocalApplication;

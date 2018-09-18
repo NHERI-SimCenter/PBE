@@ -20,13 +20,22 @@ include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
 
+INCLUDEPATH += "./Component"
+
 SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
-    RunWidget.cpp
+    RunWidget.cpp \
+    Components/Component.cpp \
+    Components/ComponentContainer.cpp
+
 
 HEADERS  += \
-    WorkflowAppPBE.h\
-    RunWidget.h 
+    WorkflowAppPBE.h \
+    RunWidget.h \
+    Components/Component.h \
+    Coponents/ComponentContainer.h \
+    Components/ComponentContainer.h
+
 
 RESOURCES += \
     ../EE-UQ/images.qrc \

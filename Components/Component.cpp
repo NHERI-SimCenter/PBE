@@ -45,17 +45,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDebug>
+#include <QJsonObject>
 
 #include "Component.h"
 
-Component::Component()
-    : SimCenterWidget(0) {}
-
 Component::Component(QWidget *parent)
   : SimCenterWidget(parent) {
+
+    mainLayout = new QHBoxLayout();
+
     // Vertical layout to deal with component name
     QVBoxLayout * nameLayout = new QVBoxLayout();
+    QLabel *componentLabel = new QLabel();
     componentLabel->setText(tr("Component Name"));
+    componentName = new QLineEdit();
     componentName->setToolTip(tr("Name of component"));
     componentName->setMaximumWidth(100);
     componentName->setMinimumWidth(100);
@@ -66,7 +69,9 @@ Component::Component(QWidget *parent)
 
     // Vertical layout to deal with component quantity
     QVBoxLayout * quantityLayout = new QVBoxLayout();
+    QLabel *quantityLabel = new QLabel();
     quantityLabel->setText(tr("Quantity"));
+    componentQuantity = new QLineEdit();
     componentQuantity->setToolTip(tr("Quantity of component"));
     componentQuantity->setMaximumWidth(100);
     componentQuantity->setMinimumWidth(100);
@@ -77,7 +82,9 @@ Component::Component(QWidget *parent)
 
     // Vertical layout to deal with component coefficient of variation
     QVBoxLayout * covLayout = new QVBoxLayout();
+    QLabel *covLabel = new QLabel();
     covLabel->setText("COV");
+    componentCov = new QLineEdit();
     componentCov->setToolTip(tr("Coefficient of variation for component"));
     componentCov->setMaximumWidth(100);
     componentCov->setMinimumWidth(100);
@@ -89,7 +96,10 @@ Component::Component(QWidget *parent)
     // Provide the selectable options & connect the combo boxes selection
     // signal to this class's unitsChanged slot method
     QVBoxLayout * unitLayout = new QVBoxLayout();
+    QLabel *unitLabel = new QLabel();
+
     unitLabel->setText(tr("Units"));
+    unitComboBox = new QComboBox();
     unitComboBox->setToolTip(tr("Units for component"));
     unitComboBox->addItem(tr("Linear Feet"));
     unitComboBox->addItem(tr("Square Feet"));
@@ -100,7 +110,9 @@ Component::Component(QWidget *parent)
 
     // Vertical layout for structural/non-structural components
     QVBoxLayout * structuralLayout = new QVBoxLayout();
+    QLabel *structuralLabel = new QLabel();
     structuralLabel->setText(tr("Structural Component"));
+    structuralCheckBox = new QCheckBox();
     structuralCheckBox->setToolTip(tr("Check this box if component is structural"));
     structuralCheckBox->setChecked(false);
     structuralLayout->addWidget(structuralLabel);
@@ -110,7 +122,10 @@ Component::Component(QWidget *parent)
 
     // Vertical layout for component directions
     QVBoxLayout * directionsLayout = new QVBoxLayout();
+    QLabel *directionsLabel= new QLabel();
+
     directionsLabel->setText(tr("Directions"));
+    componentDirections = new QLineEdit();
     componentDirections->setToolTip(tr("Directionts to include component in"));
     directionsLayout->addWidget(directionsLabel);
     directionsLayout->addWidget(componentDirections);
@@ -119,15 +134,22 @@ Component::Component(QWidget *parent)
 
     // Vertical layout for component weights
     QVBoxLayout * weightsLayout = new QVBoxLayout();
+    QLabel *weightsLabel = new QLabel();
     weightsLabel->setText(tr("Weights"));
+    componentWeights = new QLineEdit();
     componentWeights->setToolTip(tr("Weight for component in each input direction"));
     weightsLayout->addWidget(weightsLabel);
     weightsLayout->addWidget(componentWeights);
     weightsLayout->setSpacing(1);
-    weightsLayout->setMargin(0);    
+    weightsLayout->setMargin(0);
     
+
+    button = new QRadioButton();
+
     // Create the main layout inside which we place a spacer & main widget
     // implementation note: spacer added first to ensure it always lines up on left
+
+
 
     // Set up main layout
     mainLayout->addWidget(button);
@@ -149,34 +171,38 @@ Component::~Component()
 {}
 
 bool Component::outputToJSON(QJsonObject &outputObject) {
+
     if (!componentName->text().isEmpty()) {
-        outputObject["name"] = variableName->text();
+        outputObject["name"] = componentName->text();
         outputObject["quantity"] = componentQuantity->text();
         outputObject["cov"] = componentCov->text();
-	outputObject["unit"] = unitComboBox->currentText();
-	outputObject["structural"] = structuralCheckBox->isChecked();
-	outputObject["directions"] = componentDirections->text();
-	outputObject["weights"] = componentWeights->text();
-	return true;
+        outputObject["unit"] = unitComboBox->currentText();
+        outputObject["structural"] = structuralCheckBox->isChecked();
+        outputObject["directions"] = componentDirections->text();
+        outputObject["weights"] = componentWeights->text();
+        return true;
     } else {
         emit sendErrorMessage("ERROR: Component - cannot output as no \"name\" entry!");
         return false;
     }
+    return true;
 }
 
 bool Component::inputFromJSON(const QJsonObject & inputObject) {
+
     if (inputObject.contains("name")) {
-      componentName->setText(inputObject["name"].toString());
-      componentQuantity->setText(inputObject["quantity"].toString());
-      componentCov->setText(inputObject["cov"].toString());
-      unitComboBox->setCurrentText(inputObject["unit"].toString());
-      structuralCheckBox->setChecked(inputObject["structural"].toBool());
-      componentDirections->setText(inputObject["directions"].toString());
-      componentWeights->setText(inputObject["weights"]).toString();
-      return true;
+        componentName->setText(inputObject["name"].toString());
+        componentQuantity->setText(inputObject["quantity"].toString());
+        componentCov->setText(inputObject["cov"].toString());
+        unitComboBox->setCurrentText(inputObject["unit"].toString());
+        structuralCheckBox->setChecked(inputObject["structural"].toBool());
+        componentDirections->setText(inputObject["directions"].toString());
+        componentWeights->setText(inputObject["weights"].toString());
+        return true;
     } else {
-      return false;
+        return false;
     }
+    return true;
 }
 
 bool Component::isSelectedForRemoval() const {
@@ -187,3 +213,4 @@ bool Component::isSelectedForRemoval() const {
 QString Component::getComponentName() const {
      return componentName->text();
 }
+

@@ -61,11 +61,6 @@ class Component : public SimCenterWidget
 public:
 
     /*!
-     * @constructor Default constructor
-     */
-    explicit Component();
-
-    /*!
      * @contructor Constructor taking pointer to parent widget
      * @param[in] parent Parent widget of Component
      */
@@ -101,6 +96,7 @@ public:
      * @return Returns the name of the component as a QString
      */
     QString getComponentName() const;
+
     
 signals:
 
@@ -108,14 +104,6 @@ public slots:
        
 private:
 
-    QLabel * componentLabel; /*!< Component label in vertical layout */
-    QLabel * quantityLabel; /*!< Quantity label in vertical layout */
-    QLabel * covLabel; /*!< Coefficient of variation label in vertical layout */
-    QLabel * unitLabel; /*!< Units for component lable */
-    QLabel * structuralLabel; /*!< Structural/non-structural label */
-    QLabel * directionsLabel; /*!< Directions label */
-    QLabel * weightsLabel; /*!< Label for component weights */
-    
     QLineEdit * componentName; /*!< Line edit widget to input component name */
     QLineEdit * componentQuantity; /*!< Line edit widget to input component quantity */
     QLineEdit * componentCov; /*!< Line edit widget to input component coefficient of variation */
