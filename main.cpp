@@ -9,7 +9,7 @@
 #include <QObject>
 
 #include <AgaveCurl.h>
-#include <WorkflowAPPPBE.h>
+#include <WorkflowAppPBE.h>
 
 int main(int argc, char *argv[])
 {
