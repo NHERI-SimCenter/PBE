@@ -107,6 +107,7 @@ private:
     QLineEdit * componentName; /*!< Line edit widget to input component name */
     QLineEdit * componentQuantity; /*!< Line edit widget to input component quantity */
     QLineEdit * componentCov; /*!< Line edit widget to input component coefficient of variation */
+    QLineEdit * unitSizeEdit; /*!< Line edit widget to input unit size of component quantity */
     QComboBox * unitComboBox; /*!< Combo box for selcecting unit type as either linear or square feet */
     QCheckBox * structuralCheckBox; /*!< Check box to indicate if component is structural */
     QLineEdit * componentDirections; /*!< Line edit where directions are entered */
