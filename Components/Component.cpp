@@ -60,12 +60,13 @@ Component::Component(QWidget *parent)
     componentLabel->setText(tr("Component Name"));
     componentName = new QLineEdit();
     componentName->setToolTip(tr("Name of component"));
-    componentName->setMaximumWidth(100);
-    componentName->setMinimumWidth(100);
+    componentName->setMaximumWidth(150);
+    componentName->setMinimumWidth(150);
     nameLayout->addWidget(componentLabel);
     nameLayout->addWidget(componentName);
     nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
+    //TODO: a list of components would be nice to have
 
     // Vertical layout to deal with component quantity
     QVBoxLayout * quantityLayout = new QVBoxLayout();
@@ -73,8 +74,8 @@ Component::Component(QWidget *parent)
     quantityLabel->setText(tr("Quantity"));
     componentQuantity = new QLineEdit();
     componentQuantity->setToolTip(tr("Quantity of component"));
-    componentQuantity->setMaximumWidth(100);
-    componentQuantity->setMinimumWidth(100);
+    componentQuantity->setMaximumWidth(150);
+    componentQuantity->setMinimumWidth(150);
     quantityLayout->addWidget(quantityLabel);
     quantityLayout->addWidget(componentQuantity);
     quantityLayout->setSpacing(1);
@@ -83,11 +84,11 @@ Component::Component(QWidget *parent)
     // Vertical layout to deal with component coefficient of variation
     QVBoxLayout * covLayout = new QVBoxLayout();
     QLabel *covLabel = new QLabel();
-    covLabel->setText("COV");
+    covLabel->setText("cov");
     componentCov = new QLineEdit();
-    componentCov->setToolTip(tr("Coefficient of variation for component"));
-    componentCov->setMaximumWidth(100);
-    componentCov->setMinimumWidth(100);
+    componentCov->setToolTip(tr("Coefficient of variation for component quantity"));
+    componentCov->setMaximumWidth(50);
+    componentCov->setMinimumWidth(50);
     covLayout->addWidget(covLabel);
     covLayout->addWidget(componentCov);
     covLayout->setSpacing(1);
@@ -95,30 +96,29 @@ Component::Component(QWidget *parent)
     
     // Provide the selectable options & connect the combo boxes selection
     // signal to this class's unitsChanged slot method
-    QVBoxLayout * unitLayout = new QVBoxLayout();
+    QVBoxLayout *unitMainLayout = new QVBoxLayout();
+    QHBoxLayout *unitLayout = new QHBoxLayout();
     QLabel *unitLabel = new QLabel();
 
-    unitLabel->setText(tr("Units"));
+    unitLabel->setText(tr("Unit"));
+    unitSizeEdit = new QLineEdit();
+    unitSizeEdit->setToolTip(tr("Unit size of component quantity"));
+    unitSizeEdit->setMaximumWidth(50);
+    unitSizeEdit->setMinimumWidth(50);
     unitComboBox = new QComboBox();
-    unitComboBox->setToolTip(tr("Units for component"));
-    unitComboBox->addItem(tr("Linear Feet"));
-    unitComboBox->addItem(tr("Square Feet"));
-    unitLayout->addWidget(unitLabel);
+    unitComboBox->setToolTip(tr("Unit type of component quantity"));
+    unitComboBox->addItem(tr("Linear Feet (LF)"));
+    unitComboBox->addItem(tr("Square Feet (SF)"));
+    unitComboBox->setMaximumWidth(150);
+    unitComboBox->setMinimumWidth(150);
+    unitMainLayout->addWidget(unitLabel);
+    unitLayout->addWidget(unitSizeEdit);
     unitLayout->addWidget(unitComboBox);
     unitLayout->setSpacing(1);
-    unitLayout->setMargin(0);    
-
-    // Vertical layout for structural/non-structural components
-    QVBoxLayout * structuralLayout = new QVBoxLayout();
-    QLabel *structuralLabel = new QLabel();
-    structuralLabel->setText(tr("Structural Component"));
-    structuralCheckBox = new QCheckBox();
-    structuralCheckBox->setToolTip(tr("Check this box if component is structural"));
-    structuralCheckBox->setChecked(false);
-    structuralLayout->addWidget(structuralLabel);
-    structuralLayout->addWidget(structuralCheckBox);
-    structuralLayout->setSpacing(1);
-    structuralLayout->setMargin(0);    
+    unitLayout->setMargin(0);
+    unitMainLayout->addLayout(unitLayout);
+    unitMainLayout->setSpacing(1);
+    unitMainLayout->setMargin(0);
 
     // Vertical layout for component directions
     QVBoxLayout * directionsLayout = new QVBoxLayout();
@@ -127,6 +127,8 @@ Component::Component(QWidget *parent)
     directionsLabel->setText(tr("Directions"));
     componentDirections = new QLineEdit();
     componentDirections->setToolTip(tr("Directionts to include component in"));
+    componentDirections->setMaximumWidth(150);
+    componentDirections->setMinimumWidth(150);
     directionsLayout->addWidget(directionsLabel);
     directionsLayout->addWidget(componentDirections);
     directionsLayout->setSpacing(1);
@@ -138,10 +140,24 @@ Component::Component(QWidget *parent)
     weightsLabel->setText(tr("Weights"));
     componentWeights = new QLineEdit();
     componentWeights->setToolTip(tr("Weight for component in each input direction"));
+    componentWeights->setMaximumWidth(150);
+    componentWeights->setMinimumWidth(150);
     weightsLayout->addWidget(weightsLabel);
     weightsLayout->addWidget(componentWeights);
     weightsLayout->setSpacing(1);
     weightsLayout->setMargin(0);
+
+    // Vertical layout for structural/non-structural components
+    QVBoxLayout * structuralLayout = new QVBoxLayout();
+    QLabel *structuralLabel = new QLabel();
+    structuralLabel->setText(tr("Structural Component"));
+    structuralCheckBox = new QCheckBox();
+    structuralCheckBox->setToolTip(tr("Check this box if component is structural"));
+    structuralCheckBox->setChecked(false);
+    structuralLayout->addWidget(structuralLabel);
+    structuralLayout->addWidget(structuralCheckBox);
+    structuralLayout->setSpacing(1);
+    structuralLayout->setMargin(0);
     
 
     button = new QRadioButton();
@@ -156,10 +172,10 @@ Component::Component(QWidget *parent)
     mainLayout->addLayout(nameLayout);
     mainLayout->addLayout(quantityLayout);
     mainLayout->addLayout(covLayout);
-    mainLayout->addLayout(unitLayout);
-    mainLayout->addLayout(structuralLayout);
+    mainLayout->addLayout(unitMainLayout);
     mainLayout->addLayout(directionsLayout);
-    mainLayout->addLayout(weightsLayout);    
+    mainLayout->addLayout(weightsLayout);
+    mainLayout->addLayout(structuralLayout);
     mainLayout->addStretch();    
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
