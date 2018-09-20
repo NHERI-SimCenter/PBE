@@ -74,6 +74,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <Components/ComponentContainer.h>
 #include <RunWidget.h>
 
+#include <DakotaResultsSampling.h>
+
 WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     : WorkflowAppWidget(theService, parent)
 {
@@ -89,11 +91,13 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ = new InputWidgetSampling();
     theContents = new ComponentContainer(theRVs);
-    theResults = new QWidget();
+    theResults = new DakotaResultsSampling();
 
     localApp = new LocalApplication;
     remoteApp = new RemoteApplication(theService);
     theJobManager = new RemoteJobManager(theService);
+
+
 
    // theRunLocalWidget = new RunLocalWidget(theUQ);
     SimCenterWidget *theWidgets[2];
@@ -282,6 +286,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
     jsonObjectTop["Applications"]=apps;
 
+
+    QJsonObject jsonContents;
+    theContents->outputToJSON(jsonContents);
+    jsonObjectTop["Components"] = jsonContents;
+    
     return true;
 }
 
@@ -289,7 +298,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
  void
  WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab){
 
-     // theResults->processResults(dakotaOut, dakotaTab);
+      theResults->processResults(dakotaOut, dakotaTab);
       theRunWidget->hide();
       theStackedWidget->setCurrentIndex(4);
  }

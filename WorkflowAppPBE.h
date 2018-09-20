@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
+#include <Components/ComponentContainer.h>
 
 class RandomVariableInputWidget;
 //class InputWidgetSheetSIM;
@@ -65,6 +66,8 @@ class RunWidget;
 class Application;
 class RemoteService;
 class RemoteJobManager;
+
+class DakotaResults;
 
 class WorkflowAppPBE : public WorkflowAppWidget
 {
@@ -112,8 +115,8 @@ private:
     InputWidgetSampling *theUQ;
     InputWidgetEarthquakeEvent *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
-    QWidget *theContents;
-    QWidget *theResults;
+    ComponentContainer *theContents;
+    DakotaResults *theResults;
 
     RunWidget *theRunWidget;
     Application *localApp;
