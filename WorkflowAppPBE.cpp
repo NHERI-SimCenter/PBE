@@ -93,7 +93,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theContents = new ComponentContainer(theRVs);
     theResults = new DakotaResultsSampling();
 
-    localApp = new LocalApplication;
+    localApp = new LocalApplication("PBE.py");
     remoteApp = new RemoteApplication(theService);
     theJobManager = new RemoteJobManager(theService);
 
