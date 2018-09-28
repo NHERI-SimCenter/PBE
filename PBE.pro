@@ -26,21 +26,23 @@ INCLUDEPATH += "./Component"
 SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
-    Components/Component.cpp \
-    Components/ComponentContainer.cpp \
-    Components/CollapseMode.cpp \
-    Components/CollapseModeContainer.cpp \
-    Components/LossModelContainer.cpp
+    LossModel/Component.cpp \
+    LossModel/ComponentContainer.cpp \
+    LossModel/CollapseMode.cpp \
+    LossModel/CollapseModeContainer.cpp \
+    LossModel/GeneralSettingsContainer.cpp \
+    LossModel/LossModelContainer.cpp
 
 
 HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
-    Components/Component.h \
-    Components/ComponentContainer.h \
-    Components/CollapseMode.h \
-    Components/CollapseModeContainer.h \
-    Components/LossModelContainer.h
+    LossModel/Component.h \
+    LossModel/ComponentContainer.h \
+    LossModel/CollapseMode.h \
+    LossModel/CollapseModeContainer.h \
+    LossModel/GeneralSettingsContainer.h \
+    LossModel/LossModelContainer.h
 
 
 RESOURCES += \

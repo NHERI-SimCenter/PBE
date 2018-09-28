@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, mhgardner, adamzs
+// Written: fmckenna, adamzs
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -46,62 +46,63 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QJsonObject>
 
-#include "CollapseMode.h"
+#include "GeneralSettingsContainer.h"
 
-CollapseMode::CollapseMode(QWidget *parent)
-  : SimCenterWidget(parent) {
+GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *theRV_IW, QWidget *parent)
+    : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
+{
 
     mainLayout = new QHBoxLayout();
 
-    // Vertical layout to deal with collapse mode name
+    // Vertical layout to deal with general name
     QVBoxLayout * nameLayout = new QVBoxLayout();
-    QLabel *collapseModeLabel = new QLabel();
-    collapseModeLabel->setText(tr("name"));
-    collapseModeName = new QLineEdit();
-    collapseModeName->setToolTip(tr("Name of the collapse mode."));
-    collapseModeName->setMaximumWidth(150);
-    collapseModeName->setMinimumWidth(150);
-    nameLayout->addWidget(collapseModeLabel);
-    nameLayout->addWidget(collapseModeName);
+    QLabel *generalLabel = new QLabel();
+    generalLabel->setText(tr("name"));
+    generalName = new QLineEdit();
+    generalName->setToolTip(tr("Name of the general."));
+    generalName->setMaximumWidth(150);
+    generalName->setMinimumWidth(150);
+    nameLayout->addWidget(generalLabel);
+    nameLayout->addWidget(generalName);
     nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
 
-    // Vertical layout for collapse mode probability
+    // Vertical layout for general probability
     QVBoxLayout * probabilityLayout = new QVBoxLayout();
     QLabel *probabilityLabel = new QLabel();
     probabilityLabel->setText(tr("probability"));
-    collapseModeProbability = new QLineEdit();
-    collapseModeProbability->setToolTip(tr("The probability that the building collapses in this mode when it collapses."));
-    collapseModeProbability->setMaximumWidth(100);
-    collapseModeProbability->setMinimumWidth(100);
+    generalProbability = new QLineEdit();
+    generalProbability->setToolTip(tr("The probability that the building collapses in this mode when it collapses."));
+    generalProbability->setMaximumWidth(100);
+    generalProbability->setMinimumWidth(100);
     probabilityLayout->addWidget(probabilityLabel);
-    probabilityLayout->addWidget(collapseModeProbability);
+    probabilityLayout->addWidget(generalProbability);
     probabilityLayout->setSpacing(1);
     probabilityLayout->setMargin(0);
 
-    // Vertical layout to deal with the area affected by the collapse mode
+    // Vertical layout to deal with the area affected by the general
     QVBoxLayout * affectedAreaLayout = new QVBoxLayout();
-    QLabel *collapseModeAffectedAreaLabel = new QLabel();
-    collapseModeAffectedAreaLabel->setText(tr("affected area"));
-    collapseModeAffectedArea = new QLineEdit();
-    collapseModeAffectedArea->setToolTip(tr("The proportion of the total floor area in each story affected by this collapse mode."));
-    collapseModeAffectedArea->setMaximumWidth(200);
-    collapseModeAffectedArea->setMinimumWidth(200);
-    affectedAreaLayout->addWidget(collapseModeAffectedAreaLabel);
-    affectedAreaLayout->addWidget(collapseModeAffectedArea);
+    QLabel *generalAffectedAreaLabel = new QLabel();
+    generalAffectedAreaLabel->setText(tr("affected area"));
+    generalAffectedArea = new QLineEdit();
+    generalAffectedArea->setToolTip(tr("The proportion of the total floor area in each story affected by this general."));
+    generalAffectedArea->setMaximumWidth(200);
+    generalAffectedArea->setMinimumWidth(200);
+    affectedAreaLayout->addWidget(generalAffectedAreaLabel);
+    affectedAreaLayout->addWidget(generalAffectedArea);
     affectedAreaLayout->setSpacing(1);
     affectedAreaLayout->setMargin(0);
 
-    // Vertical layout to deal with collapse mode injuries
+    // Vertical layout to deal with general injuries
     QVBoxLayout * injuriesLayout = new QVBoxLayout();
-    QLabel *collapseModeInjuriesLabel = new QLabel();
-    collapseModeInjuriesLabel->setText(tr("injuries"));
-    collapseModeInjuries = new QLineEdit();
-    collapseModeInjuries->setToolTip(tr("Proportion of the inhabitants in the affected area getting injured when this mode of collapse happens. Provide a list of numbers when multiple levels of injury severity are considered."));
-    collapseModeInjuries->setMaximumWidth(150);
-    collapseModeInjuries->setMinimumWidth(150);
-    injuriesLayout->addWidget(collapseModeInjuriesLabel);
-    injuriesLayout->addWidget(collapseModeInjuries);
+    QLabel *generalInjuriesLabel = new QLabel();
+    generalInjuriesLabel->setText(tr("injuries"));
+    generalInjuries = new QLineEdit();
+    generalInjuries->setToolTip(tr("Proportion of the inhabitants in the affected area getting injured when this mode of collapse happens. Provide a list of numbers when multiple levels of injury severity are considered."));
+    generalInjuries->setMaximumWidth(150);
+    generalInjuries->setMinimumWidth(150);
+    injuriesLayout->addWidget(generalInjuriesLabel);
+    injuriesLayout->addWidget(generalInjuries);
     injuriesLayout->setSpacing(1);
     injuriesLayout->setMargin(0);
 
@@ -123,16 +124,16 @@ CollapseMode::CollapseMode(QWidget *parent)
     this->setLayout(mainLayout);
 }
 
-CollapseMode::~CollapseMode()
+GeneralSettingsContainer::~GeneralSettingsContainer()
 {}
 
-bool CollapseMode::outputToJSON(QJsonObject &outputObject) {
+bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
-    if (!collapseModeName->text().isEmpty()) {
-        outputObject["name"] = collapseModeName->text();
-        outputObject["w"] = collapseModeProbability->text();
-        outputObject["affected_area"] = collapseModeAffectedArea->text();
-        outputObject["injuries"] = collapseModeInjuries->text();        
+    if (!generalName->text().isEmpty()) {
+        outputObject["name"] = generalName->text();
+        outputObject["w"] = generalProbability->text();
+        outputObject["affected_area"] = generalAffectedArea->text();
+        outputObject["injuries"] = generalInjuries->text();        
         return true;
     } else {
         emit sendErrorMessage("ERROR: Component - cannot output as no \"name\" entry!");
@@ -140,26 +141,17 @@ bool CollapseMode::outputToJSON(QJsonObject &outputObject) {
     }
 }
 
-bool CollapseMode::inputFromJSON(const QJsonObject & inputObject) {
+bool GeneralSettingsContainer::inputFromJSON(const QJsonObject & inputObject) {
 
     if (inputObject.contains("name")) {
-        collapseModeName->setText(inputObject["name"].toString());
-        collapseModeProbability->setText(inputObject["w"].toString());
-        collapseModeAffectedArea->setText(inputObject["affected_area"].toString());
-        collapseModeInjuries->setText(inputObject["injuries"].toString());
+        generalName->setText(inputObject["name"].toString());
+        generalProbability->setText(inputObject["w"].toString());
+        generalAffectedArea->setText(inputObject["affected_area"].toString());
+        generalInjuries->setText(inputObject["injuries"].toString());
         return true;
     } else {
         return false;
     }
 
-}
-
-bool CollapseMode::isSelectedForRemoval() const {
-  return button->isChecked();
-}
-
-
-QString CollapseMode::getCollapseModeName() const {
-     return collapseModeName->text();
 }
 

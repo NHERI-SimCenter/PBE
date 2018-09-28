@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <QComboBox>
 
+#include "GeneralSettingsContainer.h"
 #include "ComponentContainer.h"
 #include "CollapseModeContainer.h"
 
@@ -76,8 +77,8 @@ LossModelContainer::LossModelContainer(
     theStackedWidget = new QStackedWidget();
 
     // general (components is a placeholder now)
-    theComponentContainer = new ComponentContainer(theRV_IW);
-    theStackedWidget->addWidget(theComponentContainer);
+    theGeneralSettingsContainer = new GeneralSettingsContainer(theRV_IW);
+    theStackedWidget->addWidget(theGeneralSettingsContainer);
 
     // components
     theComponentContainer = new ComponentContainer(theRV_IW);
@@ -163,7 +164,13 @@ LossModelContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
 void
 LossModelContainer::eventSelectionChanged(const QString &arg1)
 {
-    if (arg1 == "Components") {
+
+    if (arg1 == "General") {
+        theStackedWidget->setCurrentIndex(0);
+        theCurrentEvent = theExistingEvents;
+    }
+
+    else if (arg1 == "Components") {
         theStackedWidget->setCurrentIndex(1);
         theCurrentEvent = theExistingEvents;
     } 
@@ -172,8 +179,6 @@ LossModelContainer::eventSelectionChanged(const QString &arg1)
         theStackedWidget->setCurrentIndex(2);
         theCurrentEvent = theExistingEvents;
     }
-
-    // other settings will come here
 
     else {
         qDebug() << 

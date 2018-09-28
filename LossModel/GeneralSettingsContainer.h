@@ -1,5 +1,5 @@
-#ifndef COLLAPSE_MODE_H
-#define COLLAPSE_MODE_H
+#ifndef GENERAL_SETTINGS_CONTAINER_H
+#define GENERAL_SETTINGS_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,11 +37,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, mhgardner, adamzs
+// Written: fmckenna, adamzs
 
 #include <QCheckBox>
 
-#include "SimCenterWidget.h"
+#include "SimCenterAppWidget.h"
 
 class QCheckBox;
 class QComboBox;
@@ -49,52 +49,48 @@ class QLineEdit;
 class QLabel;
 class QHBoxLayout;
 class RandomVariableDistribution;
+class RandomVariableInputWidget;
 class QRadioButton;
 
 /*!
- * Widget for collapse modes in PBE tool
+ * Widget for general loss assessment settings in PBE tool
  */
-class CollapseMode : public SimCenterWidget
+class GeneralSettingsContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of CollapseMode
+     * @param[in] parent Parent widget of GeneralSettingsContainer
      */
-    explicit CollapseMode(QWidget *parent = 0);
+    explicit GeneralSettingsContainer(
+        RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~CollapseMode();
+    virtual ~GeneralSettingsContainer();
 
     /*!
-     * Writes collapse mode contents to JSON
-     * @param[in, out] outputObject Write contents of collapse mode to this object
+     * Writes general settings contents to JSON
+     * @param[in, out] outputObject Write contents of general settings to this object
      * @return Returns true if successful, false otherwise
      */
     virtual bool outputToJSON(QJsonObject &outputObject);
 
     /*!
-     * Reads collapse mode contents from JSON
-     * @param[in] inputObject Read collapse mode contents from this object
+     * Reads general settings contents from JSON
+     * @param[in] inputObject Read general settings contents from this object
      * @return Returns true if successfull, false otherwise
      */
     virtual bool inputFromJSON(const QJsonObject & inputObject);
 
     /*!
-     * Checks whether button has been checked to remove collapse mode
-     * @return Current state of button
+     * Get the name of the general settings
+     * @return Returns the name of the general settings as a QString
      */
-    bool isSelectedForRemoval() const;
-
-    /*!
-     * Get the name of the collapse mode
-     * @return Returns the name of the collapse mode as a QString
-     */
-    QString getCollapseModeName() const;
+    QString getGeneralSettingsContainerName() const;
 
     
 signals:
@@ -103,13 +99,15 @@ public slots:
        
 private:
 
-    QLineEdit * collapseModeName; /*!< Line edit widget to input collapse mode name */
-    QLineEdit * collapseModeProbability; /*!< Line edit widget to input collapse mode ID */
-    QLineEdit * collapseModeAffectedArea; /*!< Line edit widget to input collapse mode quantity */
-    QLineEdit * collapseModeInjuries; /*!< Line edit widget to input collapse mode coefficient of variation */
+    QLineEdit * generalName; /*!< Line edit widget to input general settings name */
+    QLineEdit * generalProbability; /*!< Line edit widget to input general settings ID */
+    QLineEdit * generalAffectedArea; /*!< Line edit widget to input general settings quantity */
+    QLineEdit * generalInjuries; /*!< Line edit widget to input general settings coefficient of variation */
     
-    QRadioButton *button; /*!< Button for selecting collapse mode */
-    QHBoxLayout *mainLayout; /*!< Main layout for collapse mode */
+    QRadioButton *button; /*!< Button for selecting general settings */
+    QHBoxLayout *mainLayout; /*!< Main layout for general settings */
+
+    RandomVariableInputWidget *theRandVariableIW;
 };
 
-#endif // COLLAPSE_MODE_H
+#endif // GENERAL_SETTINGS_CONTAINER_H

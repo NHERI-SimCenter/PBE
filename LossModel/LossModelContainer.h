@@ -76,6 +76,7 @@ private:
     QStackedWidget *theStackedWidget;
     SimCenterAppWidget *theCurrentEvent;
     SimCenterAppWidget *theExistingEvents;
+    SimCenterAppWidget *theGeneralSettingsContainer;
     SimCenterAppWidget *theComponentContainer;
     SimCenterAppWidget *theCollapseModeContainer;
 };
