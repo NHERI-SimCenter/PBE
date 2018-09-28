@@ -71,7 +71,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
-#include <Components/ComponentContainer.h>
+#include <Components/LossModelContainer.h>
 #include <RunWidget.h>
 
 #include "CustomizedItemModel.h"
@@ -90,7 +90,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theEvent = new InputWidgetEarthquakeEvent(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ = new InputWidgetSampling();
-    theContents = new ComponentContainer(theRVs);
+    theLossModel = new LossModelContainer(theRVs);
     theResults = new DakotaResultsSampling();
 
     localApp = new LocalApplication("PBE.py");
@@ -208,7 +208,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theStackedWidget->addWidget(theSIM);
     theStackedWidget->addWidget(theEvent);
     theStackedWidget->addWidget(theRVs);
-    theStackedWidget->addWidget(theContents);
+    theStackedWidget->addWidget(theLossModel);
     theStackedWidget->addWidget(theResults);
 
     // add stacked widget to layout
@@ -305,9 +305,13 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     jsonObjectTop["Applications"]=apps;
 
 
-    QJsonObject jsonContents;
-    theContents->outputToJSON(jsonContents);
-    jsonObjectTop["Components"] = jsonContents;
+    QJsonObject jsonLossModel;
+    theLossModel->outputToJSON(jsonLossModel);
+    jsonObjectTop["LossModel"] = jsonLossModel;
+
+    QJsonObject appsDL;
+    theLossModel->outputAppDataToJSON(appsDL);
+    apps["Loss"] = appsDL;
     
     return true;
 }
@@ -345,6 +349,12 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     if (jsonObject.contains("StructuralInformation")) {
         QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
         theSIM->inputFromJSON(jsonObjStructuralInformation);
+    } else
+        return false;
+
+    if (jsonObject.contains("LossModel")) {
+        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
+        theLossModel->inputFromJSON(jsonObjLossModel);
     } else
         return false;
 
@@ -403,6 +413,12 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             theAnalysis->inputAppDataFromJSON(theObject);
+        } else
+            return false;
+
+        if (theApplicationObject.contains("Loss")) {
+            QJsonObject theObject = theApplicationObject["Loss"].toObject();
+            theLossModel->inputAppDataFromJSON(theObject);
         } else
             return false;
 

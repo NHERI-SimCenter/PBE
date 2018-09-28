@@ -27,15 +27,20 @@ SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
     Components/Component.cpp \
-    Components/ComponentContainer.cpp
+    Components/ComponentContainer.cpp \
+    Components/CollapseMode.cpp \
+    Components/CollapseModeContainer.cpp \
+    Components/LossModelContainer.cpp
 
 
 HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
     Components/Component.h \
-    Coponents/ComponentContainer.h \
-    Components/ComponentContainer.h
+    Components/ComponentContainer.h \
+    Components/CollapseMode.h \
+    Components/CollapseModeContainer.h \
+    Components/LossModelContainer.h
 
 
 RESOURCES += \

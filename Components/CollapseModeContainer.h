@@ -1,5 +1,5 @@
-#ifndef COMPONENT_CONTAINER_H
-#define COMPONENT_CONTAINER_H
+#ifndef COLLAPSE_MODE_CONTAINER_H
+#define COLLAPSE_MODE_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -44,15 +44,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class RandomVariableInputWidget;
 class QVBoxLayout;
-class Component;
+class CollapseMode;
 
-class ComponentContainer : public SimCenterAppWidget
+class CollapseModeContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit ComponentContainer(RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
+    explicit CollapseModeContainer(
+      RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
 
-    ~ComponentContainer();
+    ~CollapseModeContainer();
 
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
@@ -60,16 +61,16 @@ public:
 
 public slots:
    void errorMessage(QString message);
-   void addComponent(void);
-   void removeComponents(void);
+   void addCollapseMode(void);
+   void removeCollapseModes(void);
    void clear(void);
 
 private:
     QVBoxLayout *verticalLayout;
     QVBoxLayout *eventLayout;
 
-    QVector<Component *>theComponents;
+    QVector<CollapseMode *>theCollapseModes;
     RandomVariableInputWidget *theRandVariableIW;
 };
 
-#endif // COMPONENT_CONTAINER_H
+#endif // COLLAPSE_MODE_CONTAINER_H

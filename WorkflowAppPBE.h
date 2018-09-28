@@ -47,7 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
-#include <Components/ComponentContainer.h>
+#include <Components/LossModelContainer.h>
 
 class RandomVariableInputWidget;
 //class InputWidgetSheetSIM;
@@ -115,7 +115,7 @@ private:
     InputWidgetSampling *theUQ;
     InputWidgetEarthquakeEvent *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
-    ComponentContainer *theContents;
+    LossModelContainer *theLossModel;
     DakotaResults *theResults;
 
     RunWidget *theRunWidget;
