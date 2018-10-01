@@ -47,6 +47,7 @@ class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QLabel;
+class QVBoxLayout;
 class QHBoxLayout;
 class RandomVariableDistribution;
 class RandomVariableInputWidget;
@@ -84,7 +85,7 @@ public:
      * @param[in] inputObject Read general settings contents from this object
      * @return Returns true if successfull, false otherwise
      */
-    virtual bool inputFromJSON(const QJsonObject & inputObject);
+    virtual bool inputFromJSON(QJsonObject &inputObject);
 
     /*!
      * Get the name of the general settings
@@ -99,13 +100,33 @@ public slots:
        
 private:
 
-    QLineEdit * generalName; /*!< Line edit widget to input general settings name */
-    QLineEdit * generalProbability; /*!< Line edit widget to input general settings ID */
-    QLineEdit * generalAffectedArea; /*!< Line edit widget to input general settings quantity */
-    QLineEdit * generalInjuries; /*!< Line edit widget to input general settings coefficient of variation */
-    
-    QRadioButton *button; /*!< Button for selecting general settings */
-    QHBoxLayout *mainLayout; /*!< Main layout for general settings */
+    QLineEdit * yieldDriftValue; /*!< Line edit widget to input general settings coefficient of variation */
+    QLineEdit * driftDetLim;
+    QLineEdit * accDetLim;
+    QLineEdit * irrepResDriftMedian;
+    QLineEdit * irrepResDriftStd;
+    QLineEdit * driftColLim;
+    QLineEdit * accColLim;
+    QLineEdit * realizationsValue;
+    QLineEdit * addedUncertaintyGM;
+    QLineEdit * addedUncertaintyModel;
+    QLineEdit * peakPopulation;
+    QLineEdit * replacementCostValue;
+    QLineEdit * replacementTimeValue;
+    QComboBox * quantityDep;
+    QComboBox * costDep;
+    QComboBox * timeDep;
+    QComboBox * injuryDep;
+    QComboBox * redTagDep;
+    QComboBox * occupancyType;
+    QCheckBox * costAndTimeDep;
+    QCheckBox * injSeverityDep;
+    QCheckBox * needRecCost;
+    QCheckBox * needRecTime;
+    QCheckBox * needInjuries;
+    QCheckBox * needRedTag;
+
+    QVBoxLayout *mainLayout; /*!< Main layout for general settings */
 
     RandomVariableInputWidget *theRandVariableIW;
 };

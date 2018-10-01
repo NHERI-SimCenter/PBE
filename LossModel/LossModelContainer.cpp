@@ -104,15 +104,12 @@ LossModelContainer::~LossModelContainer()
 bool
 LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 {
-    QJsonObject componentData;
-    QJsonObject collapseModeData;
-
     // need to save data from all widgets
+    theGeneralSettingsContainer->outputToJSON(jsonObject);
+
     theComponentContainer->outputToJSON(jsonObject);
 
     theCollapseModeContainer->outputToJSON(jsonObject);
-
-    // other loss settings will come here
 
     return true;
 }
@@ -120,6 +117,12 @@ LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 bool
 LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 {
+    theGeneralSettingsContainer->inputFromJSON(jsonObject);
+    if (jsonObject.contains("DecisionVariables")) {
+        theGeneralSettingsContainer->inputFromJSON(jsonObject);
+    } else
+        return false;
+
     if (jsonObject.contains("Components")) {
         if (jsonObject["Components"].isArray()) {
             theComponentContainer->inputFromJSON(jsonObject);
@@ -135,9 +138,7 @@ LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
             return false;
     } else
         return false;
-
-    // other loss settings will come here
-
+        
     return 0;
 }
 
