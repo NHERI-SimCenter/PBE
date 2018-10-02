@@ -243,6 +243,20 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
 
     dependencyFormLayout->addItem(spacerGroups);
 
+    // fragilities
+    fragilityDep = new QComboBox(this);
+    fragilityDep->setToolTip(tr("Some tooltip"));
+    fragilityDep->addItem("btw. Performance Groups",0);
+    fragilityDep->addItem("btw. Floors",1);
+    fragilityDep->addItem("btw. Directions",2);
+    fragilityDep->addItem("btw. Damage States",3);
+    fragilityDep->addItem("Independent",4);
+    fragilityDep->addItem("per ATC recommendation",5);
+    fragilityDep->setCurrentIndex(5);
+    dependencyFormLayout->addRow(tr("    component fragilities"), fragilityDep);
+
+    dependencyFormLayout->addItem(spacerGroups);
+
     // reconstruction cost
     costDep = new QComboBox(this);
     costDep->setToolTip(tr("Some tooltip"));
@@ -494,6 +508,7 @@ bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     // loss model dependencies ------------------------------------------------
 
     dependencies["Quantities"] = quantityDep->currentText();
+    dependencies["Fragilities"] = fragilityDep->currentText();
     dependencies["ReconstructionCosts"] = costDep->currentText();
     dependencies["ReconstructionTimes"] = timeDep->currentText();
     dependencies["CostAndTime"] = costAndTimeDep->isChecked();
@@ -572,6 +587,7 @@ bool GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
     QJsonObject dependencies = inputObject["LossModelDependencies"].toObject();
 
     quantityDep->setCurrentText(dependencies["Quantities"].toString());
+    fragilityDep->setCurrentText(dependencies["Fragilities"].toString());
     costDep->setCurrentText(dependencies["ReconstructionCosts"].toString());
     timeDep->setCurrentText(dependencies["ReconstructionTimes"].toString());
     costAndTimeDep->setChecked(dependencies["CostAndTime"].toBool());

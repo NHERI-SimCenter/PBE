@@ -100,7 +100,7 @@ public slots:
        
 private:
 
-    QLineEdit * yieldDriftValue; /*!< Line edit widget to input general settings coefficient of variation */
+    QLineEdit * yieldDriftValue; /*!<  */
     QLineEdit * driftDetLim;
     QLineEdit * accDetLim;
     QLineEdit * irrepResDriftMedian;
@@ -114,6 +114,7 @@ private:
     QLineEdit * replacementCostValue;
     QLineEdit * replacementTimeValue;
     QComboBox * quantityDep;
+    QComboBox * fragilityDep;
     QComboBox * costDep;
     QComboBox * timeDep;
     QComboBox * injuryDep;
