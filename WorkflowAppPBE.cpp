@@ -215,6 +215,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // set current selection to GI
     treeView->setCurrentIndex( infoItemIdx );
 
+    //UA-126256136-1
+
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
