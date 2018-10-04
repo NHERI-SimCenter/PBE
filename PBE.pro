@@ -15,6 +15,7 @@ win32:LIBS += C:\Users\SimCenter\libCurl-7.59.0/lib/libcurl.lib
 linux:LIBS += /usr/lib/x86_64-linux-gnu/libcurl.so
 
 include(../EE-UQ/EE-UQ.pri)
+include(../EE-UQ/ZipUtils/ZipUtils.pri)
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
@@ -25,16 +26,23 @@ INCLUDEPATH += "./Component"
 SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
-    Components/Component.cpp \
-    Components/ComponentContainer.cpp
+    LossModel/Component.cpp \
+    LossModel/ComponentContainer.cpp \
+    LossModel/CollapseMode.cpp \
+    LossModel/CollapseModeContainer.cpp \
+    LossModel/GeneralSettingsContainer.cpp \
+    LossModel/LossModelContainer.cpp
 
 
 HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
-    Components/Component.h \
-    Coponents/ComponentContainer.h \
-    Components/ComponentContainer.h
+    LossModel/Component.h \
+    LossModel/ComponentContainer.h \
+    LossModel/CollapseMode.h \
+    LossModel/CollapseModeContainer.h \
+    LossModel/GeneralSettingsContainer.h \
+    LossModel/LossModelContainer.h
 
 
 RESOURCES += \
