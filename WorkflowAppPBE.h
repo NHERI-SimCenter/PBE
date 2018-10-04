@@ -47,11 +47,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
-#include <Components/LossModelContainer.h>
+#include <LossModel/LossModelContainer.h>
 
 class RandomVariableInputWidget;
 //class InputWidgetSheetSIM;
-class InputWidgetBIM_Selection;
+class SIM_Selection;
 class InputWidgetSampling;
 class EarthquakeLoadingInput;
 class InputWidgetOpenSeesAnalysis;
@@ -66,6 +66,9 @@ class RunWidget;
 class Application;
 class RemoteService;
 class RemoteJobManager;
+class InputWidgetBIM;
+class InputWidgetUQ;
+class QNetworkAccessManager;
 
 class DakotaResults;
 
@@ -85,6 +88,7 @@ public:
     void onRemoteRunButtonClicked();
     void onRemoteGetButtonClicked();
     void onExitButtonClicked();
+    int getMaxNumParallelTasks();
     
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile);
@@ -107,16 +111,21 @@ private:
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
     QStandardItemModel *standardModel;
+    QStandardItem *rootNode;
 
     GeneralInformationWidget *theGI;
     RandomVariableInputWidget *theRVs;
 
-    InputWidgetBIM_Selection *theSIM;
-    InputWidgetSampling *theUQ;
+    SIM_Selection *theSIM;
+    InputWidgetSampling *theUQ_Method;
     InputWidgetEarthquakeEvent *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
     LossModelContainer *theLossModel;
     DakotaResults *theResults;
+
+    // other widgets appearing in UI
+    InputWidgetBIM *theBIM; // contains GI and SIM
+    InputWidgetUQ *theUQ;
 
     RunWidget *theRunWidget;
     Application *localApp;
@@ -128,6 +137,7 @@ private:
     QJsonObject *jsonObjOrig;
 
     QStackedWidget *theStackedWidget;
+    QNetworkAccessManager *manager;
 };
 
 #endif // WORKFLOW_APP_PBE_H
