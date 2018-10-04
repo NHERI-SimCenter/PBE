@@ -14,6 +14,14 @@ win32:INCLUDEPATH += "c:\Users\SimCenter\libCurl-7.59.0\include"
 win32:LIBS += C:\Users\SimCenter\libCurl-7.59.0/lib/libcurl.lib
 linux:LIBS += /usr/lib/x86_64-linux-gnu/libcurl.so
 
+win32 {
+    RC_ICONS = icons/NHERI-PBE-Icon.ico
+} else {
+    mac {
+    ICON = icons/NHERI-PBE-Icon.icns
+    }
+}
+
 include(../EE-UQ/EE-UQ.pri)
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
