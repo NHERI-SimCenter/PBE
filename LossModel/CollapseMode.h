@@ -1,5 +1,5 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef COLLAPSE_MODE_H
+#define COLLAPSE_MODE_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
-// Adapted: mhgardner
+// Written: fmckenna, adamzs
 
 #include <QCheckBox>
 
@@ -53,49 +52,49 @@ class RandomVariableDistribution;
 class QRadioButton;
 
 /*!
- * Widget for components in PBE tool
+ * Widget for collapse modes in PBE tool
  */
-class Component : public SimCenterWidget
+class CollapseMode : public SimCenterWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of Component
+     * @param[in] parent Parent widget of CollapseMode
      */
-    explicit Component(QWidget *parent = 0);
+    explicit CollapseMode(QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~Component();
+    virtual ~CollapseMode();
 
     /*!
-     * Writes component contents to JSON
-     * @param[in, out] outputObject Write contents of component to this object
+     * Writes collapse mode contents to JSON
+     * @param[in, out] outputObject Write contents of collapse mode to this object
      * @return Returns true if successful, false otherwise
      */
     virtual bool outputToJSON(QJsonObject &outputObject);
 
     /*!
-     * Reads component contents from JSON
-     * @param[in] inputObject Read component contents from this object
+     * Reads collapse mode contents from JSON
+     * @param[in] inputObject Read collapse mode contents from this object
      * @return Returns true if successfull, false otherwise
      */
     virtual bool inputFromJSON(const QJsonObject & inputObject);
 
     /*!
-     * Checks whether button has been checked to remove component
+     * Checks whether button has been checked to remove collapse mode
      * @return Current state of button
      */
     bool isSelectedForRemoval() const;
 
     /*!
-     * Get the name of the component
-     * @return Returns the name of the component as a QString
+     * Get the name of the collapse mode
+     * @return Returns the name of the collapse mode as a QString
      */
-    QString getComponentName() const;
+    QString getCollapseModeName() const;
 
     
 signals:
@@ -104,16 +103,13 @@ public slots:
        
 private:
 
-    QLineEdit * componentName; /*!< Line edit widget to input component name */
-    QLineEdit * componentQuantity; /*!< Line edit widget to input component quantity */
-    QLineEdit * componentCov; /*!< Line edit widget to input component coefficient of variation */
-    QComboBox * unitComboBox; /*!< Combo box for selcecting unit type as either linear or square feet */
-    QCheckBox * structuralCheckBox; /*!< Check box to indicate if component is structural */
-    QLineEdit * componentDirections; /*!< Line edit where directions are entered */
-    QLineEdit * componentWeights; /*!< Line edit to enter weights for each direction */
-
-    QRadioButton *button; /*!< Button for selecting component */
-    QHBoxLayout *mainLayout; /*!< Main layout for component */
+    QLineEdit * collapseModeName; /*!< Line edit widget to input collapse mode name */
+    QLineEdit * collapseModeProbability; /*!< Line edit widget to input collapse mode ID */
+    QLineEdit * collapseModeAffectedArea; /*!< Line edit widget to input collapse mode quantity */
+    QLineEdit * collapseModeInjuries; /*!< Line edit widget to input collapse mode coefficient of variation */
+    
+    QRadioButton *button; /*!< Button for selecting collapse mode */
+    QHBoxLayout *mainLayout; /*!< Main layout for collapse mode */
 };
 
-#endif // COMPONENT_H
+#endif // COLLAPSE_MODE_H

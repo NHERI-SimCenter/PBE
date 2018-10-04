@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, adamzs
 
 #include "ComponentContainer.h"
 #include "Component.h"
@@ -62,7 +62,7 @@ ComponentContainer::ComponentContainer(RandomVariableInputWidget *theRV_IW, QWid
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *title=new SectionTitle();
-    title->setText(tr("List of Components"));
+    title->setText(tr("list of components"));
     title->setMinimumWidth(250);
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
@@ -70,13 +70,13 @@ ComponentContainer::ComponentContainer(RandomVariableInputWidget *theRV_IW, QWid
     QPushButton *addComponent = new QPushButton();
     addComponent->setMinimumWidth(75);
     addComponent->setMaximumWidth(75);
-    addComponent->setText(tr("Add"));
+    addComponent->setText(tr("add"));
     connect(addComponent,SIGNAL(clicked()),this,SLOT(addInputWidgetExistingComponent()));
 
     QPushButton *removeComponent = new QPushButton();
     removeComponent->setMinimumWidth(75);
     removeComponent->setMaximumWidth(75);
-    removeComponent->setText(tr("Remove"));
+    removeComponent->setText(tr("remove"));
     connect(removeComponent,SIGNAL(clicked()),this,SLOT(removeInputWidgetExistingComponent()));
 
     titleLayout->addWidget(title);
@@ -157,8 +157,8 @@ ComponentContainer::clear(void)
 bool
 ComponentContainer::outputToJSON(QJsonObject &jsonObject)
 {
-    jsonObject["ComponentClassification"]="Earthquake";
-    jsonObject["type"] = "ComponentContainer";
+    //jsonObject["ComponentClassification"]="Earthquake";
+    //jsonObject["type"] = "ComponentContainer";
 
     bool result = true;
     QJsonArray theArray;
@@ -177,67 +177,29 @@ ComponentContainer::outputToJSON(QJsonObject &jsonObject)
 }
 
 bool
-ComponentContainer::inputFromJSON(QJsonObject &rvObject)
+ComponentContainer::inputFromJSON(QJsonObject &rvObj)
 {
   bool result = true;
 
   // clean out current list
   this->clear();
 
-  //
-  // go get InputWidgetExistingComponents array from the JSON object
-  // for each object in array:
-  //    1)get it'is type,
-  //    2)instantiate one
-  //    4) get it to input itself
-  //    5) finally add it to layout
-  //
+  QJsonArray rvArray = rvObj["Components"].toArray();
+  // foreach object in array
+  foreach (const QJsonValue &rvValue, rvArray) {
 
-  // get array
+      QJsonObject rvObject = rvValue.toObject();
+      Component *theComponent = new Component();
 
-  if (rvObject.contains("Components"))
-      if (rvObject["Components"].isArray()) {
-
-          QJsonArray rvArray = rvObject["Components"].toArray();
-
-          // foreach object in array
-          foreach (const QJsonValue &rvValue, rvArray) {
-
-              QJsonObject rvObject = rvValue.toObject();
-              Component *theComponent = new Component();
-
-              if (theComponent->inputFromJSON(rvObject)) { // this method is where type is set
-                  theComponents.append(theComponent);
-                  eventLayout->insertWidget(eventLayout->count()-1, theComponent);
-              } else {
-                  result = false;
-              }
-          }
+      if (theComponent->inputFromJSON(rvObject)) { // this method is where type is set
+          theComponents.append(theComponent);
+          eventLayout->insertWidget(eventLayout->count()-1, theComponent);
+      } else {
+          result = false;
       }
-
+  }
 
   return result;
-}
-
-
-bool
-ComponentContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
-
-    //
-    // per API, need to add name of application to be called in AppLication
-    // and all data to be used in ApplicationDate
-    //
-
-    jsonObject["ComponentClassification"]="Earthquake";
-    jsonObject["Application"] = "ComponentContainer";
-    QJsonObject dataObj;
-    jsonObject["ApplicationData"] = dataObj;
-    return true;
-}
-
-bool
-ComponentContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
 }
 
 bool 

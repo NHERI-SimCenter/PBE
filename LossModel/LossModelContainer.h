@@ -1,5 +1,5 @@
-#ifndef COMPONENT_CONTAINER_H
-#define COMPONENT_CONTAINER_H
+#ifndef LOSS_MODEL_CONTAINER_H
+#define LOSS_MODEL_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,22 +37,26 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, adamzs
 
-#include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
-class RandomVariableInputWidget;
-class QVBoxLayout;
-class Component;
+#include <QGroupBox>
 
-class ComponentContainer : public SimCenterAppWidget
+class QComboBox;
+class QStackedWidget;
+class QVBoxLayout;
+
+class RandomVariableInputWidget;
+
+class LossModelContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit ComponentContainer(RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
+    explicit LossModelContainer(
+      RandomVariableInputWidget *theRV_IW, QWidget *parent = 0);
 
-    ~ComponentContainer();
+    ~LossModelContainer();
 
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
@@ -61,17 +65,20 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-   void errorMessage(QString message);
-   void addComponent(void);
-   void removeComponents(void);
-   void clear(void);
+    void eventSelectionChanged(const QString &arg1);
+    void errorMessage(QString message);
 
 private:
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *eventLayout;
+    QComboBox *eventSelection;
 
-    QVector<Component *>theComponents;
     RandomVariableInputWidget *theRandVariableIW;
+
+    QStackedWidget *theStackedWidget;
+    SimCenterAppWidget *theCurrentEvent;
+    SimCenterAppWidget *theExistingEvents;
+    SimCenterAppWidget *theGeneralSettingsContainer;
+    SimCenterAppWidget *theComponentContainer;
+    SimCenterAppWidget *theCollapseModeContainer;
 };
 
-#endif // COMPONENT_CONTAINER_H
+#endif // LOSS_MODEL_CONTAINER_H
