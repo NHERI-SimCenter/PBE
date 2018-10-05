@@ -312,6 +312,14 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
    // wait till release manager->post(request, requestParams.toStdString().c_str());
     //UA-126256136-1
 
+    QFile fileS(":/styles/stylesheet.qss");
+    if(fileS.open(QFile::ReadOnly)) {
+        treeView->setStyleSheet(fileS.readAll());
+        fileS.close();
+    }
+    else
+        qDebug() << "Open Style File Failed!";
+
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
