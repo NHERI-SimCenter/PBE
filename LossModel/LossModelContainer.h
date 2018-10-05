@@ -65,17 +65,18 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-    void eventSelectionChanged(const QString &arg1);
+    //void eventSelectionChanged(const QString &arg1);
     void errorMessage(QString message);
 
 private:
-    QComboBox *eventSelection;
-
     RandomVariableInputWidget *theRandVariableIW;
-
+    
+    /*
+    QComboBox *eventSelection;
     QStackedWidget *theStackedWidget;
     SimCenterAppWidget *theCurrentEvent;
     SimCenterAppWidget *theExistingEvents;
+    */
     SimCenterAppWidget *theGeneralSettingsContainer;
     SimCenterAppWidget *theComponentContainer;
     SimCenterAppWidget *theCollapseModeContainer;
