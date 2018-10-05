@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
     a.setStyleSheet(styleSheet);
   }
 
-  w.setStyleSheet("QLineEdit {background: #FFFFFF;}");
-  w.setStyleSheet("QComboBox {background: #FFFFFF;} QLineEdit {background: #FFFFFF}");
-
+  theInputApp->setStyleSheet("QComboBox {background: #FFFFFF;} \
+QLineEdit {background-color: #FFFFFF;background-radius: 5px; border: 2px solid darkgray;} \
+QTabWidget::pane {background-color: #F4F4F4; border: 1px solid rgb(239, 239, 239);}");
 
   int res = a.exec();
 
