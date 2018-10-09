@@ -39,7 +39,8 @@ SOURCES += main.cpp \
     LossModel/CollapseMode.cpp \
     LossModel/CollapseModeContainer.cpp \
     LossModel/GeneralSettingsContainer.cpp \
-    LossModel/LossModelContainer.cpp
+    LossModel/LossModelContainer.cpp \
+    ResultsPelicun.cpp
 
 
 HEADERS  += \
@@ -50,7 +51,8 @@ HEADERS  += \
     LossModel/CollapseMode.h \
     LossModel/CollapseModeContainer.h \
     LossModel/GeneralSettingsContainer.h \
-    LossModel/LossModelContainer.h
+    LossModel/LossModelContainer.h \
+    ResultsPelicun.h
 
 
 RESOURCES += \

@@ -56,7 +56,7 @@ class InputWidgetSampling;
 class EarthquakeLoadingInput;
 class InputWidgetOpenSeesAnalysis;
 class UQOptions;
-class ResultsWidget;
+class ResultsPelicun;
 class GeneralInformationWidget;
 class InputWidgetEarthquakeEvent;
 class QStackedWidget;
@@ -102,7 +102,7 @@ public slots:
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
     void setUpForApplicationRun(QString &, QString &);
-    void processResults(QString dakotaOut, QString dakotaTab);
+    void processResults(QString dakotaOut, QString dakotaTab, QString inputFile);
 
     void loadFile(QString filename);
 
@@ -121,7 +121,7 @@ private:
     InputWidgetEarthquakeEvent *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
     LossModelContainer *theLossModel;
-    DakotaResults *theResults;
+    ResultsPelicun *theResults;
 
     // other widgets appearing in UI
     InputWidgetBIM *theBIM; // contains GI and SIM

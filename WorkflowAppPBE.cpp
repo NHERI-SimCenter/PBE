@@ -80,9 +80,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <InputWidgetUQ.h>
+#include <ResultsPelicun.h>
 
 #include "CustomizedItemModel.h"
-#include <DakotaResultsSampling.h>
+#include <ResultsPelicun.h>
 
 // static pointer for global procedure set in constructor
 static WorkflowAppPBE *theApp = 0;
@@ -109,7 +110,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Method = new InputWidgetSampling();
     theLossModel = new LossModelContainer(theRVs);
-    theResults = new DakotaResultsSampling();
+    theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("PBE.py");
     remoteApp = new RemoteApplication(theService);
@@ -159,11 +160,11 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
     connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
-    connect(localApp,SIGNAL(processResults(QString, QString)), this, SLOT(processResults(QString, QString)));
+    connect(localApp,SIGNAL(processResults(QString, QString, QString)), this, SLOT(processResults(QString, QString, QString)));
 
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(theJobManager,SIGNAL(processResults(QString , QString)), this, SLOT(processResults(QString, QString)));
+    connect(theJobManager,SIGNAL(processResults(QString , QString, QString)), this, SLOT(processResults(QString, QString, QString)));
     connect(theJobManager,SIGNAL(loadFile(QString)), this, SLOT(loadFile(QString)));
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
@@ -421,11 +422,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 
  void
- WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab){
+ WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-      theResults->processResults(dakotaOut, dakotaTab);
-      theRunWidget->hide();
-      theStackedWidget->setCurrentIndex(4);
+   theResults->processResults(dakotaOut, dakotaTab, inputFile);
+   theRunWidget->hide();
+   theStackedWidget->setCurrentIndex(5);
  }
 
 void
