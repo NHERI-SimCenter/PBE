@@ -588,7 +588,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     // and copy all files needed to this directory by invoking copyFiles() on app widgets
     //
 
-    QString tmpDirectory = workingDir + QDir::separator() + QString("tmp.SimCenter"); // + QDir::separator() + QString("templatedir");
+    QString tmpDirName = QString("tmp.SimCenter");
+    qDebug() << "TMP_DIR: " << tmpDirName;
+    QDir workDir(workingDir);
+
+    QString tmpDirectory = workDir.absoluteFilePath(tmpDirName);
     QDir destinationDirectory(tmpDirectory);
 
     if(destinationDirectory.exists()) {
@@ -596,10 +600,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     } else
       destinationDirectory.mkpath(tmpDirectory);
 
-    QString templateDirectory  = tmpDirectory + QDir::separator() + subDir;
+    QString templateDirectory  = destinationDirectory.absoluteFilePath(subDir);
     destinationDirectory.mkpath(templateDirectory);
 
-    // copyPath(path, tmpDirectory, false);
+    qDebug() << "templateDir: " << templateDirectory;
+
     theSIM->copyFiles(templateDirectory);
     theEvent->copyFiles(templateDirectory);
     theAnalysis->copyFiles(templateDirectory);
