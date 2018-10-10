@@ -80,9 +80,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <InputWidgetUQ.h>
+#include <ResultsPelicun.h>
 
 #include "CustomizedItemModel.h"
-#include <DakotaResultsSampling.h>
+#include <ResultsPelicun.h>
 
 // static pointer for global procedure set in constructor
 static WorkflowAppPBE *theApp = 0;
@@ -109,7 +110,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Method = new InputWidgetSampling();
     theLossModel = new LossModelContainer(theRVs);
-    theResults = new DakotaResultsSampling();
+    theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("PBE.py");
     remoteApp = new RemoteApplication(theService);
@@ -159,11 +160,11 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
     connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
-    connect(localApp,SIGNAL(processResults(QString, QString)), this, SLOT(processResults(QString, QString)));
+    connect(localApp,SIGNAL(processResults(QString, QString, QString)), this, SLOT(processResults(QString, QString, QString)));
 
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(theJobManager,SIGNAL(processResults(QString , QString)), this, SLOT(processResults(QString, QString)));
+    connect(theJobManager,SIGNAL(processResults(QString , QString, QString)), this, SLOT(processResults(QString, QString, QString)));
     connect(theJobManager,SIGNAL(loadFile(QString)), this, SLOT(loadFile(QString)));
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
@@ -312,6 +313,14 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
    // wait till release manager->post(request, requestParams.toStdString().c_str());
     //UA-126256136-1
 
+    QFile fileS(":/styles/stylesheet.qss");
+    if(fileS.open(QFile::ReadOnly)) {
+        treeView->setStyleSheet(fileS.readAll());
+        fileS.close();
+    }
+    else
+        qDebug() << "Open Style File Failed!";
+
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
@@ -413,11 +422,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 
  void
- WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab){
+ WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-      theResults->processResults(dakotaOut, dakotaTab);
-      theRunWidget->hide();
-      theStackedWidget->setCurrentIndex(4);
+   theResults->processResults(dakotaOut, dakotaTab, inputFile);
+   theRunWidget->hide();
+   theStackedWidget->setCurrentIndex(5);
  }
 
 void
@@ -579,7 +588,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     // and copy all files needed to this directory by invoking copyFiles() on app widgets
     //
 
-    QString tmpDirectory = workingDir + QDir::separator() + QString("tmp.SimCenter"); // + QDir::separator() + QString("templatedir");
+    QString tmpDirName = QString("tmp.SimCenter");
+    qDebug() << "TMP_DIR: " << tmpDirName;
+    QDir workDir(workingDir);
+
+    QString tmpDirectory = workDir.absoluteFilePath(tmpDirName);
     QDir destinationDirectory(tmpDirectory);
 
     if(destinationDirectory.exists()) {
@@ -587,10 +600,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     } else
       destinationDirectory.mkpath(tmpDirectory);
 
-    QString templateDirectory  = tmpDirectory + QDir::separator() + subDir;
+    QString templateDirectory  = destinationDirectory.absoluteFilePath(subDir);
     destinationDirectory.mkpath(templateDirectory);
 
-    // copyPath(path, tmpDirectory, false);
+    qDebug() << "templateDir: " << templateDirectory;
+
     theSIM->copyFiles(templateDirectory);
     theEvent->copyFiles(templateDirectory);
     theAnalysis->copyFiles(templateDirectory);

@@ -50,15 +50,28 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "GeneralSettingsContainer.h"
 #include "ComponentContainer.h"
 #include "CollapseModeContainer.h"
+#include <QTabWidget.h>
 
 LossModelContainer::LossModelContainer(
     RandomVariableInputWidget *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
     QVBoxLayout *layout = new QVBoxLayout();
+    QTabWidget *theTab = new QTabWidget();
+    theGeneralSettingsContainer = new GeneralSettingsContainer(theRV_IW);
+    theTab->addTab(theGeneralSettingsContainer,"General");
 
+    // components
+    theComponentContainer = new ComponentContainer(theRV_IW);
+    theTab->addTab(theComponentContainer,"Components");
+    
+    // collapse modes
+    theCollapseModeContainer = new CollapseModeContainer(theRV_IW);
+    theTab->addTab(theCollapseModeContainer,"Collapse Modes");
+    layout->addWidget(theTab);
+
+    /*
     // add the combo with loss model input types
-
     QHBoxLayout *theLossSettingsLayout = new QHBoxLayout();
     QLabel *label = new QLabel();
     label->setText(QString("Loss Model Settings"));
@@ -89,11 +102,13 @@ LossModelContainer::LossModelContainer(
     theStackedWidget->addWidget(theCollapseModeContainer);
 
     layout->addWidget(theStackedWidget);
-    this->setLayout(layout);
+
     theCurrentEvent=theExistingEvents;
 
     connect(eventSelection, SIGNAL(currentIndexChanged(QString)), this,
         SLOT(eventSelectionChanged(QString)));
+    */
+    this->setLayout(layout);
 }
 
 LossModelContainer::~LossModelContainer()
@@ -162,6 +177,7 @@ LossModelContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
+/*
 void
 LossModelContainer::eventSelectionChanged(const QString &arg1)
 {
@@ -186,7 +202,7 @@ LossModelContainer::eventSelectionChanged(const QString &arg1)
         "ERROR .. LossModelContainer selection .. type unknown: " << arg1;
     }
 }
-
+*/
 bool 
 LossModelContainer::copyFiles(QString &dirName) {
     return true;

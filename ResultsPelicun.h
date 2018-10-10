@@ -1,5 +1,5 @@
-#ifndef LOSS_MODEL_CONTAINER_H
-#define LOSS_MODEL_CONTAINER_H
+#ifndef RESULTS_PELICUN_H
+#define RESULTS_PELICUN_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,49 +37,51 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include <SimCenterWidget.h>
+#include <QtCharts/QChart>
+using namespace QtCharts;
 
-#include <QGroupBox>
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
 
-class QComboBox;
-class QStackedWidget;
-class QVBoxLayout;
-
-class RandomVariableInputWidget;
-
-class LossModelContainer : public SimCenterAppWidget
+class ResultsPelicun : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit LossModelContainer(
-      RandomVariableInputWidget *theRV_IW, QWidget *parent = 0);
+    explicit ResultsPelicun(QWidget *parent = 0);
+    ~ResultsPelicun();
 
-    ~LossModelContainer();
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    int processResults(QString filenameResults, QString filenameTab, QString inputFile);
+
+signals:
 
 public slots:
-    //void eventSelectionChanged(const QString &arg1);
-    void errorMessage(QString message);
+   void clear(void);
+   void onSpreadsheetCellClicked(int, int);
 
 private:
-    RandomVariableInputWidget *theRandVariableIW;
-    
-    /*
-    QComboBox *eventSelection;
-    QStackedWidget *theStackedWidget;
-    SimCenterAppWidget *theCurrentEvent;
-    SimCenterAppWidget *theExistingEvents;
-    */
-    SimCenterAppWidget *theGeneralSettingsContainer;
-    SimCenterAppWidget *theComponentContainer;
-    SimCenterAppWidget *theCollapseModeContainer;
+   void getColData(QVector<double> &data, int numRow, int col);
+   QWidget *createSummaryItem(QString &name, double mean, double stdDev, int valueType);
+
+   QTabWidget *tabWidget;
+   QTextEdit  *dakotaText;
+   MyTableWidget *spreadsheet;
+   QChart *chart;
+
+   int col1, col2;
+   bool mLeft;
+   QStringList theHeadings;
+
+   QVector<QString>theNames;
+   QVector<double>theMeans;
+   QVector<double>theStdDevs;
+   int dataType; // min/max or mean/stdDev
 };
 
-#endif // LOSS_MODEL_CONTAINER_H
+#endif // RESULTS_PELICUN_H
