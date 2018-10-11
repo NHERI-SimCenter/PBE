@@ -61,20 +61,21 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     QVBoxLayout *mainV2Layout = new QVBoxLayout();
     QVBoxLayout *mainV3Layout = new QVBoxLayout();
 
+
     // title -------------------------------------------------------------------
     SectionTitle *title = new SectionTitle();
-    title->setText(tr("general settings"));
+    title->setText(tr("General Settings"));
     //title->setMinimumWidth(300);
     //title->setMaximumWidth(300);
-    QSpacerItem *spacerTop = new QSpacerItem(10,30);
-    QSpacerItem *spacerGroups = new QSpacerItem(10,10);
-    QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
-    QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
+
+    QSpacerItem *spacerTop1 = new QSpacerItem(10,30);
+    // QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
+    // QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
 
     // building response -------------------------------------------------------
-    QGroupBox * responseGroupBox = new QGroupBox("building response", this);
-    QFormLayout * responseFormLayout = new QFormLayout(responseGroupBox);
-    
+    QGroupBox * responseGroupBox = new QGroupBox("Building Response");
+    QFormLayout * responseFormLayout = new QFormLayout();
+
     // add elements
 
     // yield drift
@@ -82,37 +83,40 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     yieldDriftValue->setToolTip(tr("Interstory drift ratio corresponding to significant yielding (i.e. when the forces in the main components of the lateral load resisting system reach the plastic capacity of the components) in the structure."));
     yieldDriftValue->setText("0.01");
     yieldDriftValue->setAlignment(Qt::AlignRight);
-    responseFormLayout->addRow(tr("    yield drift ratio"), yieldDriftValue);
+    responseFormLayout->addRow(tr("    Yield Drift Ratio"), yieldDriftValue);
 
-    responseFormLayout->addItem(spacerGroups);
+    QSpacerItem *spacerGroups1 = new QSpacerItem(10,10);
+    responseFormLayout->addItem(spacerGroups1);
 
      // detection limits
     QLabel *detLimLabel = new QLabel();
-    detLimLabel->setText(tr("detection limits:"));
+    detLimLabel->setText(tr("Detection Limits:"));
     responseFormLayout->addRow(detLimLabel);
 
     driftDetLim = new QLineEdit();
     driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the response estimation method can provide reliably."));    
     driftDetLim->setText("0.15");
     driftDetLim->setAlignment(Qt::AlignRight);
-    responseFormLayout->addRow(tr("    interstory drift"), driftDetLim);
-    
+    responseFormLayout->addRow(tr("    Interstory Drift"), driftDetLim);
+
     accDetLim = new QLineEdit();
     accDetLim->setToolTip(tr("Maximum floor acceleration that the response estimation method can provide reliably."));    
     accDetLim->setText("");
     accDetLim->setAlignment(Qt::AlignRight);
-    responseFormLayout->addRow(tr("    floor acceleration"), accDetLim);
-    
-    responseFormLayout->addItem(spacerGroups);
+    responseFormLayout->addRow(tr("    Floor Acceleration"), accDetLim);
+
+    QSpacerItem *spacerGroups2 = new QSpacerItem(10,10);
+    responseFormLayout->addItem(spacerGroups2);
 
     // set style
     responseFormLayout->setAlignment(Qt::AlignLeft);
     responseFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     responseFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+    responseGroupBox->setLayout(responseFormLayout);
 
     // building damage -------------------------------------------------------
-    QGroupBox * damageGroupBox = new QGroupBox("building damage and loss", this);
+    QGroupBox * damageGroupBox = new QGroupBox("Building Damage and Loss");
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
     
     // add elements
@@ -122,54 +126,57 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     replacementCostValue->setToolTip(tr("Some tooltip"));
     replacementCostValue->setText("");
     replacementCostValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    replacement cost"), replacementCostValue);
+    damageFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
 
     // replacement cost
     replacementTimeValue = new QLineEdit();
     replacementTimeValue->setToolTip(tr("Some tooltip"));
     replacementTimeValue->setText("");
     replacementTimeValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    replacement time"), replacementTimeValue);
+    damageFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
 
-    damageFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups3 = new QSpacerItem(10,10);
+    damageFormLayout->addItem(spacerGroups3);
 
     // irrepairable residual drift
     QLabel *irrepResDriftLabel = new QLabel();
-    irrepResDriftLabel->setText(tr("irrepairable residual drift:"));
+    irrepResDriftLabel->setText(tr("Irrepairable Residual Drift:"));
     damageFormLayout->addRow(irrepResDriftLabel);
 
     irrepResDriftMedian = new QLineEdit();
     irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irrepairable damage in the building."));    
     irrepResDriftMedian->setText("0.15");
     irrepResDriftMedian->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    median"), irrepResDriftMedian);
+    damageFormLayout->addRow(tr("    Median"), irrepResDriftMedian);
     
     irrepResDriftStd = new QLineEdit();
     irrepResDriftStd->setToolTip(tr("Logarithmic standard deviation of the residual drift distribution conditioned on irrepairable damage in the building."));    
     irrepResDriftStd->setText("0.3");
     irrepResDriftStd->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    log standard dev"), irrepResDriftStd);
+    damageFormLayout->addRow(tr("    Log Standard Dev"), irrepResDriftStd);
     
-    damageFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups4 = new QSpacerItem(10,10);
+    damageFormLayout->addItem(spacerGroups4);
 
     // collapse limits
     QLabel *colLimLabel = new QLabel();
-    colLimLabel->setText(tr("collapse limits:"));
+    colLimLabel->setText(tr("Collapse Limits:"));
     damageFormLayout->addRow(colLimLabel);
 
     driftColLim = new QLineEdit();
     driftColLim->setToolTip(tr("Peak interstory drift ratio that corresponds to the collapse of the building."));    
     driftColLim->setText("0.15");
     driftColLim->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    interstory drift"), driftColLim);
+    damageFormLayout->addRow(tr("    Interstory Drift"), driftColLim);
     
     accColLim = new QLineEdit();
     accColLim->setToolTip(tr("Peak floor acceleration that corresponds to the collapse of the building."));    
     accColLim->setText("");
     accColLim->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    floor acceleration"), accColLim);
+    damageFormLayout->addRow(tr("    Floor Acceleration"), accColLim);
     
-    damageFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups5 = new QSpacerItem(10,10);
+    damageFormLayout->addItem(spacerGroups5);
 
     // set style
     damageFormLayout->setAlignment(Qt::AlignLeft);
@@ -178,7 +185,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
 
 
     // uncertainty quantification ----------------------------------------------
-    QGroupBox * uqGroupBox = new QGroupBox("uncertainty quantification", this);
+    QGroupBox * uqGroupBox = new QGroupBox("Uncertainty Quantification");
     QFormLayout * uqFormLayout = new QFormLayout(uqGroupBox);
     
     // add elements
@@ -188,13 +195,14 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     realizationsValue->setToolTip(tr("Number of simulated building-performance outcomes."));
     realizationsValue->setText("100000");
     realizationsValue->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    realizations"), realizationsValue);
+    uqFormLayout->addRow(tr("    Realizations"), realizationsValue);
 
-    uqFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups7 = new QSpacerItem(10,10);
+    uqFormLayout->addItem(spacerGroups7);
 
     // additional uncertainty
     QLabel *addedUncertaintyLabel = new QLabel();
-    addedUncertaintyLabel->setText(tr("additional uncertainty:"));
+    addedUncertaintyLabel->setText(tr("Additional Uncertainty:"));
     addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs to consider additional sources of uncertainty."));
     uqFormLayout->addRow(addedUncertaintyLabel);
 
@@ -202,15 +210,16 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));    
     addedUncertaintyGM->setText("0.1");
     addedUncertaintyGM->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    ground motion"), addedUncertaintyGM);
+    uqFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
     
     addedUncertaintyModel = new QLineEdit();
     addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));    
     addedUncertaintyModel->setText("0.1");
     addedUncertaintyModel->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    modeling"), addedUncertaintyModel);
+    uqFormLayout->addRow(tr("    Modeling"), addedUncertaintyModel);
     
-    uqFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
+    uqFormLayout->addItem(spacerGroups8);
 
     // set style
     uqFormLayout->setAlignment(Qt::AlignLeft);
@@ -218,20 +227,19 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     uqFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     // loss model dependencies -------------------------------------------------
-    QGroupBox * dependencyGroupBox = new QGroupBox("loss model dependencies", 
-                                                   this);
+    QGroupBox * dependencyGroupBox = new QGroupBox("Loss Model Dependencies");
     QFormLayout * dependencyFormLayout = new QFormLayout(dependencyGroupBox);
     
     // add elements
 
     // perfect correlation label
     QLabel *perfectCorrelationLabel = new QLabel();
-    perfectCorrelationLabel->setText(tr("perfect correlation in ..."));
+    perfectCorrelationLabel->setText(tr("Perfect Correlation in ..."));
     perfectCorrelationLabel->setToolTip(tr("Specify at which organizational level shall the following random variables be correlated. If no correlation is desired, choose Independent."));
     dependencyFormLayout->addRow(perfectCorrelationLabel);
 
     // quantities
-    quantityDep = new QComboBox(this);
+    quantityDep = new QComboBox();
     quantityDep->setToolTip(tr("Some tooltip"));
     quantityDep->addItem("btw. Fragility Groups",0);
     quantityDep->addItem("btw. Performance Groups",1);
@@ -239,12 +247,13 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     quantityDep->addItem("btw. Directions",3);
     quantityDep->addItem("Independent",4);
     quantityDep->setCurrentIndex(4);
-    dependencyFormLayout->addRow(tr("    component quantities"), quantityDep);
+    dependencyFormLayout->addRow(tr("    Component Quantities"), quantityDep);
 
-    dependencyFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups9 = new QSpacerItem(10,10);
+    dependencyFormLayout->addItem(spacerGroups9);
 
     // fragilities
-    fragilityDep = new QComboBox(this);
+    fragilityDep = new QComboBox();
     fragilityDep->setToolTip(tr("Some tooltip"));
     fragilityDep->addItem("btw. Performance Groups",0);
     fragilityDep->addItem("btw. Floors",1);
@@ -253,12 +262,13 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     fragilityDep->addItem("Independent",4);
     fragilityDep->addItem("per ATC recommendation",5);
     fragilityDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    component fragilities"), fragilityDep);
+    dependencyFormLayout->addRow(tr("    Component Fragilities"), fragilityDep);
 
-    dependencyFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups10 = new QSpacerItem(10,10);
+    dependencyFormLayout->addItem(spacerGroups10);
 
     // reconstruction cost
-    costDep = new QComboBox(this);
+    costDep = new QComboBox();
     costDep->setToolTip(tr("Some tooltip"));
     costDep->addItem("btw. Fragility Groups",0);
     costDep->addItem("btw. Performance Groups",1);
@@ -267,10 +277,10 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     costDep->addItem("btw. Damage States", 4);
     costDep->addItem("Independent",5);
     costDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    reconstruction costs"), costDep);
+    dependencyFormLayout->addRow(tr("    Reconstruction Costs"), costDep);
 
     // reconstruction time
-    timeDep = new QComboBox(this);
+    timeDep = new QComboBox();
     timeDep->setToolTip(tr("Some tooltip"));
     timeDep->addItem("btw. Fragility Groups",0);
     timeDep->addItem("btw. Performance Groups",1);
@@ -279,20 +289,21 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     timeDep->addItem("btw. Damage States", 4);
     timeDep->addItem("Independent",5);
     timeDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    reconstruction times"), timeDep);
+    dependencyFormLayout->addRow(tr("    Reconstruction Times"), timeDep);
 
     // rec. cost and time
     costAndTimeDep = new QCheckBox();
     costAndTimeDep->setText("");
     costAndTimeDep->setToolTip(tr("Some tooltip"));
     costAndTimeDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. rec. cost and time"), 
+    dependencyFormLayout->addRow(tr("    btw. Rec. Cost and Time"),
                                  costAndTimeDep);
 
-    dependencyFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups11 = new QSpacerItem(10,10);
+    dependencyFormLayout->addItem(spacerGroups11);
 
     // injuries
-    injuryDep = new QComboBox(this);
+    injuryDep = new QComboBox();
     injuryDep->setToolTip(tr("Some tooltip"));
     injuryDep->addItem("btw. Fragility Groups",0);
     injuryDep->addItem("btw. Performance Groups",1);
@@ -301,20 +312,21 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     injuryDep->addItem("btw. Damage States", 4);
     injuryDep->addItem("Independent",5);
     injuryDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    injuries"), injuryDep);
+    dependencyFormLayout->addRow(tr("    Injuries"), injuryDep);
 
     // injuries and fatalities
     injSeverityDep = new QCheckBox();
     injSeverityDep->setText("");
     injSeverityDep->setToolTip(tr("Some tooltip"));
     injSeverityDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. injuries and fatalities"),
+    dependencyFormLayout->addRow(tr("    btw. Injuries and Fatalities"),
                                  injSeverityDep);
 
-    dependencyFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups12 = new QSpacerItem(10,10);
+    dependencyFormLayout->addItem(spacerGroups12);
 
     // red tag
-    redTagDep = new QComboBox(this);
+    redTagDep = new QComboBox();
     redTagDep->setToolTip(tr("Some tooltip"));
     redTagDep->addItem("btw. Fragility Groups",0);
     redTagDep->addItem("btw. Performance Groups",1);
@@ -323,19 +335,20 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     redTagDep->addItem("btw. Damage States", 4);
     redTagDep->addItem("Independent",5);
     redTagDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    red tag probabilities"), redTagDep);
+    dependencyFormLayout->addRow(tr("    Red Tag Probabilities"), redTagDep);
 
-    dependencyFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups13 = new QSpacerItem(10,10);
+    dependencyFormLayout->addItem(spacerGroups13);
 
     // decision variables ------------------------------------------------------
-    QGroupBox * decisionGroupBox = new QGroupBox("decision variables", this);
+    QGroupBox * decisionGroupBox = new QGroupBox("Decision Variables");
     QFormLayout * decisionFormLayout = new QFormLayout(decisionGroupBox);
     
     // add elements
 
     // estimate label
     QLabel *decisionVarLabel = new QLabel();
-    decisionVarLabel->setText(tr("estimate ..."));
+    decisionVarLabel->setText(tr("Estimate ..."));
     decisionVarLabel->setToolTip(tr("Some tooltip"));
     decisionFormLayout->addRow(decisionVarLabel);
 
@@ -344,7 +357,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     needRecCost->setText("");
     needRecCost->setToolTip(tr("Some tooltip"));
     needRecCost->setChecked(true);
-    decisionFormLayout->addRow(tr("    reconstruction cost"),
+    decisionFormLayout->addRow(tr("    Reconstruction Cost"),
                                  needRecCost);
 
     // reconstruction time
@@ -352,7 +365,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     needRecTime->setText("");
     needRecTime->setToolTip(tr("Some tooltip"));
     needRecTime->setChecked(true);
-    decisionFormLayout->addRow(tr("    reconstruction time"),
+    decisionFormLayout->addRow(tr("    Reconstruction Time"),
                                  needRecTime);
 
     // injuries
@@ -360,7 +373,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     needInjuries->setText("");
     needInjuries->setToolTip(tr("Some tooltip"));
     needInjuries->setChecked(true);
-    decisionFormLayout->addRow(tr("    injuries"),
+    decisionFormLayout->addRow(tr("    Injuries"),
                                  needInjuries);
 
     // red tag
@@ -368,17 +381,17 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     needRedTag->setText("");
     needRedTag->setToolTip(tr("Some tooltip"));
     needRedTag->setChecked(true);
-    decisionFormLayout->addRow(tr("    red tag probability"),
+    decisionFormLayout->addRow(tr("    Red Tag Probability"),
                                  needRedTag);
 
     // inhabitants -------------------------------------------------------------
-    QGroupBox * inhabitantsGroupBox = new QGroupBox("inhabitants", this);
+    QGroupBox * inhabitantsGroupBox = new QGroupBox("Inhabitants");
     QFormLayout * inhabitantsFormLayout = new QFormLayout(inhabitantsGroupBox);
     
     // add elements
 
     // occupancy
-    occupancyType = new QComboBox(this);
+    occupancyType = new QComboBox();
     occupancyType->setToolTip(tr("Some tooltip"));
     occupancyType->addItem("Commercial Office",0);
     occupancyType->addItem("Elementary School",1);
@@ -391,17 +404,19 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     occupancyType->addItem("Retail",8);
     occupancyType->addItem("Warehouse",9);
     occupancyType->setCurrentIndex(7);
-    inhabitantsFormLayout->addRow(tr("    occupancy type"), occupancyType);
+    inhabitantsFormLayout->addRow(tr("    Occupancy Type"), occupancyType);
 
-    inhabitantsFormLayout->addItem(spacerGroups);
+     QSpacerItem *spacerGroups6 = new QSpacerItem(10,10);
+    inhabitantsFormLayout->addItem(spacerGroups6);
 
     // peak population
     peakPopulation = new QLineEdit();
     peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building."));    
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
-    inhabitantsFormLayout->addRow(tr("    peak population"), peakPopulation);    
+    inhabitantsFormLayout->addRow(tr("    Peak Population"), peakPopulation);
     // assemble the widgets-----------------------------------------------------
+
 
     mainV1Layout->addWidget(uqGroupBox);
     mainV1Layout->addWidget(decisionGroupBox);
@@ -421,6 +436,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     mainV3Layout->setSpacing(10);
     mainV3Layout->setMargin(0);
 
+
     mainHLayout->addLayout(mainV1Layout, 0);
     mainHLayout->addLayout(mainV2Layout, 0);
     mainHLayout->addLayout(mainV3Layout, 0);
@@ -429,11 +445,14 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     mainHLayout->setMargin(0);
 
     mainLayout->addWidget(title);
-    mainLayout->addItem(spacerTop);
+    mainLayout->addItem(spacerTop1);
     mainLayout->addLayout(mainHLayout, 0);
     mainLayout->addStretch(1);
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
+
+
+   // mainLayout->addWidget(responseGroupBox);
     this->setLayout(mainLayout);
 }
 
