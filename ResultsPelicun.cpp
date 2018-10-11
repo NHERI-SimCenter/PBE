@@ -51,6 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFile>
 #include <QProcess>
 #include <QFileInfo>
+#include <QScrollArea>
 
 #include <iostream>
 #include <sstream>
@@ -203,9 +204,9 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
     // create a summary widget in which place basic output (name, mean, stdDev)
     //
 
-    QWidget *summary = new QWidget();
+    QWidget *summaryWidget = new QWidget();
     QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summary->setLayout(summaryLayout);
+    summaryWidget->setLayout(summaryLayout);
 
     QJsonArray edpArray = jsonObject["summary"].toArray();
     QJsonValue type = jsonObject["dataType"];
@@ -231,6 +232,18 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
      //   summaryLayout->addWidget(theWidget);
     }
     summaryLayout->addStretch();
+
+
+    //
+    // place widget in scrollable area
+    //
+
+    QScrollArea *summary = new QScrollArea;
+    summary->setWidgetResizable(true);
+    summary->setLineWidth(0);
+    summary->setFrameShape(QFrame::NoFrame);
+    summary->setWidget(summaryWidget);
+
 
     //
     // into a QTextEdit place more detailed Dakota text
@@ -418,9 +431,9 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     // get a Qwidget ready to place summary data, the EDP name, mean, stdDev into
     //
 
-    QWidget *summary = new QWidget();
+    QWidget *summaryWidget = new QWidget();
     QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summary->setLayout(summaryLayout);
+    summaryWidget->setLayout(summaryLayout);
 
     //
     // into a QTextEdit we will place contents of Dakota more detailed output
@@ -464,8 +477,9 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     std::string tokenMean;
     std::string tokenStd;
 
-    qDebug() << summaryName.c_str();
-    qDebug() << summaryMean.c_str();
+    //qDebug() << summaryName.c_str();
+    //qDebug() << summaryMean.c_str();
+
     // ignore first
 
     std::getline(ssName, tokenName, ',');
@@ -479,7 +493,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     while(std::getline(ssName, tokenName, ',')) {
         std::getline(ssMean, tokenMean, ',');
         std::getline(ssStd, tokenStd, ',');
-        std::cerr << tokenName << " " << tokenMean << " " << tokenStd << '\n';
+	//        std::cerr << tokenName << " " << tokenMean << " " << tokenStd << '\n';
         QString name(tokenName.c_str());
         std::string::size_type sz;
         double mean = std::stod(tokenMean.c_str(), &sz);
@@ -490,10 +504,19 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
         colCount++;
     }
 
-    tabWidget->addTab(summary,"Summary");
-
     summaryLayout->addStretch();
 
+    //
+    // place summary widget in scrollable area
+    //
+
+    QScrollArea *summary = new QScrollArea;
+    summary->setWidgetResizable(true);
+    summary->setLineWidth(0);
+    summary->setFrameShape(QFrame::NoFrame);
+    summary->setWidget(summaryWidget);
+
+    tabWidget->addTab(summary,"Summary");
 
     //
     // now parse the rest of the file
