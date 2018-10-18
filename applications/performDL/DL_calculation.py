@@ -23,19 +23,22 @@ def run_pelicun(DL_input_path, EDP_input_path, CMP_data_path, POP_data_path):
 
 	S = A._SUMMARY
 
-	S.index.name = '#Num'
+	#S.index.name = '#Num'
 
-	S.columns = [('{}/{}'.format(s0, s1)).replace(' ', '_') 
-	             for s0, s1 in zip(S.columns.get_level_values(0),
-	                               S.columns.get_level_values(1))]
+	#S.columns = [('{}/{}'.format(s0, s1)).replace(' ', '_') 
+	#             for s0, s1 in zip(S.columns.get_level_values(0),
+	#                               S.columns.get_level_values(1))]
 
-	write_SimCenter_DL_output('DL_summary.csv', S)
+	write_SimCenter_DL_output('DL_summary.csv', S, index_name='#Num',
+		collapse_columns=True)
 
-	S_stat = S.describe(np.arange(1, 100)/100.)
+	#S_stat = S.describe(np.arange(1, 100)/100.)
 
-	S_stat.index.name = 'attribute'
+	#S_stat.index.name = 'attribute'
 
-	write_SimCenter_DL_output('DL_summary_stats.csv', S_stat)
+	write_SimCenter_DL_output('DL_summary_stats.csv', S, 
+		index_name='attribute',
+		collapse_columns=True, stats_only=False)
 
 	return 0
 

@@ -443,12 +443,12 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     dakotaText->setReadOnly(true); // make it so user cannot edit the contents
     dakotaText->setText("\n");
 
-    //DL_Summary
+    //DL_Summary_Stats
     // open Dakota output file
     //
-    const char *resultsFile = "DL_summary_stats.csv";
-    std::ifstream fileResults(resultsFile);
-    if (!fileResults.is_open()) {
+    const char *resultsStatsFile = "DL_summary_stats.csv";
+    std::ifstream fileResultsStats(resultsStatsFile);
+    if (!fileResultsStats.is_open()) {
         emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
         return -1;
     }
@@ -463,10 +463,10 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     std::string summaryStdDev;
     std::string summaryMin;
 
-    std::getline(fileResults, summaryName);
-    std::getline(fileResults, summaryCount);
-    std::getline(fileResults, summaryMean);
-    std::getline(fileResults, summaryStdDev);
+    std::getline(fileResultsStats, summaryName);
+    std::getline(fileResultsStats, summaryCount);
+    std::getline(fileResultsStats, summaryMean);
+    std::getline(fileResultsStats, summaryStdDev);
     //std::getline(fileResults, summaryMin);
 
     std::istringstream ssName(summaryName);
@@ -488,7 +488,8 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 
     int colCount = 1;
 
-    theHeadings << "Percent";
+    //theHeadings << "Percent";
+    theHeadings << "Realization";
 
     while(std::getline(ssName, tokenName, ',')) {
         std::getline(ssMean, tokenMean, ',');
@@ -534,9 +535,21 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
 
+    // now read the file with the detailed results
+    //DL_Summary
+    const char *resultsFile = "DL_summary.csv";
+    std::ifstream fileResults(resultsFile);
+    if (!fileResults.is_open()) {
+        emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
+        return -1;
+    }
+
+    std::getline(fileResults, summaryName);
+
     // now until end of file, read lines and place data into spreadsheet
     int rowCount = 0;
-    while (std::getline(fileResults, inputLine) && rowCount <= 100) {
+    while (std::getline(fileResults, inputLine)){
+        //&& rowCount <= 20000) {
         spreadsheet->insertRow(rowCount);
         std::istringstream line(inputLine);
         std::string value;
@@ -595,6 +608,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     tabWidget->adjustSize();
     tabWidget->setCurrentIndex(1);
 
+    fileResultsStats.close();
     fileResults.close();
 
     // close input file
@@ -659,8 +673,8 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 
     int rowCount = spreadsheet->rowCount();
     if (col1 != col2) {
-        //QScatterSeries *series = new QScatterSeries;
-        QLineSeries *series = new QLineSeries;
+        QScatterSeries *series = new QScatterSeries;
+        //QLineSeries *series = new QLineSeries;
 
         QVector<double> dataX;
         QVector<double> dataY;
