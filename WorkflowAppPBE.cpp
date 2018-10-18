@@ -424,7 +424,9 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
  void
  WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-   theResults->processResults(dakotaOut, dakotaTab, inputFile);
+   QString fragFolder = theLossModel->getFragilityFolder();
+
+   theResults->processResults(dakotaOut, dakotaTab, inputFile, fragFolder);
    theRunWidget->hide();
    theStackedWidget->setCurrentIndex(5);
  }

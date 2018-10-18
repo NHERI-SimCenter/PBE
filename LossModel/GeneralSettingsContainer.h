@@ -93,10 +93,17 @@ public:
      */
     QString getGeneralSettingsContainerName() const;
 
+    int setFragilityFolder(QString fragilityFolder);
+    int setPopulationFile(QString populationFile);
+
+    QString getFragilityFolder();
+
     
 signals:
 
 public slots:
+    void chooseFragilityFolder(void);
+    void choosePopulationFile(void);
        
 private:
 
@@ -113,6 +120,9 @@ private:
     QLineEdit * peakPopulation;
     QLineEdit * replacementCostValue;
     QLineEdit * replacementTimeValue;
+    QLineEdit * fragilityFolderPath;
+    QLineEdit * populationFilePath;
+
     QComboBox * quantityDep;
     QComboBox * fragilityDep;
     QComboBox * costDep;
@@ -120,6 +130,7 @@ private:
     QComboBox * injuryDep;
     QComboBox * redTagDep;
     QComboBox * occupancyType;
+    
     QCheckBox * costAndTimeDep;
     QCheckBox * injSeverityDep;
     QCheckBox * needRecCost;

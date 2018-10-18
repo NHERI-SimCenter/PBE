@@ -44,8 +44,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QDebug>
+#include <QFileDialog>
 #include <QJsonObject>
 #include <sectiontitle.h>
 
@@ -415,11 +417,48 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
     inhabitantsFormLayout->addRow(tr("    Peak Population"), peakPopulation);
+
+    // data sources ------------------------------------------------------------
+    QGroupBox * resourcesGroupBox = new QGroupBox("Custom Data Sources");
+    QFormLayout * resourcesFormLayout = new QFormLayout(resourcesGroupBox);
+
+    QHBoxLayout *fragilityLayout = new QHBoxLayout();
+
+    fragilityFolderPath = new QLineEdit;
+    QPushButton *chooseFragility = new QPushButton();
+    chooseFragility->setText(tr("Choose"));
+    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
+    fragilityLayout->addWidget(fragilityFolderPath);
+    fragilityLayout->addWidget(chooseFragility);
+    fragilityLayout->setSpacing(1);
+    fragilityLayout->setMargin(0);
+
+    resourcesFormLayout->addRow(tr("component damage and loss: "),
+                                fragilityLayout);
+
+    QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
+    resourcesFormLayout->addItem(spacerGroups14);
+
+    QHBoxLayout *populationLayout = new QHBoxLayout();
+
+    populationFilePath = new QLineEdit;
+    QPushButton *choosePopulation = new QPushButton();
+    choosePopulation->setText(tr("Choose"));
+    connect(choosePopulation, SIGNAL(clicked()),this,SLOT(choosePopulationFile()));
+    populationLayout->addWidget(populationFilePath);
+    populationLayout->addWidget(choosePopulation);
+    populationLayout->setSpacing(1);
+    populationLayout->setMargin(0);
+
+    resourcesFormLayout->addRow(tr("population distribution: "),
+                                populationLayout);
+
     // assemble the widgets-----------------------------------------------------
 
 
     mainV1Layout->addWidget(uqGroupBox);
     mainV1Layout->addWidget(decisionGroupBox);
+    mainV1Layout->addWidget(inhabitantsGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
     mainV1Layout->setMargin(0);
@@ -431,7 +470,7 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     mainV2Layout->setMargin(0);
 
     mainV3Layout->addWidget(dependencyGroupBox);
-    mainV3Layout->addWidget(inhabitantsGroupBox);
+    mainV3Layout->addWidget(resourcesGroupBox);
     mainV3Layout->addStretch(1);
     mainV3Layout->setSpacing(10);
     mainV3Layout->setMargin(0);
@@ -456,6 +495,39 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *th
     this->setLayout(mainLayout);
 }
 
+QString
+GeneralSettingsContainer::getFragilityFolder(){
+    return fragilityFolderPath->text();
+}
+
+int
+GeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
+    fragilityFolderPath->setText(fragilityFolder);
+    return 0;
+}
+
+void
+GeneralSettingsContainer::chooseFragilityFolder(void) {
+    QString fragilityFolder;
+    fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
+        "C://");
+    int ok = this->setFragilityFolder(fragilityFolder);
+}
+
+int
+GeneralSettingsContainer::setPopulationFile(QString populationFile){
+    populationFilePath->setText(populationFile);
+    return 0;
+}
+
+void
+GeneralSettingsContainer::choosePopulationFile(void) {
+    QString populationFile;
+    populationFile=QFileDialog::getOpenFileName(this,tr("Select File"),
+        "C://", "All files (*.*)");
+    int ok = this->setPopulationFile(populationFile);
+}
+
 GeneralSettingsContainer::~GeneralSettingsContainer()
 {}
 
@@ -467,6 +539,7 @@ bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     QJsonObject damage;
     QJsonObject dependencies;
     QJsonObject inhabitants;
+    QJsonObject dataSources;
     
     // UQ ---------------------------------------------------------------------
 
@@ -544,6 +617,13 @@ bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
     outputObject["Inhabitants"] = inhabitants;
 
+    // data sources ------------------------------------------------------------
+
+    dataSources["ComponentDataFolder"] = fragilityFolderPath->text();
+    dataSources["PopulationDataFile"] = populationFilePath->text();
+
+    outputObject["DataSources"] = dataSources;
+
     return 0;
 }
 
@@ -620,6 +700,13 @@ bool GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
     occupancyType->setCurrentText(inhabitants["OccupancyType"].toString());
     peakPopulation->setText(inhabitants["PeakPopulation"].toString());
+
+    // data sources -----------------------------------------------------------
+
+    QJsonObject dataSources = inputObject["DataSources"].toObject();
+
+    fragilityFolderPath->setText(dataSources["ComponentDataFolder"].toString());
+    populationFilePath->setText(dataSources["PopulationDataFile"].toString());
 
     return 0;
 

@@ -371,54 +371,49 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,  QString inputFile) {
+int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
+                                   QString inputFile,
+                                   QString fragilitiesString) {
 
 
     //
     // invoke python script to perform DL calculations
     //
 
-     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
-     QString pySCRIPT;
+    //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
+    QString pySCRIPT;
 
-     QString appDir = QCoreApplication::applicationDirPath();
-     QDir scriptDir(appDir);
-     scriptDir.cd("applications");
-     scriptDir.cd("performDL");
-     pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
+    QString appDir = QCoreApplication::applicationDirPath();
+    QDir scriptDir(appDir);
+    scriptDir.cd("applications");
+    scriptDir.cd("performDL");
+    pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
 
-     scriptDir.cd("resources");
-     QString populationString = scriptDir.absoluteFilePath("population.json");
-     scriptDir.cd("fragilities");
-     QString fragilitiesString = scriptDir.absolutePath() + QDir::separator();
+    QString populationString = "None";
 
-     QFileInfo check_script(pySCRIPT);
-     // check if file exists and if yes: Is it really a file and no directory?
-     if (!check_script.exists() || !check_script.isFile()) {
-         emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
-         return false;
-     }
+    if (fragilitiesString == "") {
+        fragilitiesString = "None";
+    }
 
-     emit sendStatusMessage("Running the Damage & Loss Calculations");
+    //scriptDir.cd("resources");
+    //QString populationString = scriptDir.absoluteFilePath("population.json");
+    //scriptDir.cd("fragilities");
+    //QString fragilitiesString = scriptDir.absolutePath() + QDir::separator();
 
-     QProcess *proc = new QProcess();
+    QFileInfo check_script(pySCRIPT);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (!check_script.exists() || !check_script.isFile()) {
+        emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
+        return false;
+    }
 
- #ifdef Q_OS_WIN
-     QString command = QString("python ") + pySCRIPT + QString("  ") + inputFile  + QString(" ")
-             + filenameTab + QString(" ") + fragilitiesString + QString(" ") + populationString;
-     qDebug() << "PYTHON COMMAND: " << command;
+    emit sendStatusMessage("Running the Damage & Loss Calculations");
 
-     proc->execute("cmd", QStringList() << "/C" << command);
+    QProcess *proc = new QProcess();
 
- #else
-     QString command = QString("source $HOME/.bash_profile; python ") + pySCRIPT
-             + QString("  ") + inputFile  + QString(" ") + filenameTab + QString(" ") + fragilitiesString + QString(" ") + populationString;
-
-     qDebug() << "PYTHON COMMAND: " << command;
-     proc->execute("bash", QStringList() << "-c" <<  command);
-
- #endif
-
+    // run the DL calculation script
+    QStringList test_list{pySCRIPT, inputFile, filenameTab, fragilitiesString, populationString};
+    proc->execute("python", test_list);
 
     qDebug() << "FILE CREATED";
 
