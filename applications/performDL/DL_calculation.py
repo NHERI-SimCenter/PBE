@@ -1,11 +1,13 @@
 import sys
 import numpy as np
 
-import pelicun
-from pelicun.control import FEMA_P58_Assessment
-from pelicun.file_io import write_SimCenter_DL_output
+import pelicunPBE
+from pelicunPBE.control import FEMA_P58_Assessment
+from pelicunPBE.file_io import write_SimCenter_DL_output
 
-def run_pelicun(DL_input_path, EDP_input_path, CMP_data_path, POP_data_path):
+
+def run_pelicun(DL_input_path, EDP_input_path, 
+	CMP_data_path=None, POP_data_path=None):
 
 	A = FEMA_P58_Assessment()
 	A.read_inputs(DL_input_path, EDP_input_path, 
@@ -21,24 +23,30 @@ def run_pelicun(DL_input_path, EDP_input_path, CMP_data_path, POP_data_path):
 
 	A.aggregate_results()
 
-	S = A._SUMMARY
+	write_SimCenter_DL_output('DL_summary.csv', A._SUMMARY, 
+		index_name='#Num', collapse_columns=True)
 
-	S.index.name = '#Num'
+	#write_SimCenter_DL_output('DL_DMG.csv', A._DMG, 
+	#	index_name='#Num', collapse_columns=True)
 
-	S.columns = [('{}/{}'.format(s0, s1)).replace(' ', '_') 
-	             for s0, s1 in zip(S.columns.get_level_values(0),
-	                               S.columns.get_level_values(1))]
-
-	write_SimCenter_DL_output('DL_summary.csv', S)
-
-	S_stat = S.describe(np.arange(1, 100)/100.)
-
-	S_stat.index.name = 'attribute'
-
-	write_SimCenter_DL_output('DL_summary_stats.csv', S_stat)
+	write_SimCenter_DL_output('DL_summary_stats.csv', A._SUMMARY, 
+		index_name='attribute',
+		collapse_columns=True, stats_only=True)
 
 	return 0
 
 if __name__ == '__main__':
 
-	sys.exit(run_pelicun(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
+
+	if sys.argv[3] not in [None, 'None']:
+		CMP_data_path = sys.argv[3]+'/'
+	else:
+		CMP_data_path = None
+
+	if sys.argv[4] not in [None, 'None']:
+		POP_data_path = sys.argv[4]
+	else:
+		POP_data_path = None
+
+	sys.exit(
+		run_pelicun(sys.argv[1], sys.argv[2], CMP_data_path, POP_data_path))

@@ -49,12 +49,19 @@ class QVBoxLayout;
 
 class RandomVariableInputWidget;
 
+class GeneralSettingsContainer;
+class ComponentContainer;
+class CollapseModeContainer;
+
 class LossModelContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
     explicit LossModelContainer(
       RandomVariableInputWidget *theRV_IW, QWidget *parent = 0);
+
+    QString getFragilityFolder();
+    QString getPopulationFile();
 
     ~LossModelContainer();
 
@@ -77,9 +84,9 @@ private:
     SimCenterAppWidget *theCurrentEvent;
     SimCenterAppWidget *theExistingEvents;
     */
-    SimCenterAppWidget *theGeneralSettingsContainer;
-    SimCenterAppWidget *theComponentContainer;
-    SimCenterAppWidget *theCollapseModeContainer;
+    GeneralSettingsContainer *theGeneralSettingsContainer;
+    ComponentContainer *theComponentContainer;
+    CollapseModeContainer *theCollapseModeContainer;
 };
 
 #endif // LOSS_MODEL_CONTAINER_H

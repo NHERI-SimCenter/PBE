@@ -57,7 +57,10 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString filenameResults, QString filenameTab, QString inputFile);
+    int processResults(QString filenameResults, QString filenameTab,
+                       QString inputFile,
+                       QString fragilitiesString,
+                       QString populationString);
 
 signals:
 
@@ -67,6 +70,8 @@ public slots:
 
 private:
    void getColData(QVector<double> &data, int numRow, int col);
+   void getColDataExt(QList<QPointF> &dataXY, int numRow, int colX,
+                      int colY, bool doMap);
    QWidget *createSummaryItem(QString &name, double mean, double stdDev, int valueType);
 
    QTabWidget *tabWidget;

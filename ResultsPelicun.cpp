@@ -73,6 +73,8 @@ using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 #include <QXYSeries>
+#include <QBarSeries>
+#include <QBarSet>
 #include <QLabel>
 
 #define NUM_DIVISIONS 10
@@ -371,54 +373,52 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,  QString inputFile) {
+int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
+                                   QString inputFile,
+                                   QString fragilitiesString,
+                                   QString populationString) {
 
 
     //
     // invoke python script to perform DL calculations
     //
 
-     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
-     QString pySCRIPT;
+    //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
+    QString pySCRIPT;
 
-     QString appDir = QCoreApplication::applicationDirPath();
-     QDir scriptDir(appDir);
-     scriptDir.cd("applications");
-     scriptDir.cd("performDL");
-     pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
+    QString appDir = QCoreApplication::applicationDirPath();
+    QDir scriptDir(appDir);
+    scriptDir.cd("applications");
+    scriptDir.cd("performDL");
+    pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
 
-     scriptDir.cd("resources");
-     QString populationString = scriptDir.absoluteFilePath("population.json");
-     scriptDir.cd("fragilities");
-     QString fragilitiesString = scriptDir.absolutePath() + QDir::separator();
+    if (populationString == "") {
+        populationString = "None";
+    }
 
-     QFileInfo check_script(pySCRIPT);
-     // check if file exists and if yes: Is it really a file and no directory?
-     if (!check_script.exists() || !check_script.isFile()) {
-         emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
-         return false;
-     }
+    if (fragilitiesString == "") {
+        fragilitiesString = "None";
+    }
 
-     emit sendStatusMessage("Running the Damage & Loss Calculations");
+    //scriptDir.cd("resources");
+    //QString populationString = scriptDir.absoluteFilePath("population.json");
+    //scriptDir.cd("fragilities");
+    //QString fragilitiesString = scriptDir.absolutePath() + QDir::separator();
 
-     QProcess *proc = new QProcess();
+    QFileInfo check_script(pySCRIPT);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (!check_script.exists() || !check_script.isFile()) {
+        emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
+        return false;
+    }
 
- #ifdef Q_OS_WIN
-     QString command = QString("python ") + pySCRIPT + QString("  ") + inputFile  + QString(" ")
-             + filenameTab + QString(" ") + fragilitiesString + QString(" ") + populationString;
-     qDebug() << "PYTHON COMMAND: " << command;
+    emit sendStatusMessage("Running the Damage & Loss Calculations");
 
-     proc->execute("cmd", QStringList() << "/C" << command);
+    QProcess *proc = new QProcess();
 
- #else
-     QString command = QString("source $HOME/.bash_profile; python ") + pySCRIPT
-             + QString("  ") + inputFile  + QString(" ") + filenameTab + QString(" ") + fragilitiesString + QString(" ") + populationString;
-
-     qDebug() << "PYTHON COMMAND: " << command;
-     proc->execute("bash", QStringList() << "-c" <<  command);
-
- #endif
-
+    // run the DL calculation script
+    QStringList test_list{pySCRIPT, inputFile, filenameTab, fragilitiesString, populationString};
+    proc->execute("python", test_list);
 
     qDebug() << "FILE CREATED";
 
@@ -443,12 +443,12 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     dakotaText->setReadOnly(true); // make it so user cannot edit the contents
     dakotaText->setText("\n");
 
-    //DL_Summary
+    //DL_Summary_Stats
     // open Dakota output file
     //
-    const char *resultsFile = "DL_summary_stats.csv";
-    std::ifstream fileResults(resultsFile);
-    if (!fileResults.is_open()) {
+    const char *resultsStatsFile = "DL_summary_stats.csv";
+    std::ifstream fileResultsStats(resultsStatsFile);
+    if (!fileResultsStats.is_open()) {
         emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
         return -1;
     }
@@ -463,10 +463,10 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     std::string summaryStdDev;
     std::string summaryMin;
 
-    std::getline(fileResults, summaryName);
-    std::getline(fileResults, summaryCount);
-    std::getline(fileResults, summaryMean);
-    std::getline(fileResults, summaryStdDev);
+    std::getline(fileResultsStats, summaryName);
+    std::getline(fileResultsStats, summaryCount);
+    std::getline(fileResultsStats, summaryMean);
+    std::getline(fileResultsStats, summaryStdDev);
     //std::getline(fileResults, summaryMin);
 
     std::istringstream ssName(summaryName);
@@ -488,7 +488,8 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 
     int colCount = 1;
 
-    theHeadings << "Percent";
+    //theHeadings << "Percent";
+    theHeadings << "Realization";
 
     while(std::getline(ssName, tokenName, ',')) {
         std::getline(ssMean, tokenMean, ',');
@@ -534,9 +535,21 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
 
+    // now read the file with the detailed results
+    //DL_Summary
+    const char *resultsFile = "DL_summary.csv";
+    std::ifstream fileResults(resultsFile);
+    if (!fileResults.is_open()) {
+        emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
+        return -1;
+    }
+
+    std::getline(fileResults, summaryName);
+
     // now until end of file, read lines and place data into spreadsheet
     int rowCount = 0;
-    while (std::getline(fileResults, inputLine) && rowCount <= 100) {
+    while (std::getline(fileResults, inputLine)){
+        //&& rowCount <= 20000) {
         spreadsheet->insertRow(rowCount);
         std::istringstream line(inputLine);
         std::string value;
@@ -595,6 +608,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     tabWidget->adjustSize();
     tabWidget->setCurrentIndex(1);
 
+    fileResultsStats.close();
     fileResults.close();
 
     // close input file
@@ -630,6 +644,73 @@ ResultsPelicun::getColData(QVector<double> &data, int numRow, int col) {
 }
 
 void
+ResultsPelicun::getColDataExt(QList<QPointF> &dataXY, int numRow, int colX,
+                              int colY, bool doMap) {
+
+    if (doMap == true) {
+        //If doMap is set to True, then we assume a list of strings and create
+        // a map of the results.
+
+        if (colY != colX) {
+            QMap<QString, int> mapX, mapY;
+            int numDifferentX = 0, numDifferentY = 0;
+            for (int i=0; i<numRow; i++) {
+                QString textX = spreadsheet->item(i,colX)->text();
+                if (mapX.contains(textX) == 0) mapX[textX] = numDifferentX++;
+                QString textY = spreadsheet->item(i,colY)->text();
+                if (mapY.contains(textY) == 0) mapY[textY] = numDifferentY++;
+                QPointF dataP;
+                dataP.setX(mapX.value(textX));
+                dataP.setY(mapY.value(textY));
+                dataXY.append(dataP);
+            }
+        } else {
+            QMap<QString, int> mapX;
+            int numDifferentX = 0;
+            for (int i=0; i<numRow; i++) {
+                QString textX = spreadsheet->item(i,colX)->text();
+                if (mapX.contains(textX) == 0) mapX[textX] = numDifferentX++;
+                QPointF dataP;
+                dataP.setX(mapX.value(textX));
+                dataP.setY(0.0);
+                dataXY.append(dataP);
+            }
+        }
+    } else {
+        // If doMap is set to False, then we assume that both vectors contain
+        // floating point numbers only. Empty cells are also allowed and their
+        // values are not displayed.
+
+        if (colY != colX) {
+            // two columns
+            bool ok_X, ok_Y;
+            for (int i=0; i<numRow; i++) {
+                double dataPX = spreadsheet->item(i,colX)->text().toDouble(&ok_X);
+                double dataPY = spreadsheet->item(i,colY)->text().toDouble(&ok_Y);
+                if ((ok_X==true) && (ok_Y==true)) {
+                    QPointF dataP;
+                    dataP.setX(dataPX);
+                    dataP.setY(dataPY);
+                    dataXY.append(dataP);
+                }
+            }
+        } else {
+            // single column
+            bool ok_X;
+            for (int i=0; i<numRow; i++) {
+                double dataPX = spreadsheet->item(i,colX)->text().toDouble(&ok_X);
+                if (ok_X==true) {
+                    QPointF dataP;
+                    dataP.setY(0.0);
+                    dataP.setX(dataPX);
+                    dataXY.append(dataP);
+                }
+            }
+        }
+    }
+}
+
+void
 ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 {
     qDebug() << "onSPreadSheetCellClicked() :" << row << " " << col;
@@ -645,9 +726,6 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
     if (oldAxisY != 0)
         chart->removeAxis(oldAxisY);
 
-
-    // QScatterSeries *series;//= new QScatterSeries;
-
     int oldCol = 0;
     if (mLeft == true) {
         oldCol= col2;
@@ -655,30 +733,37 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
     } else {
         oldCol= col1;
         col1 = col;
-    }
+    }    
 
     int rowCount = spreadsheet->rowCount();
     if (col1 != col2) {
-        //QScatterSeries *series = new QScatterSeries;
-        QLineSeries *series = new QLineSeries;
+        QScatterSeries *series = new QScatterSeries;
+        if (rowCount < 100) {
+            series->setMarkerSize(15.0);
+        } else if (rowCount < 1000) {
+            series->setMarkerSize(10.0);
+        } else if (rowCount < 10000) {
+            series->setMarkerSize(6.0);
+        } else if (rowCount < 100000) {
+            series->setMarkerSize(4.0);
+        } else
+            series->setMarkerSize(3.0);
 
-        QVector<double> dataX;
-        QVector<double> dataY;
-        this->getColData(dataX, rowCount, col1);
-        this->getColData(dataY, rowCount, col2);
+        series->setColor(QColor(0, 114, 178, 64));
+        series->setBorderColor(QColor(255,255,255,0));
+
+        QList<QPointF> dataXY;
+        this->getColDataExt(dataXY, rowCount, col1, col2, false);
+
         for (int i=0; i<rowCount; i++) {
-
-            QTableWidgetItem *itemX = spreadsheet->item(i,col1);
-            QTableWidgetItem *itemY = spreadsheet->item(i,col2);
-            QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
-            itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
-            itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
-
-            series->append(dataX[i], dataY[i]);
+            spreadsheet->item(i,col1)->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            spreadsheet->item(i,col2)->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            spreadsheet->item(i,oldCol)->setData(Qt::BackgroundRole, QColor(Qt::white));
         }
 
+        series->append(dataXY);
         chart->addSeries(series);
+
         QValueAxis *axisX = new QValueAxis();
         QValueAxis *axisY = new QValueAxis();
 
@@ -688,67 +773,69 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
         chart->setAxisX(axisX, series);
         chart->setAxisY(axisY, series);
 
-    } else {
-        QVector<double> dataX;
-        this->getColData(dataX, rowCount, col1);
+        chart->zoom(0.95);
 
-        QLineSeries *series= new QLineSeries;
+    } else {      
+        QList<QPointF> dataXY;
+        this->getColDataExt(dataXY, rowCount, col1, col1, false);
+        rowCount = dataXY.length();
 
-        static double NUM_DIVISIONS_FOR_DIVISION = 10.0;
-        double *dataValues = new double[rowCount];
-        double histogram[NUM_DIVISIONS];
-        for (int i=0; i<NUM_DIVISIONS; i++)
-            histogram[i] = 0;
+        int binCount = 2 * int(pow(rowCount, 1.0/3.0));
+        qDebug() << "row count: " << rowCount;
+        qDebug() << "bin count: " << binCount;
 
-        double min = 0;
-        double max = 0;
+        // initialize histogram data
+        QList<qreal> histogram;
+        for (int i=0; i<binCount; i++)
+            histogram.append(0);
+
+        QList<qreal> dataValues;
+
+        double min = dataXY[0].x();
+        double max = min;
         for (int i=0; i<rowCount; i++) {
-            QTableWidgetItem *itemX = spreadsheet->item(i,col1);
-            QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
-            itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
-            double value = dataX[i];
-            dataValues[i] =  value;
+            spreadsheet->item(i,col1)->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            spreadsheet->item(i,oldCol)->setData(Qt::BackgroundRole, QColor(Qt::white));
 
-            if (i == 0) {
-                min = value;
-                max = value;
-            } else if (value < min) {
+            double value = dataXY[i].x();
+            dataValues.append(value);
+            //dataValues[i] = value;
+
+            if (value < min) {
                 min = value;
             } else if (value > max) {
                 max = value;
             }
         }
+
         if (mLeft == true) {
 
             // frequency distribution
-            double range = max-min;
-            double dRange = range/NUM_DIVISIONS_FOR_DIVISION;
+            double binSize = (max-min)/binCount;
 
             for (int i=0; i<rowCount; i++) {
                 // compute block belongs to, watch under and overflow due to numerics
-                int block = floor((dataValues[i]-min)/dRange);
+                int block = floor((dataValues[i]-min)/binSize);
                 if (block < 0) block = 0;
-                if (block > NUM_DIVISIONS-1) block = NUM_DIVISIONS-1;
+                if (block > binCount-1) block = binCount-1;
                 histogram[block] += 1;
             }
 
             double maxPercent = 0;
-            for (int i=0; i<NUM_DIVISIONS; i++) {
-                histogram[i]/rowCount;
+            for (int i=0; i<binCount; i++) {
+                histogram[i] /= rowCount;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
-            }
-            for (int i=0; i<NUM_DIVISIONS; i++) {
-                series->append(min+i*dRange, 0);
-                series->append(min+i*dRange, histogram[i]);
-                series->append(min+(i+1)*dRange, histogram[i]);
-                series->append(min+(i+1)*dRange, 0);
-            }
+            }            
 
-            delete [] dataValues;
+            QBarSet *set = new QBarSet("");
+            set->append(histogram);
+
+            QBarSeries *series = new QBarSeries();
+            series->append(set);
 
             chart->addSeries(series);
+            chart->createDefaultAxes();
             QValueAxis *axisX = new QValueAxis();
             QValueAxis *axisY = new QValueAxis();
 
@@ -756,19 +843,20 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             axisY->setRange(0, maxPercent);
             axisY->setTitleText("Frequency %");
             axisX->setTitleText(theHeadings.at(col1));
-            axisX->setTickCount(NUM_DIVISIONS+1);
-            chart->setAxisX(axisX, series);
+            //axisX->setTickCount(NUM_DIVISIONS+1);
+            //chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
+            chart->zoom(0.95);
     } else {
 
+            QLineSeries *series= new QLineSeries;
+
             // cumulative distributionn
-            mergesort(dataValues, rowCount);
+            qSort(dataValues);
 
             for (int i=0; i<rowCount; i++) {
                 series->append(dataValues[i], 1.0*i/rowCount);
             }
-
-            delete [] dataValues;
 
             chart->addSeries(series);
             QValueAxis *axisX = new QValueAxis();
@@ -778,11 +866,11 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             axisY->setRange(0, 1);
             axisY->setTitleText("Cumulative Probability");
             axisX->setTitleText(theHeadings.at(col1));
-            axisX->setTickCount(NUM_DIVISIONS+1);
+            axisX->setTickCount(11);
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
+            chart->zoom(0.95);
         }
-
 
     }
 }
