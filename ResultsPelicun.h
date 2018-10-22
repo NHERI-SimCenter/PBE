@@ -70,6 +70,8 @@ public slots:
 
 private:
    void getColData(QVector<double> &data, int numRow, int col);
+   void getColDataExt(QList<QPointF> &dataXY, int numRow, int colX,
+                      int colY, bool doMap);
    QWidget *createSummaryItem(QString &name, double mean, double stdDev, int valueType);
 
    QTabWidget *tabWidget;
