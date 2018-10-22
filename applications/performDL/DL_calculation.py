@@ -1,9 +1,9 @@
 import sys
 import numpy as np
 
-import pelicun
-from pelicun.control import FEMA_P58_Assessment
-from pelicun.file_io import write_SimCenter_DL_output
+import pelicunPBE
+from pelicunPBE.control import FEMA_P58_Assessment
+from pelicunPBE.file_io import write_SimCenter_DL_output
 
 
 def run_pelicun(DL_input_path, EDP_input_path, 
@@ -23,12 +23,13 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 	A.aggregate_results()
 
-	S = A._SUMMARY
+	write_SimCenter_DL_output('DL_summary.csv', A._SUMMARY, 
+		index_name='#Num', collapse_columns=True)
 
-	write_SimCenter_DL_output('DL_summary.csv', S, index_name='#Num',
-		collapse_columns=True)
+	#write_SimCenter_DL_output('DL_DMG.csv', A._DMG, 
+	#	index_name='#Num', collapse_columns=True)
 
-	write_SimCenter_DL_output('DL_summary_stats.csv', S, 
+	write_SimCenter_DL_output('DL_summary_stats.csv', A._SUMMARY, 
 		index_name='attribute',
 		collapse_columns=True, stats_only=True)
 
