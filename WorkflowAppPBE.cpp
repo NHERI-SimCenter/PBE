@@ -160,11 +160,18 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
     connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
-    connect(localApp,SIGNAL(processResults(QString, QString, QString)), this, SLOT(processResults(QString, QString, QString)));
+
+    connect(localApp,
+            SIGNAL(processResults(QString, QString, QString)),
+            this,
+            SLOT(processResults(QString, QString, QString)));
 
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(theJobManager,SIGNAL(processResults(QString , QString, QString)), this, SLOT(processResults(QString, QString, QString)));
+    connect(theJobManager,
+            SIGNAL(processResults(QString , QString, QString)),
+            this,
+            SLOT(processResults(QString, QString, QString)));
     connect(theJobManager,SIGNAL(loadFile(QString)), this, SLOT(loadFile(QString)));
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
@@ -424,7 +431,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
  void
  WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-   theResults->processResults(dakotaOut, dakotaTab, inputFile);
+   QString fragFolder = theLossModel->getFragilityFolder();
+   QString popFile = theLossModel->getPopulationFile();
+
+   theResults->processResults(dakotaOut, dakotaTab, inputFile,
+                              fragFolder, popFile);
    theRunWidget->hide();
    treeView->setCurrentIndex(infoItemIdx);
    theStackedWidget->setCurrentIndex(5);

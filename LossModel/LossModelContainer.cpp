@@ -213,3 +213,12 @@ LossModelContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
+QString
+LossModelContainer::getFragilityFolder(){
+    return theGeneralSettingsContainer->getFragilityFolder();
+}
+
+QString
+LossModelContainer::getPopulationFile(){
+    return theGeneralSettingsContainer->getPopulationFile();
+}
