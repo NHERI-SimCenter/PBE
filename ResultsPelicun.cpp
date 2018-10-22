@@ -373,7 +373,8 @@ static int mergesort(double *input, int size)
 
 int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
                                    QString inputFile,
-                                   QString fragilitiesString) {
+                                   QString fragilitiesString,
+                                   QString populationString) {
 
 
     //
@@ -389,7 +390,9 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     scriptDir.cd("performDL");
     pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
 
-    QString populationString = "None";
+    if (populationString == "") {
+        populationString = "None";
+    }
 
     if (fragilitiesString == "") {
         fragilitiesString = "None";

@@ -59,7 +59,8 @@ public:
 
     int processResults(QString filenameResults, QString filenameTab,
                        QString inputFile,
-                       QString fragilitiesString);
+                       QString fragilitiesString,
+                       QString populationString);
 
 signals:
 

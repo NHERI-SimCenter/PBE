@@ -61,6 +61,7 @@ public:
       RandomVariableInputWidget *theRV_IW, QWidget *parent = 0);
 
     QString getFragilityFolder();
+    QString getPopulationFile();
 
     ~LossModelContainer();
 

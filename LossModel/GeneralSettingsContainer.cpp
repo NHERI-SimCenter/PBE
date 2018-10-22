@@ -500,6 +500,11 @@ GeneralSettingsContainer::getFragilityFolder(){
     return fragilityFolderPath->text();
 }
 
+QString
+GeneralSettingsContainer::getPopulationFile(){
+    return populationFilePath->text();
+}
+
 int
 GeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
     fragilityFolderPath->setText(fragilityFolder);

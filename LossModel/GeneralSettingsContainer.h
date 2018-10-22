@@ -97,6 +97,7 @@ public:
     int setPopulationFile(QString populationFile);
 
     QString getFragilityFolder();
+    QString getPopulationFile();
 
     
 signals:

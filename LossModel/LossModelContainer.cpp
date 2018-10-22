@@ -217,3 +217,8 @@ QString
 LossModelContainer::getFragilityFolder(){
     return theGeneralSettingsContainer->getFragilityFolder();
 }
+
+QString
+LossModelContainer::getPopulationFile(){
+    return theGeneralSettingsContainer->getPopulationFile();
+}
