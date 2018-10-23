@@ -85,6 +85,38 @@ int main(int argc, char *argv[])
   WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
   MainWindowWorkflowApp w(QString("PBE - Performance Based Engineering Tool"),theInputApp, theRemoteService);
 
+  QString textAboutPBE = "\
+          <p> \
+          This is the Performance Based Engineering (PBE) application.\
+          <p>\
+          This open-source research application, https://github.com/NHERI-SimCenter/PBE, provides an application \
+      researchers can use to predict the Downtime & Loss associated with a building given an earthquake events. The application is focused on \
+      quantifying the uncertainties in the predicted response, given the that the properties of the buildings and the earthquake \
+      events are not known exactly, and that the simulation software and the user make simplifying assumptions in the numerical \
+      modeling of that structure. In the application the user is required to characterize the uncertainties in the input, the \
+      application will after utilizing the selected sampling method, provide information that characterizes the uncertainties in \
+      the response. The computations to make these determinations can be prohibitively expensive. To overcome this impedement the \
+      user has the option to perform the computations on the Stampede2 supercomputer. Stampede2 is located at the Texas Advanced \
+      Computing Center and is made available to the user through NHERI DesignSafe, the cyberinfrastructure provider for the distributed \
+      NSF funded Natural Hazards in Engineering Research Infrastructure, NHERI, facility.\
+      <p>\
+      The computations are performed in a workflow application. That is, the numerical simulations are actually performed by a \
+      number of different applications. The EE-UQ backend software runs these different applications for the user, taking the \
+      outputs from some programs and providing them as inputs to others. The design of the EE-UQ application is such that \
+      researchers are able to modify the backend application to utilize their own application in the workflow computations. \
+      This will ensure researchers are not limited to using the default applications we provide and will be enthused to provide\
+      their own applications for others to use.\
+      <p>\
+      This is Version 1.0 of the tool and as such is limited in scope. Researchers are encouraged to comment on what additional \
+      features and applications they would like to see in this application. If you want it, chances are many of your colleagues \
+      also would benefit from it.\
+      <p>";
+
+     w.setAbout(textAboutPBE);
+
+  QString version("1.0.0");
+  w.setVersion(version);
+
   //
   // move remote interface to a thread
   //
