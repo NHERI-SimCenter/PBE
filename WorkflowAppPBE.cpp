@@ -437,6 +437,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
    theResults->processResults(dakotaOut, dakotaTab, inputFile,
                               fragFolder, popFile);
    theRunWidget->hide();
+   treeView->setCurrentIndex(infoItemIdx);
    theStackedWidget->setCurrentIndex(5);
  }
 
