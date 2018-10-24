@@ -75,6 +75,7 @@ using namespace QtCharts;
 #include <QXYSeries>
 #include <QBarSeries>
 #include <QBarSet>
+#include <QBarCategoryAxis>
 #include <QLabel>
 
 #define NUM_DIVISIONS 10
@@ -823,8 +824,10 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             }
 
             double maxPercent = 0;
+            QList<QString> xLabelList;
             for (int i=0; i<binCount; i++) {
                 histogram[i] /= rowCount;
+                xLabelList.append(QString::number(min+(i+0.5)*binSize));
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }            
@@ -834,18 +837,27 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 
             QBarSeries *series = new QBarSeries();
             series->append(set);
+            series->setBarWidth(0.9);
+            series->setLabelsAngle(0.0);
+            series->setLabelsPrecision(4);
 
             chart->addSeries(series);
             chart->createDefaultAxes();
-            QValueAxis *axisX = new QValueAxis();
-            QValueAxis *axisY = new QValueAxis();
 
-            axisX->setRange(min, max);
-            axisY->setRange(0, maxPercent);
-            axisY->setTitleText("Frequency %");
+            QStringList xLabels = QStringList(xLabelList);
+            QBarCategoryAxis *axisX = new QBarCategoryAxis();
+            axisX->append(xLabels);
             axisX->setTitleText(theHeadings.at(col1));
             //axisX->setTickCount(NUM_DIVISIONS+1);
+            chart->setAxisX(axisX, series);
+
+            //axisX->setRange(min, max);
+
             //chart->setAxisX(axisX, series);
+
+            QValueAxis *axisY = new QValueAxis();
+            axisY->setRange(0, maxPercent);
+            axisY->setTitleText("Frequency %");
             chart->setAxisY(axisY, series);
             chart->zoom(0.95);
     } else {
