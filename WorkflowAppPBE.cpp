@@ -113,7 +113,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("PBE.py");
-    remoteApp = new RemoteApplication(theService);
+    remoteApp = new RemoteApplication("PBE.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
     // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
