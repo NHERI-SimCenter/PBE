@@ -294,10 +294,10 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
     chart->setAnimationOptions(QChart::AllAnimations);
     QScatterSeries *series = new QScatterSeries;
     col1 = 0;
-    col2 = numCol-1;
+    col2 = numCol-3;
     mLeft = true;
 
-    this->onSpreadsheetCellClicked(0,numCol-1);
+    this->onSpreadsheetCellClicked(0,numCol-3);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
@@ -582,7 +582,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     chart = new QChart();
     chart->setAnimationOptions(QChart::AllAnimations);
 
-    this->onSpreadsheetCellClicked(0,colCount-2);
+    this->onSpreadsheetCellClicked(0,colCount-3);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
@@ -780,7 +780,8 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
         this->getColDataExt(dataXY, rowCount, col1, col1, false);
         rowCount = dataXY.length();
 
-        int binCount = 2 * int(pow(rowCount, 1.0/3.0));
+        int binCount = int(pow(rowCount, 1.0/3.0));
+        if (binCount > 20) binCount = 20;
         qDebug() << "row count: " << rowCount;
         qDebug() << "bin count: " << binCount;
 
