@@ -1,0 +1,217 @@
+{
+    "Applications": {
+        "EDP": {
+            "Application": "StandardEarthquakeEDP",
+            "ApplicationData": {
+            }
+        },
+        "Events": [
+            {
+                "Application": "ExistingSimCenterEvents",
+                "ApplicationData": {
+                },
+                "EventClassification": "Earthquake"
+            }
+        ],
+        "Modeling": {
+            "Application": "OpenSeesInput",
+            "ApplicationData": {
+                "fileName": "UPDATE TO THE LOCATION OF SDOF.tcl",
+                "filePath": "."
+            }
+        },
+        "Simulation": {
+            "Application": "OpenSees-Simulation",
+            "ApplicationData": {
+            }
+        },
+        "UQ": {
+            "Application": "Dakota-UQ",
+            "ApplicationData": {
+                "method": "LHS",
+                "samples": 1,
+                "seed": 968,
+                "type": "UQ"
+            }
+        }
+    },
+    "Events": [
+        {
+            "EventClassification": "Earthquake",
+            "Events": [
+                {
+                    "EventClassification": "Earthquake",
+                    "factor": 1.82017,
+                    "fileName": "UPDATE TO THE LOCATION OF Rinaldi.json",
+                    "filePath": ".",
+                    "name": "Rinaldi",
+                    "type": "ExistingEvent"
+                }
+            ],
+            "type": "ExistingSimCenterEvents"
+        }
+    ],
+    "GeneralInformation": {
+        "height": 8,
+        "location": {
+            "latitude": 37.99,
+            "longitude": -122.5987,
+            "name": "test_location"
+        },
+        "name": "SDOF",
+        "planArea": 100,
+        "revision": 1,
+        "stories": 3,
+        "type": "W1",
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        },
+        "year": 1945
+    },
+    "LossModel": {
+        "BuildingDamage": {
+            "CollapseLimits": {
+                "PFA": "4.903325",
+                "PID": ""
+            },
+            "IrrepairableResidualDrift": {
+                "Median": "10.",
+                "Sig": "0.0001"
+            },
+            "ReplacementCost": "300000",
+            "ReplacementTime": "300"
+        },
+        "BuildingResponse": {
+            "DetectionLimits": {
+                "PFA": "",
+                "PID": ""
+            },
+            "YieldDriftRatio": "0.01"
+        },
+        "CollapseModes": [
+            {
+                "affected_area": "1.0",
+                "injuries": "0.1, 0.9",
+                "name": "complete",
+                "w": "1.0"
+            }
+        ],
+        "Components": [
+            {
+                "ID": "T0001.001",
+                "cov": "0.0001",
+                "directions": "0",
+                "distribution": "normal",
+                "name": "test component",
+                "quantity": "5.3821",
+                "structural": true,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "1.0"
+            }
+        ],
+        "DataSources": {
+            "ComponentDataFolder": "UPDATE TO THE LOCATION OF T0001.001.xml",
+            "PopulationDataFile": "UPDATE TO THE LOCATION OF population_test.json"
+        },
+        "DecisionVariables": {
+            "Injuries": true,
+            "ReconstructionCost": true,
+            "ReconstructionTime": true,
+            "RedTag": true
+        },
+        "Inhabitants": {
+            "OccupancyType": "Hospitality",
+            "PeakPopulation": "10"
+        },
+        "LossModelDependencies": {
+            "CostAndTime": false,
+            "Fragilities": "per ATC recommendation",
+            "Injuries": "Independent",
+            "InjurySeverities": false,
+            "Quantities": "Independent",
+            "ReconstructionCosts": "Independent",
+            "ReconstructionTimes": "Independent",
+            "RedTagProbabilities": "Independent"
+        },
+        "UncertaintyQuantification": {
+            "AdditionalUncertainty": {
+                "GroundMotion": "0.0001",
+                "Modeling": "0.0001"
+            },
+            "Realizations": "10000"
+        }
+    },
+    "Simulation": {
+        "Application": "OpenSees-Simulation",
+        "algorithm": "Newton",
+        "convergenceTest": "NormUnbalance",
+        "dampingRatio": 0.02,
+        "integration": "Newmark 0.5 0.25",
+        "tolerance": 0.01
+    },
+    "StructuralInformation": {
+        "ndm": 2,
+        "nodes": [
+            0,
+            1
+        ],
+        "randomVar": [
+            {
+                "name": "xi",
+                "value": "RV.xi"
+            },
+            {
+                "name": "height",
+                "value": "RV.height"
+            },
+            {
+                "name": "mass",
+                "value": "RV.mass"
+            }
+        ],
+        "type": "OpenSeesInput"
+    },
+    "UQ_Method": {
+        "samplingMethodData": {
+            "method": "LHS",
+            "samples": 1,
+            "seed": 968
+        }
+    },
+    "localAppDir": "c:/Adam/Qt/PBE/EE-UQ/",
+    "randomVariables": [
+        {
+            "distribution": "Normal",
+            "mean": 0.1,
+            "name": "T_1",
+            "stdDev": 1e-05,
+            "value": "RV.T_1",
+            "variableClass": "Uncertain"
+        },
+        {
+            "distribution": "Constant",
+            "name": "xi",
+            "value": 0.05,
+            "variableClass": "Uncertain"
+        },
+        {
+            "distribution": "Constant",
+            "name": "height",
+            "value": 3,
+            "variableClass": "Uncertain"
+        },
+        {
+            "distribution": "Constant",
+            "name": "mass",
+            "value": 1000,
+            "variableClass": "Uncertain"
+        }
+    ],
+    "remoteAppDir": "c:/Adam/Qt/PBE/EE-UQ/",
+    "runType": "local",
+    "workingDir": "C:/Adam/Workdir/"
+}

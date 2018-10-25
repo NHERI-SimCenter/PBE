@@ -123,6 +123,8 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     # units
     if (GI is not None) and ('units' in GI.keys()):
         for key, value in GI['units'].items():
+            if value == 'in':
+                value = 'inch'
             if value in globals().keys():
                 data['units'].update({key: globals()[value]})
             else:
