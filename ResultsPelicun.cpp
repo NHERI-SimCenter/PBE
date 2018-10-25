@@ -776,10 +776,11 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 
         chart->zoom(0.95);
 
-    } else {      
+    } else {
         QList<QPointF> dataXY;
         this->getColDataExt(dataXY, rowCount, col1, col1, false);
         rowCount = dataXY.length();
+        int totalSampleCount = spreadsheet->rowCount();
 
         int binCount = int(pow(rowCount, 1.0/3.0));
         if (binCount > 20) binCount = 20;
@@ -826,7 +827,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             double maxPercent = 0;
             QList<QString> xLabelList;
             for (int i=0; i<binCount; i++) {
-                histogram[i] /= rowCount;
+                histogram[i] /= totalSampleCount;
                 xLabelList.append(QString::number(min+(i+0.5)*binSize));
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
@@ -868,7 +869,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             qSort(dataValues);
 
             for (int i=0; i<rowCount; i++) {
-                series->append(dataValues[i], 1.0*i/rowCount);
+                series->append(dataValues[i], 1.0*i/totalSampleCount);
             }
 
             chart->addSeries(series);
