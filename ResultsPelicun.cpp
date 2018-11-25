@@ -840,7 +840,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             series->append(set);
             series->setBarWidth(0.9);
             series->setLabelsAngle(0.0);
-            series->setLabelsPrecision(4);
+            // series->setLabelsPrecision(4);
 
             chart->addSeries(series);
             chart->createDefaultAxes();
