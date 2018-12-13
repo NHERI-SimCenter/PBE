@@ -58,7 +58,7 @@ class InputWidgetOpenSeesAnalysis;
 class UQOptions;
 class ResultsPelicun;
 class GeneralInformationWidget;
-class InputWidgetEarthquakeEvent;
+class EarthquakeEventSelection;
 class QStackedWidget;
 
 class RunLocalWidget;
@@ -118,7 +118,7 @@ private:
 
     SIM_Selection *theSIM;
     InputWidgetSampling *theUQ_Method;
-    InputWidgetEarthquakeEvent *theEvent;
+    EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
     LossModelContainer *theLossModel;
     ResultsPelicun *theResults;
