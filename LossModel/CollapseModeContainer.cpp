@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QScrollArea>
 
 
-CollapseModeContainer::CollapseModeContainer(RandomVariableInputWidget *theRV_IW, QWidget *parent)
+CollapseModeContainer::CollapseModeContainer(RandomVariablesContainer *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
     verticalLayout = new QVBoxLayout();

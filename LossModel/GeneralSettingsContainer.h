@@ -50,7 +50,7 @@ class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
 class RandomVariableDistribution;
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 class QRadioButton;
 
 /*!
@@ -66,7 +66,7 @@ public:
      * @param[in] parent Parent widget of GeneralSettingsContainer
      */
     explicit GeneralSettingsContainer(
-        RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
+        RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
@@ -141,7 +141,7 @@ private:
 
     QVBoxLayout *mainLayout; /*!< Main layout for general settings */
 
-    RandomVariableInputWidget *theRandVariableIW;
+    RandomVariablesContainer *theRandVariableIW;
 };
 
 #endif // GENERAL_SETTINGS_CONTAINER_H
