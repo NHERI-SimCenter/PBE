@@ -49,7 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <WorkflowAppWidget.h>
 #include <LossModel/LossModelContainer.h>
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 //class InputWidgetSheetSIM;
 class SIM_Selection;
 class InputWidgetSampling;
@@ -58,7 +58,7 @@ class InputWidgetOpenSeesAnalysis;
 class UQOptions;
 class ResultsPelicun;
 class GeneralInformationWidget;
-class InputWidgetEarthquakeEvent;
+class EarthquakeEventSelection;
 class QStackedWidget;
 
 class RunLocalWidget;
@@ -114,11 +114,11 @@ private:
     QStandardItem *rootNode;
 
     GeneralInformationWidget *theGI;
-    RandomVariableInputWidget *theRVs;
+    RandomVariablesContainer *theRVs;
 
     SIM_Selection *theSIM;
     InputWidgetSampling *theUQ_Method;
-    InputWidgetEarthquakeEvent *theEvent;
+    EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
     LossModelContainer *theLossModel;
     ResultsPelicun *theResults;

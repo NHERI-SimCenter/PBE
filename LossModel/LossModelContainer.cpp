@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTabWidget.h>
 
 LossModelContainer::LossModelContainer(
-    RandomVariableInputWidget *theRV_IW, QWidget *parent)
+    RandomVariablesContainer *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
     QVBoxLayout *layout = new QVBoxLayout();

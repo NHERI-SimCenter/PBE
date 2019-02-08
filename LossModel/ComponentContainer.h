@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 class QVBoxLayout;
 class Component;
 
@@ -50,7 +50,7 @@ class ComponentContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit ComponentContainer(RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
+    explicit ComponentContainer(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
 
     ~ComponentContainer();
 
@@ -69,7 +69,7 @@ private:
     QVBoxLayout *eventLayout;
 
     QVector<Component *>theComponents;
-    RandomVariableInputWidget *theRandVariableIW;
+    RandomVariablesContainer *theRandVariableIW;
 };
 
 #endif // COMPONENT_CONTAINER_H

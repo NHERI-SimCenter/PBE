@@ -47,7 +47,7 @@ class QComboBox;
 class QStackedWidget;
 class QVBoxLayout;
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 
 class GeneralSettingsContainer;
 class ComponentContainer;
@@ -58,7 +58,7 @@ class LossModelContainer : public SimCenterAppWidget
     Q_OBJECT
 public:
     explicit LossModelContainer(
-      RandomVariableInputWidget *theRV_IW, QWidget *parent = 0);
+      RandomVariablesContainer *theRV_IW, QWidget *parent = 0);
 
     QString getFragilityFolder();
     QString getPopulationFile();
@@ -76,7 +76,7 @@ public slots:
     void errorMessage(QString message);
 
 private:
-    RandomVariableInputWidget *theRandVariableIW;
+    RandomVariablesContainer *theRandVariableIW;
     
     /*
     QComboBox *eventSelection;

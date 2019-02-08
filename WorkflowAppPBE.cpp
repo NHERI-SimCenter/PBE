@@ -65,12 +65,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "CustomizedItemModel.h"
 
 // SimCenter Widgets
-#include <InputWidgetEarthquakeEvent.h>
+#include <EarthquakeEventSelection.h>
 #include <RunLocalWidget.h>
 #include <RemoteService.h>
 #include <GeneralInformationWidget.h>
 #include <SIM_Selection.h>
-#include <RandomVariableInputWidget.h>
+#include <RandomVariablesContainer.h>
 #include <InputWidgetSampling.h>
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <LocalApplication.h>
@@ -103,10 +103,10 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // create the various widgets
     //
 
-    theRVs = new RandomVariableInputWidget();
-    theGI = new GeneralInformationWidget();
+    theRVs = new RandomVariablesContainer();
+    theGI = GeneralInformationWidget::getInstance();
     theSIM = new SIM_Selection(theRVs);
-    theEvent = new InputWidgetEarthquakeEvent(theRVs);
+    theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Method = new InputWidgetSampling();
     theLossModel = new LossModelContainer(theRVs);

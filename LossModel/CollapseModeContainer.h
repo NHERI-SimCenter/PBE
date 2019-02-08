@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 class QVBoxLayout;
 class CollapseMode;
 
@@ -51,7 +51,7 @@ class CollapseModeContainer : public SimCenterAppWidget
     Q_OBJECT
 public:
     explicit CollapseModeContainer(
-      RandomVariableInputWidget *theRandomVariableIW, QWidget *parent = 0);
+      RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
 
     ~CollapseModeContainer();
 
@@ -70,7 +70,7 @@ private:
     QVBoxLayout *eventLayout;
 
     QVector<CollapseMode *>theCollapseModes;
-    RandomVariableInputWidget *theRandVariableIW;
+    RandomVariablesContainer *theRandVariableIW;
 };
 
 #endif // COLLAPSE_MODE_CONTAINER_H

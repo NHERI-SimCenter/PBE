@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "GeneralSettingsContainer.h"
 
-GeneralSettingsContainer::GeneralSettingsContainer(RandomVariableInputWidget *theRV_IW, QWidget *parent)
+GeneralSettingsContainer::GeneralSettingsContainer(RandomVariablesContainer *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
 
