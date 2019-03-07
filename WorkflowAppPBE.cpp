@@ -468,19 +468,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     } else
         return false;
 
-    if (jsonObject.contains("LossModel")) {
-        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
-        theLossModel->inputFromJSON(jsonObjLossModel);
-    } else
-        return false;
-
     /*
     ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
     */
-
-    theEvent->inputFromJSON(jsonObject);
-    theRVs->inputFromJSON(jsonObject);
-    theRunWidget->inputFromJSON(jsonObject);
 
     /*
     if (jsonObject.contains("Events")) {
@@ -516,29 +506,46 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Events")) {
             QJsonObject theObject = theApplicationObject["Events"].toObject();
             theEvent->inputAppDataFromJSON(theApplicationObject);
-        } else
-            return false;
+        } else {
+            return false;     
+        }
 
 
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
             theUQ_Method->inputAppDataFromJSON(theObject);
-        } else
+        } else {
             return false;
+        }
 
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             theAnalysis->inputAppDataFromJSON(theObject);
-        } else
+        } else {
             return false;
+        }
 
+        /*
         if (theApplicationObject.contains("Loss")) {
             QJsonObject theObject = theApplicationObject["Loss"].toObject();
             theLossModel->inputAppDataFromJSON(theObject);
-        } else
+        } else {
+            qDebug() << "LOSS";
             return false;
+        }
+        */
 
 
+    } else
+        return false;
+
+    theEvent->inputFromJSON(jsonObject);
+    theRVs->inputFromJSON(jsonObject);
+    theRunWidget->inputFromJSON(jsonObject);
+
+    if (jsonObject.contains("LossModel")) {
+        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
+        theLossModel->inputFromJSON(jsonObjLossModel);
     } else
         return false;
 
