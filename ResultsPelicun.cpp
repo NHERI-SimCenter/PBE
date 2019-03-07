@@ -881,9 +881,10 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             axisY->setTitleText("Cumulative Probability");
             axisX->setTitleText(theHeadings.at(col1));
             axisX->setTickCount(11);
+            axisY->setTickCount(11);
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
-            chart->zoom(0.95);
+            chart->zoom(0.995);
         }
 
     }
