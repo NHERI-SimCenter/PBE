@@ -138,6 +138,10 @@ Component::Component(QWidget *parent)
     unitComboBox->setToolTip(tr("Units of the specified component quantity - must match with the units defined in the fragility database."));
     unitComboBox->addItem(tr("LF"));
     unitComboBox->addItem(tr("SF"));
+    unitComboBox->addItem(tr("TN"));
+    unitComboBox->addItem(tr("AP"));
+    unitComboBox->addItem(tr("CF"));
+    unitComboBox->addItem(tr("KV"));
     unitComboBox->addItem(tr("ea"));
     unitComboBox->setMaximumWidth(100);
     unitComboBox->setMinimumWidth(100);
