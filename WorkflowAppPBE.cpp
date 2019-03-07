@@ -208,7 +208,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     //defining bunch of items for inclusion in model
     QStandardItem *giItem = new QStandardItem("GI");
-    QStandardItem *bimItem = new QStandardItem("BIM");
+    QStandardItem *bimItem = new QStandardItem("SIM");
     QStandardItem *evtItem = new QStandardItem("EVT");
     QStandardItem *uqItem   = new QStandardItem("UQ");
     QStandardItem *femItem = new QStandardItem("FEM");
@@ -347,7 +347,7 @@ WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, co
 
     if (selectedText == "GI")
         theStackedWidget->setCurrentIndex(0);
-    else if (selectedText == "BIM")
+    else if (selectedText == "SIM")
         theStackedWidget->setCurrentIndex(1);
     else if (selectedText == "EVT")
         theStackedWidget->setCurrentIndex(2);
@@ -472,18 +472,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     } else
         return false;
 
-    if (jsonObject.contains("LossModel")) {
-        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
-        theLossModel->inputFromJSON(jsonObjLossModel);
-    } else
-        return false;
-
     /*
     ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
     */
-
-
-
 
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ"].toObject();
@@ -505,27 +496,34 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Events")) {
             QJsonObject theObject = theApplicationObject["Events"].toObject();
             theEvent->inputAppDataFromJSON(theApplicationObject);
-        } else
-            return false;
+        } else {
+            return false;     
+        }
 
 
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
             theUQ_Method->inputAppDataFromJSON(theObject);
-        } else
+        } else {
             return false;
+        }
 
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             theAnalysis->inputAppDataFromJSON(theObject);
-        } else
+        } else {
             return false;
+        }
 
+        /*
         if (theApplicationObject.contains("Loss")) {
             QJsonObject theObject = theApplicationObject["Loss"].toObject();
             theLossModel->inputAppDataFromJSON(theObject);
-        } else
+        } else {
+            qDebug() << "LOSS";
             return false;
+        }
+        */
 
 
     } else
@@ -534,6 +532,12 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theEvent->inputFromJSON(jsonObject);
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
+
+    if (jsonObject.contains("LossModel")) {
+        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
+        theLossModel->inputFromJSON(jsonObjLossModel);
+    } else
+        return false;
 
     return true;
 }
