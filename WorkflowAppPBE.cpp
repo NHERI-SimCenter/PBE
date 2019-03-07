@@ -182,7 +182,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // some of above widgets are inside some tabbed widgets
     //
 
-    theBIM = new InputWidgetBIM(theGI, theSIM);
+    //theBIM = new InputWidgetBIM(theGI, theSIM);
     theUQ = new InputWidgetUQ(theUQ_Method,theRVs);
 
     //
@@ -207,7 +207,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QStandardItem *rootNode = standardModel->invisibleRootItem();
 
     //defining bunch of items for inclusion in model
-
+    QStandardItem *giItem = new QStandardItem("GI");
     QStandardItem *bimItem = new QStandardItem("BIM");
     QStandardItem *evtItem = new QStandardItem("EVT");
     QStandardItem *uqItem   = new QStandardItem("UQ");
@@ -216,6 +216,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QStandardItem *resultsItem = new QStandardItem("RES");
 
     //building up the hierarchy of the model
+    rootNode->appendRow(giItem);
     rootNode->appendRow(bimItem);
     rootNode->appendRow(evtItem);
     rootNode->appendRow(femItem);
@@ -266,7 +267,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     //
 
     theStackedWidget = new QStackedWidget();
-    theStackedWidget->addWidget(theBIM);
+    theStackedWidget->addWidget(theGI);
+    theStackedWidget->addWidget(theSIM);
     theStackedWidget->addWidget(theEvent);
     theStackedWidget->addWidget(theAnalysis);
     theStackedWidget->addWidget(theUQ);
@@ -343,18 +345,20 @@ WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, co
     const QModelIndex index = treeView->selectionModel()->currentIndex();
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
-    if (selectedText == "BIM")
+    if (selectedText == "GI")
         theStackedWidget->setCurrentIndex(0);
-    else if (selectedText == "EVT")
+    else if (selectedText == "BIM")
         theStackedWidget->setCurrentIndex(1);
-    else if (selectedText == "FEM")
+    else if (selectedText == "EVT")
         theStackedWidget->setCurrentIndex(2);
-    else if (selectedText == "UQ")
+    else if (selectedText == "FEM")
         theStackedWidget->setCurrentIndex(3);
-    else if (selectedText == "CMP")
+    else if (selectedText == "UQ")
         theStackedWidget->setCurrentIndex(4);
-    else if (selectedText == "RES")
+    else if (selectedText == "CMP")
         theStackedWidget->setCurrentIndex(5);
+    else if (selectedText == "RES")
+        theStackedWidget->setCurrentIndex(6);
 }
 
 
@@ -438,7 +442,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
                               fragFolder, popFile);
    theRunWidget->hide();
    treeView->setCurrentIndex(infoItemIdx);
-   theStackedWidget->setCurrentIndex(5);
+   theStackedWidget->setCurrentIndex(6);
  }
 
 void
@@ -478,23 +482,8 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
     */
 
-    theEvent->inputFromJSON(jsonObject);
-    theRVs->inputFromJSON(jsonObject);
-    theRunWidget->inputFromJSON(jsonObject);
 
-    /*
-    if (jsonObject.contains("Events")) {
-        QJsonObject jsonObjEventInformation = jsonObject["Event"].toObject();
-        theEvent->inputFromJSON(jsonObjEventInformation);
-    } else
-        return false;
 
-    if (jsonObject.contains("RandomVariables")) {
-        QJsonObject jsonObjRVsInformation = jsonObject["RandomVariables"].toObject();
-        theRVS->inputFromJSON(jsonObRVSInformation);
-    } else
-        return false;
-    */
 
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ"].toObject();
@@ -541,6 +530,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 
     } else
         return false;
+
+    theEvent->inputFromJSON(jsonObject);
+    theRVs->inputFromJSON(jsonObject);
+    theRunWidget->inputFromJSON(jsonObject);
 
     return true;
 }
