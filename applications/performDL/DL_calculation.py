@@ -71,14 +71,17 @@ def run_pelicun(DL_input_path, EDP_input_path,
 		'DMG_agg.csv', DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
 		index_name='#Num', collapse_columns=False)
 
+	DV_mods, DV_names = [], []
 	for key in A._DV_dict.keys():
 		if key != 'injuries':
-			DV_mod = replace_FG_IDs_with_FG_names(A, A._DV_dict[key])
-			DV_name = 'DV_{}'.format(key)
+			DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
+			DV_names.append('DV_{}'.format(key))
 		else:
-			DV_mod = replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i])
-			DV_name = 'DV_{}_{}'.format(key, i)
+			for i in range(2):
+				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
+				DV_names.append('DV_{}_{}'.format(key, i))
 
+	for DV_mod, DV_name in zip(DV_mods, DV_names):
 		write_SimCenter_DL_output(
 		DV_name+'.csv', DV_mod, index_name='#Num', collapse_columns=False)
 
