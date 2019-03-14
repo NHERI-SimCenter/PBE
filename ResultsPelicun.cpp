@@ -379,6 +379,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
                                    QString fragilitiesString,
                                    QString populationString) {
 
+    emit sendStatusMessage("Pelicun now Processing Simulation Results");
 
     //
     // invoke python script to perform DL calculations
@@ -450,7 +451,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     const char *resultsStatsFile = "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile);
     if (!fileResultsStats.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
+        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to Run Correctly. Run from terminal to see error file"));
         return -1;
     }
 
