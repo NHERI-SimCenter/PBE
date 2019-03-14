@@ -17,24 +17,31 @@ def replace_FG_IDs_with_FG_names(assessment, df):
 def run_pelicun(DL_input_path, EDP_input_path, 
 	CMP_data_path=None, POP_data_path=None):
 
+	target_path = DL_input_path[:-len('dakota.json')]
+	#print(target_path)
+
 	# delete output files from previous runs (if needed)
-	try:
-		os.remove('DL_summary.csv')
-		os.remove('DL_summary_stats.csv')
-		os.remove('DMG.csv')
-		os.remove('DMG_agg.csv')
-		os.remove('DV_red_tag.csv')
-		os.remove('DV_red_tag_agg.csv')
-		os.remove('DV_rec_cost.csv')
-		os.remove('DV_rec_cost_agg.csv')
-		os.remove('DV_rec_time.csv')
-		os.remove('DV_rec_time_agg.csv')
-		os.remove('DV_injuries_0.csv')
-		os.remove('DV_injuries_0_agg.csv')
-		os.remove('DV_injuries_1.csv')
-		os.remove('DV_injuries_1_agg.csv')
-	except:
-		pass
+	files_to_delete = [
+		'DL_summary.csv',
+        'DL_summary_stats.csv',
+        'DMG.csv',
+        'DMG_agg.csv',
+        'DV_red_tag.csv',
+        'DV_red_tag_agg.csv',
+        'DV_rec_cost.csv',
+        'DV_rec_cost_agg.csv',
+        'DV_rec_time.csv',
+        'DV_rec_time_agg.csv',
+        'DV_injuries_0.csv',
+        'DV_injuries_0_agg.csv',
+        'DV_injuries_1.csv',
+        'DV_injuries_1_agg.csv',
+	]
+	for file_name in files_to_delete:
+		try:
+			os.remove(target_path+file_name)
+		except:
+			pass
 
 	A = FEMA_P58_Assessment()
 	A.read_inputs(DL_input_path, EDP_input_path, 
@@ -50,49 +57,52 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 	A.aggregate_results()
 
-	write_SimCenter_DL_output('DL_summary.csv', A._SUMMARY, 
-		index_name='#Num', collapse_columns=True)
+	try:
+		write_SimCenter_DL_output(target_path+'DL_summary.csv', A._SUMMARY, 
+			index_name='#Num', collapse_columns=True)
 
-	write_SimCenter_DL_output('DL_summary_stats.csv', A._SUMMARY, 
-		index_name='attribute',
-		collapse_columns=True, stats_only=True)
+		write_SimCenter_DL_output(target_path+'DL_summary_stats.csv', A._SUMMARY, 
+			index_name='attribute',
+			collapse_columns=True, stats_only=True)
 
-	EDPs = sorted(A._EDP_dict.keys())
-	write_SimCenter_DL_output(
-		'EDP.csv', A._EDP_dict[EDPs[0]]._RV.samples,
-		index_name='#Num', collapse_columns=False)
-	
-	DMG_mod = replace_FG_IDs_with_FG_names(A, A._DMG)
-	write_SimCenter_DL_output(
-		'DMG.csv', DMG_mod,
-		index_name='#Num', collapse_columns=False)
-
-	write_SimCenter_DL_output(
-		'DMG_agg.csv', DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
-		index_name='#Num', collapse_columns=False)
-
-	DV_mods, DV_names = [], []
-	for key in A._DV_dict.keys():
-		if key != 'injuries':
-			DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
-			DV_names.append('DV_{}'.format(key))
-		else:
-			for i in range(2):
-				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
-				DV_names.append('DV_{}_{}'.format(key, i))
-
-	for DV_mod, DV_name in zip(DV_mods, DV_names):
+		EDPs = sorted(A._EDP_dict.keys())
 		write_SimCenter_DL_output(
-		DV_name+'.csv', DV_mod, index_name='#Num', collapse_columns=False)
+			target_path+'EDP.csv', A._EDP_dict[EDPs[0]]._RV.samples,
+			index_name='#Num', collapse_columns=False)
+		
+		DMG_mod = replace_FG_IDs_with_FG_names(A, A._DMG)
+		write_SimCenter_DL_output(
+			target_path+'DMG.csv', DMG_mod,
+			index_name='#Num', collapse_columns=False)
 
 		write_SimCenter_DL_output(
-		DV_name+'_agg.csv', DV_mod.T.groupby(level=0).aggregate(np.sum).T,
-		index_name='#Num', collapse_columns=False)
+			target_path+'DMG_agg.csv', DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
+			index_name='#Num', collapse_columns=False)
+
+		DV_mods, DV_names = [], []
+		for key in A._DV_dict.keys():
+			if key != 'injuries':
+				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
+				DV_names.append('DV_{}'.format(key))
+			else:
+				for i in range(2):
+					DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
+					DV_names.append('DV_{}_{}'.format(key, i))
+
+		for DV_mod, DV_name in zip(DV_mods, DV_names):
+			write_SimCenter_DL_output(
+			target_path+DV_name+'.csv', DV_mod, index_name='#Num', collapse_columns=False)
+
+			write_SimCenter_DL_output(
+			target_path+DV_name+'_agg.csv', DV_mod.T.groupby(level=0).aggregate(np.sum).T,
+			index_name='#Num', collapse_columns=False)
+
+	except:
+		print("ERROR when trying to create DL output files.")
 
 	return 0
 
 if __name__ == '__main__':
-
 
 	if sys.argv[3] not in [None, 'None']:
 		CMP_data_path = sys.argv[3]+'/'
