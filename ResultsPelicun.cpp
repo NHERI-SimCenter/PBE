@@ -448,8 +448,9 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     //DL_Summary_Stats
     // open Dakota output file
     //
-    const char *resultsStatsFile = "DL_summary_stats.csv";
-    std::ifstream fileResultsStats(resultsStatsFile);
+    QString resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
+    //const char *resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
+    std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
         emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to Run Correctly. Run from terminal to see error file"));
         return -1;
@@ -539,8 +540,8 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 
     // now read the file with the detailed results
     //DL_Summary
-    const char *resultsFile = "DL_summary.csv";
-    std::ifstream fileResults(resultsFile);
+    QString resultsFile = inputFile.remove("dakota.json") + "DL_summary.csv";
+    std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
         emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
         return -1;
