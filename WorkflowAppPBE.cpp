@@ -56,70 +56,134 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <RemoteService.h>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
+#include <QHostInfo>
+#include <QUuid>
+#include "CustomizedItemModel.h"
 
 // SimCenter Widgets
-#include <InputWidgetEarthquakeEvent.h>
+#include <EarthquakeEventSelection.h>
 #include <RunLocalWidget.h>
-
 #include <RemoteService.h>
 #include <GeneralInformationWidget.h>
-#include <InputWidgetBIM_Selection.h>
-#include <RandomVariableInputWidget.h>
+#include <SIM_Selection.h>
+#include <RandomVariablesContainer.h>
 #include <InputWidgetSampling.h>
 #include <InputWidgetOpenSeesAnalysis.h>
-
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
-#include <Components/ComponentContainer.h>
+#include <LossModel/LossModelContainer.h>
 #include <RunWidget.h>
+#include <InputWidgetBIM.h>
+#include <InputWidgetUQ.h>
+#include <ResultsPelicun.h>
 
 #include "CustomizedItemModel.h"
+#include <ResultsPelicun.h>
+
+// static pointer for global procedure set in constructor
+static WorkflowAppPBE *theApp = 0;
+
+// global procedure
+int getNumParallelTasks() {
+    return theApp->getMaxNumParallelTasks();
+}
 
 WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     : WorkflowAppWidget(theService, parent)
 {
 
+    theApp = this;
+
     //
     // create the various widgets
     //
 
-    theRVs = new RandomVariableInputWidget();
-    theGI = new GeneralInformationWidget();
-    theSIM = new InputWidgetBIM_Selection(theRVs);
-    theEvent = new InputWidgetEarthquakeEvent(theRVs);
+    theRVs = new RandomVariablesContainer();
+    theGI = GeneralInformationWidget::getInstance();
+    theSIM = new SIM_Selection(theRVs);
+    theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
-    theUQ = new InputWidgetSampling();
-    theContents = new ComponentContainer(theRVs);
-    theResults = new QWidget();
+    theUQ_Method = new InputWidgetSampling();
+    theLossModel = new LossModelContainer(theRVs);
+    theResults = new ResultsPelicun();
 
-    localApp = new LocalApplication;
-    remoteApp = new RemoteApplication(theService);
+    localApp = new LocalApplication("PBE.py");
+    remoteApp = new RemoteApplication("PBE.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
-   // theRunLocalWidget = new RunLocalWidget(theUQ);
-    SimCenterWidget *theWidgets[2];
-    theWidgets[0] = theAnalysis;
-    theWidgets[1] = theUQ;
+    // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
+    SimCenterWidget *theWidgets[1];
+    //    theWidgets[0] = theAnalysis;
+    //    theWidgets[1] = theUQ_Method;
     int numWidgets = 2;
-    theRunWidget = new RunWidget(localApp, remoteApp, theWidgets, 2);
+    theRunWidget = new RunWidget(localApp, remoteApp, theWidgets, 0);
 
     //
     // connect signals and slots
     //
 
+    // error messages and signals
+    connect(theResults,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(theResults,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theResults,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+    connect(theGI,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(theGI,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theGI,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+    connect(theSIM,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(theSIM,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theSIM,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+    connect(theEvent,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(theEvent,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theEvent,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+    connect(theRunWidget,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(theRunWidget,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theRunWidget,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+
+    connect(localApp,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(localApp,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(localApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+    connect(remoteApp,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    connect(remoteApp,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(remoteApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+
+
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
     connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
-    connect(localApp,SIGNAL(processResults(QString, QString)), this, SLOT(processResults(QString, QString)));
+
+    connect(localApp,
+            SIGNAL(processResults(QString, QString, QString)),
+            this,
+            SLOT(processResults(QString, QString, QString)));
 
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(theJobManager,SIGNAL(processResults(QString , QString)), this, SLOT(processResults(QString, QString)));
+    connect(theJobManager,
+            SIGNAL(processResults(QString , QString, QString)),
+            this,
+            SLOT(processResults(QString, QString, QString)));
     connect(theJobManager,SIGNAL(loadFile(QString)), this, SLOT(loadFile(QString)));
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
 
     //connect(theRunLocalWidget, SIGNAL(runButtonPressed(QString, QString)), this, SLOT(runLocal(QString, QString)));
+
+    //
+    // some of above widgets are inside some tabbed widgets
+    //
+
+    //theBIM = new InputWidgetBIM(theGI, theSIM);
+    theUQ = new InputWidgetUQ(theUQ_Method,theRVs);
 
     //
     //  NOTE: for displaying the widgets we will use a QTree View to label the widgets for selection
@@ -143,10 +207,11 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QStandardItem *rootNode = standardModel->invisibleRootItem();
 
     //defining bunch of items for inclusion in model
-    QStandardItem *giItem    = new QStandardItem("GEN");
-    QStandardItem *rvItem   = new QStandardItem("RVs");
+    QStandardItem *giItem = new QStandardItem("GI");
     QStandardItem *bimItem = new QStandardItem("SIM");
     QStandardItem *evtItem = new QStandardItem("EVT");
+    QStandardItem *uqItem   = new QStandardItem("UQ");
+    QStandardItem *femItem = new QStandardItem("FEM");
     QStandardItem *contentsItem = new QStandardItem("CMP");
     QStandardItem *resultsItem = new QStandardItem("RES");
 
@@ -154,7 +219,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     rootNode->appendRow(giItem);
     rootNode->appendRow(bimItem);
     rootNode->appendRow(evtItem);
-    rootNode->appendRow(rvItem);
+    rootNode->appendRow(femItem);
+    rootNode->appendRow(uqItem);
     rootNode->appendRow(contentsItem);
     rootNode->appendRow(resultsItem);
 
@@ -177,7 +243,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     if(file.open(QFile::ReadOnly)) {
         this->setStyleSheet(file.readAll());
         file.close();
-        qDebug() << "Open Style File Successfully.";
     }
     else
         qDebug() << "Open Style File Failed!";
@@ -205,8 +270,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theStackedWidget->addWidget(theGI);
     theStackedWidget->addWidget(theSIM);
     theStackedWidget->addWidget(theEvent);
-    theStackedWidget->addWidget(theRVs);
-    theStackedWidget->addWidget(theContents);
+    theStackedWidget->addWidget(theAnalysis);
+    theStackedWidget->addWidget(theUQ);
+    theStackedWidget->addWidget(theLossModel);
     theStackedWidget->addWidget(theResults);
 
     // add stacked widget to layout
@@ -214,6 +280,55 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     // set current selection to GI
     treeView->setCurrentIndex( infoItemIdx );
+
+    // access a web page which will increment the usage count for this tool
+    manager = new QNetworkAccessManager(this);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
+
+    manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
+
+    // access a web page which will increment the usage count for this tool
+    manager = new QNetworkAccessManager(this);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
+
+    manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/bfm/use.php")));
+    //  manager->get(QNetworkRequest(QUrl("https://simcenter.designsafe-ci.org/multiple-degrees-freedom-analytics/")));
+
+
+    QNetworkRequest request;
+    QUrl host("http://www.google-analytics.com/collect");
+    request.setUrl(host);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/x-www-form-urlencoded");
+
+    // setup parameters of request
+    QString requestParams;
+    QUuid uuid = QUuid::createUuid();
+    QString hostname = QHostInfo::localHostName() + "." + QHostInfo::localDomainName();
+    requestParams += "v=1"; // version of protocol
+    requestParams += "&tid=UA-126256136-1"; // Google Analytics account
+    requestParams += "&cid=" + uuid.toString(); // unique user identifier
+    requestParams += "&t=event";  // hit type = event others pageview, exception
+    requestParams += "&an=PBE";   // app name
+    requestParams += "&av=1.0.1"; // app version
+    requestParams += "&ec=EEUQ";   // event category
+    requestParams += "&ea=start"; // event action
+
+    // send request via post method
+   // wait till release manager->post(request, requestParams.toStdString().c_str());
+    //UA-126256136-1
+
+    QFile fileS(":/styles/stylesheet.qss");
+    if(fileS.open(QFile::ReadOnly)) {
+        treeView->setStyleSheet(fileS.readAll());
+        fileS.close();
+    }
+    else
+        qDebug() << "Open Style File Failed!";
 
 }
 
@@ -230,18 +345,20 @@ WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, co
     const QModelIndex index = treeView->selectionModel()->currentIndex();
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
-    if (selectedText == "GEN")
+    if (selectedText == "GI")
         theStackedWidget->setCurrentIndex(0);
     else if (selectedText == "SIM")
         theStackedWidget->setCurrentIndex(1);
     else if (selectedText == "EVT")
         theStackedWidget->setCurrentIndex(2);
-    else if (selectedText == "RVs")
+    else if (selectedText == "FEM")
         theStackedWidget->setCurrentIndex(3);
-    else if (selectedText == "CMP")
+    else if (selectedText == "UQ")
         theStackedWidget->setCurrentIndex(4);
-    else if (selectedText == "RES")
+    else if (selectedText == "CMP")
         theStackedWidget->setCurrentIndex(5);
+    else if (selectedText == "RES")
+        theStackedWidget->setCurrentIndex(6);
 }
 
 
@@ -277,11 +394,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     apps["EDP"] = appsEDP;
 
     QJsonObject jsonObjectUQ;
-    theUQ->outputToJSON(jsonObjectUQ);
+    theUQ_Method->outputToJSON(jsonObjectUQ);
     jsonObjectTop["UQ_Method"] = jsonObjectUQ;
 
     QJsonObject appsUQ;
-    theUQ->outputAppDataToJSON(appsUQ);
+    theUQ_Method->outputAppDataToJSON(appsUQ);
     apps["UQ"]=appsUQ;
 
     QJsonObject jsonObjectAna;
@@ -302,16 +419,30 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
     jsonObjectTop["Applications"]=apps;
 
+
+    QJsonObject jsonLossModel;
+    theLossModel->outputToJSON(jsonLossModel);
+    jsonObjectTop["LossModel"] = jsonLossModel;
+
+    QJsonObject appsDL;
+    theLossModel->outputAppDataToJSON(appsDL);
+    apps["Loss"] = appsDL;
+    
     return true;
 }
 
 
  void
- WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab){
+ WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-     // theResults->processResults(dakotaOut, dakotaTab);
-      theRunWidget->hide();
-      theStackedWidget->setCurrentIndex(4);
+   QString fragFolder = theLossModel->getFragilityFolder();
+   QString popFile = theLossModel->getPopulationFile();
+
+   theResults->processResults(dakotaOut, dakotaTab, inputFile,
+                              fragFolder, popFile);
+   theRunWidget->hide();
+   treeView->setCurrentIndex(infoItemIdx);
+   theStackedWidget->setCurrentIndex(6);
  }
 
 void
@@ -345,24 +476,6 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
     */
 
-    theEvent->inputFromJSON(jsonObject);
-    theRVs->inputFromJSON(jsonObject);
-    theRunWidget->inputFromJSON(jsonObject);
-
-    /*
-    if (jsonObject.contains("Events")) {
-        QJsonObject jsonObjEventInformation = jsonObject["Event"].toObject();
-        theEvent->inputFromJSON(jsonObjEventInformation);
-    } else
-        return false;
-
-    if (jsonObject.contains("RandomVariables")) {
-        QJsonObject jsonObjRVsInformation = jsonObject["RandomVariables"].toObject();
-        theRVS->inputFromJSON(jsonObRVSInformation);
-    } else
-        return false;
-    */
-
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ"].toObject();
         theEvent->inputFromJSON(jsonObjUQInformation);
@@ -383,23 +496,46 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Events")) {
             QJsonObject theObject = theApplicationObject["Events"].toObject();
             theEvent->inputAppDataFromJSON(theApplicationObject);
-        } else
-            return false;
+        } else {
+            return false;     
+        }
 
 
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
-            theUQ->inputAppDataFromJSON(theObject);
-        } else
+            theUQ_Method->inputAppDataFromJSON(theObject);
+        } else {
             return false;
+        }
 
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             theAnalysis->inputAppDataFromJSON(theObject);
-        } else
+        } else {
             return false;
+        }
+
+        /*
+        if (theApplicationObject.contains("Loss")) {
+            QJsonObject theObject = theApplicationObject["Loss"].toObject();
+            theLossModel->inputAppDataFromJSON(theObject);
+        } else {
+            qDebug() << "LOSS";
+            return false;
+        }
+        */
 
 
+    } else
+        return false;
+
+    theEvent->inputFromJSON(jsonObject);
+    theRVs->inputFromJSON(jsonObject);
+    theRunWidget->inputFromJSON(jsonObject);
+
+    if (jsonObject.contains("LossModel")) {
+        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
+        theLossModel->inputFromJSON(jsonObjLossModel);
     } else
         return false;
 
@@ -461,7 +597,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     // and copy all files needed to this directory by invoking copyFiles() on app widgets
     //
 
-    QString tmpDirectory = workingDir + QDir::separator() + QString("tmp.SimCenter"); // + QDir::separator() + QString("templatedir");
+    QString tmpDirName = QString("tmp.SimCenter");
+    qDebug() << "TMP_DIR: " << tmpDirName;
+    QDir workDir(workingDir);
+
+    QString tmpDirectory = workDir.absoluteFilePath(tmpDirName);
     QDir destinationDirectory(tmpDirectory);
 
     if(destinationDirectory.exists()) {
@@ -469,14 +609,15 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     } else
       destinationDirectory.mkpath(tmpDirectory);
 
-    QString templateDirectory  = tmpDirectory + QDir::separator() + subDir;
+    QString templateDirectory  = destinationDirectory.absoluteFilePath(subDir);
     destinationDirectory.mkpath(templateDirectory);
 
-    // copyPath(path, tmpDirectory, false);
+    qDebug() << "templateDir: " << templateDirectory;
+
     theSIM->copyFiles(templateDirectory);
     theEvent->copyFiles(templateDirectory);
     theAnalysis->copyFiles(templateDirectory);
-    theUQ->copyFiles(templateDirectory);
+    theUQ_Method->copyFiles(templateDirectory);
 
     //
     // in new templatedir dir save the UI data into dakota.json file (same result as using saveAs)
@@ -542,3 +683,7 @@ WorkflowAppPBE::loadFile(const QString fileName){
 }
 
 
+int
+WorkflowAppPBE::getMaxNumParallelTasks() {
+    return theUQ_Method->getNumParallelTasks();
+}

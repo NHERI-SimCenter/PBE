@@ -47,17 +47,18 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
+#include <LossModel/LossModelContainer.h>
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 //class InputWidgetSheetSIM;
-class InputWidgetBIM_Selection;
+class SIM_Selection;
 class InputWidgetSampling;
 class EarthquakeLoadingInput;
 class InputWidgetOpenSeesAnalysis;
 class UQOptions;
-class ResultsWidget;
+class ResultsPelicun;
 class GeneralInformationWidget;
-class InputWidgetEarthquakeEvent;
+class EarthquakeEventSelection;
 class QStackedWidget;
 
 class RunLocalWidget;
@@ -65,6 +66,11 @@ class RunWidget;
 class Application;
 class RemoteService;
 class RemoteJobManager;
+class InputWidgetBIM;
+class InputWidgetUQ;
+class QNetworkAccessManager;
+
+class DakotaResults;
 
 class WorkflowAppPBE : public WorkflowAppWidget
 {
@@ -82,20 +88,18 @@ public:
     void onRemoteRunButtonClicked();
     void onRemoteGetButtonClicked();
     void onExitButtonClicked();
+    int getMaxNumParallelTasks();
     
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile);
     void sendLoadFile(QString filename);
 
-    void sendStatusMessage(QString message);
-    void sendErrorMessage(QString message);
-    void sendFatalMessage(QString message);
 
 public slots:  
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
     void setUpForApplicationRun(QString &, QString &);
-    void processResults(QString dakotaOut, QString dakotaTab);
+    void processResults(QString dakotaOut, QString dakotaTab, QString inputFile);
 
     void loadFile(QString filename);
 
@@ -104,16 +108,21 @@ private:
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
     QStandardItemModel *standardModel;
+    QStandardItem *rootNode;
 
     GeneralInformationWidget *theGI;
-    RandomVariableInputWidget *theRVs;
+    RandomVariablesContainer *theRVs;
 
-    InputWidgetBIM_Selection *theSIM;
-    InputWidgetSampling *theUQ;
-    InputWidgetEarthquakeEvent *theEvent;
+    SIM_Selection *theSIM;
+    InputWidgetSampling *theUQ_Method;
+    EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
-    QWidget *theContents;
-    QWidget *theResults;
+    LossModelContainer *theLossModel;
+    ResultsPelicun *theResults;
+
+    // other widgets appearing in UI
+    InputWidgetBIM *theBIM; // contains GI and SIM
+    InputWidgetUQ *theUQ;
 
     RunWidget *theRunWidget;
     Application *localApp;
@@ -125,6 +134,7 @@ private:
     QJsonObject *jsonObjOrig;
 
     QStackedWidget *theStackedWidget;
+    QNetworkAccessManager *manager;
 };
 
 #endif // WORKFLOW_APP_PBE_H
