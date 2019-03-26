@@ -62,6 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtNetwork/QNetworkRequest>
 #include <QHostInfo>
 #include <QUuid>
+#include <QSettings>
 #include "CustomizedItemModel.h"
 
 // SimCenter Widgets
@@ -307,20 +308,20 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     // setup parameters of request
     QString requestParams;
-    QUuid uuid = QUuid::createUuid();
+    QUuid uuid = WorkflowAppPBE::getUserId();
     QString hostname = QHostInfo::localHostName() + "." + QHostInfo::localDomainName();
     requestParams += "v=1"; // version of protocol
     requestParams += "&tid=UA-126256136-1"; // Google Analytics account
     requestParams += "&cid=" + uuid.toString(); // unique user identifier
     requestParams += "&t=event";  // hit type = event others pageview, exception
     requestParams += "&an=PBE";   // app name
-    requestParams += "&av=1.0.1"; // app version
-    requestParams += "&ec=EEUQ";   // event category
+    requestParams += "&av=1.1.0"; // app version
+    requestParams += "&ec=PBE";   // event category
     requestParams += "&ea=start"; // event action
+    requestParams += "&aip=1"; // Anonymize IP
 
     // send request via post method
-   // wait till release manager->post(request, requestParams.toStdString().c_str());
-    //UA-126256136-1
+    manager->post(request, requestParams.toStdString().c_str());
 
     QFile fileS(":/styles/stylesheet.qss");
     if(fileS.open(QFile::ReadOnly)) {
@@ -331,6 +332,20 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
         qDebug() << "Open Style File Failed!";
 
 }
+
+//TODO: This code may need to be refactored and shared in SimCenterCommon
+QUuid WorkflowAppPBE::getUserId()
+{
+    QSettings commonSettings("SimCenter", "Common"); //These names will need to be constants to be shared
+    QVariant userIdSetting = commonSettings.value("userId");
+    if (!userIdSetting.isValid())
+    {
+        commonSettings.setValue("userId", QUuid::createUuid());
+        userIdSetting = commonSettings.value("userId");
+    }
+    return userIdSetting.toUuid();
+}
+
 
 WorkflowAppPBE::~WorkflowAppPBE()
 {
