@@ -1,11 +1,8 @@
-#ifndef COMPONENT_CONTAINER_H
-#define COMPONENT_CONTAINER_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,47 +26,72 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna, adamzs
 
-#include <SimCenterWidget.h>
-#include <SimCenterAppWidget.h>
+#include <QVBoxLayout>
 
-class RandomVariablesContainer;
-class QVBoxLayout;
-class Component;
+#include "LossMethod.h"
 
-class ComponentContainer : public SimCenterAppWidget
+LossMethod::LossMethod(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit ComponentContainer(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    //QVBoxLayout *layout = new QVBoxLayout();
 
-    ~ComponentContainer();
+    //this->setLayout(layout);
+}
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+LossMethod::~LossMethod()
+{
 
-public slots:
-   void errorMessage(QString message);
-   void addComponent(void);
-   void removeComponents(void);
-   void clear(void);
+}
 
-private:
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *eventLayout;
+bool
+LossMethod::outputToJSON(QJsonObject &jsonObject)
+{
+    return true;
+}
 
-    QVector<Component *>theComponents;
-    RandomVariablesContainer *theRandVariableIW;
-};
+bool
+LossMethod::inputFromJSON(QJsonObject &jsonObject)
+{
+    return 0;
+}
 
-#endif // COMPONENT_CONTAINER_H
+bool
+LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    return true;
+}
+
+bool
+LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+
+bool
+LossMethod::copyFiles(QString &dirName) {
+    return true;
+}
+
+void
+LossMethod::errorMessage(QString message){
+}
+
+QString
+LossMethod::getFragilityFolder(){
+    return QString("");
+}
+
+QString
+LossMethod::getPopulationFile(){
+    return QString("");
+}

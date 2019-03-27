@@ -1,5 +1,5 @@
-#ifndef GENERAL_SETTINGS_CONTAINER_H
-#define GENERAL_SETTINGS_CONTAINER_H
+#ifndef P58GENERAL_SETTINGS_CONTAINER_H
+#define P58GENERAL_SETTINGS_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -49,29 +49,26 @@ class QLineEdit;
 class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
-class RandomVariableDistribution;
-class RandomVariablesContainer;
 class QRadioButton;
 
 /*!
  * Widget for general loss assessment settings in PBE tool
  */
-class GeneralSettingsContainer : public SimCenterAppWidget
+class P58GeneralSettingsContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of GeneralSettingsContainer
+     * @param[in] parent Parent widget of P58GeneralSettingsContainer
      */
-    explicit GeneralSettingsContainer(
-        RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit P58GeneralSettingsContainer(QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~GeneralSettingsContainer();
+    virtual ~P58GeneralSettingsContainer();
 
     /*!
      * Writes general settings contents to JSON
@@ -91,7 +88,7 @@ public:
      * Get the name of the general settings
      * @return Returns the name of the general settings as a QString
      */
-    QString getGeneralSettingsContainerName() const;
+    QString getP58GeneralSettingsContainerName() const;
 
     int setFragilityFolder(QString fragilityFolder);
     int setPopulationFile(QString populationFile);
@@ -140,8 +137,6 @@ private:
     QCheckBox * needRedTag;
 
     QVBoxLayout *mainLayout; /*!< Main layout for general settings */
-
-    RandomVariablesContainer *theRandVariableIW;
 };
 
-#endif // GENERAL_SETTINGS_CONTAINER_H
+#endif // P58GENERAL_SETTINGS_CONTAINER_H

@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QJsonObject>
 
-#include "CollapseMode.h"
+#include "P58CollapseMode.h"
 
 CollapseMode::CollapseMode(QWidget *parent)
   : SimCenterWidget(parent) {

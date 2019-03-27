@@ -1,5 +1,5 @@
-#ifndef COLLAPSE_MODE_CONTAINER_H
-#define COLLAPSE_MODE_CONTAINER_H
+#ifndef P58LOSS_MODEL_CONTAINER_H
+#define P58LOSS_MODEL_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,43 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
+#include "LossMethod.h"
 
-class RandomVariablesContainer;
+#include <QGroupBox>
+
+class QComboBox;
+class QStackedWidget;
 class QVBoxLayout;
-class CollapseMode;
 
-class CollapseModeContainer : public SimCenterAppWidget
+class P58GeneralSettingsContainer;
+class P58ComponentContainer;
+class P58CollapseModeContainer;
+
+class P58LossModelContainer : public LossMethod
 {
     Q_OBJECT
 public:
-    explicit CollapseModeContainer(
-      RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit P58LossModelContainer(QWidget *parent = 0);
 
-    ~CollapseModeContainer();
+    QString getFragilityFolder();
+    QString getPopulationFile();
+
+    ~P58LossModelContainer();
 
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &dirName);
 
 public slots:
-   void errorMessage(QString message);
-   void addCollapseMode(void);
-   void removeCollapseModes(void);
-   void clear(void);
+    void errorMessage(QString message);
 
-private:
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *eventLayout;
-
-    QVector<CollapseMode *>theCollapseModes;
-    RandomVariablesContainer *theRandVariableIW;
+private:   
+    P58GeneralSettingsContainer *theGeneralSettingsContainer;
+    P58ComponentContainer *theComponentContainer;
+    P58CollapseModeContainer *theCollapseModeContainer;
 };
 
-#endif // COLLAPSE_MODE_CONTAINER_H
+#endif // P58LOSS_MODEL_CONTAINER_H

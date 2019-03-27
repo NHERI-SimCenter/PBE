@@ -48,7 +48,6 @@ class QComboBox;
 class QLineEdit;
 class QLabel;
 class QHBoxLayout;
-class RandomVariableDistribution;
 class QRadioButton;
 
 /*!

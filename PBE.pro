@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts concurrent network
+QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel
 
 TARGET = PBE
 TEMPLATE = app
@@ -27,6 +27,7 @@ include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
+include(../SiteResponseTool/SiteResponseTool.pri)
 include(./MiniZip/MiniZip.pri)
 
 INCLUDEPATH += "./Component"
@@ -34,25 +35,33 @@ INCLUDEPATH += "./Component"
 SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
-    LossModel/Component.cpp \
-    LossModel/ComponentContainer.cpp \
-    LossModel/CollapseMode.cpp \
-    LossModel/CollapseModeContainer.cpp \
-    LossModel/GeneralSettingsContainer.cpp \
+    ResultsPelicun.cpp \
+    LossModel/P58LossModelContainer.cpp \
+    LossModel/P58GeneralSettingsContainer.cpp \
+    LossModel/P58ComponentContainer.cpp \
+    LossModel/P58Component.cpp \
+    LossModel/P58CollapseModeContainer.cpp \
+    LossModel/P58CollapseMode.cpp \
     LossModel/LossModelContainer.cpp \
-    ResultsPelicun.cpp
+    LossModel/HazusGeneralSettingsContainer.cpp \
+    LossModel/HazusLossModelContainer.cpp \
+    LossModel/LossMethod.cpp
 
 
 HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
-    LossModel/Component.h \
-    LossModel/ComponentContainer.h \
-    LossModel/CollapseMode.h \
-    LossModel/CollapseModeContainer.h \
-    LossModel/GeneralSettingsContainer.h \
+    ResultsPelicun.h \
+    LossModel/P58GeneralSettingsContainer.h \
+    LossModel/P58ComponentContainer.h \
+    LossModel/P58Component.h \
+    LossModel/P58CollapseModeContainer.h \
+    LossModel/P58CollapseMode.h \
     LossModel/LossModelContainer.h \
-    ResultsPelicun.h
+    LossModel/P58LossModelContainer.h \
+    LossModel/HazusLossModelContainer.h \
+    LossModel/HazusGeneralSettingsContainer.h \
+    LossModel/LossMethod.h
 
 
 RESOURCES += \
