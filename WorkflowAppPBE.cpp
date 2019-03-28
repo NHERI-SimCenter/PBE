@@ -232,6 +232,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     treeView->expandAll();
     treeView->setHeaderHidden(true);
     treeView->setMaximumWidth(100);
+    treeView->setMinimumWidth(100);
 
     //
     // customize the apperance of the menu on the left
@@ -240,10 +241,14 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar
     treeView->setObjectName("treeViewOnTheLeft");
     treeView->setIndentation(0);
-    QFile file(":/styles/stylesheet.qss");
-    if(file.open(QFile::ReadOnly)) {
-        this->setStyleSheet(file.readAll());
-        file.close();
+    QFile fileeeuq(":/styles/stylesheet_eeuq.qss");
+    QFile filebar(":/styles/menuBar.qss");
+    if(fileeeuq.open(QFile::ReadOnly) && filebar.open(QFile::ReadOnly)) {
+        QString styleeeuq = QLatin1String(fileeeuq.readAll());
+        QString stylebar = QLatin1String(filebar.readAll());
+        this->setStyleSheet(styleeeuq + stylebar);
+        fileeeuq.close();
+        filebar.close();
     }
     else
         qDebug() << "Open Style File Failed!";
@@ -323,6 +328,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // send request via post method
     manager->post(request, requestParams.toStdString().c_str());
 
+    /*
     QFile fileS(":/styles/stylesheet.qss");
     if(fileS.open(QFile::ReadOnly)) {
         treeView->setStyleSheet(fileS.readAll());
@@ -330,6 +336,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     }
     else
         qDebug() << "Open Style File Failed!";
+     */ //It seems this has been done in previous lines.
 
 }
 

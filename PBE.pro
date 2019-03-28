@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts concurrent network
+QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel
 
 TARGET = PBE
 TEMPLATE = app
@@ -27,6 +27,7 @@ include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
+include(../SiteResponseTool/SiteResponseTool.pri)
 include(./MiniZip/MiniZip.pri)
 
 INCLUDEPATH += "./Component"
@@ -56,7 +57,9 @@ HEADERS  += \
 
 
 RESOURCES += \
-    ../EE-UQ/images.qrc \
+    #resources.qrc
+    #../EE-UQ/images.qrc \
+
 
 #FORMS    += mainwindow.ui
 
