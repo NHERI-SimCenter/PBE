@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QJsonObject>
 
-#include "Component.h"
+#include "P58Component.h"
 
 Component::Component(QWidget *parent)
   : SimCenterWidget(parent) {

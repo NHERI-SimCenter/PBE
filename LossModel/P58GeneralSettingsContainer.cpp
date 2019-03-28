@@ -51,10 +51,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <sectiontitle.h>
 
-#include "GeneralSettingsContainer.h"
+#include "P58GeneralSettingsContainer.h"
 
-GeneralSettingsContainer::GeneralSettingsContainer(RandomVariablesContainer *theRV_IW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
+P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
 
     mainLayout = new QVBoxLayout();
@@ -496,23 +496,23 @@ GeneralSettingsContainer::GeneralSettingsContainer(RandomVariablesContainer *the
 }
 
 QString
-GeneralSettingsContainer::getFragilityFolder(){
+P58GeneralSettingsContainer::getFragilityFolder(){
     return fragilityFolderPath->text();
 }
 
 QString
-GeneralSettingsContainer::getPopulationFile(){
+P58GeneralSettingsContainer::getPopulationFile(){
     return populationFilePath->text();
 }
 
 int
-GeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
+P58GeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
     fragilityFolderPath->setText(fragilityFolder);
     return 0;
 }
 
 void
-GeneralSettingsContainer::chooseFragilityFolder(void) {
+P58GeneralSettingsContainer::chooseFragilityFolder(void) {
     QString fragilityFolder;
     fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
         "C://");
@@ -520,23 +520,23 @@ GeneralSettingsContainer::chooseFragilityFolder(void) {
 }
 
 int
-GeneralSettingsContainer::setPopulationFile(QString populationFile){
+P58GeneralSettingsContainer::setPopulationFile(QString populationFile){
     populationFilePath->setText(populationFile);
     return 0;
 }
 
 void
-GeneralSettingsContainer::choosePopulationFile(void) {
+P58GeneralSettingsContainer::choosePopulationFile(void) {
     QString populationFile;
     populationFile=QFileDialog::getOpenFileName(this,tr("Select File"),
         "C://", "All files (*.*)");
     int ok = this->setPopulationFile(populationFile);
 }
 
-GeneralSettingsContainer::~GeneralSettingsContainer()
+P58GeneralSettingsContainer::~P58GeneralSettingsContainer()
 {}
 
-bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
+bool P58GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
     QJsonObject UQ;
     QJsonObject decVars;
@@ -632,7 +632,7 @@ bool GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     return 0;
 }
 
-bool GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
+bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
     // UQ ---------------------------------------------------------------------
 

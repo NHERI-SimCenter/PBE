@@ -1,5 +1,5 @@
-#ifndef LOSSMODELCONTAINER_H
-#define LOSSMODELCONTAINER_H
+#ifndef LOSSMETHOD_H
+#define LOSSMETHOD_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,50 +40,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna, adamzs
 
 #include <SimCenterAppWidget.h>
-#include "LossMethod.h"
 #include <QGroupBox>
 
 class QComboBox;
 class QStackedWidget;
 class QVBoxLayout;
 
-class RandomVariablesContainer;
-
-class LossModelContainer : public SimCenterAppWidget
-{
+class LossMethod: public SimCenterAppWidget{
     Q_OBJECT
 public:
-    explicit LossModelContainer(
-      RandomVariablesContainer *theRV_IW, QWidget *parent = 0);
+    explicit LossMethod(QWidget *parent = 0);
 
-    ~LossModelContainer();
+    virtual QString getFragilityFolder();
+    virtual QString getPopulationFile();
 
-    QString getFragilityFolder();
-    QString getPopulationFile();
+    ~LossMethod();
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    virtual bool inputFromJSON(QJsonObject &rvObject);
+    virtual bool outputToJSON(QJsonObject &rvObject);
+    virtual bool outputAppDataToJSON(QJsonObject &rvObject);
+    virtual bool inputAppDataFromJSON(QJsonObject &rvObject);
+    virtual bool copyFiles(QString &dirName);
 
 public slots:
-    void clear(void);
-    void dlSelectionChanged(const QString &arg1);
     void errorMessage(QString message);
-
-signals:
-    void dlWidgetChanged(void);
-
-private:
-    QVBoxLayout *layout;
-    QComboBox   *dlSelection;
-
-    RandomVariablesContainer *theRandVariableIW;
-
-    LossMethod *lossMethod;
-
-    bool selectionChangeOK;
 };
 
-#endif // LOSSMODELCONTAINER_H
+#endif // LOSSMETHOD_H

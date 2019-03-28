@@ -230,9 +230,6 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
 
         QJsonValue theStdDevValue = edpObject["stdDev"];
         stdDev = theStdDevValue.toDouble();
-
-     //   QWidget *theWidget = this->createResultEDPWidget(name, mean, stdDev, dataType);
-     //   summaryLayout->addWidget(theWidget);
     }
     summaryLayout->addStretch();
 
@@ -379,7 +376,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
                                    QString fragilitiesString,
                                    QString populationString) {
 
-    emit sendStatusMessage("Pelicun now Processing Simulation Results");
+    emit sendStatusMessage("Processing Simulation Results and Preparing Damage & Loss Inputs");
 
     //
     // invoke python script to perform DL calculations
@@ -411,6 +408,19 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
         emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
+        return false;
+    }
+
+    // check if the input and result files required for loss assessment exist
+    QFileInfo check_input_data(inputFile);
+    if (!check_input_data.exists() || !check_input_data.isFile()) {
+        emit sendErrorMessage(QString("Input file not found: ") + inputFile);
+        return false;
+    }
+
+    QFileInfo check_result_data(filenameTab);
+    if (!check_result_data.exists() || !check_result_data.isFile()) {
+        emit sendErrorMessage(QString("Result file not found: ") + filenameTab);
         return false;
     }
 
@@ -452,7 +462,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     //const char *resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to Run Correctly. Run from terminal to see error file"));
+        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to run correctly."));
         return -1;
     }
 
@@ -460,51 +470,90 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     // first 4 lines contain summary data
     //
 
-    std::string summaryName;
-    std::string summaryCount;
-    std::string summaryMean;
-    std::string summaryStdDev;
-    std::string summaryMin;
+    std::string summaryName, summaryMean, summaryStdDev, summaryDummy;
+    std::string summaryMin, summary10, summary50, summary90, summaryMax;
+
+    std::string tokenName, tokenMean, tokenStd;
+    std::string tokenMin, token10, token50, token90, tokenMax;
 
     std::getline(fileResultsStats, summaryName);
-    std::getline(fileResultsStats, summaryCount);
+    std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summaryMean);
     std::getline(fileResultsStats, summaryStdDev);
-    //std::getline(fileResults, summaryMin);
+    std::getline(fileResultsStats, summaryMin);
+    std::getline(fileResultsStats, summary10);
+    std::getline(fileResultsStats, summary50);
+    std::getline(fileResultsStats, summary90);
+    std::getline(fileResultsStats, summaryMax);
 
     std::istringstream ssName(summaryName);
     std::istringstream ssMean(summaryMean);
     std::istringstream ssStd(summaryStdDev);
-
-    std::string tokenName;
-    std::string tokenMean;
-    std::string tokenStd;
-
-    //qDebug() << summaryName.c_str();
-    //qDebug() << summaryMean.c_str();
-
-    // ignore first
+    std::istringstream ssMin(summaryMin);
+    std::istringstream ss10(summary10);
+    std::istringstream ss50(summary50);
+    std::istringstream ss90(summary90);
+    std::istringstream ssMax(summaryMax);
 
     std::getline(ssName, tokenName, ',');
     std::getline(ssMean, tokenMean, ',');
     std::getline(ssStd, tokenStd, ',');
+    std::getline(ssMin, tokenMin, ',');
+    std::getline(ss10, token10, ',');
+    std::getline(ss50, token50, ',');
+    std::getline(ss90, token90, ',');
+    std::getline(ssMax, tokenMax, ',');
+
+    // ignore first
 
     int colCount = 1;
 
     //theHeadings << "Percent";
     theHeadings << "Realization";
 
+    QWidget *theSummaryHeader = this->createSummaryHeader();
+    summaryLayout->addWidget(theSummaryHeader);
+    summaryLayout->addSpacing(10);
+
+    QFrame *sepLine = new QFrame;
+    sepLine->setFrameShape(QFrame::HLine);
+    sepLine->setFrameShadow(QFrame::Sunken);
+    summaryLayout->addWidget(sepLine);
+
     while(std::getline(ssName, tokenName, ',')) {
+
         std::getline(ssMean, tokenMean, ',');
         std::getline(ssStd, tokenStd, ',');
+        std::getline(ssMin, tokenMin, ',');
+        std::getline(ss10, token10, ',');
+        std::getline(ss50, token50, ',');
+        std::getline(ss90, token90, ',');
+        std::getline(ssMax, tokenMax, ',');
+
 	//        std::cerr << tokenName << " " << tokenMean << " " << tokenStd << '\n';
-        QString name(tokenName.c_str());
+
+        QString DV_name(tokenName.c_str());
         std::string::size_type sz;
-        double mean = std::stod(tokenMean.c_str(), &sz);
-        double stdDev = std::stod(tokenStd.c_str(), &sz);
-        theHeadings << name;
-        QWidget *theWidget = this->createSummaryItem(name, mean, stdDev, 0);
+        double DV_mean = std::stod(tokenMean.c_str(), &sz);
+        double DV_stdDev = std::stod(tokenStd.c_str(), &sz);
+        double DV_min = std::stod(tokenMin.c_str(), &sz);
+        double DV_10 = std::stod(token10.c_str(), &sz);
+        double DV_50 = std::stod(token50.c_str(), &sz);
+        double DV_90 = std::stod(token90.c_str(), &sz);
+        double DV_max = std::stod(tokenMax.c_str(), &sz);
+
+        theHeadings <<DV_name;
+
+        QWidget *theWidget = this->createSummaryItem2(DV_name, DV_mean,
+            DV_stdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
         summaryLayout->addWidget(theWidget);
+
+        // add a separator line after the row
+        QFrame *sepLine = new QFrame;
+        sepLine->setFrameShape(QFrame::HLine);
+        sepLine->setFrameShadow(QFrame::Sunken);
+        summaryLayout->addWidget(sepLine);
+
         colCount++;
     }
 
@@ -916,7 +965,136 @@ static QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit
 }
 
 QWidget *
-ResultsPelicun::createSummaryItem(QString &name, double mean, double stdDev, int valueType) {
+ResultsPelicun::createSummaryHeader() {
+
+    QWidget *item = new QWidget;
+    QHBoxLayout *itemLayout = new QHBoxLayout();
+    item->setLayout(itemLayout);
+
+    int columnWidth = 160;
+
+    QLabel *nameLabel = new QLabel();
+    nameLabel->setText(tr("<b><i>Decision Variable</i></b>"));
+    nameLabel->setAlignment(Qt::AlignLeft);
+    nameLabel->setFixedWidth(240);
+    itemLayout->addWidget(nameLabel);
+
+    QLabel *meanLabel = new QLabel();
+    meanLabel->setText(tr("<b>Mean</b>"));
+    meanLabel->setAlignment(Qt::AlignRight);
+    meanLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(meanLabel);
+
+    QLabel *stdLabel = new QLabel();
+    stdLabel->setText(tr("<b>Standard Dev.</b>"));
+    stdLabel->setAlignment(Qt::AlignRight);
+    stdLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(stdLabel);
+
+    QLabel *minLabel = new QLabel();
+    minLabel->setText(tr("<b>Minimum</b>"));
+    minLabel->setAlignment(Qt::AlignRight);
+    minLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(minLabel);
+
+    QLabel *p10Label = new QLabel();
+    p10Label->setText(tr("<b>10<sup>th</sup> Percentile</b>"));
+    p10Label->setAlignment(Qt::AlignRight);
+    p10Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p10Label);
+
+    QLabel *p50Label = new QLabel();
+    p50Label->setText(tr("<b>Median</b>"));
+    p50Label->setAlignment(Qt::AlignRight);
+    p50Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p50Label);
+
+    QLabel *p90Label = new QLabel();
+    p90Label->setText(tr("<b>90<sup>th</sup> Percentile</b>"));
+    p90Label->setAlignment(Qt::AlignRight);
+    p90Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p90Label);
+
+    QLabel *maxLabel = new QLabel();
+    maxLabel->setText(tr("<b>Maximum</b>"));
+    maxLabel->setAlignment(Qt::AlignRight);
+    maxLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(maxLabel);
+
+    itemLayout->addStretch();
+
+    return item;
+}
+
+QWidget *
+ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
+    double min, double p10, double p50, double p90, double max) {
+
+    QWidget *item = new QWidget;
+    QHBoxLayout *itemLayout = new QHBoxLayout();
+    item->setLayout(itemLayout);
+
+    int columnWidth = 160;
+
+    QLabel *nameLabel = new QLabel();
+    nameLabel->setText("<i>"+name.replace("/",": ").replace("_"," ")+"</i>");
+    nameLabel->setAlignment(Qt::AlignLeft);
+    nameLabel->setFixedWidth(240);
+    itemLayout->addWidget(nameLabel);
+    theNames.append(name);
+
+    QLabel *meanLabel = new QLabel();
+    meanLabel->setText(QString::number(mean));
+    meanLabel->setAlignment(Qt::AlignRight);
+    meanLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(meanLabel);
+    theMeans.append(mean);
+
+    QLabel *stdLabel = new QLabel();
+    stdLabel->setText(QString::number(stdDev));
+    stdLabel->setAlignment(Qt::AlignRight);
+    stdLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(stdLabel);
+    theStdDevs.append(stdDev);
+
+    QLabel *minLabel = new QLabel();
+    minLabel->setText(QString::number(min));
+    minLabel->setAlignment(Qt::AlignRight);
+    minLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(minLabel);
+
+    QLabel *p10Label = new QLabel();
+    p10Label->setText(QString::number(p10));
+    p10Label->setAlignment(Qt::AlignRight);
+    p10Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p10Label);
+
+    QLabel *p50Label = new QLabel();
+    p50Label->setText(QString::number(p50));
+    p50Label->setAlignment(Qt::AlignRight);
+    p50Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p50Label);
+
+    QLabel *p90Label = new QLabel();
+    p90Label->setText(QString::number(p90));
+    p90Label->setAlignment(Qt::AlignRight);
+    p90Label->setFixedWidth(columnWidth);
+    itemLayout->addWidget(p90Label);
+
+    QLabel *maxLabel = new QLabel();
+    maxLabel->setText(QString::number(max));
+    maxLabel->setAlignment(Qt::AlignRight);
+    maxLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(maxLabel);
+
+    itemLayout->addStretch();
+
+    return item;
+}
+
+QWidget *
+ResultsPelicun::createSummaryItem(QString &name, double mean, double stdDev,
+                                  int valueType) {
 
     dataType = valueType;
 
