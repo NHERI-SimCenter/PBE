@@ -379,7 +379,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
                                    QString fragilitiesString,
                                    QString populationString) {
 
-    emit sendStatusMessage("Pelicun now Processing Simulation Results");
+    emit sendStatusMessage("Processing Simulation Results and Preparing Damage & Loss Inputs");
 
     //
     // invoke python script to perform DL calculations
@@ -411,6 +411,19 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
         emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
+        return false;
+    }
+
+    // check if the input and result files required for loss assessment exist
+    QFileInfo check_input_data(inputFile);
+    if (!check_input_data.exists() || !check_input_data.isFile()) {
+        emit sendErrorMessage(QString("Input file not found: ") + inputFile);
+        return false;
+    }
+
+    QFileInfo check_result_data(filenameTab);
+    if (!check_result_data.exists() || !check_result_data.isFile()) {
+        emit sendErrorMessage(QString("Result file not found: ") + filenameTab);
         return false;
     }
 
@@ -452,7 +465,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     //const char *resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to Run Correctly. Run from terminal to see error file"));
+        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to run correctly."));
         return -1;
     }
 
