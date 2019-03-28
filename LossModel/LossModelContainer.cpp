@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,17 +26,19 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna, adamzs
 
-#include "LossModelContainer.h"
+#include "P58LossModelContainer.h"
+#include "HazusLossModelContainer.h"
+#include "LossMethod.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -47,68 +49,55 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <QComboBox>
 
-#include "GeneralSettingsContainer.h"
-#include "ComponentContainer.h"
-#include "CollapseModeContainer.h"
-#include <QTabWidget.h>
+#include "LossModelContainer.h"
 
 LossModelContainer::LossModelContainer(
     RandomVariablesContainer *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
-    QVBoxLayout *layout = new QVBoxLayout();
-    QTabWidget *theTab = new QTabWidget();
-    theGeneralSettingsContainer = new GeneralSettingsContainer(theRV_IW);
-    theTab->addTab(theGeneralSettingsContainer,"General");
+    layout = new QVBoxLayout();
 
-    // components
-    theComponentContainer = new ComponentContainer(theRV_IW);
-    theTab->addTab(theComponentContainer,"Components");
-    
-    // collapse modes
-    theCollapseModeContainer = new CollapseModeContainer(theRV_IW);
-    theTab->addTab(theCollapseModeContainer,"Collapse Modes");
-    layout->addWidget(theTab);
+    QVBoxLayout *methodSelectLayoutV= new QVBoxLayout;
 
-    /*
-    // add the combo with loss model input types
-    QHBoxLayout *theLossSettingsLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
-    label->setText(QString("Loss Model Settings"));
-    eventSelection = new QComboBox();
-    eventSelection->addItem(tr("General"));
-    eventSelection->addItem(tr("Components"));
-    eventSelection->addItem(tr("Collapse modes"));    
+    // add combo with loss method selection at the top
+    QHBoxLayout *methodSelectLayout = new QHBoxLayout();
 
-    theLossSettingsLayout->addWidget(label);
-    theLossSettingsLayout->addWidget(eventSelection);
-    theLossSettingsLayout->addStretch();
-    layout->addLayout(theLossSettingsLayout);
+    SectionTitle *textDL=new SectionTitle();
+    textDL->setText(tr("Loss Assessment Method"));
+    textDL->setMinimumWidth(250);
+    QSpacerItem *spacer = new QSpacerItem(50,10);
 
-    // add a stacked widget for the individual settings widgets
+    dlSelection = new QComboBox();
+    dlSelection->setMaximumWidth(200);
+    dlSelection->setMinimumWidth(200);
 
-    theStackedWidget = new QStackedWidget();
+    dlSelection->addItem(tr("FEMA P58"));
+    dlSelection->addItem(tr("HAZUS MH"));
 
-    // general (components is a placeholder now)
-    theGeneralSettingsContainer = new GeneralSettingsContainer(theRV_IW);
-    theStackedWidget->addWidget(theGeneralSettingsContainer);
+    methodSelectLayout->addWidget(textDL);
+    methodSelectLayout->addItem(spacer);
+    methodSelectLayout->addWidget(dlSelection);
+    methodSelectLayout->addStretch();
+    methodSelectLayout->setSpacing(0);
+    methodSelectLayout->setMargin(0);
 
-    // components
-    theComponentContainer = new ComponentContainer(theRV_IW);
-    theStackedWidget->addWidget(theComponentContainer);
-    
-    // collapse modes
-    theCollapseModeContainer = new CollapseModeContainer(theRV_IW);
-    theStackedWidget->addWidget(theCollapseModeContainer);
+    methodSelectLayoutV->addLayout(methodSelectLayout);
 
-    layout->addWidget(theStackedWidget);
+    methodSelectLayoutV->setSpacing(10);
+    methodSelectLayoutV->setMargin(0);
 
-    theCurrentEvent=theExistingEvents;
+    connect(dlSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(dlSelectionChanged(QString)));
 
-    connect(eventSelection, SIGNAL(currentIndexChanged(QString)), this,
-        SLOT(eventSelectionChanged(QString)));
-    */
+    layout->addLayout(methodSelectLayoutV);
+    layout->addStretch();
+
+    lossMethod = new LossMethod();
+
     this->setLayout(layout);
+
+    // set FEMA P58 as the default
+    this->dlSelectionChanged(tr("FEMA P58"));
+    layout->setMargin(0);
 }
 
 LossModelContainer::~LossModelContainer()
@@ -116,45 +105,37 @@ LossModelContainer::~LossModelContainer()
 
 }
 
+void LossModelContainer::clear(void)
+{
+
+}
+
 bool
 LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 {
-    // need to save data from all widgets
-    theGeneralSettingsContainer->outputToJSON(jsonObject);
+    bool result = true;
 
-    theComponentContainer->outputToJSON(jsonObject);
-
-    theCollapseModeContainer->outputToJSON(jsonObject);
-
+    result = lossMethod -> outputToJSON(jsonObject);
+    
     return true;
 }
 
 bool
 LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-    theGeneralSettingsContainer->inputFromJSON(jsonObject);
-    if (jsonObject.contains("DecisionVariables")) {
-        theGeneralSettingsContainer->inputFromJSON(jsonObject);
-    } else
-        return false;
+    bool result = true;
 
-    if (jsonObject.contains("Components")) {
-        if (jsonObject["Components"].isArray()) {
-            theComponentContainer->inputFromJSON(jsonObject);
-        } else
-            return false;
-    } else
-        return false;
+    this->clear();
 
-    if (jsonObject.contains("CollapseModes")) {
-        if (jsonObject["CollapseModes"].isArray()) {
-            theCollapseModeContainer->inputFromJSON(jsonObject);
-        } else
-            return false;
-    } else
-        return false;
-        
-    return 0;
+    if (jsonObject.contains("DLMethod")) {
+        dlSelection->setCurrentText(jsonObject["DLMethod"].toString());
+    } else {
+        dlSelection->setCurrentText("FEMA P58");
+    }
+
+    result = lossMethod->inputFromJSON(jsonObject);
+
+    return true;
 }
 
 bool
@@ -177,33 +158,38 @@ LossModelContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
-/*
-void
-LossModelContainer::eventSelectionChanged(const QString &arg1)
+void LossModelContainer::dlSelectionChanged(const QString &arg1)
 {
+    selectionChangeOK = true;
 
-    if (arg1 == "General") {
-        theStackedWidget->setCurrentIndex(0);
-        theCurrentEvent = theExistingEvents;
+    if (lossMethod != nullptr) {
+        layout->removeWidget(lossMethod);
     }
 
-    else if (arg1 == "Components") {
-        theStackedWidget->setCurrentIndex(1);
-        theCurrentEvent = theExistingEvents;
-    } 
+    if (arg1 == QString("FEMA P58")) {
+        delete lossMethod;
+        lossMethod = new P58LossModelContainer();
 
-    else if (arg1 == "Collapse modes") {
-        theStackedWidget->setCurrentIndex(2);
-        theCurrentEvent = theExistingEvents;
+    } else if (arg1 == QString("HAZUS MH")) {
+        delete lossMethod;
+        lossMethod = new HazusLossModelContainer();
+
+    } else {
+        selectionChangeOK = false;
+        emit sendErrorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
     }
 
-    else {
-        qDebug() << 
-        "ERROR .. LossModelContainer selection .. type unknown: " << arg1;
+    if (lossMethod != 0) {
+
+        this->dlWidgetChanged();
+        layout->insertWidget(-1, lossMethod,1);
+        connect(lossMethod,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
     }
+
+    return;
 }
-*/
-bool 
+
+bool
 LossModelContainer::copyFiles(QString &dirName) {
     return true;
 }
@@ -215,10 +201,10 @@ LossModelContainer::errorMessage(QString message){
 
 QString
 LossModelContainer::getFragilityFolder(){
-    return theGeneralSettingsContainer->getFragilityFolder();
+    return lossMethod->getFragilityFolder();
 }
 
 QString
 LossModelContainer::getPopulationFile(){
-    return theGeneralSettingsContainer->getPopulationFile();
+    return lossMethod->getPopulationFile();
 }

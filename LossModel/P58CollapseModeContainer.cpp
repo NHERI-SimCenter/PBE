@@ -36,8 +36,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include "ComponentContainer.h"
-#include "Component.h"
+#include "P58CollapseModeContainer.h"
+#include "P58CollapseMode.h"
 
 #include <QPushButton>
 #include <QScrollArea>
@@ -53,8 +53,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QScrollArea>
 
 
-ComponentContainer::ComponentContainer(RandomVariablesContainer *theRV_IW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
+P58CollapseModeContainer::P58CollapseModeContainer(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
     verticalLayout = new QVBoxLayout();
 
@@ -62,28 +62,28 @@ ComponentContainer::ComponentContainer(RandomVariablesContainer *theRV_IW, QWidg
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *title=new SectionTitle();
-    title->setText(tr("list of components"));
+    title->setText(tr("list of collapse modes"));
     title->setMinimumWidth(250);
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
 
-    QPushButton *addComponent = new QPushButton();
-    addComponent->setMinimumWidth(75);
-    addComponent->setMaximumWidth(75);
-    addComponent->setText(tr("add"));
-    connect(addComponent,SIGNAL(clicked()),this,SLOT(addInputWidgetExistingComponent()));
+    QPushButton *addCollapseMode = new QPushButton();
+    addCollapseMode->setMinimumWidth(75);
+    addCollapseMode->setMaximumWidth(75);
+    addCollapseMode->setText(tr("add"));
+    //connect(addCollapseMode,SIGNAL(clicked()),this,SLOT(addInputWidgetExistingCollapseMode()));
 
-    QPushButton *removeComponent = new QPushButton();
-    removeComponent->setMinimumWidth(75);
-    removeComponent->setMaximumWidth(75);
-    removeComponent->setText(tr("remove"));
-    connect(removeComponent,SIGNAL(clicked()),this,SLOT(removeInputWidgetExistingComponent()));
+    QPushButton *removeCollapseMode = new QPushButton();
+    removeCollapseMode->setMinimumWidth(75);
+    removeCollapseMode->setMaximumWidth(75);
+    removeCollapseMode->setText(tr("remove"));
+    //connect(removeCollapseMode,SIGNAL(clicked()),this,SLOT(removeInputWidgetExistingCollapseMode()));
 
     titleLayout->addWidget(title);
     titleLayout->addItem(spacer1);
-    titleLayout->addWidget(addComponent);
+    titleLayout->addWidget(addCollapseMode);
     titleLayout->addItem(spacer2);
-    titleLayout->addWidget(removeComponent);
+    titleLayout->addWidget(removeCollapseMode);
     titleLayout->addStretch();
 
     QScrollArea *sa = new QScrollArea;
@@ -104,96 +104,96 @@ ComponentContainer::ComponentContainer(RandomVariablesContainer *theRV_IW, QWidg
     //verticalLayout->addStretch();
 
     this->setLayout(verticalLayout);
-    connect(addComponent, SIGNAL(pressed()), this, SLOT(addComponent()));
-    connect(removeComponent, SIGNAL(pressed()), this, SLOT(removeComponents()));
+    connect(addCollapseMode, SIGNAL(pressed()), this, SLOT(addCollapseMode()));
+    connect(removeCollapseMode, SIGNAL(pressed()), this, SLOT(removeCollapseModes()));
 }
 
 
-ComponentContainer::~ComponentContainer()
+P58CollapseModeContainer::~P58CollapseModeContainer()
 {
 
 }
 
 
-void ComponentContainer::addComponent(void)
+void P58CollapseModeContainer::addCollapseMode(void)
 {
-   Component *theComponent = new Component();
-   theComponents.append(theComponent);
-   eventLayout->insertWidget(eventLayout->count()-1, theComponent);
-   connect(this,SLOT(InputWidgetExistingComponentErrorMessage(QString)), theComponent, SIGNAL(sendErrorMessage(QString)));
+   CollapseMode *theCollapseMode = new CollapseMode();
+   theCollapseModes.append(theCollapseMode);
+   eventLayout->insertWidget(eventLayout->count()-1, theCollapseMode);
+   connect(this,SLOT(InputWidgetExistingCollapseModeErrorMessage(QString)), theCollapseMode, SIGNAL(sendErrorMessage(QString)));
 }
 
 
-void ComponentContainer::removeComponents(void)
+void P58CollapseModeContainer::removeCollapseModes(void)
 {
     // find the ones selected & remove them
-    int numInputWidgetExistingComponents = theComponents.size();
-    for (int i = numInputWidgetExistingComponents-1; i >= 0; i--) {
-      Component *theComponent = theComponents.at(i);
-      if (theComponent->isSelectedForRemoval()) {
-          theComponent->close();
-          eventLayout->removeWidget(theComponent);
-          theComponents.remove(i);
-          theComponent->setParent(0);
-          delete theComponent;
+    int numInputWidgetExistingCollapseModes = theCollapseModes.size();
+    for (int i = numInputWidgetExistingCollapseModes-1; i >= 0; i--) {
+      CollapseMode *theCollapseMode = theCollapseModes.at(i);
+      if (theCollapseMode->isSelectedForRemoval()) {
+          theCollapseMode->close();
+          eventLayout->removeWidget(theCollapseMode);
+          theCollapseModes.remove(i);
+          theCollapseMode->setParent(0);
+          delete theCollapseMode;
       }
     }
 }
 
 
 void
-ComponentContainer::clear(void)
+P58CollapseModeContainer::clear(void)
 {
   // loop over random variables, removing from layout & deleting
-  for (int i = 0; i <theComponents.size(); ++i) {
-    Component *theComponent = theComponents.at(i);
-    eventLayout->removeWidget(theComponent);
-    delete theComponent;
+  for (int i = 0; i <theCollapseModes.size(); ++i) {
+    CollapseMode *theCollapseMode = theCollapseModes.at(i);
+    eventLayout->removeWidget(theCollapseMode);
+    delete theCollapseMode;
   }
-  theComponents.clear();
+  theCollapseModes.clear();
 }
 
 
 bool
-ComponentContainer::outputToJSON(QJsonObject &jsonObject)
+P58CollapseModeContainer::outputToJSON(QJsonObject &jsonObject)
 {
-    //jsonObject["ComponentClassification"]="Earthquake";
-    //jsonObject["type"] = "ComponentContainer";
-
     bool result = true;
     QJsonArray theArray;
-    for (int i = 0; i <theComponents.size(); ++i) {
+    for (int i = 0; i <theCollapseModes.size(); ++i) {
         QJsonObject rv;
-        if (theComponents.at(i)->outputToJSON(rv)) {
+        if (theCollapseModes.at(i)->outputToJSON(rv)) {
             theArray.append(rv);
 
         } else {
-            qDebug() << "OUTPUT FAILED" << theComponents.at(i)->getComponentName();
+            qDebug() << "OUTPUT FAILED" << theCollapseModes.at(i)->getCollapseModeName();
             result = false;
         }
     }
-    jsonObject["Components"]=theArray;
+    jsonObject["CollapseModes"]=theArray;
     return result;
 }
 
 bool
-ComponentContainer::inputFromJSON(QJsonObject &rvObj)
+P58CollapseModeContainer::inputFromJSON(QJsonObject &rvObject)
 {
   bool result = true;
 
   // clean out current list
   this->clear();
 
-  QJsonArray rvArray = rvObj["Components"].toArray();
+  // get array
+
+  QJsonArray rvArray = rvObject["CollapseModes"].toArray();
+
   // foreach object in array
   foreach (const QJsonValue &rvValue, rvArray) {
 
       QJsonObject rvObject = rvValue.toObject();
-      Component *theComponent = new Component();
+      CollapseMode *theCollapseMode = new CollapseMode();
 
-      if (theComponent->inputFromJSON(rvObject)) { // this method is where type is set
-          theComponents.append(theComponent);
-          eventLayout->insertWidget(eventLayout->count()-1, theComponent);
+      if (theCollapseMode->inputFromJSON(rvObject)) { // this method is where type is set
+          theCollapseModes.append(theCollapseMode);
+          eventLayout->insertWidget(eventLayout->count()-1, theCollapseMode);
       } else {
           result = false;
       }
@@ -203,12 +203,12 @@ ComponentContainer::inputFromJSON(QJsonObject &rvObj)
 }
 
 bool 
-ComponentContainer::copyFiles(QString &dirName) {
+P58CollapseModeContainer::copyFiles(QString &dirName) {
     return true;
 }
 
 void
-ComponentContainer::errorMessage(QString message){
+P58CollapseModeContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 

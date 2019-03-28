@@ -477,10 +477,10 @@ WorkflowAppPBE::clear(void)
 bool
 WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 {
-
     //
     // get each of the main widgets to input themselves
     //
+
 
     if (jsonObject.contains("GeneralInformation")) {
         QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
