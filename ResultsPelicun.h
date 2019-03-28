@@ -73,6 +73,9 @@ private:
    void getColDataExt(QList<QPointF> &dataXY, int numRow, int colX,
                       int colY, bool doMap);
    QWidget *createSummaryItem(QString &name, double mean, double stdDev, int valueType);
+   QWidget *createSummaryItem2(QString &name, double mean, double stdDev,
+        double min, double p10, double p50, double p90, double max);
+   QWidget *createSummaryHeader();
 
    QTabWidget *tabWidget;
    QTextEdit  *dakotaText;
