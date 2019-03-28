@@ -1,9 +1,10 @@
 import sys
 import os
 import numpy as np
+import json
 
 import pelicunPBE
-from pelicunPBE.control import FEMA_P58_Assessment
+from pelicunPBE.control import FEMA_P58_Assessment, HAZUS_Assessment
 from pelicunPBE.file_io import write_SimCenter_DL_output
 
 def replace_FG_IDs_with_FG_names(assessment, df):
@@ -43,7 +44,17 @@ def run_pelicun(DL_input_path, EDP_input_path,
 		except:
 			pass
 
-	A = FEMA_P58_Assessment()
+	# read the type of assessment from the DL input file
+	with open(DL_input_path, 'r') as f:
+		DL_input = json.load(f)
+
+	DL_method = DL_input['LossModel']['DLMethod']
+
+	if DL_method == 'FEMA P58':
+		A = FEMA_P58_Assessment()
+	elif DL_method == 'HAZUS MH':
+		A = HAZUS_Assessment()
+
 	A.read_inputs(DL_input_path, EDP_input_path, 
 		CMP_data_path, POP_data_path, verbose=False)
 
@@ -85,7 +96,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
 				DV_names.append('DV_{}'.format(key))
 			else:
-				for i in range(2):
+				for i in range(2 if DL_method == 'FEMA P58' else 4):
 					DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
 					DV_names.append('DV_{}_{}'.format(key, i))
 
