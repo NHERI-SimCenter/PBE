@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC>
+    <qresource prefix="/">
+        <file>styles/stylesheet_pbe.qss</file>
+    </qresource>
+</RCC>
+
