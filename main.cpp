@@ -85,6 +85,9 @@ int main(int argc, char *argv[])
   WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
   MainWindowWorkflowApp w(QString("PBE - Performance Based Engineering Application"),theInputApp, theRemoteService);
 
+
+// connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *w, SLOT(errorM))
+
   QString textAboutPBE = "\
           <p> \
           This is the Performance Based Engineering (PBE) Application.\
