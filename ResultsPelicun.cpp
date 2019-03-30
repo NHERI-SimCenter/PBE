@@ -386,6 +386,9 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     QString pySCRIPT;
 
     QString appDir = QCoreApplication::applicationDirPath();
+
+
+
     QDir scriptDir(appDir);
     scriptDir.cd("applications");
     scriptDir.cd("performDL");
@@ -407,7 +410,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     QFileInfo check_script(pySCRIPT);
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
-        emit sendErrorMessage(QString("NO DL scipt: ") + pySCRIPT);
+        emit sendErrorMessage(QString("NO DL script: ") + pySCRIPT);
         return false;
     }
 

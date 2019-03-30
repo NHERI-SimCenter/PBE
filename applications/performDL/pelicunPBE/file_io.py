@@ -464,8 +464,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                              "file.")
     
         if 'PeakPopulation' in LM['Inhabitants'].keys():
-            peak_pop = [float(pop) for pop in
-                               LM['Inhabitants']['PeakPopulation'].split(',')]
+            popStr = LM['Inhabitants']['PeakPopulation']
+            if popStr:
+                peak_pop = [float(pop) for pop in popStr.split(',')]
+            else:
+                peak_pop = [10]
             
             # If the number of stories is specified and the population list
             # does not provide values for every story...
