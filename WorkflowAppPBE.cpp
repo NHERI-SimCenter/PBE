@@ -85,6 +85,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "CustomizedItemModel.h"
 #include <ResultsPelicun.h>
+#include <GoogleAnalytics.h>
 
 // static pointer for global procedure set in constructor
 static WorkflowAppPBE *theApp = 0;
@@ -306,29 +307,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     //  manager->get(QNetworkRequest(QUrl("https://simcenter.designsafe-ci.org/multiple-degrees-freedom-analytics/")));
 
 
-    QNetworkRequest request;
-    QUrl host("http://www.google-analytics.com/collect");
-    request.setUrl(host);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-
-    // setup parameters of request
-    QString requestParams;
-    QUuid uuid = WorkflowAppPBE::getUserId();
-    QString hostname = QHostInfo::localHostName() + "." + QHostInfo::localDomainName();
-    requestParams += "v=1"; // version of protocol
-    requestParams += "&tid=UA-126256136-1"; // Google Analytics account
-    requestParams += "&cid=" + uuid.toString(); // unique user identifier
-    requestParams += "&t=event";  // hit type = event others pageview, exception
-    requestParams += "&an=PBE";   // app name
-    requestParams += "&av=1.1.0"; // app version
-    requestParams += "&ec=PBE";   // event category
-    requestParams += "&ea=start"; // event action
-    requestParams += "&aip=1"; // Anonymize IP
-
-    // send request via post method
-    manager->post(request, requestParams.toStdString().c_str());
-
     /*
     QFile fileS(":/styles/stylesheet.qss");
     if(fileS.open(QFile::ReadOnly)) {
@@ -340,20 +318,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
      */ //It seems this has been done in previous lines.
 
 }
-
-//TODO: This code may need to be refactored and shared in SimCenterCommon
-QUuid WorkflowAppPBE::getUserId()
-{
-    QSettings commonSettings("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant userIdSetting = commonSettings.value("userId");
-    if (!userIdSetting.isValid())
-    {
-        commonSettings.setValue("userId", QUuid::createUuid());
-        userIdSetting = commonSettings.value("userId");
-    }
-    return userIdSetting.toUuid();
-}
-
 
 WorkflowAppPBE::~WorkflowAppPBE()
 {
@@ -569,6 +533,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 void
 WorkflowAppPBE::onRunButtonClicked() {
     theRunWidget->showLocalApplication();
+    GoogleAnalytics::ReportLocalRun();
 }
 
 void
@@ -585,6 +550,8 @@ WorkflowAppPBE::onRemoteRunButtonClicked(){
     } else {
         errorMessage("ERROR - You Need to Login");
     }
+
+    GoogleAnalytics::ReportDesignSafeRun();
 }
 
 void

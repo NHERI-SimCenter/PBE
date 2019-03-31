@@ -136,7 +136,6 @@ private:
     QStackedWidget *theStackedWidget;
     QNetworkAccessManager *manager;
 
-    static QUuid getUserId();
 };
 
 #endif // WORKFLOW_APP_PBE_H

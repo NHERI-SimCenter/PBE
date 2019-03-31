@@ -13,6 +13,7 @@
 
 #include <QTime>
 #include <QTextStream>
+#include <GoogleAnalytics.h>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -53,6 +54,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
     QCoreApplication::setApplicationVersion("1.2.0");
+
+    GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    GoogleAnalytics::StartSession();
+    GoogleAnalytics::ReportStart();
 
   //
   // set up logging of output messages for user debugging
@@ -183,6 +188,7 @@ int main(int argc, char *argv[])
   theRemoteService->logout();
   thread->quit();
 
+  GoogleAnalytics::EndSession();
   // done
   return res;
 }
