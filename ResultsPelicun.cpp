@@ -432,8 +432,18 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     QProcess *proc = new QProcess();
 
     // run the DL calculation script
+    //QStringList test_list{pySCRIPT, inputFile, filenameTab, fragilitiesString, populationString};
+    //proc->execute("/usr/local/bin/python", test_list);
+
+#ifdef Q_OS_WIN
     QStringList test_list{pySCRIPT, inputFile, filenameTab, fragilitiesString, populationString};
-    proc->execute("python", test_list);
+    proc->execute("python",test_list);
+#else
+    QString command = QString("source $HOME/.bash_profile; python ") +" "+ pySCRIPT +" "+ inputFile +" "+ filenameTab
+            +" "+fragilitiesString+" "+populationString ;
+    qDebug() << "PYTHON COMMAND: " << command;
+    proc->execute("bash", QStringList() << "-c" <<  command);
+#endif
 
     qDebug() << "FILE CREATED";
 
