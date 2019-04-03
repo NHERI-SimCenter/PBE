@@ -342,7 +342,7 @@ WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, co
         theStackedWidget->setCurrentIndex(3);
     else if (selectedText == "UQ")
         theStackedWidget->setCurrentIndex(4);
-    else if (selectedText == "CMP")
+    else if (selectedText == "DL")
         theStackedWidget->setCurrentIndex(5);
     else if (selectedText == "RES")
         theStackedWidget->setCurrentIndex(6);
