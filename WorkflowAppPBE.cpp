@@ -214,7 +214,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QStandardItem *evtItem = new QStandardItem("EVT");
     QStandardItem *uqItem   = new QStandardItem("UQ");
     QStandardItem *femItem = new QStandardItem("FEM");
-    QStandardItem *contentsItem = new QStandardItem("CMP");
+    QStandardItem *contentsItem = new QStandardItem("DL");
     QStandardItem *resultsItem = new QStandardItem("RES");
 
     //building up the hierarchy of the model
