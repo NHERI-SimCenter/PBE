@@ -62,7 +62,7 @@ P58CollapseModeContainer::P58CollapseModeContainer(QWidget *parent)
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *title=new SectionTitle();
-    title->setText(tr("list of collapse modes"));
+    title->setText(tr("List of Collapse Modes"));
     title->setMinimumWidth(250);
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
@@ -97,7 +97,6 @@ P58CollapseModeContainer::P58CollapseModeContainer(QWidget *parent)
     eventLayout->addStretch();
     eventsWidget->setLayout(eventLayout);
     sa->setWidget(eventsWidget);
-
 
     verticalLayout->addLayout(titleLayout);
     verticalLayout->addWidget(sa);

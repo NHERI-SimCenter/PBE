@@ -65,10 +65,14 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
 
     // title -------------------------------------------------------------------
+    QHBoxLayout *titleLayout = new QHBoxLayout();
+
     SectionTitle *title = new SectionTitle();
     title->setText(tr("General Settings"));
-    //title->setMinimumWidth(300);
-    //title->setMaximumWidth(300);
+    title->setMinimumWidth(250);
+
+    titleLayout->addWidget(title);
+    titleLayout->addStretch();
 
     QSpacerItem *spacerTop1 = new QSpacerItem(10,30);
     // QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
@@ -483,13 +487,12 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     mainHLayout->setSpacing(10);
     mainHLayout->setMargin(0);
 
-    mainLayout->addWidget(title);
+    mainLayout->addLayout(titleLayout);
     mainLayout->addItem(spacerTop1);
     mainLayout->addLayout(mainHLayout, 0);
     mainLayout->addStretch(1);
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-
+    //mainLayout->setMargin(0);
 
    // mainLayout->addWidget(responseGroupBox);
     this->setLayout(mainLayout);
