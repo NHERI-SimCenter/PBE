@@ -52,6 +52,7 @@
         }
     ],
     "GeneralInformation": {
+        "depth": 0,
         "height": 432,
         "location": {
             "latitude": 37.4275,
@@ -64,11 +65,13 @@
         "stories": 1,
         "type": "concrete",
         "units": {
-            "force": "N",
+            "force": "kips",
             "length": "in",
             "temperature": "C",
             "time": "sec"
         },
+        "weight": 0,
+        "width": 0,
         "year": 2018
     },
     "LossModel": {
@@ -227,6 +230,7 @@
                 "weights": "0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1"
             }
         ],
+        "DLMethod": "FEMA P58",
         "DataSources": {
             "ComponentDataFolder": "",
             "PopulationDataFile": ""
@@ -292,7 +296,7 @@
             "seed": 968
         }
     },
-    "localAppDir": "c:/Adam/Qt/PBE/EE-UQ/",
+    "localAppDir": "applications dir location",
     "randomVariables": [
         {
             "distribution": "Normal",
@@ -311,7 +315,7 @@
             "variableClass": "Uncertain"
         }
     ],
-    "remoteAppDir": "c:/Adam/Qt/PBE/EE-UQ/",
+    "remoteAppDir": "applications dir location",
     "runType": "local",
     "uncertain_correlation_matrix": [
         1,
@@ -319,5 +323,5 @@
         0,
         1
     ],
-    "workingDir": "C:/Adam/Workdir/"
+    "workingDir": "workdir location"
 }
