@@ -214,7 +214,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QStandardItem *evtItem = new QStandardItem("EVT");
     QStandardItem *uqItem   = new QStandardItem("UQ");
     QStandardItem *femItem = new QStandardItem("FEM");
-    QStandardItem *contentsItem = new QStandardItem("CMP");
+    QStandardItem *contentsItem = new QStandardItem("DL");
     QStandardItem *resultsItem = new QStandardItem("RES");
 
     //building up the hierarchy of the model
@@ -342,7 +342,7 @@ WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, co
         theStackedWidget->setCurrentIndex(3);
     else if (selectedText == "UQ")
         theStackedWidget->setCurrentIndex(4);
-    else if (selectedText == "CMP")
+    else if (selectedText == "DL")
         theStackedWidget->setCurrentIndex(5);
     else if (selectedText == "RES")
         theStackedWidget->setCurrentIndex(6);
