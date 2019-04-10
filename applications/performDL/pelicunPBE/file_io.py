@@ -805,7 +805,7 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
-        c_data['offset'] =DL_EDP.get('Offset') 
+        c_data['offset'] =DL_EDP.get('Offset', 0)        
         c_data['correlation'] = int(DL_data.get('Correlated', False))
         c_data['directional'] = int(DL_data.get('Directional', False))
 
