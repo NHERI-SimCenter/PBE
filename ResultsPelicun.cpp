@@ -526,13 +526,13 @@ int ResultsPelicun::processResults(QString filenameTab) {
     dakotaText->setText("\n");
 
     //DL_Summary_Stats
-    // open Dakota output file
-    //
-    QString resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
-    //const char *resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
+    QString resultsDir = filenameTab.remove("dakotaTab.out");
+    QString resultsStatsFile = resultsDir + "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to run correctly."));
+        emit sendErrorMessage(
+            QString("Could not open file: ") + resultsStatsFile +
+            QString(" . Damage and loss results are not available."));
         return -1;
     }
 
@@ -659,19 +659,21 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     // now read the file with the detailed results
     //DL_Summary
-    QString resultsFile = inputFile.remove("dakota.json") + "DL_summary.csv";
+    QString resultsFile = resultsDir + "DL_summary.csv";
     std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
+        emit sendErrorMessage(
+            QString("Could not open file: ") + resultsFile +
+            QString(" . Damage and loss results are not available."));
         return -1;
     }
 
     std::getline(fileResults, summaryName);
 
     // now until end of file, read lines and place data into spreadsheet
+    // (do not read more than 10000 lines to avoid visualization issues)
     int rowCount = 0;
-    while (std::getline(fileResults, inputLine)){
-        //&& rowCount <= 20000) {
+    while ((std::getline(fileResults, inputLine)) && (rowCount <= 20000)) {
         spreadsheet->insertRow(rowCount);
         std::istringstream line(inputLine);
         std::string value;
@@ -690,7 +692,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
 
     if (rowCount == 0) {
-      emit sendErrorMessage("Dakota FAILED to RUN Correctly");
+      emit sendErrorMessage("Damage and loss result file is empty.");
       return -2;
     }
    // rowCount;
