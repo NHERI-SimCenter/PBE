@@ -36,9 +36,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include  <ResultsPelicun.h>
+#include <ResultsPelicun.h>
+#include <QProcess>
+#include <QStringList>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QApplication>
 
 #include <QTabWidget>
@@ -371,11 +374,74 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
-                                   QString inputFile,
-                                   QString fragilitiesString,
-                                   QString populationString) {
+int ResultsPelicun::processResults(QString filenameTab) {
 
+    // Copy files from the application dir to the workdir
+    QString resDir = filenameTab.remove("dakotaTab.out");
+    QDir rDir(resDir);
+
+    // Get the input json data from the dakota.json file
+    QFile inputFile(rDir.absoluteFilePath("dakota.json"));
+    inputFile.open(QFile::ReadOnly | QFile::Text);
+    QString val;
+    val=inputFile.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject inputData = doc.object();
+    inputFile.close();
+
+    // If the runType is HPC, then we need to do additional calculations
+    QString runType = inputData["runType"].toString();
+    if (runType == "HPC"){
+        // create the workdir and copy the two result files there
+        QString runDirName = inputData["runDir"].toString();
+        if (!QDir(runDirName).exists()) {
+            QDir().mkdir(runDirName);
+        }
+        QDir runDir(runDirName);
+
+        QFile::copy(rDir.absoluteFilePath("dakotaTab.out"),
+                    runDir.absoluteFilePath("dakotaTab.out"));
+
+        QString tmpDirName = runDir.absoluteFilePath("templatedir");
+        if (!QDir(tmpDirName).exists()) {
+            QDir().mkdir(tmpDirName);
+        }
+        QDir tmpDir(tmpDirName);
+
+        QFile::copy(rDir.absoluteFilePath("dakota.json"),
+                    tmpDir.absoluteFilePath("dakota.json"));
+
+        // run the loss assessment
+        QDir scriptDir(inputData["localAppDir"].toString());
+        scriptDir.cd("applications");
+        scriptDir.cd("Workflow");
+        QString pySCRIPT = scriptDir.absoluteFilePath("PBE workflow.py");
+        QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
+        QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
+
+        QProcess *proc = new QProcess();
+
+#ifdef Q_OS_WIN
+        QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
+        proc->execute("python",args);
+
+#else
+        // note the above not working under linux because basrc not being called so no env variables!!
+
+        QString command = QString("source $HOME/.bash_profile; python ") + pySCRIPT + QString(" loss_only ") + inputFile + QString(" ") +
+                registryFile;
+
+        qDebug() << "PYTHON COMMAND: " << command;
+        proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+        proc->waitForStarted();
+
+    }
+
+    // the DL calculation has been moved to the workflow script
+    /*
     emit sendStatusMessage("Processing Simulation Results and Preparing Damage & Loss Inputs");
 
     //
@@ -436,6 +502,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     proc->execute("python", test_list);
 
     qDebug() << "FILE CREATED";
+    */
 
     this->clear();
     mLeft = true;
@@ -667,8 +734,6 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     fileResults.close();
 
     // close input file
-    return false;
-
     return 0;
 }
 
