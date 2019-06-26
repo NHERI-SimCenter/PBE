@@ -146,8 +146,7 @@ LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
     // and all data to be used in ApplicationDate
     //
 
-    jsonObject["ComponentClassification"]="Earthquake";
-    jsonObject["Application"] = "ComponentContainer";
+    jsonObject["Application"] = "pelicun";
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;
     return true;

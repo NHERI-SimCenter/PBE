@@ -50,3 +50,6 @@ OpenSeesInput
 OpenSeesPostprocessor
 OpenSeesPreprocessor
 extractEDP
+applications/performDL/pelicunPBE/__pycache__/
+
+*.bak

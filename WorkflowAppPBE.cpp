@@ -114,8 +114,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theLossModel = new LossModelContainer(theRVs);
     theResults = new ResultsPelicun();
 
-    localApp = new LocalApplication("PBE.py");
-    remoteApp = new RemoteApplication("PBE.py", theService);
+    localApp = new LocalApplication("PBE workflow.py");
+    remoteApp = new RemoteApplication("PBE workflow.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
     // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
@@ -401,11 +401,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theEvent->outputToJSON(jsonObjectTop);
     theEvent->outputAppDataToJSON(apps);
 
-
     theRunWidget->outputToJSON(jsonObjectTop);
-
-    jsonObjectTop["Applications"]=apps;
-
 
     QJsonObject jsonLossModel;
     theLossModel->outputToJSON(jsonLossModel);
@@ -413,7 +409,9 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
     QJsonObject appsDL;
     theLossModel->outputAppDataToJSON(appsDL);
-    apps["Loss"] = appsDL;
+    apps["DL"] = appsDL;
+
+    jsonObjectTop["Applications"]=apps;
     
     return true;
 }
@@ -422,11 +420,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
  void
  WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
 
-   QString fragFolder = theLossModel->getFragilityFolder();
-   QString popFile = theLossModel->getPopulationFile();
-
-   theResults->processResults(dakotaOut, dakotaTab, inputFile,
-                              fragFolder, popFile);
+   theResults->processResults(dakotaTab);
    theRunWidget->hide();
    treeView->setCurrentIndex(infoItemIdx);
    theStackedWidget->setCurrentIndex(6);

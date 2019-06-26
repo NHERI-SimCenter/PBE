@@ -57,10 +57,7 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString filenameResults, QString filenameTab,
-                       QString inputFile,
-                       QString fragilitiesString,
-                       QString populationString);
+    int processResults(QString filenameTab);
 
 signals:
 
