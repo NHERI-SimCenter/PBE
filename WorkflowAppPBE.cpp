@@ -515,6 +515,11 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
+    if (jsonObject.contains("Simulation")) {
+        QJsonObject jsonObjSimInformation = jsonObject["Simulation"].toObject();
+        theAnalysis->inputFromJSON(jsonObjSimInformation);
+    }
+
     if (jsonObject.contains("LossModel")) {
         QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
         theLossModel->inputFromJSON(jsonObjLossModel);
