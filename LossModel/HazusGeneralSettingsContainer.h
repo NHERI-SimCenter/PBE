@@ -129,6 +129,8 @@ private:
     QComboBox * occupancyType;
     QComboBox * structureType;
     QComboBox * designLevel;
+    QComboBox * EDP_Distribution;
+    QComboBox * EDP_Fitting;
 
     QCheckBox * costAndTimeDep;
     QCheckBox * injSeverityDep;

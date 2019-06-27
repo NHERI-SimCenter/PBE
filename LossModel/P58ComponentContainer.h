@@ -43,7 +43,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppWidget.h>
 
 class QVBoxLayout;
+class QLineEdit;
+class QLabel;
 class Component;
+class QComboBox;
+class QGroupBox;
+class QStringListModel;
 
 class P58ComponentContainer : public SimCenterAppWidget
 {
@@ -57,15 +62,77 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool copyFiles(QString &dirName);
 
+    int setFragilityFolder(QString fragilityFolder);
+    QString getFragilityFolder();
+
+    void addCompToOverview(QString compName, QVBoxLayout *compAreaVBox);
+
+    void addComponent(bool doRefresh);
+    void removeComponent(bool doRefresh);
+
 public slots:
    void errorMessage(QString message);
-   void addComponent(void);
-   void removeComponents(void);
-   void clear(void);
+
+   int updateAvailableComponents();
+
+   void addOneComponent(void);
+   void addAllComponents(void);
+   void removeOneComponent(void);
+   void removeAllComponents(void);
+   void showSelectedComponent(void);
+
+   void chooseFragilityFolder(void);
+
+   void storeCompQuantity(void);
+   void retrieveCompQuantity(void);
+
+   void storeCompQuantityDist(void);
+   void retrieveCompQuantityDist(void);
+
+   void storeCompQuantityCOV(void);
+   void retrieveCompQuantityCOV(void);
+
+   void storeWeightD1(void);
+   void retrieveWeightD1(void);
+   void storeWeightD2(void);
+   void retrieveWeightD2(void);
+
+   void refreshCompOverview(void);
 
 private:
     QVBoxLayout *verticalLayout;
     QVBoxLayout *eventLayout;
+
+    QLineEdit * fragilityFolderPath;
+
+    QComboBox *availableCompCombo;
+    QStringListModel *availableCBModel;
+    QComboBox *selectedCompCombo;
+    QStringListModel *selectedCBModel;
+
+    QLabel *compName;
+    QLabel *compDescription;
+    QLabel *compEDP;
+
+    QLineEdit *compQuantity;
+    QLabel *compUnitSize;
+    QLabel *compUnitType;
+
+    QComboBox *compQFamily;
+    QLineEdit *compQcov;
+
+    QLineEdit *dir1Weights;
+    QLineEdit *dir2Weights;
+
+    QGroupBox *compOverviewGroupBox;
+    QVBoxLayout *compOverviewLayout;
+
+    // component properties
+    QMap<QString, QString> *compQuantityMap;
+    QMap<QString, QString> *compQuantityDistMap;
+    QMap<QString, QString> *compQuantityCOVMap;
+    QMap<QString, QString> *compWeightD1Map;
+    QMap<QString, QString> *compWeightD2Map;
 
     QVector<Component *>theComponents;
 };
