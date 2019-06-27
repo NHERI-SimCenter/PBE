@@ -131,7 +131,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     // error messages and signals
     connect(theResults,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theResults,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)))    connect(theResults,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
+    connect(theResults,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
+    connect(theResults,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
 
     connect(theGI,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
     connect(theGI,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
@@ -316,7 +317,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
         qDebug() << "Open Style File Failed!";
      */ //It seems this has been done in previous lines.
 
-    theGI->setDefaultProperties(1,144,360,360,37.5241,-126.1661);
+    theGI->setDefaultProperties(1,10,10,10,37.426,-122.171);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
