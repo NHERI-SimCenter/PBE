@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   QString version("Version 1.2.0");
   w.setVersion(version);
 
-  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, April 1). NHERI-SimCenter/PBE: Release v1.1.0 (Version v1.1.0).");
+  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, June 30). NHERI-SimCenter/PBE: Release v1.2.0 (Version v1.2.0). Zenodo. http://doi.org/10.5281/zenodo.3263910");
   w.setCite(citeText);
 
   QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");
