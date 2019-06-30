@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
              we provide and will be enthused to provide their own applications for others \
              to use. \
           <p>\
-          This is Version 1.1.0 of the tool and as such is limited in scope. Researchers are\
+          This is Version 1.2.0 of the tool and as such is limited in scope. Researchers are\
            encouraged to comment on what additional features and applications they would \
            like to see in the PBE App. If you want a feature, chances are many of your \
            colleagues would also benefit from it.\
@@ -154,10 +154,10 @@ int main(int argc, char *argv[])
 
      w.setAbout(textAboutPBE);
 
-  QString version("Version 1.1.0");
+  QString version("Version 1.2.0");
   w.setVersion(version);
 
-  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, April 1). NHERI-SimCenter/PBE: Release v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.2619736");
+  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, April 1). NHERI-SimCenter/PBE: Release v1.1.0 (Version v1.1.0).");
   w.setCite(citeText);
 
   QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");

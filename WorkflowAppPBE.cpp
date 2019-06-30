@@ -317,7 +317,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
         qDebug() << "Open Style File Failed!";
      */ //It seems this has been done in previous lines.
 
-    theGI->setDefaultProperties(1,10,10,10,37.426,-122.171);
+    theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()

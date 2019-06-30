@@ -80,6 +80,7 @@ using namespace QtCharts;
 #include <QBarSet>
 #include <QBarCategoryAxis>
 #include <QLabel>
+#include <QSettings>
 
 #define NUM_DIVISIONS 10
 
@@ -419,16 +420,26 @@ int ResultsPelicun::processResults(QString filenameTab) {
         QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
         QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
 
-        QProcess *proc = new QProcess();
 
+	QProcess *proc = new QProcess();
+	QString python = QString("python");
+	QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+	QVariant  pythonLocationVariant = settings.value("pythonExePath");
+	if (pythonLocationVariant.isValid()) {
+	  python = pythonLocationVariant.toString();
+	}
+	
+	
 #ifdef Q_OS_WIN
+	python = QString("\"") + python + QString("\"");
         QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
-        proc->execute("python",args);
+        proc->execute(python, args);
 
 #else
         // note the above not working under linux because basrc not being called so no env variables!!
 
-        QString command = QString("source $HOME/.bash_profile; python ") + pySCRIPT + QString(" loss_only ") + inputFile + QString(" ") +
+        QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+	  pySCRIPT + QString("\"  loss_only ") + inputFileName + QString(" ") +
                 registryFile;
 
         qDebug() << "PYTHON COMMAND: " << command;
