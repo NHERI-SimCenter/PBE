@@ -156,7 +156,7 @@ P58LossModelContainer::errorMessage(QString message){
 
 QString
 P58LossModelContainer::getFragilityFolder(){
-    return theGeneralSettingsContainer->getFragilityFolder();
+    return theComponentContainer->getFragilityFolder();
 }
 
 QString

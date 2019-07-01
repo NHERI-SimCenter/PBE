@@ -36,9 +36,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include  <ResultsPelicun.h>
+#include <ResultsPelicun.h>
+#include <QProcess>
+#include <QStringList>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QApplication>
 
 #include <QTabWidget>
@@ -77,6 +80,7 @@ using namespace QtCharts;
 #include <QBarSet>
 #include <QBarCategoryAxis>
 #include <QLabel>
+#include <QSettings>
 
 #define NUM_DIVISIONS 10
 
@@ -371,11 +375,84 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
-                                   QString inputFile,
-                                   QString fragilitiesString,
-                                   QString populationString) {
+int ResultsPelicun::processResults(QString filenameTab) {
 
+    // Copy files from the application dir to the workdir
+    QString resDir = filenameTab.remove("dakotaTab.out");
+    QDir rDir(resDir);
+
+    // Get the input json data from the dakota.json file
+    QFile inputFile(rDir.absoluteFilePath("dakota.json"));
+    inputFile.open(QFile::ReadOnly | QFile::Text);
+    QString val;
+    val=inputFile.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject inputData = doc.object();
+    inputFile.close();
+
+    // If the runType is HPC, then we need to do additional calculations
+    QString runType = inputData["runType"].toString();
+    if (runType == "HPC"){
+        // create the workdir and copy the two result files there
+        QString runDirName = inputData["runDir"].toString();
+        if (!QDir(runDirName).exists()) {
+            QDir().mkdir(runDirName);
+        }
+        QDir runDir(runDirName);
+
+        QFile::copy(rDir.absoluteFilePath("dakotaTab.out"),
+                    runDir.absoluteFilePath("dakotaTab.out"));
+
+        QString tmpDirName = runDir.absoluteFilePath("templatedir");
+        if (!QDir(tmpDirName).exists()) {
+            QDir().mkdir(tmpDirName);
+        }
+        QDir tmpDir(tmpDirName);
+
+        QFile::copy(rDir.absoluteFilePath("dakota.json"),
+                    tmpDir.absoluteFilePath("dakota.json"));
+
+        // run the loss assessment
+        QDir scriptDir(inputData["localAppDir"].toString());
+        scriptDir.cd("applications");
+        scriptDir.cd("Workflow");
+        QString pySCRIPT = scriptDir.absoluteFilePath("PBE workflow.py");
+        QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
+        QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
+
+
+	QProcess *proc = new QProcess();
+	QString python = QString("python");
+	QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+	QVariant  pythonLocationVariant = settings.value("pythonExePath");
+	if (pythonLocationVariant.isValid()) {
+	  python = pythonLocationVariant.toString();
+	}
+	
+	
+#ifdef Q_OS_WIN
+	python = QString("\"") + python + QString("\"");
+        QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
+        proc->execute(python, args);
+
+#else
+        // note the above not working under linux because basrc not being called so no env variables!!
+
+        QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+	  pySCRIPT + QString("\"  loss_only ") + inputFileName + QString(" ") +
+                registryFile;
+
+        qDebug() << "PYTHON COMMAND: " << command;
+        proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+        proc->waitForStarted();
+
+    }
+
+    // the DL calculation has been moved to the workflow script
+    /*
     emit sendStatusMessage("Processing Simulation Results and Preparing Damage & Loss Inputs");
 
     //
@@ -446,6 +523,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 #endif
 
     qDebug() << "FILE CREATED";
+    */
 
     this->clear();
     mLeft = true;
@@ -469,13 +547,13 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     dakotaText->setText("\n");
 
     //DL_Summary_Stats
-    // open Dakota output file
-    //
-    QString resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
-    //const char *resultsStatsFile = inputFile.remove("dakota.json") + "DL_summary_stats.csv";
+    QString resultsDir = filenameTab.remove("dakotaTab.out");
+    QString resultsStatsFile = resultsDir + "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + resultsStatsFile + QString(" . Pelicun failed to run correctly."));
+        emit sendErrorMessage(
+            QString("Could not open file: ") + resultsStatsFile +
+            QString(" . Damage and loss results are not available."));
         return -1;
     }
 
@@ -602,19 +680,21 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 
     // now read the file with the detailed results
     //DL_Summary
-    QString resultsFile = inputFile.remove("dakota.json") + "DL_summary.csv";
+    QString resultsFile = resultsDir + "DL_summary.csv";
     std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
-        emit sendErrorMessage( QString("Could not open file: ") + filenameResults + QString(" Dakota did not start. Check error file dakota.err in local directory or at DesignSafe"));
+        emit sendErrorMessage(
+            QString("Could not open file: ") + resultsFile +
+            QString(" . Damage and loss results are not available."));
         return -1;
     }
 
     std::getline(fileResults, summaryName);
 
     // now until end of file, read lines and place data into spreadsheet
+    // (do not read more than 10000 lines to avoid visualization issues)
     int rowCount = 0;
-    while (std::getline(fileResults, inputLine)){
-        //&& rowCount <= 20000) {
+    while ((std::getline(fileResults, inputLine)) && (rowCount <= 20000)) {
         spreadsheet->insertRow(rowCount);
         std::istringstream line(inputLine);
         std::string value;
@@ -633,7 +713,7 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
 
 
     if (rowCount == 0) {
-      emit sendErrorMessage("Dakota FAILED to RUN Correctly");
+      emit sendErrorMessage("Damage and loss result file is empty.");
       return -2;
     }
    // rowCount;
@@ -677,8 +757,6 @@ int ResultsPelicun::processResults(QString filenameResults, QString filenameTab,
     fileResults.close();
 
     // close input file
-    return false;
-
     return 0;
 }
 

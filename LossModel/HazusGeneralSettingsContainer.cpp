@@ -62,7 +62,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     QHBoxLayout *mainHLayout = new QHBoxLayout();
     QVBoxLayout *mainV1Layout = new QVBoxLayout();
     QVBoxLayout *mainV2Layout = new QVBoxLayout();
-
+    //QVBoxLayout *mainV3Layout = new QVBoxLayout();
 
     // title -------------------------------------------------------------------
     QHBoxLayout *titleLayout = new QHBoxLayout();
@@ -79,10 +79,63 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
 
     // building response -------------------------------------------------------
-    QGroupBox * responseGroupBox = new QGroupBox("Building Response");
+    QGroupBox * responseGroupBox = new QGroupBox("Response Model");
     QFormLayout * responseFormLayout = new QFormLayout();
 
-    // add elements
+    QLabel *describeEDPLabel = new QLabel();
+    describeEDPLabel->setText(tr("response description:"));
+    describeEDPLabel->setToolTip(tr("Some tooltip"));
+    responseFormLayout->addRow(describeEDPLabel);
+
+    // EDP distribution
+    EDP_Distribution = new QComboBox();
+    EDP_Distribution->setToolTip(tr("Some tooltip"));
+    EDP_Distribution->addItem("empirical",0);
+    EDP_Distribution->addItem("lognormal",1);
+    EDP_Distribution->addItem("truncated lognormal",2);
+
+    EDP_Distribution->setCurrentIndex(1);
+    responseFormLayout->addRow(tr("    EDP distribution:"), EDP_Distribution);
+
+    // basis of EDP fitting
+    EDP_Fitting = new QComboBox();
+    EDP_Fitting ->setToolTip(tr("Some tooltip"));
+    EDP_Fitting ->addItem("all results",0);
+    EDP_Fitting ->addItem("non-collapse results",1);
+
+    EDP_Fitting ->setCurrentIndex(0);
+    responseFormLayout->addRow(tr("    Basis:"), EDP_Fitting );
+
+    // realizations
+    realizationsValue = new QLineEdit();
+    realizationsValue->setToolTip(tr("Number of simulated building-performance outcomes."));
+    realizationsValue->setText("2000");
+    realizationsValue->setAlignment(Qt::AlignRight);
+    responseFormLayout->addRow(tr("    Realizations"), realizationsValue);
+
+    QSpacerItem *spacerGroups7 = new QSpacerItem(10,10);
+    responseFormLayout->addItem(spacerGroups7);
+
+    // additional uncertainty
+    QLabel *addedUncertaintyLabel = new QLabel();
+    addedUncertaintyLabel->setText(tr("Additional Uncertainty:"));
+    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs to consider additional sources of uncertainty."));
+    responseFormLayout->addRow(addedUncertaintyLabel);
+
+    addedUncertaintyGM = new QLineEdit();
+    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));
+    addedUncertaintyGM->setText("0.1");
+    addedUncertaintyGM->setAlignment(Qt::AlignRight);
+    responseFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
+
+    addedUncertaintyModel = new QLineEdit();
+    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
+    addedUncertaintyModel->setText("0.1");
+    addedUncertaintyModel->setAlignment(Qt::AlignRight);
+    responseFormLayout->addRow(tr("    Modeling"), addedUncertaintyModel);
+
+     QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
+    responseFormLayout->addItem(spacerGroups8);
 
     // detection limits
     QLabel *detLimLabel = new QLabel();
@@ -111,28 +164,9 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     responseGroupBox->setLayout(responseFormLayout);
 
-    // building damage -------------------------------------------------------
-    QGroupBox * damageGroupBox = new QGroupBox("Building Damage and Loss");
+    // damage model -----------------------------------------------------------
+    QGroupBox * damageGroupBox = new QGroupBox("Damage Model");
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
-
-    // add elements
-
-    // replacement cost
-    replacementCostValue = new QLineEdit();
-    replacementCostValue->setToolTip(tr("Some tooltip"));
-    replacementCostValue->setText("");
-    replacementCostValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
-
-    // replacement cost
-    replacementTimeValue = new QLineEdit();
-    replacementTimeValue->setToolTip(tr("Some tooltip"));
-    replacementTimeValue->setText("");
-    replacementTimeValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
-
-    QSpacerItem *spacerGroups3 = new QSpacerItem(10,10);
-    damageFormLayout->addItem(spacerGroups3);
 
     // building design information
     QLabel *buildingDesignLabel = new QLabel();
@@ -215,7 +249,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     structureType->setItemData(33, "Unreinforced Masonry Bearing Walls - Low-Rise 1-3 stories", Qt::ToolTipRole);
     structureType->setItemData(34, "Unreinforced Masonry Bearing Walls - Mid-Rise 3+ stories", Qt::ToolTipRole);
     structureType->setItemData(35, "Mobile Homes", Qt::ToolTipRole);
-    
+
     structureType->setCurrentIndex(0);
     damageFormLayout->addRow(tr("    Structure Type"), structureType);
 
@@ -233,95 +267,74 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
      QSpacerItem *spacerGroups5 = new QSpacerItem(10,10);
     damageFormLayout->addItem(spacerGroups5);
 
-    // set style
-    damageFormLayout->setAlignment(Qt::AlignLeft);
-    damageFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    damageFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+    // loss model -------------------------------------------------------------
+    QGroupBox * lossGroupBox = new QGroupBox("Loss Model");
+    QFormLayout * lossFormLayout = new QFormLayout(lossGroupBox);
 
-    // uncertainty quantification ----------------------------------------------
-    QGroupBox * uqGroupBox = new QGroupBox("Uncertainty Quantification");
-    QFormLayout * uqFormLayout = new QFormLayout(uqGroupBox);
+    // replacement cost
+    replacementCostValue = new QLineEdit();
+    replacementCostValue->setToolTip(tr("Some tooltip"));
+    replacementCostValue->setText("");
+    replacementCostValue->setAlignment(Qt::AlignRight);
+    lossFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
 
-    // add elements
+    // replacement cost
+    replacementTimeValue = new QLineEdit();
+    replacementTimeValue->setToolTip(tr("Some tooltip"));
+    replacementTimeValue->setText("");
+    replacementTimeValue->setAlignment(Qt::AlignRight);
+    lossFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
 
-    // realizations
-    realizationsValue = new QLineEdit();
-    realizationsValue->setToolTip(tr("Number of simulated building-performance outcomes."));
-    realizationsValue->setText("100000");
-    realizationsValue->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    Realizations"), realizationsValue);
+    QSpacerItem *spacerGroups3 = new QSpacerItem(10,10);
+    lossFormLayout->addItem(spacerGroups3);
 
-     QSpacerItem *spacerGroups7 = new QSpacerItem(10,10);
-    uqFormLayout->addItem(spacerGroups7);
-
-    // additional uncertainty
-    QLabel *addedUncertaintyLabel = new QLabel();
-    addedUncertaintyLabel->setText(tr("Additional Uncertainty:"));
-    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs to consider additional sources of uncertainty."));
-    uqFormLayout->addRow(addedUncertaintyLabel);
-
-    addedUncertaintyGM = new QLineEdit();
-    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));
-    addedUncertaintyGM->setText("0.1");
-    addedUncertaintyGM->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
-
-    addedUncertaintyModel = new QLineEdit();
-    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
-    addedUncertaintyModel->setText("0.1");
-    addedUncertaintyModel->setAlignment(Qt::AlignRight);
-    uqFormLayout->addRow(tr("    Modeling"), addedUncertaintyModel);
-
-     QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
-    uqFormLayout->addItem(spacerGroups8);
-
-    // set style
-    uqFormLayout->setAlignment(Qt::AlignLeft);
-    uqFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    uqFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-
-    // decision variables ------------------------------------------------------
-    QGroupBox * decisionGroupBox = new QGroupBox("Decision Variables");
-    QFormLayout * decisionFormLayout = new QFormLayout(decisionGroupBox);
-
-    // add elements
-
-    // estimate label
+    // decision variables
     QLabel *decisionVarLabel = new QLabel();
-    decisionVarLabel->setText(tr("Estimate ..."));
+    decisionVarLabel->setText(tr("Decision variables of interest: "));
     decisionVarLabel->setToolTip(tr("Some tooltip"));
-    decisionFormLayout->addRow(decisionVarLabel);
+    lossFormLayout->addRow(decisionVarLabel);
 
     // reconstruction cost
     needRecCost = new QCheckBox();
     needRecCost->setText("");
     needRecCost->setToolTip(tr("Some tooltip"));
     needRecCost->setChecked(true);
-    decisionFormLayout->addRow(tr("    Reconstruction Cost"),
-                                 needRecCost);
 
     // reconstruction time
     needRecTime = new QCheckBox();
     needRecTime->setText("");
     needRecTime->setToolTip(tr("Some tooltip"));
     needRecTime->setChecked(true);
-    decisionFormLayout->addRow(tr("    Reconstruction Time"),
-                                 needRecTime);
+
+    QHBoxLayout *costAndTimeLayout = new QHBoxLayout();
+    QLabel *recTimeLabel = new QLabel();
+    recTimeLabel->setText(tr("    Reconstruction Time"));
+    costAndTimeLayout->addWidget(needRecCost);
+    costAndTimeLayout->setSpacing(5);
+    costAndTimeLayout->addWidget(recTimeLabel);
+    costAndTimeLayout->addWidget(needRecTime);
+
+    lossFormLayout->addRow(tr("    Reconstruction Cost"),
+                                 costAndTimeLayout);
 
     // injuries
     needInjuries = new QCheckBox();
     needInjuries->setText("");
     needInjuries->setToolTip(tr("Some tooltip"));
     needInjuries->setChecked(true);
-    decisionFormLayout->addRow(tr("    Injuries"),
+
+    lossFormLayout->addRow(tr("    Injuries"),
                                  needInjuries);
 
-    // inhabitants -------------------------------------------------------------
-    QGroupBox * inhabitantsGroupBox = new QGroupBox("Inhabitants");
-    QFormLayout * inhabitantsFormLayout = new QFormLayout(inhabitantsGroupBox);
+    QSpacerItem *spacerGroups6 = new QSpacerItem(10,10);
+    lossFormLayout->addItem(spacerGroups6);
 
-    // add elements
+    // inhabitants
+    QLabel *inhabitantLabel = new QLabel();
+    inhabitantLabel->setText(tr("Inhabitants: "));
+    inhabitantLabel->setToolTip(tr("Some tooltip"));
+    lossFormLayout->addRow(inhabitantLabel);
 
     // occupancy
     occupancyType = new QComboBox();
@@ -385,41 +398,17 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     occupancyType->setItemData(27, "Education - Colleges/Universities", Qt::ToolTipRole);
 
     occupancyType->setCurrentIndex(0);
-    inhabitantsFormLayout->addRow(tr("    Occupancy Type"), occupancyType);
-
-     QSpacerItem *spacerGroups6 = new QSpacerItem(10,10);
-    inhabitantsFormLayout->addItem(spacerGroups6);
+    lossFormLayout->addRow(tr("    Occupancy Type"), occupancyType);
 
     // peak population
     peakPopulation = new QLineEdit();
     peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building."));
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
-    inhabitantsFormLayout->addRow(tr("    Peak Population"), peakPopulation);
+    lossFormLayout->addRow(tr("    Peak Population"), peakPopulation);
 
-    // data sources ------------------------------------------------------------
-    QGroupBox * resourcesGroupBox = new QGroupBox("Custom Data Sources");
-    QFormLayout * resourcesFormLayout = new QFormLayout(resourcesGroupBox);
-
-    QHBoxLayout *fragilityLayout = new QHBoxLayout();
-
-    fragilityFolderPath = new QLineEdit;
-    QPushButton *chooseFragility = new QPushButton();
-    chooseFragility->setText(tr("Choose"));
-    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
-    fragilityLayout->addWidget(fragilityFolderPath);
-    fragilityLayout->addWidget(chooseFragility);
-    fragilityLayout->setSpacing(1);
-    fragilityLayout->setMargin(0);
-
-    resourcesFormLayout->addRow(tr("damage and loss functions: "),
-                                fragilityLayout);
-
-    QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
-    resourcesFormLayout->addItem(spacerGroups14);
-
+    // population distribution
     QHBoxLayout *populationLayout = new QHBoxLayout();
-
     populationFilePath = new QLineEdit;
     QPushButton *choosePopulation = new QPushButton();
     choosePopulation->setText(tr("Choose"));
@@ -429,28 +418,58 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     populationLayout->setSpacing(1);
     populationLayout->setMargin(0);
 
-    resourcesFormLayout->addRow(tr("population distribution: "),
+    lossFormLayout->addRow(tr("Custom distribution: "),
                                 populationLayout);
+
+    QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
+    lossFormLayout->addItem(spacerGroups14);
+
+    // component database
+    QLabel *componentLabel = new QLabel();
+    componentLabel->setText(tr("Components: "));
+    componentLabel->setToolTip(tr("Some tooltip"));
+    lossFormLayout->addRow(componentLabel);
+
+    QHBoxLayout *fragilityLayout = new QHBoxLayout();
+    fragilityFolderPath = new QLineEdit;
+    QPushButton *chooseFragility = new QPushButton();
+    chooseFragility->setText(tr("Choose"));
+    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
+    fragilityLayout->addWidget(fragilityFolderPath);
+    fragilityLayout->addWidget(chooseFragility);
+    fragilityLayout->setSpacing(1);
+    fragilityLayout->setMargin(0);
+
+    lossFormLayout->addRow(tr("Custom DL data: "),
+                                fragilityLayout);
+
+    // set style
+    lossFormLayout->setAlignment(Qt::AlignLeft);
+    lossFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    lossFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     // assemble the widgets-----------------------------------------------------
 
 
-    mainV1Layout->addWidget(uqGroupBox);
-    mainV1Layout->addWidget(decisionGroupBox);
-    mainV1Layout->addWidget(inhabitantsGroupBox);
+    mainV1Layout->addWidget(responseGroupBox);
+    mainV1Layout->addWidget(damageGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
     mainV1Layout->setMargin(0);
 
-    mainV2Layout->addWidget(responseGroupBox);
-    mainV2Layout->addWidget(damageGroupBox);
-    mainV2Layout->addWidget(resourcesGroupBox);
+    mainV2Layout->addWidget(lossGroupBox);
     mainV2Layout->addStretch(1);
     mainV2Layout->setSpacing(10);
     mainV2Layout->setMargin(0);
 
+
+    //mainV3Layout->addStretch(1);
+    //mainV3Layout->setSpacing(10);
+    //mainV3Layout->setMargin(0);
+
     mainHLayout->addLayout(mainV1Layout, 0);
     mainHLayout->addLayout(mainV2Layout, 0);
+    //mainHLayout->addLayout(mainV3Layout, 0);
     mainHLayout->addStretch(1);
     mainHLayout->setSpacing(10);
     mainHLayout->setMargin(0);
@@ -539,6 +558,9 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
     // building response ------------------------------------------------------    
 
+    response["EDP_Distribution"] = EDP_Distribution->currentText();
+    response["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
+
     QJsonObject detLims;
 
     detLims["PID"] = driftDetLim->text();
@@ -577,10 +599,19 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
     // data sources ------------------------------------------------------------
 
-    dataSources["ComponentDataFolder"] = fragilityFolderPath->text();
-    dataSources["PopulationDataFile"] = populationFilePath->text();
+    QString pathString;
+    bool needDataSources = false;
 
-    outputObject["DataSources"] = dataSources;
+    pathString = fragilityFolderPath->text();
+    if (pathString != "")
+        dataSources["ComponentDataFolder"] = pathString;
+
+    pathString = populationFilePath->text();
+    if (pathString != "")
+        dataSources["PopulationDataFile"] = pathString;
+
+    if (needDataSources == true)
+        outputObject["DataSources"] = dataSources;
 
     // components --------------------------------------------------------------
 
@@ -632,6 +663,12 @@ bool HazusGeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
     QJsonObject response = inputObject["BuildingResponse"].toObject();
 
+    if (response.contains("EDP_Distribution"))
+        EDP_Distribution->setCurrentText(response["EDP_Distribution"].toString());
+
+    if (response.contains("BasisOfEDP_Distribution"))
+        EDP_Fitting->setCurrentText(response["BasisOfEDP_Distribution"].toString());
+
     QJsonObject detLims;
     detLims = response["DetectionLimits"].toObject();
 
@@ -659,8 +696,15 @@ bool HazusGeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
     QJsonObject dataSources = inputObject["DataSources"].toObject();
 
-    fragilityFolderPath->setText(dataSources["ComponentDataFolder"].toString());
-    populationFilePath->setText(dataSources["PopulationDataFile"].toString());
+    QString pathString;
+
+    pathString = dataSources["ComponentDataFolder"].toString();
+    if (pathString != "")
+        fragilityFolderPath->setText(pathString);
+
+    pathString = dataSources["PopulationDataFile"].toString();
+    if (pathString != "")
+        populationFilePath->setText(pathString);
 
     return 0;
 }

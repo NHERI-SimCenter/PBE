@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("2.0.0");
+    QCoreApplication::setApplicationVersion("1.2.0");
 
     GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
@@ -85,8 +85,9 @@ int main(int argc, char *argv[])
 
   QString tenant("designsafe");
   QString storage("agave://designsafe.storage.default/");
+  QString dirName("PBE");
 
-  AgaveCurl *theRemoteService = new AgaveCurl(tenant, storage);
+  AgaveCurl *theRemoteService = new AgaveCurl(tenant, storage, &dirName);
 
 
   //
@@ -94,6 +95,11 @@ int main(int argc, char *argv[])
   //
   WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
   MainWindowWorkflowApp w(QString("PBE - Performance Based Engineering Application"),theInputApp, theRemoteService);
+
+
+  
+
+// connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *w, SLOT(errorM))
 
   QString textAboutPBE = "\
           <p> \
@@ -140,7 +146,7 @@ int main(int argc, char *argv[])
              we provide and will be enthused to provide their own applications for others \
              to use. \
           <p>\
-          This is Version 1.0 of the tool and as such is limited in scope. Researchers are\
+          This is Version 1.2.0 of the tool and as such is limited in scope. Researchers are\
            encouraged to comment on what additional features and applications they would \
            like to see in the PBE App. If you want a feature, chances are many of your \
            colleagues would also benefit from it.\
@@ -148,8 +154,15 @@ int main(int argc, char *argv[])
 
      w.setAbout(textAboutPBE);
 
-  QString version("1.0.0");
+  QString version("Version 1.2.0");
   w.setVersion(version);
+
+  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, June 30). NHERI-SimCenter/PBE: Release v1.2.0 (Version v1.2.0). Zenodo. http://doi.org/10.5281/zenodo.3263910");
+  w.setCite(citeText);
+
+  QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");
+  w.setDocumentationURL(manualURL);
+
 
   //
   // move remote interface to a thread
