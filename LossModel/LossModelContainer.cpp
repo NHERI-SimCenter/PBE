@@ -63,7 +63,7 @@ LossModelContainer::LossModelContainer(
     QHBoxLayout *methodSelectLayout = new QHBoxLayout();
 
     SectionTitle *textDL=new SectionTitle();
-    textDL->setText(tr("Loss Assessment Method"));
+    textDL->setText(tr("Damage and Loss Assessment"));
     textDL->setMinimumWidth(250);
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
