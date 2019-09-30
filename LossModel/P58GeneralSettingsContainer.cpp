@@ -57,12 +57,14 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
+    int maxWidth = 333;
+
     mainLayout = new QVBoxLayout();
     QHBoxLayout *mainHLayout = new QHBoxLayout();
     QVBoxLayout *mainV1Layout = new QVBoxLayout();
     QVBoxLayout *mainV2Layout = new QVBoxLayout();
     QVBoxLayout *mainV3Layout = new QVBoxLayout();
-    QVBoxLayout *mainV4Layout = new QVBoxLayout();
+    //QVBoxLayout *mainV4Layout = new QVBoxLayout();
 
 
     // title -------------------------------------------------------------------
@@ -75,12 +77,9 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     titleLayout->addWidget(title);
     titleLayout->addStretch();
 
-    //QSpacerItem *spacerTop1 = new QSpacerItem(10,30);
-    // QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
-    // QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
-
     // response model ----------------------------------------------------------
     QGroupBox * responseGroupBox = new QGroupBox("Response Model");
+    responseGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * responseFormLayout = new QFormLayout();
 
     QLabel *describeEDPLabel = new QLabel();
@@ -177,6 +176,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // damage model -----------------------------------------------------------
     QGroupBox * damageGroupBox = new QGroupBox("Damage Model");
+    damageGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
 
     // irrepairable residual drift
@@ -265,6 +265,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // loss model -------------------------------------------------------------
     QGroupBox * lossGroupBox = new QGroupBox("Loss Model");
+    lossGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * lossFormLayout = new QFormLayout(lossGroupBox);
 
     // replacement cost
@@ -387,148 +388,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     lossFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     lossFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
-    // dependencies -------------------------------------------------
-    QGroupBox * dependencyGroupBox = new QGroupBox("Model Dependencies");
-    QFormLayout * dependencyFormLayout = new QFormLayout(dependencyGroupBox);
-
-    // perfect correlation label
-    QLabel *perfectCorrelationLabel = new QLabel();
-    perfectCorrelationLabel->setText(tr("Perfect Correlation in ..."));
-    perfectCorrelationLabel->setToolTip(tr("Specify at which organizational level shall the following random variables be correlated. If no correlation is desired, choose Independent."));
-    dependencyFormLayout->addRow(perfectCorrelationLabel);
-
-    // quantities
-    quantityDep = new QComboBox();
-    quantityDep->setToolTip(tr("Some tooltip"));
-    quantityDep->addItem("btw. Fragility Groups",0);
-    quantityDep->addItem("btw. Performance Groups",1);
-    quantityDep->addItem("btw. Floors",2);
-    quantityDep->addItem("btw. Directions",3);    
-    quantityDep->addItem("Independent",4);
-    quantityDep->setCurrentIndex(4);
-    dependencyFormLayout->addRow(tr("    Component Quantities"), quantityDep);
-
-     QSpacerItem *spacerGroups9 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups9);
-
-    // fragilities
-    fragilityDep = new QComboBox();
-    fragilityDep->setToolTip(tr("Some tooltip"));
-    fragilityDep->addItem("btw. Performance Groups",0);
-    fragilityDep->addItem("btw. Floors",1);
-    fragilityDep->addItem("btw. Directions",2);
-    fragilityDep->addItem("btw. Damage States",3);
-    fragilityDep->addItem("btw. Component Groups",4);
-    fragilityDep->addItem("Independent",5);
-    fragilityDep->addItem("per ATC recommendation",6);
-    fragilityDep->setCurrentIndex(6);
-    dependencyFormLayout->addRow(tr("    Component Fragilities"), fragilityDep);
-
-     QSpacerItem *spacerGroups10 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups10);
-
-    // reconstruction cost
-    costDep = new QComboBox();
-    costDep->setToolTip(tr("Some tooltip"));
-    costDep->addItem("btw. Fragility Groups",0);
-    costDep->addItem("btw. Performance Groups",1);
-    costDep->addItem("btw. Floors",2);
-    costDep->addItem("btw. Directions",3);
-    costDep->addItem("btw. Damage States", 4);
-    costDep->addItem("Independent",5);
-    costDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Reconstruction Costs"), costDep);
-
-    // reconstruction time
-    timeDep = new QComboBox();
-    timeDep->setToolTip(tr("Some tooltip"));
-    timeDep->addItem("btw. Fragility Groups",0);
-    timeDep->addItem("btw. Performance Groups",1);
-    timeDep->addItem("btw. Floors",2);
-    timeDep->addItem("btw. Directions",3);
-    timeDep->addItem("btw. Damage States", 4);
-    timeDep->addItem("Independent",5);
-    timeDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Reconstruction Times"), timeDep);
-
-    // rec. cost and time
-    costAndTimeDep = new QCheckBox();
-    costAndTimeDep->setText("");
-    costAndTimeDep->setToolTip(tr("Some tooltip"));
-    costAndTimeDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. Rec. Cost and Time"),
-                                 costAndTimeDep);
-
-     QSpacerItem *spacerGroups11 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups11);
-
-    // injuries
-    injuryDep = new QComboBox();
-    injuryDep->setToolTip(tr("Some tooltip"));
-    injuryDep->addItem("btw. Fragility Groups",0);
-    injuryDep->addItem("btw. Performance Groups",1);
-    injuryDep->addItem("btw. Floors",2);
-    injuryDep->addItem("btw. Directions",3);
-    injuryDep->addItem("btw. Damage States", 4);
-    injuryDep->addItem("Independent",5);
-    injuryDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Injuries"), injuryDep);
-
-    // injuries and fatalities
-    injSeverityDep = new QCheckBox();
-    injSeverityDep->setText("");
-    injSeverityDep->setToolTip(tr("Some tooltip"));
-    injSeverityDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. Injuries and Fatalities"),
-                                 injSeverityDep);
-
-     QSpacerItem *spacerGroups12 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups12);
-
-    // red tag
-    redTagDep = new QComboBox();
-    redTagDep->setToolTip(tr("Some tooltip"));
-    redTagDep->addItem("btw. Fragility Groups",0);
-    redTagDep->addItem("btw. Performance Groups",1);
-    redTagDep->addItem("btw. Floors",2);
-    redTagDep->addItem("btw. Directions",3);
-    redTagDep->addItem("btw. Damage States", 4);
-    redTagDep->addItem("Independent",5);
-    redTagDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Red Tag Probabilities"), redTagDep);
-
-     QSpacerItem *spacerGroups13 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups13);   
-
-    /*
-    QHBoxLayout *fragilityLayout = new QHBoxLayout();
-
-    fragilityFolderPath = new QLineEdit;
-    QPushButton *chooseFragility = new QPushButton();
-    chooseFragility->setText(tr("Choose"));
-    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
-    fragilityLayout->addWidget(fragilityFolderPath);
-    fragilityLayout->addWidget(chooseFragility);
-    fragilityLayout->setSpacing(1);
-    fragilityLayout->setMargin(0);
-
-    resourcesFormLayout->addRow(tr("component damage and loss: "),
-                                fragilityLayout);
-
-    QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
-    resourcesFormLayout->addItem(spacerGroups14);
-    */
-
-    //QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
-    //uqFormLayout->addItem(spacerGroups8);
-
-
-
-
-
     // assemble the widgets-----------------------------------------------------
-
-
     mainV1Layout->addWidget(responseGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
@@ -544,25 +404,17 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     mainV3Layout->setSpacing(10);
     mainV3Layout->setMargin(0);
 
-    mainV4Layout->addWidget(dependencyGroupBox);
-    mainV4Layout->addStretch(1);
-    mainV4Layout->setSpacing(10);
-    mainV4Layout->setMargin(0);
-
-    mainHLayout->addLayout(mainV1Layout, 0);
-    mainHLayout->addLayout(mainV2Layout, 0);
-    mainHLayout->addLayout(mainV3Layout, 0);
-    mainHLayout->addLayout(mainV4Layout, 0);
-    mainHLayout->addStretch(1);
+    mainHLayout->addLayout(mainV1Layout, 1);
+    mainHLayout->addLayout(mainV2Layout, 1);
+    mainHLayout->addLayout(mainV3Layout, 1);
+    mainHLayout->addStretch();
     mainHLayout->setSpacing(10);
     mainHLayout->setMargin(0);
 
     mainLayout->addLayout(titleLayout);
-    //mainLayout->addItem(spacerTop1);
     mainLayout->addLayout(mainHLayout, 0);
     mainLayout->addStretch(1);
     mainLayout->setSpacing(10);
-    //mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
 }
@@ -600,10 +452,9 @@ P58GeneralSettingsContainer::setPopulationFile(QString populationFile){
 void
 P58GeneralSettingsContainer::choosePopulationFile(void) {
     QString populationFile;
-    populationFile=QFileDialog::getOpenFileName(this,tr("Select File"),
+    populationFile=QFileDialog::getOpenFileName(this,tr("Select Population File"),
         "C://", "All files (*.*)");
     this->setPopulationFile(populationFile);
-
 }
 
 P58GeneralSettingsContainer::~P58GeneralSettingsContainer()
