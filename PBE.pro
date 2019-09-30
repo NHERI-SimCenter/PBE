@@ -41,13 +41,14 @@ SOURCES += main.cpp \
     LossModel/P58LossModelContainer.cpp \
     LossModel/P58GeneralSettingsContainer.cpp \
     LossModel/P58ComponentContainer.cpp \
-    LossModel/P58Component.cpp \
     LossModel/P58CollapseModeContainer.cpp \
+    LossModel/P58DependenciesContainer.cpp \
     LossModel/P58CollapseMode.cpp \
     LossModel/LossModelContainer.cpp \
     LossModel/HazusGeneralSettingsContainer.cpp \
     LossModel/HazusLossModelContainer.cpp \
-    LossModel/LossMethod.cpp
+    LossModel/LossMethod.cpp \
+    LossModel/P58ComponentGroup.cpp
 
 
 HEADERS  += \
@@ -56,14 +57,15 @@ HEADERS  += \
     ResultsPelicun.h \
     LossModel/P58GeneralSettingsContainer.h \
     LossModel/P58ComponentContainer.h \
-    LossModel/P58Component.h \
     LossModel/P58CollapseModeContainer.h \
+    LossModel/P58DependenciesContainer.h \
     LossModel/P58CollapseMode.h \
     LossModel/LossModelContainer.h \
     LossModel/P58LossModelContainer.h \
     LossModel/HazusLossModelContainer.h \
     LossModel/HazusGeneralSettingsContainer.h \
-    LossModel/LossMethod.h
+    LossModel/LossMethod.h \
+    LossModel/P58ComponentGroup.h
 
 
 RESOURCES += \
