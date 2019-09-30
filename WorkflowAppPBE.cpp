@@ -432,57 +432,65 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     // get each of the main widgets to input themselves
     //
 
+
+    //qDebug() << "General Info";
     if (jsonObject.contains("GeneralInformation")) {
         QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
         if (theGI->inputFromJSON(jsonObjGeneralInformation) == false) {
-            emit errorMessage(": ERROR:  to read GeneralInformation");
+            emit errorMessage(": ERROR: failed to read GeneralInformation");
         }
     } else {
-        emit errorMessage(" ERROR:  to find GeneralInformation");
+        emit errorMessage(" ERROR: failed to find GeneralInformation");
         return false;
     }
 
+    //qDebug() << "Applications";
     if (jsonObject.contains("Applications")) {
 
         QJsonObject theApplicationObject = jsonObject["Applications"].toObject();
 
+        //qDebug() << "Modeling";
         if (theApplicationObject.contains("Modeling")) {
             QJsonObject theObject = theApplicationObject["Modeling"].toObject();
             if (theSIM->inputAppDataFromJSON(theObject) == false) {
-                emit errorMessage(" ERROR:  to read Modeling Application");
+                emit errorMessage(" ERROR: failed to read Modeling Application");
             }
         } else {
-            emit errorMessage(" ERROR:  to find Modeling Application");
+            emit errorMessage(" ERROR: failed to find Modeling Application");
             return false;
         }
 
         // note: Events is different because the object is an Array
+        //qDebug() << "Events";
         if (theApplicationObject.contains("Events")) {
             //  QJsonObject theObject = theApplicationObject["Events"].toObject(); it is null object, actually an array
             if (theEvent->inputAppDataFromJSON(theApplicationObject) == false) {
-                emit errorMessage(" ERROR:  to read Event Application");
+                emit errorMessage(" ERROR: failed to read Event Application");
             }
 
         } else {
-            emit errorMessage(" ERROR:  to find Event Application");
+            emit errorMessage(" ERROR: failed to find Event Application");
             return false;
         }
 
+
+        //qDebug() << "UQ";
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
             if (theUQ_Method->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR:  to read UQ application");
+                emit errorMessage(" ERROR: failed to read UQ application");
         } else {
-            emit errorMessage(" ERROR:  to find UQ application");
+            emit errorMessage(" ERROR: failed to find UQ application");
             return false;
         }
 
+        //qDebug() << "Simulation";
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             if (theAnalysis->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR:  to read Simulation Application");
+                emit errorMessage(" ERROR: failed to read Simulation Application");
         } else {
-            emit errorMessage(" ERROR:  to find Simulation Application");
+            emit errorMessage(" ERROR: failed to find Simulation Application");
             return false;
         }
 
@@ -498,39 +506,42 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
+    //qDebug() << "Structural Information";
     if (jsonObject.contains("StructuralInformation")) {
         QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
         if (theSIM->inputFromJSON(jsonObjStructuralInformation) == false) {
-            emit errorMessage(" ERROR:  to read StructuralInformation");
+            emit errorMessage(" ERROR: failed to read StructuralInformation");
         }
     } else {
-        emit errorMessage(" ERROR:  to find StructuralInformation");
+        emit errorMessage(" ERROR: failed to find StructuralInformation");
         return false;
     }
 
+    //qDebug() << "UQ Method";
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ_Method"].toObject();
         if (theUQ_Method->inputFromJSON(jsonObjUQInformation) == false)
-            emit errorMessage(" ERROR:  to read UQ Method data");
+            emit errorMessage(" ERROR: failed to read UQ Method data");
     } else {
-        emit errorMessage(" ERROR:  to find UQ Method data");
+        emit errorMessage(" ERROR: failed to find UQ Method data");
         return false;
     }
 
+    //qDebug() << "Simulation";
     if (jsonObject.contains("Simulation")) {
         QJsonObject jsonObjSimInformation = jsonObject["Simulation"].toObject();
         if (theAnalysis->inputFromJSON(jsonObjSimInformation) == false)
-            emit errorMessage(" ERROR:  to read Simulation data");
+            emit errorMessage(" ERROR: failed to read Simulation data");
     } else {
-        emit errorMessage(" ERROR:  to find Simulation data");
+        emit errorMessage(" ERROR: failed to find Simulation data");
         return false;
     }
 
-
+    //qDebug() << "LossModel";
     if (jsonObject.contains("LossModel")) {
         QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
         if (theLossModel->inputFromJSON(jsonObjLossModel) == false)
-            emit errorMessage(" ERROR:  to find Loss Model");
+            emit errorMessage(" ERROR: failed to find Loss Model");
     } else {
         emit errorMessage("WARNING: failed to find Loss Model");
         return false;
