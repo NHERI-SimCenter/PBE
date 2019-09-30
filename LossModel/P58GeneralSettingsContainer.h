@@ -90,17 +90,17 @@ public:
      */
     QString getP58GeneralSettingsContainerName() const;
 
-    //int setFragilityFolder(QString fragilityFolder);
-    int setPopulationFile(QString populationFile);
+    int setEDPFile(QString EDPFile);
+    QString getEDPFile();
 
-    //QString getFragilityFolder();
+    int setPopulationFile(QString populationFile);
     QString getPopulationFile();
 
     
 signals:
 
 public slots:
-    //void chooseFragilityFolder(void);
+    void chooseEDPFile(void);
     void choosePopulationFile(void);
        
 private:
@@ -121,25 +121,32 @@ private:
     //QLineEdit * fragilityFolderPath;
     QLineEdit * populationFilePath;
     QLineEdit * colProbValue;
+    QLineEdit * EDPFilePath;
 
+    /*
     QComboBox * quantityDep;
     QComboBox * fragilityDep;
     QComboBox * costDep;
     QComboBox * timeDep;
     QComboBox * injuryDep;
     QComboBox * redTagDep;
+    */
+
     QComboBox * occupancyType;
     QComboBox * collProbApproach;
     QComboBox * EDP_Distribution;
     QComboBox * EDP_Fitting;
     QComboBox * colBasis;
     
+    /*
     QCheckBox * costAndTimeDep;
     QCheckBox * injSeverityDep;
+    */
+
     QCheckBox * needRecCost;
     QCheckBox * needRecTime;
     QCheckBox * needInjuries;
-    QCheckBox * needRedTag;
+    QCheckBox * needRedTag;    
 
     QVBoxLayout *mainLayout; /*!< Main layout for general settings */
 };
