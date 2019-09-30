@@ -1,5 +1,5 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef COMPONENTGROUP_H
+#define COMPONENTGROUP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -53,7 +53,7 @@ class QRadioButton;
 /*!
  * Widget for components in PBE tool
  */
-class Component : public SimCenterWidget
+class ComponentGroup : public SimCenterWidget
 {
     Q_OBJECT
 public:
@@ -62,12 +62,13 @@ public:
      * @contructor Constructor taking pointer to parent widget
      * @param[in] parent Parent widget of Component
      */
-    explicit Component(QWidget *parent = 0);
+    explicit ComponentGroup(QWidget *parent = nullptr,
+                             QMap<QString, QString> *CG_data_in = nullptr);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~Component();
+    virtual ~ComponentGroup();
 
     /*!
      * Writes component contents to JSON
@@ -95,23 +96,29 @@ public:
      */
     QString getComponentName() const;
 
+    void delete_CG_data();
     
 signals:
 
 public slots:
+
+    void storeCGLocation(void);
+    void storeCGDirection(void);
+    void storeCGMedian(void);
+    void storeCGUnit(void);
+    void storeCGDistribution(void);
+    void storeCGCOV(void);
        
 private:
 
-    QLineEdit * componentName; /*!< Line edit widget to input component name */
-    QLineEdit * componentID; /*!< Line edit widget to input component ID */
-    QLineEdit * componentQuantity; /*!< Line edit widget to input component quantity */
-    QLineEdit * componentCov; /*!< Line edit widget to input component coefficient of variation */
-    QComboBox * componentDist; /*!< Combo box for selecting the distribution family of the component quantity */
-    QLineEdit * unitSizeEdit; /*!< Line edit widget to input unit size of component quantity */
-    QComboBox * unitComboBox; /*!< Combo box for selcecting unit type as either linear or square feet */
-    QCheckBox * structuralCheckBox; /*!< Check box to indicate if component is structural */
-    QLineEdit * componentDirections; /*!< Line edit where directions are entered */
-    QLineEdit * componentWeights; /*!< Line edit to enter weights for each direction */
+    QMap<QString, QString> *CG_data;
+
+    QLineEdit *cgLocation;
+    QLineEdit *cgDirection;
+    QLineEdit *cgMedianQNT;
+    QLineEdit *cgUnit;
+    QComboBox *cgDistribution;
+    QLineEdit *cgCOV;
 
     QRadioButton *button; /*!< Button for selecting component */
     QHBoxLayout *mainLayout; /*!< Main layout for component */
