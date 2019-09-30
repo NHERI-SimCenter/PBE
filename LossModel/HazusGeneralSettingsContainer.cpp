@@ -57,12 +57,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
+    int maxWidth = 333;
 
     mainLayout = new QVBoxLayout();
     QHBoxLayout *mainHLayout = new QHBoxLayout();
     QVBoxLayout *mainV1Layout = new QVBoxLayout();
     QVBoxLayout *mainV2Layout = new QVBoxLayout();
-    //QVBoxLayout *mainV3Layout = new QVBoxLayout();
+    QVBoxLayout *mainV3Layout = new QVBoxLayout();
 
     // title -------------------------------------------------------------------
     QHBoxLayout *titleLayout = new QHBoxLayout();
@@ -72,14 +73,11 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     title->setMinimumWidth(250);
 
     titleLayout->addWidget(title);
-    titleLayout->addStretch();
+    titleLayout->addStretch();    
 
-    QSpacerItem *spacerTop1 = new QSpacerItem(10,30);
-    // QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
-    // QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
-
-    // building response -------------------------------------------------------
+    // response model -------------------------------------------------------
     QGroupBox * responseGroupBox = new QGroupBox("Response Model");
+    responseGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * responseFormLayout = new QFormLayout();
 
     QLabel *describeEDPLabel = new QLabel();
@@ -132,7 +130,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
     addedUncertaintyModel->setText("0.1");
     addedUncertaintyModel->setAlignment(Qt::AlignRight);
-    responseFormLayout->addRow(tr("    Modeling"), addedUncertaintyModel);
+    responseFormLayout->addRow(tr("    Model"), addedUncertaintyModel);
 
      QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
     responseFormLayout->addItem(spacerGroups8);
@@ -154,8 +152,8 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     accDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Floor Acceleration"), accDetLim);
 
-    QSpacerItem *spacerGroups2 = new QSpacerItem(10,10);
-    responseFormLayout->addItem(spacerGroups2);
+    //QSpacerItem *spacerGroups2 = new QSpacerItem(10,10);
+    //responseFormLayout->addItem(spacerGroups2);
 
     // set style
     responseFormLayout->setAlignment(Qt::AlignLeft);
@@ -166,6 +164,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // damage model -----------------------------------------------------------
     QGroupBox * damageGroupBox = new QGroupBox("Damage Model");
+    damageGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
 
     // building design information
@@ -264,12 +263,13 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     designLevel->setCurrentIndex(3);
     damageFormLayout->addRow(tr("    Design Level"), designLevel);
 
-     QSpacerItem *spacerGroups5 = new QSpacerItem(10,10);
+    QSpacerItem *spacerGroups5 = new QSpacerItem(10,10);
     damageFormLayout->addItem(spacerGroups5);
 
 
     // loss model -------------------------------------------------------------
     QGroupBox * lossGroupBox = new QGroupBox("Loss Model");
+    lossGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * lossFormLayout = new QFormLayout(lossGroupBox);
 
     // replacement cost
@@ -418,7 +418,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     populationLayout->setSpacing(1);
     populationLayout->setMargin(0);
 
-    lossFormLayout->addRow(tr("Custom distribution: "),
+    lossFormLayout->addRow(tr("    Custom distribution: "),
                                 populationLayout);
 
     QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
@@ -449,40 +449,53 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     lossFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     // assemble the widgets-----------------------------------------------------
-
-
     mainV1Layout->addWidget(responseGroupBox);
-    mainV1Layout->addWidget(damageGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
     mainV1Layout->setMargin(0);
 
-    mainV2Layout->addWidget(lossGroupBox);
+    mainV2Layout->addWidget(damageGroupBox);
     mainV2Layout->addStretch(1);
     mainV2Layout->setSpacing(10);
     mainV2Layout->setMargin(0);
 
+    mainV3Layout->addWidget(lossGroupBox);
+    mainV3Layout->addStretch(1);
+    mainV3Layout->setSpacing(10);
+    mainV3Layout->setMargin(0);
 
-    //mainV3Layout->addStretch(1);
-    //mainV3Layout->setSpacing(10);
-    //mainV3Layout->setMargin(0);
-
-    mainHLayout->addLayout(mainV1Layout, 0);
-    mainHLayout->addLayout(mainV2Layout, 0);
-    //mainHLayout->addLayout(mainV3Layout, 0);
-    mainHLayout->addStretch(1);
+    mainHLayout->addLayout(mainV1Layout, 1);
+    mainHLayout->addLayout(mainV2Layout, 1);
+    mainHLayout->addLayout(mainV3Layout, 1);
+    mainHLayout->addStretch();
     mainHLayout->setSpacing(10);
     mainHLayout->setMargin(0);
 
     mainLayout->addLayout(titleLayout);
-    mainLayout->addItem(spacerTop1);
     mainLayout->addLayout(mainHLayout, 0);
     mainLayout->addStretch(1);
     mainLayout->setSpacing(10);
-    //mainLayout->setMargin(0);
 
-   // mainLayout->addWidget(responseGroupBox);
     this->setLayout(mainLayout);
+}
+
+QString
+HazusGeneralSettingsContainer::getEDPFile(){
+    return EDPFilePath->text();
+}
+
+int
+HazusGeneralSettingsContainer::setEDPFile(QString EDPFile){
+    EDPFilePath->setText(EDPFile);
+    return 0;
+}
+
+void
+HazusGeneralSettingsContainer::chooseEDPFile(void) {
+    QString EDPFile;
+    EDPFile=QFileDialog::getOpenFileName(this,tr("Select EDP File"),
+        "C://", "All files (*.*)");
+    this->setEDPFile(EDPFile);
 }
 
 QString
@@ -506,7 +519,7 @@ HazusGeneralSettingsContainer::chooseFragilityFolder(void) {
     QString fragilityFolder;
     fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
         "C://");
-    int ok = this->setFragilityFolder(fragilityFolder);
+    this->setFragilityFolder(fragilityFolder);
 }
 
 int
@@ -520,7 +533,7 @@ HazusGeneralSettingsContainer::choosePopulationFile(void) {
     QString populationFile;
     populationFile=QFileDialog::getOpenFileName(this,tr("Select File"),
         "C://", "All files (*.*)");
-    int ok = this->setPopulationFile(populationFile);
+    this->setPopulationFile(populationFile);
 }
 
 HazusGeneralSettingsContainer::~HazusGeneralSettingsContainer()
