@@ -85,6 +85,18 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     describeEDPLabel->setToolTip(tr("Some tooltip"));
     responseFormLayout->addRow(describeEDPLabel);
 
+    // EDP data
+    QHBoxLayout *EDP_dataLayout = new QHBoxLayout();
+    EDPFilePath = new QLineEdit;
+    QPushButton *chooseEDP_data = new QPushButton();
+    chooseEDP_data->setText(tr("Choose"));
+    connect(chooseEDP_data, SIGNAL(clicked()),this,SLOT(chooseEDPFile()));
+    EDP_dataLayout->addWidget(EDPFilePath);
+    EDP_dataLayout->addWidget(chooseEDP_data);
+    EDP_dataLayout->setSpacing(1);
+    EDP_dataLayout->setMargin(0);
+    responseFormLayout->addRow(tr("    EDP data: "), EDP_dataLayout);
+
     // EDP distribution
     EDP_Distribution = new QComboBox();
     EDP_Distribution->setToolTip(tr("Some tooltip"));
