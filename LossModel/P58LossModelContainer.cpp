@@ -48,6 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "P58GeneralSettingsContainer.h"
 #include "P58ComponentContainer.h"
 #include "P58CollapseModeContainer.h"
+#include "P58DependenciesContainer.h"
 #include "LossMethod.h"
 
 #include <QTabWidget.h>
@@ -59,18 +60,27 @@ P58LossModelContainer::P58LossModelContainer(QWidget *parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
     QTabWidget *theTab = new QTabWidget();
-    theGeneralSettingsContainer = new P58GeneralSettingsContainer();
-    theTab->addTab(theGeneralSettingsContainer,"General");
 
-    // components
-    theComponentContainer = new P58ComponentContainer();
-    theTab->addTab(theComponentContainer,"Components");
+    // general settings
+    contGeneralSettings = new P58GeneralSettingsContainer();
+    theTab->addTab(contGeneralSettings,"General");
+
+    // component definition
+    // coming soon...
+
+    // component quantities
+    contComponents = new P58ComponentContainer();
+    theTab->addTab(contComponents,"Components");
     
     // collapse modes
-    theCollapseModeContainer = new P58CollapseModeContainer();
-    theTab->addTab(theCollapseModeContainer,"Collapse Modes");
-    layout->addWidget(theTab);
+    contCollapseModes = new P58CollapseModeContainer();
+    theTab->addTab(contCollapseModes,"Collapse Modes");
 
+    // dependencies
+    contDependencies = new P58DependenciesContainer();
+    theTab->addTab(contDependencies,"Dependencies");
+
+    layout->addWidget(theTab);
     this->setLayout(layout);
 }
 
@@ -86,11 +96,13 @@ P58LossModelContainer::outputToJSON(QJsonObject &jsonObject)
     jsonObject["DLMethod"] = "FEMA P58";
 
     // need to save data from all widgets
-    theGeneralSettingsContainer->outputToJSON(jsonObject);
+    contGeneralSettings->outputToJSON(jsonObject);
 
-    theComponentContainer->outputToJSON(jsonObject);
+    contComponents->outputToJSON(jsonObject);
 
-    theCollapseModeContainer->outputToJSON(jsonObject);
+    contCollapseModes->outputToJSON(jsonObject);
+
+    contDependencies->outputToJSON(jsonObject);
 
     return true;
 }
@@ -118,7 +130,8 @@ P58LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
         } else
             return false;
     } else
-        return false;
+    if (jsonObject.contains("Dependencies"))
+        contDependencies->inputFromJSON(jsonObject);
         
     return 0;
 }

@@ -51,6 +51,7 @@ class QVBoxLayout;
 class P58GeneralSettingsContainer;
 class P58ComponentContainer;
 class P58CollapseModeContainer;
+class P58DependenciesContainer;
 
 class P58LossModelContainer : public LossMethod
 {
@@ -73,9 +74,10 @@ public slots:
     void errorMessage(QString message);
 
 private:   
-    P58GeneralSettingsContainer *theGeneralSettingsContainer;
-    P58ComponentContainer *theComponentContainer;
-    P58CollapseModeContainer *theCollapseModeContainer;
+    P58GeneralSettingsContainer *contGeneralSettings;
+    P58ComponentContainer *contComponents;
+    P58CollapseModeContainer *contCollapseModes;
+    P58DependenciesContainer *contDependencies;
 };
 
 #endif // P58LOSS_MODEL_CONTAINER_H
