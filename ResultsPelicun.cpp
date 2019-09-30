@@ -377,6 +377,45 @@ static int mergesort(double *input, int size)
 
 int ResultsPelicun::processResults(QString filenameTab) {
 
+    //
+    // check dakota actually ran the fe simulations so that blame may
+    // be properly assessed .. i.e. not always the fault of pelicun.
+    //
+
+    QFileInfo fileTabInfo(filenameTab);
+    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+    QFileInfo filenameErrorInfo(filenameErrorString);
+    if (!filenameErrorInfo.exists()) {
+        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
+        return 0;
+    }
+    QFile fileError(filenameErrorString);
+    QString line("");
+    if (fileError.open(QIODevice::ReadOnly)) {
+       QTextStream in(&fileError);
+       while (!in.atEnd()) {
+          line = in.readLine();
+       }
+       fileError.close();
+    }
+
+    if (line.length() != 0) {
+        qDebug() << line.length() << " " << line;
+        emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
+        return 0;
+    }
+
+    QFileInfo filenameTabInfo(filenameTab);
+    if (!filenameTabInfo.exists()) {
+        emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+        return 0;
+    }
+    
+    //
+    // proceed with pelicun 
+    //
+
     // Copy files from the application dir to the workdir
     QString resDir = filenameTab.remove("dakotaTab.out");
     QDir rDir(resDir);

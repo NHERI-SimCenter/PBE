@@ -64,6 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QUuid>
 #include <QSettings>
 #include "CustomizedItemModel.h"
+#include <StandardEarthquakeEDP.h>
 
 // SimCenter Widgets
 #include <EarthquakeEventSelection.h>
@@ -304,18 +305,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
             this, SLOT(replyFinished(QNetworkReply*)));
 
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/bfm/use.php")));
-    //  manager->get(QNetworkRequest(QUrl("https://simcenter.designsafe-ci.org/multiple-degrees-freedom-analytics/")));
-
-
-    /*
-    QFile fileS(":/styles/stylesheet.qss");
-    if(fileS.open(QFile::ReadOnly)) {
-        treeView->setStyleSheet(fileS.readAll());
-        fileS.close();
-    }
-    else
-        qDebug() << "Open Style File Failed!";
-     */ //It seems this has been done in previous lines.
 
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
 }
@@ -397,6 +386,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theAnalysis->outputAppDataToJSON(appsAna);
     apps["Simulation"]=appsAna;
 
+    QJsonObject edpData;
+    jsonObjectTop["EDP"] = edpData;
 
    // NOTE: Events treated differently, due to array nature of objects
     theEvent->outputToJSON(jsonObjectTop);
@@ -441,28 +432,15 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     // get each of the main widgets to input themselves
     //
 
-
     if (jsonObject.contains("GeneralInformation")) {
         QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
-        theGI->inputFromJSON(jsonObjGeneralInformation);
-    } else
+        if (theGI->inputFromJSON(jsonObjGeneralInformation) == false) {
+            emit errorMessage(": ERROR:  to read GeneralInformation");
+        }
+    } else {
+        emit errorMessage(" ERROR:  to find GeneralInformation");
         return false;
-
-    if (jsonObject.contains("StructuralInformation")) {
-        QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
-        theSIM->inputFromJSON(jsonObjStructuralInformation);
-    } else
-        return false;
-
-    /*
-    ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
-    */
-
-    if (jsonObject.contains("UQ_Method")) {
-        QJsonObject jsonObjUQInformation = jsonObject["UQ"].toObject();
-        theEvent->inputFromJSON(jsonObjUQInformation);
-    } else
-        return false;
+    }
 
     if (jsonObject.contains("Applications")) {
 
@@ -470,61 +448,93 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 
         if (theApplicationObject.contains("Modeling")) {
             QJsonObject theObject = theApplicationObject["Modeling"].toObject();
-            theSIM->inputAppDataFromJSON(theObject);
-        } else
+            if (theSIM->inputAppDataFromJSON(theObject) == false) {
+                emit errorMessage(" ERROR:  to read Modeling Application");
+            }
+        } else {
+            emit errorMessage(" ERROR:  to find Modeling Application");
             return false;
+        }
 
         // note: Events is different because the object is an Array
         if (theApplicationObject.contains("Events")) {
-            QJsonObject theObject = theApplicationObject["Events"].toObject();
-            theEvent->inputAppDataFromJSON(theApplicationObject);
-        } else {
-            return false;     
-        }
+            //  QJsonObject theObject = theApplicationObject["Events"].toObject(); it is null object, actually an array
+            if (theEvent->inputAppDataFromJSON(theApplicationObject) == false) {
+                emit errorMessage(" ERROR:  to read Event Application");
+            }
 
+        } else {
+            emit errorMessage(" ERROR:  to find Event Application");
+            return false;
+        }
 
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
-            theUQ_Method->inputAppDataFromJSON(theObject);
+            if (theUQ_Method->inputAppDataFromJSON(theObject) == false)
+                emit errorMessage(" ERROR:  to read UQ application");
         } else {
+            emit errorMessage(" ERROR:  to find UQ application");
             return false;
         }
 
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
-            theAnalysis->inputAppDataFromJSON(theObject);
+            if (theAnalysis->inputAppDataFromJSON(theObject) == false)
+                emit errorMessage(" ERROR:  to read Simulation Application");
         } else {
+            emit errorMessage(" ERROR:  to find Simulation Application");
             return false;
         }
-
-        /*
-        if (theApplicationObject.contains("Loss")) {
-            QJsonObject theObject = theApplicationObject["Loss"].toObject();
-            theLossModel->inputAppDataFromJSON(theObject);
-        } else {
-            qDebug() << "LOSS";
-            return false;
-        }
-        */
 
 
     } else
         return false;
+
+    /*
+    ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
+    */
 
     theEvent->inputFromJSON(jsonObject);
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
+    if (jsonObject.contains("StructuralInformation")) {
+        QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
+        if (theSIM->inputFromJSON(jsonObjStructuralInformation) == false) {
+            emit errorMessage(" ERROR:  to read StructuralInformation");
+        }
+    } else {
+        emit errorMessage(" ERROR:  to find StructuralInformation");
+        return false;
+    }
+
+    if (jsonObject.contains("UQ_Method")) {
+        QJsonObject jsonObjUQInformation = jsonObject["UQ_Method"].toObject();
+        if (theUQ_Method->inputFromJSON(jsonObjUQInformation) == false)
+            emit errorMessage(" ERROR:  to read UQ Method data");
+    } else {
+        emit errorMessage(" ERROR:  to find UQ Method data");
+        return false;
+    }
+
     if (jsonObject.contains("Simulation")) {
         QJsonObject jsonObjSimInformation = jsonObject["Simulation"].toObject();
-        theAnalysis->inputFromJSON(jsonObjSimInformation);
+        if (theAnalysis->inputFromJSON(jsonObjSimInformation) == false)
+            emit errorMessage(" ERROR:  to read Simulation data");
+    } else {
+        emit errorMessage(" ERROR:  to find Simulation data");
+        return false;
     }
+
 
     if (jsonObject.contains("LossModel")) {
         QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
-        theLossModel->inputFromJSON(jsonObjLossModel);
-    } else
+        if (theLossModel->inputFromJSON(jsonObjLossModel) == false)
+            emit errorMessage(" ERROR:  to find Loss Model");
+    } else {
+        emit errorMessage("WARNING: failed to find Loss Model");
         return false;
+    }
 
     return true;
 }
