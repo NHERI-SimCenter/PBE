@@ -74,7 +74,7 @@ HazusLossModelContainer::outputToJSON(QJsonObject &jsonObject)
 {
 
     // set the type of analysis
-    jsonObject["DLMethod"] = "HAZUS MH";
+    jsonObject["_method"] = "HAZUS MH EQ";
 
     // need to save data from all widgets
     theGeneralSettingsContainer->outputToJSON(jsonObject);

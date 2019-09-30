@@ -528,109 +528,96 @@ HazusGeneralSettingsContainer::~HazusGeneralSettingsContainer()
 
 bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
-    QJsonObject UQ;
-    QJsonObject decVars;
-    QJsonObject response;
-    QJsonObject damage;
-    QJsonObject inhabitants;
-    QJsonObject dataSources;
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel;
 
-    // UQ ---------------------------------------------------------------------
-
-    UQ["Realizations"] = realizationsValue->text();
-
-    QJsonObject addUncertainty;
-
-    addUncertainty["GroundMotion"] = addedUncertaintyGM->text();
-    addUncertainty["Modeling"] = addedUncertaintyModel->text();
-
-    UQ["AdditionalUncertainty"] =  addUncertainty;
-
-    outputObject["UncertaintyQuantification"] = UQ;
-
-    // decision vars ----------------------------------------------------------
-
-    decVars["ReconstructionCost"] = needRecCost->isChecked();
-    decVars["ReconstructionTime"] = needRecTime->isChecked();
-    decVars["Injuries"] = needInjuries->isChecked();
-
-    outputObject["DecisionVariables"] = decVars;
-
-    // building response ------------------------------------------------------    
-
-    response["EDP_Distribution"] = EDP_Distribution->currentText();
-    response["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
+    QJsonObject responseDescription;
+    responseDescription["EDP_Distribution"] = EDP_Distribution->currentText();
+    responseDescription["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
+    responseDescription["Realizations"] = realizationsValue->text();
+    responseDescription["CoupledAssessment"] = false;
+    if (EDPFilePath->text() != "")
+        responseDescription["EDPDataFile"] = EDPFilePath->text();
+    responseModel["ResponseDescription"] = responseDescription;
 
     QJsonObject detLims;
-
     detLims["PID"] = driftDetLim->text();
     detLims["PFA"] = accDetLim->text();
+    responseModel["DetectionLimits"] = detLims;
 
-    response["DetectionLimits"] = detLims;
+    QJsonObject addUncertainty;
+    addUncertainty["GroundMotion"] = addedUncertaintyGM->text();
+    addUncertainty["Modeling"] = addedUncertaintyModel->text();
+    responseModel["AdditionalUncertainty"] =  addUncertainty;
 
-    outputObject["BuildingResponse"] = response;
+    outputObject["ResponseModel"] = responseModel;
 
-    // building damage --------------------------------------------------------
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel;
 
-    damage["ReplacementCost"] = replacementCostValue->text();
-    damage["ReplacementTime"] = replacementTimeValue->text();
-
-    damage["StructureType"] = structureType->currentText();
-    damage["DesignLevel"] = designLevel->currentText();
+    damageModel["StructureType"] = structureType->currentText();
+    damageModel["DesignLevel"] = designLevel->currentText();
     QString design_code;
-    if (damage["DesignLevel"] == "High-Code") {
+    if (damageModel["DesignLevel"] == "High-Code") {
         design_code = "HC";
-    } else if (damage["DesignLevel"] == "Moderate-Code") {
+    } else if (damageModel["DesignLevel"] == "Moderate-Code") {
         design_code = "MC";
-    } else if (damage["DesignLevel"] == "Low-Code") {
+    } else if (damageModel["DesignLevel"] == "Low-Code") {
         design_code = "LC";
-    } else if (damage["DesignLevel"] == "Pre-Code") {
+    } else if (damageModel["DesignLevel"] == "Pre-Code") {
         design_code = "PC";
     }
 
-    outputObject["BuildingDamage"] = damage;
+    outputObject["DamageModel"] = damageModel;
 
-    // inhabitants -------------------------------------------------------------
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel;
 
+    lossModel["ReplacementCost"] = replacementCostValue->text();
+    lossModel["ReplacementTime"] = replacementTimeValue->text();
+
+    QJsonObject decVars;
+    decVars["ReconstructionCost"] = needRecCost->isChecked();
+    decVars["ReconstructionTime"] = needRecTime->isChecked();
+    decVars["Injuries"] = needInjuries->isChecked();
+    lossModel["DecisionVariables"] = decVars;
+
+    QJsonObject inhabitants;
     inhabitants["OccupancyType"] = occupancyType->currentText();
     inhabitants["PeakPopulation"] = peakPopulation->text();
+    if (populationFilePath->text() != "")
+        inhabitants["PopulationDataFile"] = populationFilePath->text();
+    lossModel["Inhabitants"] = inhabitants;
 
-    outputObject["Inhabitants"] = inhabitants;
+    outputObject["LossModel"] = lossModel;
 
-    // data sources ------------------------------------------------------------
-
-    QString pathString;
-    bool needDataSources = false;
-
-    pathString = fragilityFolderPath->text();
+    // Component Data Folder --------------------------------------------------
+    QString pathString = fragilityFolderPath->text();
     if (pathString != "")
-        dataSources["ComponentDataFolder"] = pathString;
+        outputObject["ComponentDataFolder"] = pathString;
 
-    pathString = populationFilePath->text();
-    if (pathString != "")
-        dataSources["PopulationDataFile"] = pathString;
+    // Components -------------------------------------------------------------
+    QJsonObject compData;
 
-    if (needDataSources == true)
-        outputObject["DataSources"] = dataSources;
-
-    // components --------------------------------------------------------------
-
+    // prepare a generic component description
     QJsonArray compArray;
+    QJsonObject CGObj;
+    CGObj["location"] = "all";
+    CGObj["direction"] = "all";
+    CGObj["median_quantity"] = "1.0";
+    CGObj["unit"] = "ea";
+    CGObj["distribution"] = "N/A";
+    compArray.append(CGObj);
 
-    QJsonObject comp_S;
-    comp_S["ID"] = "S-"+damage["StructureType"].toString()+"-"+design_code+"-"+inhabitants["OccupancyType"].toString();
-    comp_S["structural"] = true;
-    compArray.append(comp_S);
+    // assign it to the three components
+    QString comp_S = "S-"+damageModel["StructureType"].toString()+"-"+design_code+"-"+inhabitants["OccupancyType"].toString();
+    compData[comp_S] = compArray;
 
-    QJsonObject comp_NSA;
-    comp_NSA["ID"] = "NSA-"+design_code+"-"+inhabitants["OccupancyType"].toString();
-    comp_NSA["structural"] = false;
-    compArray.append(comp_NSA);
+    QString comp_NSA = "NSA-"+design_code+"-"+inhabitants["OccupancyType"].toString();
+    compData[comp_NSA] = compArray;
 
-    QJsonObject comp_NSD;
-    comp_NSD["ID"] = "NSD-"+inhabitants["OccupancyType"].toString();
-    comp_NSD["structural"] = false;
-    compArray.append(comp_NSD);
+    QString comp_NSD = "NSD-"+inhabitants["OccupancyType"].toString();
+    compData[comp_NSD] = compArray;
 
     outputObject["Components"] = compArray;
 
@@ -639,72 +626,59 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
 bool HazusGeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    // UQ ---------------------------------------------------------------------
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel = inputObject["ResponseModel"].toObject();
 
-    QJsonObject UQ = inputObject["UncertaintyQuantification"].toObject();
+    QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
+    if (responseDescription.contains("EDPDataFile"))
+        EDPFilePath->setText(responseDescription["EDPDataFile"].toString());
+    else
+        EDPFilePath->setText(tr(""));
+    if (responseDescription.contains("EDP_Distribution"))
+        EDP_Distribution->setCurrentText(responseDescription["EDP_Distribution"].toString());
+    if (responseDescription.contains("BasisOfEDP_Distribution"))
+        EDP_Fitting->setCurrentText(responseDescription["BasisOfEDP_Distribution"].toString());
+    realizationsValue->setText(responseDescription["Realizations"].toString());
 
-    realizationsValue->setText(UQ["Realizations"].toString());
+    QJsonObject detLims = responseModel["DetectionLimits"].toObject();
+    driftDetLim->setText(detLims["PID"].toString());
+    accDetLim->setText(detLims["PFA"].toString());
 
-    QJsonObject addUncertainty;
-    addUncertainty = UQ["AdditionalUncertainty"].toObject();
-
+    QJsonObject addUncertainty = responseModel["AdditionalUncertainty"].toObject();
     addedUncertaintyGM->setText(addUncertainty["GroundMotion"].toString());
     addedUncertaintyModel->setText(addUncertainty["Modeling"].toString());
 
-    // decision vars ----------------------------------------------------------
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel = inputObject["DamageModel"].toObject();
 
-    QJsonObject decVars = inputObject["DecisionVariables"].toObject();
+    structureType->setCurrentText(damageModel["StructureType"].toString());
+    designLevel->setCurrentText(damageModel["DesignLevel"].toString());
 
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel = inputObject["LossModel"].toObject();
+
+    replacementCostValue->setText(lossModel["ReplacementCost"].toString());
+    replacementTimeValue->setText(lossModel["ReplacementTime"].toString());
+
+    QJsonObject decVars = lossModel["DecisionVariables"].toObject();
     needRecCost->setChecked(decVars["ReconstructionCost"].toBool());
     needRecTime->setChecked(decVars["ReconstructionTime"].toBool());
     needInjuries->setChecked(decVars["Injuries"].toBool());
 
-    // building response ------------------------------------------------------
-
-    QJsonObject response = inputObject["BuildingResponse"].toObject();
-
-    if (response.contains("EDP_Distribution"))
-        EDP_Distribution->setCurrentText(response["EDP_Distribution"].toString());
-
-    if (response.contains("BasisOfEDP_Distribution"))
-        EDP_Fitting->setCurrentText(response["BasisOfEDP_Distribution"].toString());
-
-    QJsonObject detLims;
-    detLims = response["DetectionLimits"].toObject();
-
-    driftDetLim->setText(detLims["PID"].toString());
-    accDetLim->setText(detLims["PFA"].toString());
-
-    // building damage --------------------------------------------------------
-
-    QJsonObject damage = inputObject["BuildingDamage"].toObject();
-
-    replacementCostValue->setText(damage["ReplacementCost"].toString());
-    replacementTimeValue->setText(damage["ReplacementTime"].toString()); 
-
-    structureType->setCurrentText(damage["StructureType"].toString());
-    designLevel->setCurrentText(damage["DesignLevel"].toString()); 
-
-    // inhabitants ------------------------------------------------------------
-
-    QJsonObject inhabitants = inputObject["Inhabitants"].toObject();
-
+    QJsonObject inhabitants = lossModel["Inhabitants"].toObject();
     occupancyType->setCurrentText(inhabitants["OccupancyType"].toString());
     peakPopulation->setText(inhabitants["PeakPopulation"].toString());
+    if (inhabitants.contains("PopulationDataFile"))
+        populationFilePath->setText(inhabitants["PopulationDataFile"].toString());
+    else
+        populationFilePath->setText(tr(""));
 
-    // data sources -----------------------------------------------------------
+    // Component Data Folder --------------------------------------------------
 
-    QJsonObject dataSources = inputObject["DataSources"].toObject();
-
-    QString pathString;
-
-    pathString = dataSources["ComponentDataFolder"].toString();
-    if (pathString != "")
-        fragilityFolderPath->setText(pathString);
-
-    pathString = dataSources["PopulationDataFile"].toString();
-    if (pathString != "")
-        populationFilePath->setText(pathString);
+    if (inputObject.contains("ComponentDataFolder"))
+        fragilityFolderPath->setText(inputObject["ComponentDataFolder"].toString());
+    else
+        fragilityFolderPath->setText(tr(""));
 
     return 0;
 }

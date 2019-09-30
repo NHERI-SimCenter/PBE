@@ -603,218 +603,147 @@ P58GeneralSettingsContainer::~P58GeneralSettingsContainer()
 
 bool P58GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
-    QJsonObject UQ;
-    QJsonObject decVars;
-    QJsonObject response;
-    QJsonObject damage;
-    QJsonObject dependencies;
-    QJsonObject inhabitants;
-    QJsonObject dataSources;
-    
-    // UQ ---------------------------------------------------------------------
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel;
 
-    UQ["Realizations"] = realizationsValue->text();
-    
+    QJsonObject responseDescription;
+    responseDescription["EDP_Distribution"] = EDP_Distribution->currentText();
+    responseDescription["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
+    responseDescription["Realizations"] = realizationsValue->text();
+    responseDescription["CoupledAssessment"] = false;
+    if (EDPFilePath->text() != "")
+        responseDescription["EDPDataFile"] = EDPFilePath->text();
+    responseModel["ResponseDescription"] = responseDescription;
+
+    QJsonObject detLims;
+    detLims["PID"] = driftDetLim->text();
+    detLims["PFA"] = accDetLim->text();
+    responseModel["DetectionLimits"] = detLims;
+
     QJsonObject addUncertainty;
-
     addUncertainty["GroundMotion"] = addedUncertaintyGM->text();
     addUncertainty["Modeling"] = addedUncertaintyModel->text();
+    responseModel["AdditionalUncertainty"] =  addUncertainty;
 
-    UQ["AdditionalUncertainty"] =  addUncertainty;
+    outputObject["ResponseModel"] = responseModel;
 
-    outputObject["UncertaintyQuantification"] = UQ;
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel;
 
-    // decision vars ----------------------------------------------------------
+    QJsonObject irrepDrift;
+    irrepDrift["Median"] = irrepResDriftMedian->text();
+    irrepDrift["Beta"] = irrepResDriftStd->text();
+    irrepDrift["YieldDriftRatio"] = yieldDriftValue->text();
+    damageModel["IrrepairableResidualDrift"] = irrepDrift;
 
+
+    QJsonObject collProb;
+    if (collProbApproach->currentText() == "prescribed") {
+        collProb["Value"] = colProbValue->text();
+    } else {
+        collProb["Value"] = "estimated";
+        collProb["BasisOfCPEstimate"] = colBasis->currentText();
+    }
+    damageModel["CollapseProbability"] = collProb;
+
+    QJsonObject colLims;
+    colLims["PID"] = driftColLim->text();
+    colLims["PFA"] = accColLim->text();
+    damageModel["CollapseLimits"] = colLims;
+
+    outputObject["DamageModel"] = damageModel;
+
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel;
+
+    lossModel["ReplacementCost"] = replacementCostValue->text();
+    lossModel["ReplacementTime"] = replacementTimeValue->text();
+
+    QJsonObject decVars;
     decVars["ReconstructionCost"] = needRecCost->isChecked();
     decVars["ReconstructionTime"] = needRecTime->isChecked();
     decVars["Injuries"] = needInjuries->isChecked();
     decVars["RedTag"] = needRedTag->isChecked();
+    lossModel["DecisionVariables"] = decVars;
 
-    outputObject["DecisionVariables"] = decVars;
-
-    // building response ------------------------------------------------------
-
-    response["YieldDriftRatio"] = yieldDriftValue->text();
-
-    response["EDP_Distribution"] = EDP_Distribution->currentText();
-    response["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
-
-    if (collProbApproach->currentText() == "prescribed") {
-        response["CollapseProbability"] = colProbValue->text();
-    } else {
-        response["CollapseProbability"] = "estimated";
-        response["BasisOfCPEstimate"] = colBasis->currentText();
-    }
-
-    QJsonObject detLims;
-
-    detLims["PID"] = driftDetLim->text();
-    detLims["PFA"] = accDetLim->text();
-
-    response["DetectionLimits"] = detLims;
-
-    outputObject["BuildingResponse"] = response;
-
-    // building damage --------------------------------------------------------
-
-    damage["ReplacementCost"] = replacementCostValue->text();
-    damage["ReplacementTime"] = replacementTimeValue->text();
-
-    QJsonObject irrepDrift;
-
-    irrepDrift["Median"] = irrepResDriftMedian->text();
-    irrepDrift["Sig"] = irrepResDriftStd->text();
-
-    damage["IrrepairableResidualDrift"] = irrepDrift;
-
-    QJsonObject colLims;
-
-    colLims["PID"] = driftColLim->text();
-    colLims["PFA"] = accColLim->text();
-
-    damage["CollapseLimits"] = colLims;
-
-    outputObject["BuildingDamage"] = damage;
-
-    // loss model dependencies ------------------------------------------------
-
-    dependencies["Quantities"] = quantityDep->currentText();
-    dependencies["Fragilities"] = fragilityDep->currentText();
-    dependencies["ReconstructionCosts"] = costDep->currentText();
-    dependencies["ReconstructionTimes"] = timeDep->currentText();
-    dependencies["CostAndTime"] = costAndTimeDep->isChecked();
-    dependencies["Injuries"] = injuryDep->currentText();
-    dependencies["InjurySeverities"] = injSeverityDep->isChecked();
-    dependencies["RedTagProbabilities"] = redTagDep->currentText();
-
-    outputObject["LossModelDependencies"] = dependencies;
-
-    // inhabitants -------------------------------------------------------------
-
+    QJsonObject inhabitants;
     inhabitants["OccupancyType"] = occupancyType->currentText();
     inhabitants["PeakPopulation"] = peakPopulation->text();
+    if (populationFilePath->text() != "")
+        inhabitants["PopulationDataFile"] = populationFilePath->text();
+    lossModel["Inhabitants"] = inhabitants;
 
-    outputObject["Inhabitants"] = inhabitants;
-
-    // data sources ------------------------------------------------------------
-
-    QString pathString;
-    pathString = populationFilePath->text();
-
-    if (pathString != ""){
-
-        if (outputObject.contains("DataSources"))
-            dataSources = outputObject["DataSources"].toObject();
-
-        dataSources["PopulationDataFile"] = pathString;
-        outputObject["DataSources"] = dataSources;
-    }
+    outputObject["LossModel"] = lossModel;
 
     return 0;
 }
 
 bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    // UQ ---------------------------------------------------------------------
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel = inputObject["ResponseModel"].toObject();
 
-    QJsonObject UQ = inputObject["UncertaintyQuantification"].toObject();
- 
-    realizationsValue->setText(UQ["Realizations"].toString());
-    
-    QJsonObject addUncertainty;
-    addUncertainty = UQ["AdditionalUncertainty"].toObject();
+    QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
+    if (responseDescription.contains("EDPDataFile"))
+        EDPFilePath->setText(responseDescription["EDPDataFile"].toString());
+    else
+        EDPFilePath->setText(tr(""));
+    if (responseDescription.contains("EDP_Distribution"))
+        EDP_Distribution->setCurrentText(responseDescription["EDP_Distribution"].toString());
+    if (responseDescription.contains("BasisOfEDP_Distribution"))
+        EDP_Fitting->setCurrentText(responseDescription["BasisOfEDP_Distribution"].toString());
+    realizationsValue->setText(responseDescription["Realizations"].toString());
 
+    QJsonObject detLims = responseModel["DetectionLimits"].toObject();
+    driftDetLim->setText(detLims["PID"].toString());
+    accDetLim->setText(detLims["PFA"].toString());
+
+    QJsonObject addUncertainty = responseModel["AdditionalUncertainty"].toObject();
     addedUncertaintyGM->setText(addUncertainty["GroundMotion"].toString());
-    addedUncertaintyModel->setText(addUncertainty["Modeling"].toString()); 
+    addedUncertaintyModel->setText(addUncertainty["Modeling"].toString());
 
-    // decision vars ----------------------------------------------------------
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel = inputObject["DamageModel"].toObject();
 
-    QJsonObject decVars = inputObject["DecisionVariables"].toObject();
+    QJsonObject irrepDrift = damageModel["IrrepairableResidualDrift"].toObject();
+    irrepResDriftMedian->setText(irrepDrift["Median"].toString());
+    irrepResDriftStd->setText(irrepDrift["Beta"].toString());
+    yieldDriftValue->setText(irrepDrift["YieldDriftRatio"].toString());
 
+    QJsonObject collProb = damageModel["CollapseProbability"].toObject();
+    if (collProb["Value"].toString() == "estimated") {
+        collProbApproach->setCurrentText("estimated");
+        colProbValue->setText("");
+        colBasis->setCurrentText(collProb["BasisOfCPEstimate"].toString());
+    } else {
+        collProbApproach->setCurrentText("prescribed");
+        colProbValue->setText(collProb["CollapseProbability"].toString());
+    }
+
+    QJsonObject colLims = damageModel["CollapseLimits"].toObject();
+    driftColLim->setText(colLims["PID"].toString());
+    accColLim->setText(colLims["PFA"].toString());
+
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel = inputObject["LossModel"].toObject();
+
+    replacementCostValue->setText(lossModel["ReplacementCost"].toString());
+    replacementTimeValue->setText(lossModel["ReplacementTime"].toString());
+
+    QJsonObject decVars = lossModel["DecisionVariables"].toObject();
     needRecCost->setChecked(decVars["ReconstructionCost"].toBool());
     needRecTime->setChecked(decVars["ReconstructionTime"].toBool());
     needInjuries->setChecked(decVars["Injuries"].toBool());
     needRedTag->setChecked(decVars["RedTag"].toBool());
 
-    // building response ------------------------------------------------------
-
-    QJsonObject response = inputObject["BuildingResponse"].toObject();
-
-    yieldDriftValue->setText(response["YieldDriftRatio"].toString());
-
-    if (response.contains("EDP_Distribution"))
-        EDP_Distribution->setCurrentText(response["EDP_Distribution"].toString());
-
-    if (response.contains("BasisOfEDP_Distribution"))
-        EDP_Fitting->setCurrentText(response["BasisOfEDP_Distribution"].toString());
-
-    if (response.contains("CollapseProbability")){
-        if (response["CollapseProbability"].toString() == "estimated") {
-            collProbApproach->setCurrentText("estimated");
-            colProbValue->setText("");
-            colBasis->setCurrentText(response["BasisOfCPEstimate"].toString());
-        } else {
-            collProbApproach->setCurrentText("prescribed");
-            colProbValue->setText(response["CollapseProbability"].toString());
-        }
-    }
-
-    QJsonObject detLims;
-    detLims = response["DetectionLimits"].toObject();
-
-    driftDetLim->setText(detLims["PID"].toString());
-    accDetLim->setText(detLims["PFA"].toString());
-
-    // building damage --------------------------------------------------------
-
-    QJsonObject damage = inputObject["BuildingDamage"].toObject();
-
-    replacementCostValue->setText(damage["ReplacementCost"].toString());
-    replacementTimeValue->setText(damage["ReplacementTime"].toString());
-
-    QJsonObject irrepDrift;
-    irrepDrift = damage["IrrepairableResidualDrift"].toObject();
-
-    irrepResDriftMedian->setText(irrepDrift["Median"].toString());
-    irrepResDriftStd->setText(irrepDrift["Sig"].toString());
-
-    QJsonObject colLims;
-    colLims = damage["CollapseLimits"].toObject();
-
-    driftColLim->setText(colLims["PID"].toString());
-    accColLim->setText(colLims["PFA"].toString());
-
-    // loss model dependencies ------------------------------------------------
-
-    QJsonObject dependencies = inputObject["LossModelDependencies"].toObject();
-
-    quantityDep->setCurrentText(dependencies["Quantities"].toString());
-    fragilityDep->setCurrentText(dependencies["Fragilities"].toString());
-    costDep->setCurrentText(dependencies["ReconstructionCosts"].toString());
-    timeDep->setCurrentText(dependencies["ReconstructionTimes"].toString());
-    costAndTimeDep->setChecked(dependencies["CostAndTime"].toBool());
-    injuryDep->setCurrentText(dependencies["Injuries"].toString());
-    injSeverityDep->setChecked(dependencies["InjurySeverities"].toBool());
-    redTagDep->setCurrentText(dependencies["RedTagProbabilities"].toString());
-
-    // inhabitants ------------------------------------------------------------
-
-    QJsonObject inhabitants = inputObject["Inhabitants"].toObject();
-
+    QJsonObject inhabitants = lossModel["Inhabitants"].toObject();
     occupancyType->setCurrentText(inhabitants["OccupancyType"].toString());
     peakPopulation->setText(inhabitants["PeakPopulation"].toString());
-
-    // data sources -----------------------------------------------------------
-
-    QJsonObject dataSources = inputObject["DataSources"].toObject();
-
-    QString pathString;
-
-    pathString = dataSources["PopulationDataFile"].toString();
-    populationFilePath->setText(pathString);
+    if (inhabitants.contains("PopulationDataFile"))
+        populationFilePath->setText(inhabitants["PopulationDataFile"].toString());
+    else
+        populationFilePath->setText(tr(""));
 
     return 0;
-
 }
 

@@ -58,8 +58,8 @@ public:
 
     ~P58ComponentContainer();
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool outputToJSON(QJsonObject &jsonObject);
     bool copyFiles(QString &dirName);
 
     int setFragilityFolder(QString fragilityFolder);

@@ -664,166 +664,116 @@ void P58ComponentContainer::removeAllComponents(void)
 
 bool
 P58ComponentContainer::outputToJSON(QJsonObject &jsonObject)
-{
+{    
     bool result = true;
 
     // first, save the DL data folder
     QString pathString;
     pathString = fragilityFolderPath->text();
     if (pathString != ""){
-        QJsonObject dataSources;
-
-        if (jsonObject.contains("DataSources"))
-            dataSources = jsonObject["DataSources"].toObject();
-
-        dataSources["ComponentDataFolder"] = pathString;
-        jsonObject["DataSources"] = dataSources;
+        jsonObject["ComponentDataFolder"] = pathString;
     }
 
     // then, for each component save the component information
-    QJsonArray compArray;
+    QJsonObject compData;
+    if (jsonObject.contains("Components"))
+        compData = jsonObject["Components"].toObject();
+
     const QStringList compList = selectedCBModel-> stringList();
     foreach (const QString compID, compList){
 
-        QJsonObject compObj;
-        compObj["ID"] = compID;
+        // get the vector of CG data from the compConfig dict
+        QVector<QMap<QString, QString>* > *vCG_data =
+                compConfig->value(compID, nullptr);
 
-        compObj["quantity"] = compQuantityMap->value(compID, tr(""));
-        compObj["cov"] = compQuantityCOVMap->value(compID, tr(""));
-        compObj["distribution"] = compQuantityDistMap->value(compID, tr(""));
+        if (vCG_data != nullptr) {
+            QJsonArray compArray;
+            for (int i=0; i<vCG_data->count(); i++){
+                QMap<QString, QString> *CG_data = vCG_data->at(i);
+                QJsonObject CGObj;
 
-        QStringList weightSL = QStringList();
-        QStringList directionSL = QStringList();
+                CGObj["location"] = CG_data -> value("location", tr(""));
+                CGObj["direction"] = CG_data -> value("direction", tr(""));
+                CGObj["median_quantity"] = CG_data -> value("median", tr(""));
+                CGObj["unit"] = CG_data -> value("unit", tr(""));
+                CGObj["distribution"] = CG_data -> value("distribution", tr(""));
+                CGObj["cov"] = CG_data -> value("cov", tr(""));
 
-        QStringList weightsD1 = (compWeightD1Map->value(compID, tr(""))).split(',');
-        foreach (const QString weight, weightsD1) {
-            QString netWeight = weight.simplified();
-            netWeight.replace(" ", "");
-
-            if (netWeight != ""){
-                weightSL.append(netWeight);
-                directionSL.append("1");
+                compArray.append(CGObj);
             }
-        }
 
-        QStringList weightsD2 = (compWeightD2Map->value(compID, tr(""))).split(',');
-        foreach (const QString weight, weightsD2) {
-            QString netWeight = weight.simplified();
-            netWeight.replace(" ", "");
-
-            if (netWeight != ""){
-                weightSL.append(netWeight);
-                directionSL.append("2");
-            }
-        }
-
-        compObj["directions"] = directionSL.join(',');
-        compObj["weights"] = weightSL.join(',');
-
-        // get some of the data that is stored in the DL file
-        // this will be removed eventually
-        QString compFileName = compID + ".json";
-        QDir fragDir(this->getFragilityFolder());
-        QFile compFile(fragDir.absoluteFilePath(compFileName));
-        compFile.open(QFile::ReadOnly | QFile::Text);
-
-        QString val;
-        val = compFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        QJsonObject compData = doc.object();
-        compFile.close();
-
-        QJsonArray compQData = compData["QuantityUnit"].toArray();
-
-        compObj["unit_size"] = QString("%1").arg(compQData[0].toDouble());
-        compObj["unit_type"] = compQData[1].toString();
-        compObj["structural"] = (compID.at(0) == 'B');
-        compObj["name"] = compData["Name"].toString();
-
-        compArray.append(compObj);
+            compData[compID] = compArray;
+        } 
     }
-    jsonObject["Components"]=compArray;
+    jsonObject["Components"]=compData;
 
-/*
-
-
-    bool result = true;
-    QJsonArray theArray;
-    for (int i = 0; i <theComponents.size(); ++i) {
-        QJsonObject rv;
-        if (theComponents.at(i)->outputToJSON(rv)) {
-            theArray.append(rv);
-
-        } else {
-            qDebug() << "OUTPUT FAILED" << theComponents.at(i)->getComponentName();
-            result = false;
-        }
-    }
-    jsonObject["Components"]=theArray;
-    return result;
-*/
     return result;
 }
 
 bool
-P58ComponentContainer::inputFromJSON(QJsonObject &rvObj)
+P58ComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-  bool result = true;
+    bool result = true;
 
-  // first, load the DL data folder
-  QJsonObject dataSources = rvObj["DataSources"].toObject();
+    // first, load the DL data folder
+    QString pathString;
+    pathString = jsonObject["ComponentDataFolder"].toString();
+    fragilityFolderPath->setText(pathString);
 
-  QString pathString;
-  pathString = dataSources["ComponentDataFolder"].toString();
+    // clear the selectedCompCombo
+    this->removeAllComponents();
 
-  fragilityFolderPath->setText(pathString);
+    // remove the existing compConfig and initialize a new one
+    delete compConfig;
+    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 
-  QJsonArray rvArray = rvObj["Components"].toArray();
-  //for each component object in the array, load the component information
-  foreach (const QJsonValue &rvValue, rvArray) {
-      
-      QJsonObject compObject = rvValue.toObject();
+    QJsonObject compData;
+    if (jsonObject.contains("Components"))
+      compData = jsonObject["Components"].toObject();
 
-      if (compObject.contains("ID")) {
-          QString compID = compObject["ID"].toString();
-          if (availableCompCombo->findText(compID) != -1){
-              availableCompCombo->setCurrentText(compID);
-              this->addComponent(false);
+    foreach (const QString& compID, compData.keys()) {
+        // first make sure that the comp ID is in the compConfig dict
+        // and a corresponding CG_data vector is also stored there
+        QVector<QMap<QString, QString>* > *vCG_data;
+        if (compConfig->contains(compID)) {
+          // get the vector of CG data from the compConfig dict
+          vCG_data = compConfig->value(compID, nullptr);
+        } else {
+          vCG_data = new QVector<QMap<QString, QString>* >;
+          compConfig->insert(compID, vCG_data);
+        }
 
-              compQuantityMap->insert(compID,
-                                      compObject["quantity"].toString());
+        QJsonArray CGDataList = compData[compID].toArray();
+        foreach (const QJsonValue& compValue, CGDataList) {
+            QJsonObject compInfo = compValue.toObject();
 
-              compQuantityDistMap->insert(compID,
-                                      compObject["distribution"].toString());
+            // create a new CG_data dict and add it to the vector
+            QMap<QString, QString> *CG_data = new QMap<QString, QString>;
+            vCG_data->append(CG_data);
 
-              compQuantityCOVMap->insert(compID,
-                                      compObject["cov"].toString());
+            CG_data -> insert("location",     compInfo["location"].toString());
+            CG_data -> insert("direction",    compInfo["direction"].toString());
+            CG_data -> insert("median",       compInfo["median_quantity"].toString());
+            CG_data -> insert("unit",         compInfo["unit"].toString());
+            CG_data -> insert("distribution", compInfo["distribution"].toString());
+            if (compInfo.contains("cov"))
+                CG_data -> insert("cov",          compInfo["cov"].toString());
+            else
+                CG_data -> insert("cov", tr(""));
+        }
+    }
 
-              QStringList directionSL = compObject["directions"].toString().split(',');
-              QStringList weightSL = compObject["weights"].toString().split(',');
-              QStringList weightsD1 = QStringList();
-              QStringList weightsD2 = QStringList();
+    // add the component IDs to the selectedCompCombo
+    for (auto compName: compConfig->keys()){
+        if (availableCompCombo->findText(compName) != -1) {
+            selectedCompCombo->addItem(compName,
+                                       availableCompCombo->findText(compName));
+        } else {
+            qDebug() << "Component " << compName << "is not in the DL data folder!";
+        }
+    }
 
-              for (int i=0; i<weightSL.size(); i++){
-
-                  if ((directionSL.at(i) == "1") || (directionSL.at(i) == " 1"))
-                      weightsD1.append(weightSL.at(i));
-                  else
-                      weightsD2.append(weightSL.at(i));
-              }
-
-              if (weightsD1.size() > 0)
-                compWeightD1Map->insert(compID, weightsD1.join(','));
-
-              if (weightsD2.size() > 0)
-                compWeightD2Map->insert(compID, weightsD2.join(','));
-          }
-      }
-  }
-
-  this->refreshCompOverview();
-
-  return result;
+    return result;
 }
 
 bool 

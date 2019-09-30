@@ -127,8 +127,9 @@ LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 
     this->clear();
 
-    if (jsonObject.contains("DLMethod")) {
-        dlSelection->setCurrentText(jsonObject["DLMethod"].toString());
+    //qDebug() << "DLMethod";
+    if (jsonObject.contains("_method")) {
+        dlSelection->setCurrentText(jsonObject["_method"].toString());
     } else {
         dlSelection->setCurrentText("FEMA P58");
     }

@@ -93,7 +93,7 @@ bool
 P58LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 {
     // set the type of analysis
-    jsonObject["DLMethod"] = "FEMA P58";
+    jsonObject["_method"] = "FEMA P58";
 
     // need to save data from all widgets
     contGeneralSettings->outputToJSON(jsonObject);
@@ -110,26 +110,27 @@ P58LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 bool
 P58LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-    theGeneralSettingsContainer->inputFromJSON(jsonObject);
-    if (jsonObject.contains("DecisionVariables")) {
-        theGeneralSettingsContainer->inputFromJSON(jsonObject);
+    //qDebug() << "DecisionVariables";
+    contGeneralSettings->inputFromJSON(jsonObject);
+    if ((jsonObject.contains("ResponseModel")) &&
+        (jsonObject.contains("DamageModel")) &&
+        (jsonObject.contains("LossModel"))) {
+        contGeneralSettings->inputFromJSON(jsonObject);
     } else
         return false;
 
+    //qDebug() << "Components";
     if (jsonObject.contains("Components")) {
-        if (jsonObject["Components"].isArray()) {
-            theComponentContainer->inputFromJSON(jsonObject);
-        } else
-            return false;
+        contComponents->inputFromJSON(jsonObject);
     } else
         return false;
 
+    //qDebug() << "CollapseModes";
     if (jsonObject.contains("CollapseModes")) {
-        if (jsonObject["CollapseModes"].isArray()) {
-            theCollapseModeContainer->inputFromJSON(jsonObject);
-        } else
-            return false;
+        contCollapseModes->inputFromJSON(jsonObject);
     } else
+        return false;
+
     if (jsonObject.contains("Dependencies"))
         contDependencies->inputFromJSON(jsonObject);
         
@@ -169,10 +170,10 @@ P58LossModelContainer::errorMessage(QString message){
 
 QString
 P58LossModelContainer::getFragilityFolder(){
-    return theComponentContainer->getFragilityFolder();
+    return contComponents->getFragilityFolder();
 }
 
 QString
 P58LossModelContainer::getPopulationFile(){
-    return theGeneralSettingsContainer->getPopulationFile();
+    return contGeneralSettings->getPopulationFile();
 }
