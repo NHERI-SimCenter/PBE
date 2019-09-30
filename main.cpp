@@ -14,12 +14,14 @@
 #include <QTime>
 #include <QTextStream>
 #include <GoogleAnalytics.h>
+#include <QDir>
+#include <QStandardPaths>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
 
-const QString logFilePath = "debug.log";
-bool logToFile = false;
+static QString logFilePath;
+static bool logToFile = false;
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -55,7 +57,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("SimCenter");
     QCoreApplication::setApplicationVersion("1.2.0");
 
-    GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    //GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
@@ -63,19 +65,25 @@ int main(int argc, char *argv[])
   // set up logging of output messages for user debugging
   //
 
-  // remove old log file
-  QFile debugFile("debug.log");
-  debugFile.remove();
+    logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+            + QDir::separator() + QCoreApplication::applicationName()
+            + QDir::separator() + QString("debug.log");
 
-  QByteArray envVar = qgetenv("QTDIR");       //  check if the app is run in Qt Creator
-  
-  if (envVar.isEmpty())
-    logToFile = true;
-  
-  qInstallMessageHandler(customMessageOutput);
+
+    // remove old log file
+    QFile debugFile(logFilePath);
+    debugFile.remove();
+
+    QByteArray envVar = qgetenv("QTDIR");       //  check if the app is run in Qt Creator
+
+    if (envVar.isEmpty())
+        logToFile = true;
+
+    qInstallMessageHandler(customMessageOutput);
+
 
   // window scaling for mac
-  //QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+   QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
   QApplication a(argc, argv);
 
