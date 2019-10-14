@@ -89,7 +89,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GoogleAnalytics.h>
 
 // static pointer for global procedure set in constructor
-static WorkflowAppPBE *theApp = 0;
+static WorkflowAppPBE *theApp = nullptr;
 
 // global procedure
 int getNumParallelTasks() {
@@ -112,18 +112,18 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Method = new InputWidgetSampling();
-    theLossModel = new LossModelContainer(theRVs);
+    theDLModel = new LossModelContainer(theRVs);
     theResults = new ResultsPelicun();
 
-    localApp = new LocalApplication("PBE workflow.py");
-    remoteApp = new RemoteApplication("PBE workflow.py", theService);
+    localApp = new LocalApplication("PBE_workflow.py");
+    remoteApp = new RemoteApplication("PBE_workflow.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
     // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
     SimCenterWidget *theWidgets[1];
     //    theWidgets[0] = theAnalysis;
     //    theWidgets[1] = theUQ_Method;
-    int numWidgets = 2;
+    //int numWidgets = 2;
     theRunWidget = new RunWidget(localApp, remoteApp, theWidgets, 0);
 
     //
@@ -284,7 +284,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theStackedWidget->addWidget(theEvent);
     theStackedWidget->addWidget(theAnalysis);
     theStackedWidget->addWidget(theUQ);
-    theStackedWidget->addWidget(theLossModel);
+    theStackedWidget->addWidget(theDLModel);
     theStackedWidget->addWidget(theResults);
 
     // add stacked widget to layout
@@ -399,11 +399,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theRunWidget->outputToJSON(jsonObjectTop);
 
     QJsonObject jsonLossModel;
-    theLossModel->outputToJSON(jsonLossModel);
-    jsonObjectTop["LossModel"] = jsonLossModel;
+    theDLModel->outputToJSON(jsonLossModel);
+    jsonObjectTop["DamageAndLoss"] = jsonLossModel;
 
     QJsonObject appsDL;
-    theLossModel->outputAppDataToJSON(appsDL);
+    theDLModel->outputAppDataToJSON(appsDL, jsonLossModel);
     apps["DL"] = appsDL;
 
     jsonObjectTop["Applications"]=apps;
@@ -540,13 +540,13 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         return false;
     }
 
-    //qDebug() << "LossModel";
-    if (jsonObject.contains("LossModel")) {
-        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
-        if (theLossModel->inputFromJSON(jsonObjLossModel) == false)
-            emit errorMessage(" ERROR: failed to find Loss Model");
+    //qDebug() << "DamageAndLoss";
+    if (jsonObject.contains("DamageAndLoss")) {
+        QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
+        if (theDLModel->inputFromJSON(jsonObjLossModel) == false)
+            emit errorMessage(" ERROR: failed to find Damage and Loss Model");
     } else {
-        emit errorMessage("WARNING: failed to find Loss Model");
+        emit errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
 

@@ -91,7 +91,8 @@ public:
     int getMaxNumParallelTasks();
     
 signals:
-    void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile);
+    void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
+                                     QString runType = QString("run"));
     void sendLoadFile(QString filename);
 
 
@@ -117,7 +118,7 @@ private:
     InputWidgetSampling *theUQ_Method;
     EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
-    LossModelContainer *theLossModel;
+    LossModelContainer *theDLModel;
     ResultsPelicun *theResults;
 
     // other widgets appearing in UI
