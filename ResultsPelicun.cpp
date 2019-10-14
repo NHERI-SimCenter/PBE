@@ -377,48 +377,9 @@ static int mergesort(double *input, int size)
 
 int ResultsPelicun::processResults(QString filenameTab) {
 
-    //
-    // check dakota actually ran the fe simulations so that blame may
-    // be properly assessed .. i.e. not always the fault of pelicun.
-    //
-
-    QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
-
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
-        return 0;
-    }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-       QTextStream in(&fileError);
-       while (!in.atEnd()) {
-          line = in.readLine();
-       }
-       fileError.close();
-    }
-
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
-        return 0;
-    }
-
-    QFileInfo filenameTabInfo(filenameTab);
-    if (!filenameTabInfo.exists()) {
-        emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-        return 0;
-    }
-    
-    //
-    // proceed with pelicun 
-    //
-
-    // Copy files from the application dir to the workdir
-    QString resDir = filenameTab.remove("dakotaTab.out");
-    QDir rDir(resDir);
+    // Get the results directory path
+    QString resultsDir = filenameTab.remove("dakotaTab.out");
+    QDir rDir(resultsDir);
 
     // Get the input json data from the dakota.json file
     QFile inputFile(rDir.absoluteFilePath("dakota.json"));
@@ -460,26 +421,26 @@ int ResultsPelicun::processResults(QString filenameTab) {
         QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
 
 
-	QProcess *proc = new QProcess();
-	QString python = QString("python");
-	QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-	QVariant  pythonLocationVariant = settings.value("pythonExePath");
-	if (pythonLocationVariant.isValid()) {
-	  python = pythonLocationVariant.toString();
-	}
-	
-	
+        QProcess *proc = new QProcess();
+        QString python = QString("python");
+        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+        QVariant  pythonLocationVariant = settings.value("pythonExePath");
+        if (pythonLocationVariant.isValid()) {
+          python = pythonLocationVariant.toString();
+        }
+
+
 #ifdef Q_OS_WIN
-	python = QString("\"") + python + QString("\"");
-        QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
-        proc->execute(python, args);
+        python = QString("\"") + python + QString("\"");
+            QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
+            proc->execute(python, args);
 
 #else
         // note the above not working under linux because basrc not being called so no env variables!!
 
         QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
-	  pySCRIPT + QString("\"  loss_only ") + inputFileName + QString(" ") +
-                registryFile;
+            pySCRIPT + QString("\"loss_only\"") + inputFileName + QString(" ") +
+            registryFile;
 
         qDebug() << "PYTHON COMMAND: " << command;
         proc->execute("bash", QStringList() << "-c" <<  command);
@@ -489,70 +450,6 @@ int ResultsPelicun::processResults(QString filenameTab) {
         proc->waitForStarted();
 
     }
-
-    // the DL calculation has been moved to the workflow script
-    /*
-    emit sendStatusMessage("Processing Simulation Results and Preparing Damage & Loss Inputs");
-
-    //
-    // invoke python script to perform DL calculations
-    //
-
-    //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
-    QString pySCRIPT;
-
-    QString appDir = QCoreApplication::applicationDirPath();
-
-
-
-    QDir scriptDir(appDir);
-    scriptDir.cd("applications");
-    scriptDir.cd("performDL");
-    pySCRIPT = scriptDir.absoluteFilePath("DL_calculation.py");
-
-    if (populationString == "") {
-        populationString = "None";
-    }
-
-    if (fragilitiesString == "") {
-        fragilitiesString = "None";
-    }
-
-    //scriptDir.cd("resources");
-    //QString populationString = scriptDir.absoluteFilePath("population.json");
-    //scriptDir.cd("fragilities");
-    //QString fragilitiesString = scriptDir.absolutePath() + QDir::separator();
-
-    QFileInfo check_script(pySCRIPT);
-    // check if file exists and if yes: Is it really a file and no directory?
-    if (!check_script.exists() || !check_script.isFile()) {
-        emit sendErrorMessage(QString("NO DL script: ") + pySCRIPT);
-        return false;
-    }
-
-    // check if the input and result files required for loss assessment exist
-    QFileInfo check_input_data(inputFile);
-    if (!check_input_data.exists() || !check_input_data.isFile()) {
-        emit sendErrorMessage(QString("Input file not found: ") + inputFile);
-        return false;
-    }
-
-    QFileInfo check_result_data(filenameTab);
-    if (!check_result_data.exists() || !check_result_data.isFile()) {
-        emit sendErrorMessage(QString("Result file not found: ") + filenameTab);
-        return false;
-    }
-
-    emit sendStatusMessage("Running the Damage & Loss Calculations");
-
-    QProcess *proc = new QProcess();
-
-    // run the DL calculation script
-    QStringList test_list{pySCRIPT, inputFile, filenameTab, fragilitiesString, populationString};
-    proc->execute("python", test_list);
-
-    qDebug() << "FILE CREATED";
-    */
 
     this->clear();
     mLeft = true;
@@ -575,16 +472,55 @@ int ResultsPelicun::processResults(QString filenameTab) {
     dakotaText->setReadOnly(true); // make it so user cannot edit the contents
     dakotaText->setText("\n");
 
-    //DL_Summary_Stats
-    QString resultsDir = filenameTab.remove("dakotaTab.out");
+    // check if the main DL result file is available
     QString resultsStatsFile = resultsDir + "DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
+
+        // Now we know that something is wrong...
+
+        //
+        // check dakota actually ran the FE simulations so that blame may
+        // be properly assessed .. i.e. not always the fault of pelicun.
+        //
+
+        QFileInfo fileTabInfo(filenameTab);
+        QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+        QFileInfo filenameErrorInfo(filenameErrorString);
+        if (!filenameErrorInfo.exists()) {
+            emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
+            return 0;
+        }
+        QFile fileError(filenameErrorString);
+        QString line("");
+        if (fileError.open(QIODevice::ReadOnly)) {
+           QTextStream in(&fileError);
+           while (!in.atEnd()) {
+              line = in.readLine();
+           }
+           fileError.close();
+        }
+
+        if (line.length() != 0) {
+            qDebug() << line.length() << " " << line;
+            emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
+            return 0;
+        }
+
+        QFileInfo filenameTabInfo(filenameTab);
+        if (!filenameTabInfo.exists()) {
+            emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+            return 0;
+        }
+
         emit sendErrorMessage(
             QString("Could not open file: ") + resultsStatsFile +
             QString(" . Damage and loss results are not available."));
         return -1;
     }
+
+    // If we get until this point, then the DL_summary_stats file is available.
 
     //
     // first 4 lines contain summary data
