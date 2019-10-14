@@ -205,30 +205,36 @@ P58DependenciesContainer::~P58DependenciesContainer()
 
 bool P58DependenciesContainer::outputToJSON(QJsonObject &outputObject) {
 
+    QJsonObject dependenciesObj;
+
     // Dependencies -----------------------------------------------------------
-    outputObject["Quantities"] = quantityDep->currentText();
-    outputObject["Fragilities"] = fragilityDep->currentText();
-    outputObject["ReconstructionCosts"] = costDep->currentText();
-    outputObject["ReconstructionTimes"] = timeDep->currentText();
-    outputObject["CostAndTime"] = costAndTimeDep->isChecked();
-    outputObject["Injuries"] = injuryDep->currentText();
-    outputObject["InjurySeverities"] = injSeverityDep->isChecked();
-    outputObject["RedTagProbabilities"] = redTagDep->currentText();
+    dependenciesObj["Quantities"] = quantityDep->currentText();
+    dependenciesObj["Fragilities"] = fragilityDep->currentText();
+    dependenciesObj["ReconstructionCosts"] = costDep->currentText();
+    dependenciesObj["ReconstructionTimes"] = timeDep->currentText();
+    dependenciesObj["CostAndTime"] = costAndTimeDep->isChecked();
+    dependenciesObj["Injuries"] = injuryDep->currentText();
+    dependenciesObj["InjurySeverities"] = injSeverityDep->isChecked();
+    dependenciesObj["RedTagProbabilities"] = redTagDep->currentText();
+
+    outputObject["Dependencies"] = dependenciesObj;
 
     return 0;
 }
 
 bool P58DependenciesContainer::inputFromJSON(QJsonObject & inputObject) {
 
+    QJsonObject dependenciesObj = inputObject["Dependencies"].toObject();
+
     // Dependencies -----------------------------------------------------------
-    quantityDep->setCurrentText(inputObject["Quantities"].toString());
-    fragilityDep->setCurrentText(inputObject["Fragilities"].toString());
-    costDep->setCurrentText(inputObject["ReconstructionCosts"].toString());
-    timeDep->setCurrentText(inputObject["ReconstructionTimes"].toString());
-    costAndTimeDep->setChecked(inputObject["CostAndTime"].toBool());
-    injuryDep->setCurrentText(inputObject["Injuries"].toString());
-    injSeverityDep->setChecked(inputObject["InjurySeverities"].toBool());
-    redTagDep->setCurrentText(inputObject["RedTagProbabilities"].toString());
+    quantityDep->setCurrentText(dependenciesObj["Quantities"].toString());
+    fragilityDep->setCurrentText(dependenciesObj["Fragilities"].toString());
+    costDep->setCurrentText(dependenciesObj["ReconstructionCosts"].toString());
+    timeDep->setCurrentText(dependenciesObj["ReconstructionTimes"].toString());
+    costAndTimeDep->setChecked(dependenciesObj["CostAndTime"].toBool());
+    injuryDep->setCurrentText(dependenciesObj["Injuries"].toString());
+    injSeverityDep->setChecked(dependenciesObj["InjurySeverities"].toBool());
+    redTagDep->setCurrentText(dependenciesObj["RedTagProbabilities"].toString());
 
     return 0;
 }
