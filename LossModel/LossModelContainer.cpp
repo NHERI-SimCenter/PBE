@@ -140,7 +140,7 @@ LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
+LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -188,7 +188,7 @@ void LossModelContainer::dlSelectionChanged(const QString &arg1)
         emit sendErrorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
     }
 
-    if (lossMethod != 0) {
+    if (lossMethod != nullptr) {
 
         this->dlWidgetChanged();
         layout->insertWidget(-1, lossMethod,1);

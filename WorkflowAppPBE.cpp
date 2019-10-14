@@ -161,15 +161,18 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(remoteApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
 
 
-    connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
-    connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
+    connect(localApp,SIGNAL(setupForRun(QString &,QString &)),
+            this, SLOT(setUpForApplicationRun(QString &,QString &)));
+    connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)),
+            this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(localApp,
-            SIGNAL(processResults(QString, QString, QString)),
-            this,
-            SLOT(processResults(QString, QString, QString)));
+    connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &, QString)),
+            theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &, QString)));
 
-    connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
+    connect(localApp, SIGNAL(processResults(QString, QString, QString)),
+            this, SLOT(processResults(QString, QString, QString)));
+
+
 
     connect(theJobManager,
             SIGNAL(processResults(QString , QString, QString)),
@@ -648,15 +651,22 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
+    // if the EDPs are loaded for an external file, then there is no need
+    // to run the whole simulation
+    QJsonObject DL_app_data;
+    QString runType = QString("run");
+    DL_app_data = ((json["Applications"].toObject())["DL"].toObject())["ApplicationData"].toObject();
+    if (DL_app_data.contains("filenameEDP")) {
+        runType = QString("loss_only");
+    }
 
     QJsonDocument doc(json);
     file.write(doc.toJson());
     file.close();
 
-
     statusMessage("SetUp Done .. Now starting application");
 
-    emit setUpForApplicationRunDone(tmpDirectory, inputFile);
+    emit setUpForApplicationRunDone(tmpDirectory, inputFile, runType);
 }
 
 void

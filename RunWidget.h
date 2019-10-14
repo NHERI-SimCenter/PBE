@@ -62,7 +62,7 @@ signals:
     void runButtonPressed(QString &workDir, QString &subDir);
 
 public slots:
-    void setupForRunApplicationDone(QString &tmpDirectory, QString &inputFile);
+    void setupForRunApplicationDone(QString &tmpDirectory, QString &inputFile, QString runType = QString("run"));
     void showLocalApplication(void);
     void showRemoteApplication(void);
 
