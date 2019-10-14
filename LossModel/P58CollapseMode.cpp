@@ -130,7 +130,7 @@ bool CollapseMode::outputToJSON(QJsonObject &outputObject) {
 
     if (!collapseModeName->text().isEmpty()) {
         outputObject["name"] = collapseModeName->text();
-        outputObject["w"] = collapseModeProbability->text();
+        outputObject["weight"] = collapseModeProbability->text();
         outputObject["affected_area"] = collapseModeAffectedArea->text();
         outputObject["injuries"] = collapseModeInjuries->text();        
         return true;
@@ -144,7 +144,7 @@ bool CollapseMode::inputFromJSON(const QJsonObject & inputObject) {
 
     if (inputObject.contains("name")) {
         collapseModeName->setText(inputObject["name"].toString());
-        collapseModeProbability->setText(inputObject["w"].toString());
+        collapseModeProbability->setText(inputObject["weight"].toString());
         collapseModeAffectedArea->setText(inputObject["affected_area"].toString());
         collapseModeInjuries->setText(inputObject["injuries"].toString());
         return true;
