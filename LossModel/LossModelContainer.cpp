@@ -149,6 +149,15 @@ LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     jsonObject["Application"] = "pelicun";
     QJsonObject dataObj;
+    if (lossModelObject.contains("ResponseModel")) {
+        QJsonObject responseModel = lossModelObject["ResponseModel"] .toObject();
+        if (responseModel.contains("ResponseDescription")) {
+            QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
+            if (responseDescription.contains("EDPDataFile")) {
+                dataObj["filenameEDP"] = responseDescription["EDPDataFile"].toString();
+            }
+        }
+    }
     jsonObject["ApplicationData"] = dataObj;
     return true;
 }
