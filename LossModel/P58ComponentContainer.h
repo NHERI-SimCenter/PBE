@@ -69,8 +69,8 @@ public:
 
     void addCompToOverview(QString compName, QVBoxLayout *compAreaVBox);
 
-    void addComponent(bool doRefresh);
-    void removeComponent(bool doRefresh);
+    void addComponent();
+    void removeComponent();
 
     void clearCompGroupWidget();
     void retrieveCompGroups();

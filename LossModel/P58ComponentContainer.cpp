@@ -407,51 +407,66 @@ P58ComponentContainer::retrieveCompGroups(){
 void
 P58ComponentContainer::showSelectedComponent(){
 
-    QString compFileName = selectedCompCombo->currentText() + ".json";
-    QDir fragDir(this->getFragilityFolder());
-    QFile compFile(fragDir.absoluteFilePath(compFileName));
-    compFile.open(QFile::ReadOnly | QFile::Text);
+    if (selectedCompCombo->count() > 0) {
 
-    QString val;
-    val = compFile.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject compData = doc.object();
-    compFile.close();
+        QString compFileName = selectedCompCombo->currentText() + ".json";
+        QDir fragDir(this->getFragilityFolder());
+        QFile compFile(fragDir.absoluteFilePath(compFileName));
+        compFile.open(QFile::ReadOnly | QFile::Text);
 
-    compName->setText(compData["Name"].toString());
+        QString val;
+        val = compFile.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+        QJsonObject compData = doc.object();
+        compFile.close();
 
-    QJsonObject compGI = compData["GeneralInformation"].toObject();
-    compDescription->setText(compGI["Description"].toString());
+        compName->setText(compData["Name"].toString());
 
-    QJsonObject compEDPVar = compData["EDP"].toObject();
-    compEDP->setText(compEDPVar["Type"].toString());
+        QJsonObject compGI = compData["GeneralInformation"].toObject();
+        compDescription->setText(compGI["Description"].toString());
 
-    QJsonArray compQData = compData["QuantityUnit"].toArray();
-    //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-    compUnit->setText(QString("%1").arg(compQData[0].toDouble())+
-                      compQData[1].toString());
+        QJsonObject compEDPVar = compData["EDP"].toObject();
+        compEDP->setText(compEDPVar["Type"].toString());
 
-    this->clearCompGroupWidget();
-    this->retrieveCompGroups();
+        QJsonArray compQData = compData["QuantityUnit"].toArray();
+        //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+        compUnit->setText(QString("%1").arg(compQData[0].toDouble())+
+                          compQData[1].toString());
+
+        this->clearCompGroupWidget();
+        this->retrieveCompGroups();
+    } else {
+        compName->setText("");
+        compDescription->setText("");
+        compEDP->setText("");
+        compUnit->setText("");
+        this->clearCompGroupWidget();
+    }
 }
 
 int
 P58ComponentContainer::updateAvailableComponents(){
 
-    while (availableCompCombo->count() > 0) {
-        availableCompCombo->removeItem(availableCompCombo->currentIndex());
-    }
+    availableCompCombo->clear();
 
     QDir directory(this->getFragilityFolder());
 
     QStringList DL_files = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
 
+    for (int i=0; i<DL_files.length(); i++){
+        DL_files[i] = DL_files[i].remove(DL_files[i].size()-5, 5);
+    }
+
+    availableCompCombo->addItems(DL_files);
+
+    /*
     int counter = 0;
-    foreach(QString DL_filename, DL_files){
-        availableCompCombo->addItem(DL_filename.remove(DL_filename.size()-5, 5),
-                                    counter);
+    foreach(QString DL_filename, DL_files){        
+        QString DL_name = DL_files[i].remove(DL_files[i].size()-5, 5);
+        availableCompCombo->addItem(DL_name, counter);
         counter += 1;
     }
+    */
 
     return 0;
 }
@@ -470,8 +485,8 @@ P58ComponentContainer::getFragilityFolder(){
         if (appDirVariant.isValid())
           appDir = appDirVariant.toString();
 
-        fragilityFolder = appDir + "applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 first edition/DL json";
-    }
+        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 first edition/DL json";
+    }    
 
     return fragilityFolder;
 }
@@ -660,19 +675,18 @@ P58ComponentContainer::~P58ComponentContainer()
 
 void P58ComponentContainer::addOneComponent()
 {
-    this->addComponent(true);
+    this->addComponent();
 }
 
 void P58ComponentContainer::removeOneComponent()
 {
-    this->removeComponent(true);
+    this->removeComponent();
 }
 
-void P58ComponentContainer::addComponent(bool doRefresh)
+void P58ComponentContainer::addComponent()
 {
-    if (selectedCompCombo->findText(availableCompCombo->currentText()) == -1) {
-        selectedCompCombo->addItem(availableCompCombo->currentText(),
-                                   availableCompCombo->currentIndex());
+    if (selectedCompCombo->findText(availableCompCombo->currentText()) == -1) {        
+        selectedCompCombo->addItem(availableCompCombo->currentText());
     }
 }
 
@@ -683,81 +697,79 @@ void P58ComponentContainer::addAllComponents(void)
     for (const auto& compName : compList)
     {
         availableCompCombo->setCurrentText(compName);
-        this->addComponent(false);
+        this->addComponent();
     }
-
-    //this->refreshCompOverview();
 }
 
-void P58ComponentContainer::removeComponent(bool doRefresh)
-{
+void P58ComponentContainer::removeComponent()
+{   
     selectedCompCombo->removeItem(selectedCompCombo->currentIndex());
-
 }
 
 void P58ComponentContainer::removeAllComponents(void)
 {
-    while (selectedCompCombo->count() > 0) {
-        this->removeComponent(false);
-    }
-
+    selectedCompCombo->clear();
 }
 
 void P58ComponentContainer::addComponentGroup(QMap<QString, QString> *CG_data_in)
 {   
-   // add a new CG_data dict in the vector
-   QMap<QString, QString> *CG_data;
-   if (CG_data_in == nullptr) {
-       // get the vector of CG data from the compConfig dict
-       QVector<QMap<QString, QString>* > *vCG_data =
-               compConfig->value(selectedCompCombo->currentText(),
-                                 new QVector<QMap<QString, QString>* >);
-       // create a new CG_data dict and add it to the vector
-       CG_data = new QMap<QString, QString>;
-       vCG_data->append(CG_data);
-       // save the vector of CG data to the compConfig dict
-       // (only really needed when the component was not in there earlier)
-       compConfig->insert(selectedCompCombo->currentText(),
-                          vCG_data);
-   } else {
-       CG_data = CG_data_in;
-   }
+    if (selectedCompCombo->count() > 0) {
+       // add a new CG_data dict in the vector
+       QMap<QString, QString> *CG_data;
+       if (CG_data_in == nullptr) {
+           // get the vector of CG data from the compConfig dict
+           QVector<QMap<QString, QString>* > *vCG_data =
+                   compConfig->value(selectedCompCombo->currentText(),
+                                     new QVector<QMap<QString, QString>* >);
+           // create a new CG_data dict and add it to the vector
+           CG_data = new QMap<QString, QString>;
+           vCG_data->append(CG_data);
+           // save the vector of CG data to the compConfig dict
+           // (only really needed when the component was not in there earlier)
+           compConfig->insert(selectedCompCombo->currentText(),
+                              vCG_data);
+       } else {
+           CG_data = CG_data_in;
+       }
 
-   // create the new UI object and assign CG_data to it
-   ComponentGroup *theComponentGroup = new ComponentGroup(nullptr,
-                                                          CG_data);
-   // add the ComponentGroup to the vector of CGs
-   vComponentGroups.append(theComponentGroup);
-   // add the ComponentGroup to the UI
-   loCGList->insertWidget(loCGList->count()-1, theComponentGroup);
+       // create the new UI object and assign CG_data to it
+       ComponentGroup *theComponentGroup = new ComponentGroup(nullptr,
+                                                              CG_data);
+       // add the ComponentGroup to the vector of CGs
+       vComponentGroups.append(theComponentGroup);
+       // add the ComponentGroup to the UI
+       loCGList->insertWidget(loCGList->count()-1, theComponentGroup);
+    }
 }
 
 
 void P58ComponentContainer::removeComponentGroup(void)
 {
-    // get the vector of CG data from the compConfig dict
-    QVector<QMap<QString, QString>* > *vCG_data =
-            compConfig->value(selectedCompCombo->currentText(),
-                              new QVector<QMap<QString, QString>* >);
+    if (selectedCompCombo->count() > 0) {
+        // get the vector of CG data from the compConfig dict
+        QVector<QMap<QString, QString>* > *vCG_data =
+                compConfig->value(selectedCompCombo->currentText(),
+                                  new QVector<QMap<QString, QString>* >);
 
-    // find the ones selected & remove them
-    int CGcount = vComponentGroups.size();
-    for (int i = CGcount-1; i >= 0; i--) {
-      ComponentGroup *theComponentGroup = vComponentGroups.at(i);
-      if (theComponentGroup->isSelectedForRemoval()) {
-          //remove the widget from the UI
-          theComponentGroup->close();
-          loCGList->removeWidget(theComponentGroup);
-          //remove the CG_data from the database
-          vCG_data->remove(i);
-          //remove the CG from the UI vector
-          vComponentGroups.remove(i);
-          //delete the CG_data object
-          theComponentGroup->delete_CG_data();
-          //delete the CG UI object
-          theComponentGroup->setParent(nullptr);
-          delete theComponentGroup;
-      }
+        // find the ones selected & remove them
+        int CGcount = vComponentGroups.size();
+        for (int i = CGcount-1; i >= 0; i--) {
+          ComponentGroup *theComponentGroup = vComponentGroups.at(i);
+          if (theComponentGroup->isSelectedForRemoval()) {
+              //remove the widget from the UI
+              theComponentGroup->close();
+              loCGList->removeWidget(theComponentGroup);
+              //remove the CG_data from the database
+              vCG_data->remove(i);
+              //remove the CG from the UI vector
+              vComponentGroups.remove(i);
+              //delete the CG_data object
+              theComponentGroup->delete_CG_data();
+              //delete the CG UI object
+              theComponentGroup->setParent(nullptr);
+              delete theComponentGroup;
+          }
+        }
     }
 }
 
@@ -865,8 +877,7 @@ P58ComponentContainer::inputFromJSON(QJsonObject &jsonObject)
     // add the component IDs to the selectedCompCombo
     for (auto compName: compConfig->keys()){
         if (availableCompCombo->findText(compName) != -1) {
-            selectedCompCombo->addItem(compName,
-                                       availableCompCombo->findText(compName));
+            selectedCompCombo->addItem(compName);
         } else {
             qDebug() << "Component " << compName << "is not in the DL data folder!";
         }
