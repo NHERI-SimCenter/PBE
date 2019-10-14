@@ -644,7 +644,7 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     QString comp_NSD = "NSD-"+inhabitants["OccupancyType"].toString();
     compData[comp_NSD] = compArray;
 
-    outputObject["Components"] = compArray;
+    outputObject["Components"] = compData;
 
     return 0;
 }
