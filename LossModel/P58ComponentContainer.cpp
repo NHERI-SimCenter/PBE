@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna, adamzs
 
 #include "P58ComponentContainer.h"
-#include "P58Component.h"
+#include "P58ComponentGroup.h"
 
 #include <QPushButton>
 #include <QScrollArea>
@@ -64,506 +64,409 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
-    verticalLayout = new QVBoxLayout();
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    QVBoxLayout *verticalC1Layout = new QVBoxLayout();
-    QVBoxLayout *verticalC2Layout = new QVBoxLayout();
+    int maxWidth = 800;
+
+    verticalLayout = new QVBoxLayout();    
 
     // title
-    QHBoxLayout *titleLayout = new QHBoxLayout();
+    QHBoxLayout *titleLayout = new QHBoxLayout();    
 
     SectionTitle *title=new SectionTitle();
-    title->setText(tr("Define building components"));
+    title->setText(tr("Define the Performance Model"));
     title->setMinimumWidth(250);
 
-    titleLayout->addWidget(title);
+    titleLayout->addWidget(title);    
     titleLayout->addStretch();
 
-    // component selection
-    QGroupBox *compListGroupBox = new QGroupBox("Component Selection");
-    compListGroupBox->setMaximumWidth(600);
-    QFormLayout *compListFormLayout = new QFormLayout(compListGroupBox);
+    // component selection ----------------------------------------------------
+    QGroupBox *compListGroupBox = new QGroupBox("Component Ensemble");
+    compListGroupBox->setMaximumWidth(maxWidth);
+    //QFormLayout *compListFormLayout = new QFormLayout(compListGroupBox);
+
+    QVBoxLayout *loCEns = new QVBoxLayout(compListGroupBox);
 
     // data folder
     QHBoxLayout *customFolderLayout = new QHBoxLayout();
 
+    QLabel *lblChooseFragility = new QLabel();
+    lblChooseFragility->setText("Damage and Loss Data Folder:");
+    customFolderLayout->addWidget(lblChooseFragility);
+
     fragilityFolderPath = new QLineEdit;
+    customFolderLayout->addWidget(fragilityFolderPath, 1);
 
-    customFolderLayout->addWidget(fragilityFolderPath);
-
-    QPushButton *chooseFragility = new QPushButton();
-    chooseFragility->setText(tr("Choose"));
-    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
+    QPushButton *btnChooseFragility = new QPushButton();
+    btnChooseFragility->setMinimumWidth(60);
+    btnChooseFragility->setMaximumWidth(60);
+    btnChooseFragility->setText(tr("Choose"));
+    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
     connect(fragilityFolderPath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
+    customFolderLayout->addWidget(btnChooseFragility);
 
-    customFolderLayout->addWidget(chooseFragility);
-
-    compListFormLayout->addRow(tr("DL Data Folder: "),
-                               customFolderLayout);
+    loCEns->addLayout(customFolderLayout);
+    //compListFormLayout->addRow(tr("DL Data Folder: "), customFolderLayout);
 
     QSpacerItem *spacerGroups1 = new QSpacerItem(10,10);
-    compListFormLayout->addItem(spacerGroups1);
+    loCEns->addItem(spacerGroups1);
 
     // available components
     QHBoxLayout *availableCLayout = new QHBoxLayout();
 
+    QLabel *lblAvailableComp = new QLabel();
+    lblAvailableComp->setText("Available Components:");
+
+    availableCLayout->addWidget(lblAvailableComp);
+
     availableCompCombo = new QComboBox();
     availableCBModel = new QStringListModel();
     availableCompCombo->setModel(availableCBModel);
-    availableCompCombo->setToolTip(tr("List of available components. Click on the Add button to add the component to the selection."));
+    availableCompCombo->setToolTip(tr("List of available components. Click on the buttons to add the component to the ensemble."));
 
     this-> updateAvailableComponents();
 
-    availableCLayout->addWidget(availableCompCombo);
+    availableCLayout->addWidget(availableCompCombo, 1);
 
     QPushButton *addComponent = new QPushButton();
-    addComponent->setMinimumWidth(75);
-    addComponent->setMaximumWidth(75);
-    addComponent->setText(tr("Add"));
+    addComponent->setMinimumWidth(120);
+    addComponent->setMaximumWidth(120);
+    addComponent->setText(tr("Add Selected"));
     connect(addComponent,SIGNAL(clicked()),this,SLOT(addOneComponent()));
-
     availableCLayout->addWidget(addComponent);
 
     QPushButton *addAllComponents = new QPushButton();
-    addAllComponents->setMinimumWidth(100);
-    addAllComponents->setMaximumWidth(100);
-    addAllComponents->setText(tr("Add All"));
+    addAllComponents->setMinimumWidth(120);
+    addAllComponents->setMaximumWidth(120);
+    addAllComponents->setText(tr("Add All"));    
     connect(addAllComponents,SIGNAL(clicked()),this,SLOT(addAllComponents()));
-
     availableCLayout->addWidget(addAllComponents);
 
-    compListFormLayout->addRow(tr("Available Components: "),
-                               availableCLayout);
+    QPushButton* loadConfig = new QPushButton();
+    loadConfig->setMinimumWidth(240);
+    loadConfig->setMaximumWidth(240);
+    loadConfig->setText(tr("Load Performance Model from CSV"));
+    loadConfig->setToolTip(tr("Load Performance Model from a CSV file"));
+    connect(loadConfig,SIGNAL(clicked()),this,SLOT(onLoadConfigClicked()));
+    availableCLayout->addWidget(loadConfig);
+
+    loCEns->addLayout(availableCLayout);
+    //compListFormLayout->addRow(tr("Available Components: "),availableCLayout);
 
     QSpacerItem *spacerGroups2 = new QSpacerItem(10,10);
-    compListFormLayout->addItem(spacerGroups2);
+    loCEns->addItem(spacerGroups2);
 
     // selected components
     QHBoxLayout *selectedCLayout = new QHBoxLayout();
 
+    QLabel *lblSelectedComp = new QLabel();
+    lblSelectedComp->setText("Selected Components:");
+    selectedCLayout->addWidget(lblSelectedComp);
+
     selectedCompCombo = new QComboBox();
     selectedCBModel = new QStringListModel();
     selectedCompCombo->setModel(selectedCBModel);
-    selectedCompCombo->setToolTip(tr("List of selected components. Click on the Remove button to remove the component from the selection."));
+    selectedCompCombo->setToolTip(tr("List of selected components. Click on the buttons to remove the component from the ensemble."));
     connect(selectedCompCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(showSelectedComponent()));
-
-    selectedCLayout->addWidget(selectedCompCombo);
+    selectedCLayout->addWidget(selectedCompCombo, 1);
 
     QPushButton *removeComponent = new QPushButton();
-    removeComponent->setMinimumWidth(75);
-    removeComponent->setMaximumWidth(75);
-    removeComponent->setText(tr("Remove"));
+    removeComponent->setMinimumWidth(120);
+    removeComponent->setMaximumWidth(120);
+    removeComponent->setText(tr("Remove Selected"));
     connect(removeComponent,SIGNAL(clicked()),this,SLOT(removeOneComponent()));
-
     selectedCLayout->addWidget(removeComponent);
 
     QPushButton *removeAllComponents = new QPushButton();
-    removeAllComponents->setMinimumWidth(100);
-    removeAllComponents->setMaximumWidth(100);
+    removeAllComponents->setMinimumWidth(120);
+    removeAllComponents->setMaximumWidth(120);
     removeAllComponents->setText(tr("Remove All"));
-    connect(removeAllComponents,SIGNAL(clicked()),this,
-            SLOT(removeAllComponents()));
-
+    connect(removeAllComponents,SIGNAL(clicked()),this, SLOT(removeAllComponents()));
     selectedCLayout->addWidget(removeAllComponents);
 
-    compListFormLayout->addRow(tr("Selected Components: "),
-                               selectedCLayout);
+    QPushButton* saveConfig = new QPushButton();
+    saveConfig->setMinimumWidth(240);
+    saveConfig->setMaximumWidth(240);
+    saveConfig->setText(tr("Save Performance Model to CSV"));
+    saveConfig->setToolTip(tr("Save Performance Model to a CSV file"));
+    connect(saveConfig,SIGNAL(clicked()),this,SLOT(onSaveConfigClicked()));
+    selectedCLayout->addWidget(saveConfig);
+
+    loCEns->addLayout(selectedCLayout);
+    //compListFormLayout->addRow(tr("Selected Components: "), selectedCLayout);
 
     // component details
     QGroupBox *compDetailsGroupBox = new QGroupBox("Component Details");
-    compDetailsGroupBox->setMaximumWidth(600);
-    QFormLayout *compDetailsFormLayout = new QFormLayout(compDetailsGroupBox);
+    compDetailsGroupBox->setMaximumWidth(maxWidth);
+
+    QVBoxLayout *loCDetails = new QVBoxLayout(compDetailsGroupBox);
+    //QFormLayout *compDetailsFormLayout = new QFormLayout(compDetailsGroupBox);
 
     // name
+    QHBoxLayout *loCDName = new QHBoxLayout();
+
+    int CD_lbl_width = 70;
+
+    QLabel *lblCompName = new QLabel();
+    lblCompName->setText("Name:");
+    lblCompName->setMaximumWidth(CD_lbl_width);
+    lblCompName->setMinimumWidth(CD_lbl_width);
+    lblCompName->setAlignment(Qt::AlignTop);
+    loCDName->addWidget(lblCompName);
+
     compName = new QLabel();
     compName->setWordWrap(true);
     compName->setText("");
+    loCDName->addWidget(compName, 1);
 
-    compDetailsFormLayout->addRow(tr("Name: "), compName);
+    //loCDName->addStretch();
+    loCDetails->addLayout(loCDName);
+    //compDetailsFormLayout->addRow(tr("Name: "), compName);
 
     // description
+    QHBoxLayout *loCDDesc = new QHBoxLayout();
+
+    QLabel *lblCompDesc = new QLabel();
+    lblCompDesc->setText("Description:");
+    lblCompDesc->setMaximumWidth(CD_lbl_width);
+    lblCompDesc->setMinimumWidth(CD_lbl_width);
+    lblCompDesc->setAlignment(Qt::AlignTop);
+    loCDDesc->addWidget(lblCompDesc);
+
     compDescription = new QLabel();
     compDescription->setWordWrap(true);
     compDescription->setText("");
+    loCDDesc->addWidget(compDescription, 1);
 
-    compDetailsFormLayout->addRow(tr("Description: "), compDescription);
+    //loCDDesc->addStretch();
+    loCDetails->addLayout(loCDDesc);
+    //compDetailsFormLayout->addRow(tr("Description: "), compDescription);
 
     // EDP type
+    QHBoxLayout *loCDEDP = new QHBoxLayout();
+
+    QLabel *lblEDP_Type = new QLabel();
+    lblEDP_Type->setText("EDP type:");
+    lblEDP_Type->setMaximumWidth(CD_lbl_width);
+    lblEDP_Type->setMinimumWidth(CD_lbl_width);
+    loCDEDP->addWidget(lblEDP_Type);
+
     compEDP = new QLabel();
     compEDP->setWordWrap(true);
     compEDP->setText("");
+    loCDEDP->addWidget(compEDP, 1);
 
-    compDetailsFormLayout->addRow(tr("EDP type: "), compEDP);
+    //loCDEDP->addStretch();
+    loCDetails->addLayout(loCDEDP);
+    //compDetailsFormLayout->addRow(tr("EDP type: "), compEDP);
 
-    // quantities
-    QHBoxLayout *compQLayout = new QHBoxLayout();
+    // Standard unit
+    QHBoxLayout *loCDUnit = new QHBoxLayout();
 
-    compQuantity = new QLineEdit();
-    compQuantity->setToolTip(
-                tr("Quantity of component in the specified units."));
-    compQuantity->setMaximumWidth(200);
-    compQuantity->setMinimumWidth(200);
-    connect(compQuantity, SIGNAL(editingFinished()), this,
-            SLOT(storeCompQuantity()));
+    QLabel *lblStdUnit = new QLabel();
+    lblStdUnit->setText("Default unit:");
+    lblStdUnit->setMaximumWidth(CD_lbl_width);
+    lblStdUnit->setMinimumWidth(CD_lbl_width);
+    loCDUnit->addWidget(lblStdUnit);
 
-    compUnitSize = new QLabel();
-    compUnitSize->setText("");
-    compUnitType = new QLabel();
-    compUnitType->setText("");
+    compUnit = new QLabel();
+    compUnit->setWordWrap(true);
+    compUnit->setText("");
+    loCDUnit->addWidget(compUnit, 1);
 
-    compQLayout->addWidget(compQuantity);
-    compQLayout->addWidget(compUnitSize);
-    compQLayout->addWidget(compUnitType);
-    compQLayout->addStretch();
+    //loCDUnit->addStretch();
+    loCDetails->addLayout(loCDUnit);
 
-    compDetailsFormLayout->addRow(tr("Median Quantity per Story: "), compQLayout);
+    // Quantity title & buttons
+    QHBoxLayout *loCQuantity_title = new QHBoxLayout();
 
-    // quantity distribution
-    QHBoxLayout *compQDLayout = new QHBoxLayout();
+    QPushButton *addCGroup = new QPushButton();
+    addCGroup->setMinimumWidth(180);
+    addCGroup->setMaximumWidth(180);
+    addCGroup->setText(tr("Add Component Group"));
+    loCQuantity_title->addWidget(addCGroup);
+    connect(addCGroup, SIGNAL(pressed()), this, SLOT(addComponentGroup()));
 
-    QLabel *compQFamilyLabel = new QLabel();
-    compQFamilyLabel->setText("family:");
-    compQFamily = new QComboBox();
-    compQFamily->setToolTip(tr("Distribution family assigned to the component quantity."));
-    compQFamily->addItem(tr(""));
-    compQFamily->addItem(tr("normal"));
-    compQFamily->addItem(tr("lognormal"));
-    compQFamily->setMaximumWidth(100);
-    compQFamily->setMinimumWidth(100);
-    connect(compQFamily, SIGNAL(currentIndexChanged(int)), this,
-            SLOT(storeCompQuantityDist()));
+    QSpacerItem *locQNT_title_spacer = new QSpacerItem(10,10);
+    loCQuantity_title->addItem(locQNT_title_spacer);
 
-    QLabel *compQcovLabel = new QLabel();
-    compQcovLabel->setText("cov: ");
-    compQcov = new QLineEdit();
-    compQcov->setToolTip(tr("Coefficient of variation for the component quantity"));
-    compQcov->setMaximumWidth(70);
-    compQcov->setMinimumWidth(70);
-    connect(compQcov, SIGNAL(editingFinished()), this,
-            SLOT(storeCompQuantityCOV()));
+    QPushButton *removeCGroup = new QPushButton();
+    removeCGroup->setMinimumWidth(180);
+    removeCGroup->setMaximumWidth(180);
+    removeCGroup->setText(tr("Remove Component Group"));
+    loCQuantity_title->addWidget(removeCGroup);
+    connect(removeCGroup, SIGNAL(pressed()), this, SLOT(removeComponentGroup()));
 
-    compQDLayout->addWidget(compQFamilyLabel);
-    compQDLayout->addWidget(compQFamily);
-    compQDLayout->addWidget(compQcovLabel);
-    compQDLayout->addWidget(compQcov);
-    compQDLayout->addStretch();
+    loCQuantity_title->addStretch();
 
-    compDetailsFormLayout->addRow(tr("Quantity Distribution: "), compQDLayout);
+    loCDetails->addLayout(loCQuantity_title);
 
-    // component groups
+    // Component Group header
+    QHBoxLayout *loCGroup_header = new QHBoxLayout();
 
-    QLabel *cgLabel = new QLabel();
-    cgLabel->setText(tr("Component Groups"));
-    compDetailsFormLayout->addRow(cgLabel);
+    QLabel *lblQNT_loc = new QLabel();
+    lblQNT_loc->setText("location(s)");
+    //lblQNT_loc->setMaximumWidth(100);
+    //lblQNT_loc->setMinimumWidth(100);
+    loCGroup_header->addWidget(lblQNT_loc, 1);
 
-    dir1Weights = new QLineEdit();
-    dir1Weights->setToolTip(tr("Weight (i.e. proportion of the total quantity) of each component group in the performance group. The same weighting scheme is used for every story."));
-    dir1Weights->setMaximumWidth(250);
-    dir1Weights->setMinimumWidth(250);
-    connect(dir1Weights, SIGNAL(editingFinished()), this,
-            SLOT(storeWeightD1()));
+    QLabel *lblQNT_dir = new QLabel();
+    lblQNT_dir->setText("directions(s)");
+    //lblQNT_dir->setMaximumWidth(100);
+    //lblQNT_dir->setMinimumWidth(100);
+    loCGroup_header->addWidget(lblQNT_dir, 1);
 
-    dir2Weights = new QLineEdit();
-    dir2Weights->setToolTip(tr("Weight (i.e. proportion of the total quantity) of each component group in the performance group. The same weighting scheme is used for every story."));
-    dir2Weights->setMaximumWidth(250);
-    dir2Weights->setMinimumWidth(250);
-    connect(dir2Weights, SIGNAL(editingFinished()), this,
-            SLOT(storeWeightD2()));
+    QLabel *lblQNT_mu = new QLabel();
+    lblQNT_mu->setText("median quantity");
+    //lblQNT_mu->setMaximumWidth(100);
+    //lblQNT_mu->setMinimumWidth(100);
+    loCGroup_header->addWidget(lblQNT_mu, 1);
 
-    compDetailsFormLayout->addRow(tr("Weights in direction 1: "), dir1Weights);
-    compDetailsFormLayout->addRow(tr("Weights in direction 2: "), dir2Weights);
+    QLabel *lblQNT_unit = new QLabel();
+    lblQNT_unit->setText("unit");
+    lblQNT_unit->setMaximumWidth(60);
+    lblQNT_unit->setMinimumWidth(60);
+    loCGroup_header->addWidget(lblQNT_unit);
 
-    // component input overview
-    compOverviewGroupBox = new QGroupBox("Component Input Overview");
-    compOverviewGroupBox->setMinimumWidth(1000);
-    compOverviewGroupBox->setMinimumHeight(450);
-    compOverviewGroupBox->setMaximumHeight(450);
-    compOverviewLayout = new QVBoxLayout(compOverviewGroupBox);
+    QLabel *lblQNT_dist = new QLabel();
+    lblQNT_dist->setText("distribution");
+    lblQNT_dist->setMaximumWidth(120);
+    lblQNT_dist->setMinimumWidth(120);
+    loCGroup_header->addWidget(lblQNT_dist);
 
-    this->refreshCompOverview();
+    QLabel *lblQNT_cov = new QLabel();
+    lblQNT_cov->setText("cov");
+    lblQNT_cov->setMaximumWidth(90);
+    lblQNT_cov->setMinimumWidth(90);
+    loCGroup_header->addWidget(lblQNT_cov);
+    loCGroup_header->addStretch();
+    loCGroup_header->setSpacing(10);
+    loCGroup_header->setMargin(0);
 
-    verticalLayout->addLayout(titleLayout);
-    verticalLayout->addLayout(horizontalLayout);
+    loCDetails->addLayout(loCGroup_header);
 
-    horizontalLayout->addLayout(verticalC1Layout);
+    // Component Group list
+    QScrollArea *saQuantityList = new QScrollArea;
+    saQuantityList->setWidgetResizable(true);
+    saQuantityList->setLineWidth(0);
+    saQuantityList->setFrameShape(QFrame::NoFrame);
 
-    verticalC1Layout->addWidget(compListGroupBox);
-    verticalC1Layout->addWidget(compDetailsGroupBox);
-    verticalC1Layout->addStretch(1);
-    verticalC1Layout->setSpacing(10);
-    verticalC1Layout->setMargin(0);
+    QWidget *CGWidget = new QWidget;
+    loCGList = new QVBoxLayout();
+    loCGList->addStretch();
+    loCGList->setMargin(0);
+    CGWidget->setLayout(loCGList);
+    saQuantityList->setWidget(CGWidget);
 
-    horizontalLayout->addLayout(verticalC2Layout);
+    loCDetails->addWidget(saQuantityList, 1);
 
-    verticalC2Layout->addWidget(compOverviewGroupBox);
-    verticalC2Layout->addStretch();
-    verticalC2Layout->setSpacing(10);
-    verticalC2Layout->setMargin(0);
-
-    horizontalLayout->addStretch();
-    horizontalLayout->addSpacing(10);
-
-    verticalLayout->addStretch(1);
+    verticalLayout->addLayout(titleLayout);    
+    verticalLayout->addWidget(compListGroupBox);
+    verticalLayout->addWidget(compDetailsGroupBox, 1);
+    //verticalLayout->addStretch(1);
     verticalLayout->setSpacing(10);
+    //verticalLayout->setMargin(0);
 
     this->setLayout(verticalLayout);
 
     // initialize component property containers
-    compQuantityMap = new QMap<QString, QString>;
-    compQuantityDistMap = new QMap<QString, QString>;
-    compQuantityCOVMap = new QMap<QString, QString>;
-    compWeightD1Map = new QMap<QString, QString>;
-    compWeightD2Map = new QMap<QString, QString>;
-
-    //connect(addComponent, SIGNAL(pressed()), this, SLOT(addComponent()));
-    //connect(removeComponent, SIGNAL(pressed()), this, SLOT(removeComponents()));
+    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 }
 
 void
-P58ComponentContainer::storeCompQuantity(){
-    compQuantityMap -> insert(selectedCompCombo->currentText(),
-                              compQuantity->text());
+P58ComponentContainer::clearCompGroupWidget(){
 
-    this->refreshCompOverview();
-}
-
-void
-P58ComponentContainer::retrieveCompQuantity(){
-
-    compQuantity->setText(compQuantityMap -> value(
-                              selectedCompCombo->currentText(), tr("")));
-}
-
-void
-P58ComponentContainer::storeCompQuantityDist(){
-    compQuantityDistMap -> insert(selectedCompCombo->currentText(),
-                              compQFamily->currentText());
-
-    this->refreshCompOverview();
-}
-
-void
-P58ComponentContainer::retrieveCompQuantityDist(){
-
-    compQFamily->setCurrentText(compQuantityDistMap -> value(
-                                    selectedCompCombo->currentText(), tr("")));
-}
-
-void
-P58ComponentContainer::storeCompQuantityCOV(){
-    compQuantityCOVMap -> insert(selectedCompCombo->currentText(),
-                              compQcov->text());
-
-    this->refreshCompOverview();
-}
-
-void
-P58ComponentContainer::retrieveCompQuantityCOV(){
-
-    compQcov->setText(compQuantityCOVMap -> value(
-                              selectedCompCombo->currentText(), tr("")));
-}
-
-void
-P58ComponentContainer::storeWeightD1(){
-    compWeightD1Map -> insert(selectedCompCombo->currentText(),
-                              dir1Weights->text());
-
-    this->refreshCompOverview();
-}
-
-void
-P58ComponentContainer::retrieveWeightD1(){
-
-    dir1Weights->setText(compWeightD1Map -> value(
-                              selectedCompCombo->currentText(), tr("")));
-}
-
-void
-P58ComponentContainer::storeWeightD2(){
-    compWeightD2Map -> insert(selectedCompCombo->currentText(),
-                              dir2Weights->text());
-
-    this->refreshCompOverview();
-}
-
-void
-P58ComponentContainer::retrieveWeightD2(){
-
-    dir2Weights->setText(compWeightD2Map -> value(
-                              selectedCompCombo->currentText(), tr("")));
-}
-
-void
-P58ComponentContainer::refreshCompOverview(){
-
-    // clear the layout
-    QLayoutItem *wItem;
-    while ((wItem = compOverviewLayout->takeAt(0)) != 0)
-        delete wItem;
-
-    int columnWidth = 200;
-
-    // start with the header
-    QWidget *header = new QWidget();
-    QHBoxLayout *headerLayout = new QHBoxLayout();
-    header->setLayout(headerLayout);
-
-    QLabel *IDLabel = new QLabel();
-    IDLabel->setText(tr("<b><i>ID</i></b>"));
-    IDLabel->setAlignment(Qt::AlignLeft);
-    IDLabel->setFixedWidth(150);
-    headerLayout->addWidget(IDLabel);
-
-    QLabel *quantityLabel = new QLabel();
-    quantityLabel->setText(tr("<b><i>Median Quantity</i></b>"));
-    quantityLabel->setAlignment(Qt::AlignLeft);
-    quantityLabel->setFixedWidth(columnWidth);
-    headerLayout->addWidget(quantityLabel);
-
-    QLabel *qDistLabel = new QLabel();
-    qDistLabel->setText(tr("<b><i>Quantity Distribution</i></b>"));
-    qDistLabel->setAlignment(Qt::AlignLeft);
-    qDistLabel->setFixedWidth(columnWidth);
-    headerLayout->addWidget(qDistLabel);
-
-    QLabel *groupD1Label = new QLabel();
-    groupD1Label->setText(tr("<b><i>Groups in dir 1</i></b>"));
-    groupD1Label->setAlignment(Qt::AlignLeft);
-    groupD1Label->setFixedWidth(columnWidth);
-    headerLayout->addWidget(groupD1Label);
-
-    QLabel *groupD2Label = new QLabel();
-    groupD2Label->setText(tr("<b><i>Groups in dir 2</i></b>"));
-    groupD2Label->setAlignment(Qt::AlignLeft);
-    groupD2Label->setFixedWidth(columnWidth);
-    headerLayout->addWidget(groupD2Label);
-
-    //headerLayout->addStretch();
-
-    compOverviewLayout->addWidget(header);
-
-    QScrollArea *compArea = new QScrollArea;
-    compArea->setWidgetResizable(true);
-    compArea->setLineWidth(0);
-    compArea->setFrameShape(QFrame::NoFrame);
-    compArea->setAlignment(Qt::AlignTop);
-
-    QWidget *compAreaWidget = new QWidget();
-    QVBoxLayout *compAreaVBox = new QVBoxLayout();
-    compAreaVBox->setMargin(0);
-    compAreaVBox->setSpacing(3);
-    compAreaWidget->setLayout(compAreaVBox);
-    compArea->setWidget(compAreaWidget);
-    compOverviewLayout->addWidget(compArea);
-
-    const QStringList compList = selectedCBModel->stringList();
-
-    for (const auto& compName : compList)
-    {
-        addCompToOverview(compName, compAreaVBox);
+    int CGcount = vComponentGroups.size();
+    for (int i = CGcount-1; i >= 0; i--) {
+      ComponentGroup *theComponentGroup = vComponentGroups.at(i);
+      //remove the widget from the UI
+      theComponentGroup->close();
+      loCGList->removeWidget(theComponentGroup);
+      //remove the CG from the UI vector
+      vComponentGroups.remove(i);
+      //delete the CG UI object
+      theComponentGroup->setParent(nullptr);
+      delete theComponentGroup;
     }
 }
 
 void
-P58ComponentContainer::addCompToOverview(QString compName, QVBoxLayout *compAreaVBox){
+P58ComponentContainer::retrieveCompGroups(){
 
-    QWidget *compInfo = new QWidget();
-    QHBoxLayout *compInfoLayout = new QHBoxLayout();
-    compInfo->setLayout(compInfoLayout);
+    if (compConfig->contains(selectedCompCombo->currentText())) {
+        // get the vector of CG data from the compConfig dict
+        QVector<QMap<QString, QString>* > *vCG_data =
+                compConfig->value(selectedCompCombo->currentText(),
+                                  new QVector<QMap<QString, QString>* >);
 
-    int columnWidth = 200;
-
-    // get the component ID
-
-    QLabel *IDLabel = new QLabel();
-    IDLabel->setText(compName);
-    IDLabel->setAlignment(Qt::AlignLeft);
-    IDLabel->setFixedWidth(150);
-    compInfoLayout->addWidget(IDLabel);
-
-    QLabel *quantityLabel = new QLabel();
-    quantityLabel->setText(compQuantityMap -> value(compName, tr("")));
-    quantityLabel->setAlignment(Qt::AlignLeft);
-    quantityLabel->setFixedWidth(columnWidth);
-    compInfoLayout->addWidget(quantityLabel);
-
-    QLabel *qDistLabel = new QLabel();
-    qDistLabel->setText(compQuantityDistMap -> value(compName, tr("")) +
-                        "   " +
-                        compQuantityCOVMap -> value(compName, tr("")));
-    qDistLabel->setAlignment(Qt::AlignLeft);
-    qDistLabel->setFixedWidth(columnWidth);
-    compInfoLayout->addWidget(qDistLabel);
-
-    QLabel *groupD1Label = new QLabel();
-    groupD1Label->setText(compWeightD1Map -> value(compName, tr("")));
-    groupD1Label->setAlignment(Qt::AlignLeft);
-    groupD1Label->setFixedWidth(columnWidth);
-    compInfoLayout->addWidget(groupD1Label);
-
-    QLabel *groupD2Label = new QLabel();
-    groupD2Label->setText(compWeightD2Map -> value(compName, tr("")));
-    groupD2Label->setAlignment(Qt::AlignLeft);
-    groupD2Label->setFixedWidth(columnWidth);
-    compInfoLayout->addWidget(groupD2Label);
-
-    //compInfoLayout->addStretch();
-
-    compAreaVBox->addWidget(compInfo);
+        // create the CG UI elements for the existing data
+        for (int i=0; i<vCG_data->count(); i++){
+            addComponentGroup(vCG_data->at(i));
+        }
+    }
 }
-
 
 void
 P58ComponentContainer::showSelectedComponent(){
 
-    QString compFileName = selectedCompCombo->currentText() + ".json";
-    QDir fragDir(this->getFragilityFolder());
-    QFile compFile(fragDir.absoluteFilePath(compFileName));
-    compFile.open(QFile::ReadOnly | QFile::Text);
+    if (selectedCompCombo->count() > 0) {
 
-    QString val;
-    val = compFile.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject compData = doc.object();
-    compFile.close();
+        QString compFileName = selectedCompCombo->currentText() + ".json";
+        QDir fragDir(this->getFragilityFolder());
+        QFile compFile(fragDir.absoluteFilePath(compFileName));
+        compFile.open(QFile::ReadOnly | QFile::Text);
 
-    compName->setText(compData["Name"].toString());
+        QString val;
+        val = compFile.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+        QJsonObject compData = doc.object();
+        compFile.close();
 
-    QJsonObject compGI = compData["GeneralInformation"].toObject();
-    compDescription->setText(compGI["Description"].toString());
+        compName->setText(compData["Name"].toString());
 
-    QJsonObject compEDPVar = compData["EDP"].toObject();
-    compEDP->setText(compEDPVar["Type"].toString());
+        QJsonObject compGI = compData["GeneralInformation"].toObject();
+        compDescription->setText(compGI["Description"].toString());
 
-    QJsonArray compQData = compData["QuantityUnit"].toArray();
-    compUnitSize->setText(QString("%1").arg(compQData[0].toDouble()));
-    compUnitType->setText(compQData[1].toString());
+        QJsonObject compEDPVar = compData["EDP"].toObject();
+        compEDP->setText(compEDPVar["Type"].toString());
 
-    this->retrieveCompQuantity();
-    this->retrieveCompQuantityDist();
-    this->retrieveCompQuantityCOV();
-    this->retrieveWeightD1();
-    this->retrieveWeightD2();
+        QJsonArray compQData = compData["QuantityUnit"].toArray();
+        //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+        compUnit->setText(QString("%1").arg(compQData[0].toDouble())+
+                          compQData[1].toString());
+
+        this->clearCompGroupWidget();
+        this->retrieveCompGroups();
+    } else {
+        compName->setText("");
+        compDescription->setText("");
+        compEDP->setText("");
+        compUnit->setText("");
+        this->clearCompGroupWidget();
+    }
 }
 
 int
 P58ComponentContainer::updateAvailableComponents(){
 
-    while (availableCompCombo->count() > 0) {
-        availableCompCombo->removeItem(availableCompCombo->currentIndex());
-    }
+    availableCompCombo->clear();
 
     QDir directory(this->getFragilityFolder());
 
     QStringList DL_files = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
 
+    for (int i=0; i<DL_files.length(); i++){
+        DL_files[i] = DL_files[i].remove(DL_files[i].size()-5, 5);
+    }
+
+    availableCompCombo->addItems(DL_files);
+
+    /*
     int counter = 0;
-    foreach(QString DL_filename, DL_files){
-        availableCompCombo->addItem(DL_filename.remove(DL_filename.size()-5, 5),
-                                    counter);
+    foreach(QString DL_filename, DL_files){        
+        QString DL_name = DL_files[i].remove(DL_files[i].size()-5, 5);
+        availableCompCombo->addItem(DL_name, counter);
         counter += 1;
     }
+    */
 
     return 0;
 }
@@ -582,8 +485,8 @@ P58ComponentContainer::getFragilityFolder(){
         if (appDirVariant.isValid())
           appDir = appDirVariant.toString();
 
-        fragilityFolder = appDir + "applications/performDL/pelicun/resources/FEMA P58 first edition/DL json";
-    }
+        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 first edition/DL json";
+    }    
 
     return fragilityFolder;
 }
@@ -605,6 +508,165 @@ P58ComponentContainer::chooseFragilityFolder(void) {
     this->updateAvailableComponents();
 }
 
+void
+P58ComponentContainer::onLoadConfigClicked(void) {
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("Load Configuration"), "",
+                                                    tr("All Files (*)"));
+
+    QFile file(fileName);
+
+    if (file.open(QIODevice::ReadOnly))
+    {
+        // clear the selectedCompCombo
+        this->removeAllComponents();
+
+        // remove the existing compConfig and initialize a new one
+        delete compConfig;
+        compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
+
+        QTextStream stream(&file);
+
+        int counter = 0;
+        while (!stream.atEnd()) {
+            counter ++;
+
+            QString line = stream.readLine();
+            QStringList line_list;
+
+            // parse the line considering "" and , and \n
+            bool in_commented_block = false;
+            bool save_element = false;
+            int c_0 = 0;
+            for (int c=0; c<line.length(); c++) {
+                if (line[c] == '\"') {
+                    if (in_commented_block) {
+                        save_element = true;
+                        in_commented_block = false;
+                    } else {
+                        in_commented_block = true;
+                        c_0 = c+1;
+                    }
+                } else if (line[c] == ',') {
+                    if (c_0 == c){
+                        c_0++;
+                    } else if (in_commented_block == false) {
+                        save_element = true;
+                    }
+                } else if (c == line.length()-1) {
+                    save_element = true;
+                    c++;
+                }
+
+                if (save_element) {
+                    QString element = line.mid(c_0, c-c_0);
+                    c_0 = c+1;
+                    line_list.append(element);
+                    save_element = false;
+                }
+            }
+
+            QString compName = line_list[0];
+            if (compName == "ID") {
+                continue;
+            }
+
+            // first make sure that the comp ID is in the compConfig dict
+            // and a corresponding CG_data vector is also stored there
+            QVector<QMap<QString, QString>* > *vCG_data;
+            if (compConfig->contains(compName)) {
+                // get the vector of CG data from the compConfig dict
+                vCG_data = compConfig->value(compName, nullptr);
+            } else {
+                vCG_data = new QVector<QMap<QString, QString>* >;
+                compConfig->insert(compName, vCG_data);
+            }
+
+            // create a new CG_data dict and add it to the vector
+            QMap<QString, QString> *CG_data = new QMap<QString, QString>;
+            vCG_data->append(CG_data);
+
+            if (line_list.count() >= 6) {
+                // fill the CG_data dict with the info from the given row in the file
+                CG_data -> insert("location",     line_list[1]);
+                CG_data -> insert("direction",    line_list[2]);
+                CG_data -> insert("median",       line_list[3]);
+                CG_data -> insert("unit",         line_list[4]);
+                CG_data -> insert("distribution", line_list[5]);
+                if (line_list.count() >= 7) {
+                    CG_data -> insert("cov",      line_list[6]);
+                } else {
+                    CG_data -> insert("cov",      "");
+                }
+            } else {
+                qDebug() << "Error while parsing line " << counter << " in the config file";
+            }
+        }
+
+        file.close();
+
+        // add the component IDs to the selectedCompCombo
+        for (auto compName: compConfig->keys()){
+            if (availableCompCombo->findText(compName) != -1) {
+                selectedCompCombo->addItem(compName,
+                                           availableCompCombo->findText(compName));
+            } else {
+                qDebug() << "Component " << compName << "is not in the DL data folder!";
+            }
+        }
+
+    }
+}
+
+void
+P58ComponentContainer::onSaveConfigClicked(void) {
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Configuration"), "",
+                                                    tr("All Files (*)"));
+
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+
+        //create the header
+        stream << "\"ID\"" << ",";
+        stream << "\"Location(s)\"" << ",";
+        stream << "\"Direction(s)\"" << ",";
+        stream << "\"Median Quantity\"" << ",";
+        stream << "\"Unit\"" << ",";
+        stream << "\"Distribution\"" << ",";
+        stream << "\"COV\"";
+        stream << "\n";
+
+        // save the component characteristics
+        const QStringList compList = selectedCBModel->stringList();
+
+        for (const auto& compName: compList)
+        {
+            // get the vector of CG data from the compConfig dict
+            QVector<QMap<QString, QString>* > *vCG_data =
+                    compConfig->value(compName, nullptr);
+
+            if (vCG_data != nullptr) {
+                for (int i=0; i<vCG_data->count(); i++){
+                    QMap<QString, QString> *CG_data = vCG_data->at(i);
+
+                    stream << "\"" << compName << "\",";
+                    stream << "\"" << CG_data -> value("location", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("direction", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("median", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("unit", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("distribution", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("cov", tr("")) << "\"";
+                    stream << "\n";
+                }
+            }
+        }
+    }
+}
+
 
 P58ComponentContainer::~P58ComponentContainer()
 {
@@ -613,23 +675,19 @@ P58ComponentContainer::~P58ComponentContainer()
 
 void P58ComponentContainer::addOneComponent()
 {
-    this->addComponent(true);
+    this->addComponent();
 }
 
 void P58ComponentContainer::removeOneComponent()
 {
-    this->removeComponent(true);
+    this->removeComponent();
 }
 
-void P58ComponentContainer::addComponent(bool doRefresh)
+void P58ComponentContainer::addComponent()
 {
-    if (selectedCompCombo->findText(availableCompCombo->currentText()) == -1) {
-        selectedCompCombo->addItem(availableCompCombo->currentText(),
-                                   availableCompCombo->currentIndex());
+    if (selectedCompCombo->findText(availableCompCombo->currentText()) == -1) {        
+        selectedCompCombo->addItem(availableCompCombo->currentText());
     }
-
-    if (doRefresh == true)
-        this->refreshCompOverview();
 }
 
 void P58ComponentContainer::addAllComponents(void)
@@ -639,191 +697,193 @@ void P58ComponentContainer::addAllComponents(void)
     for (const auto& compName : compList)
     {
         availableCompCombo->setCurrentText(compName);
-        this->addComponent(false);
+        this->addComponent();
     }
-
-    this->refreshCompOverview();
 }
 
-void P58ComponentContainer::removeComponent(bool doRefresh)
-{
+void P58ComponentContainer::removeComponent()
+{   
     selectedCompCombo->removeItem(selectedCompCombo->currentIndex());
-
-    if (doRefresh == true)
-        this->refreshCompOverview();
 }
 
 void P58ComponentContainer::removeAllComponents(void)
 {
-    while (selectedCompCombo->count() > 0) {
-        this->removeComponent(false);
-    }
+    selectedCompCombo->clear();
+}
 
-    this->refreshCompOverview();
+void P58ComponentContainer::addComponentGroup(QMap<QString, QString> *CG_data_in)
+{   
+    if (selectedCompCombo->count() > 0) {
+       // add a new CG_data dict in the vector
+       QMap<QString, QString> *CG_data;
+       if (CG_data_in == nullptr) {
+           // get the vector of CG data from the compConfig dict
+           QVector<QMap<QString, QString>* > *vCG_data =
+                   compConfig->value(selectedCompCombo->currentText(),
+                                     new QVector<QMap<QString, QString>* >);
+           // create a new CG_data dict and add it to the vector
+           CG_data = new QMap<QString, QString>;
+           vCG_data->append(CG_data);
+           // save the vector of CG data to the compConfig dict
+           // (only really needed when the component was not in there earlier)
+           compConfig->insert(selectedCompCombo->currentText(),
+                              vCG_data);
+       } else {
+           CG_data = CG_data_in;
+       }
+
+       // create the new UI object and assign CG_data to it
+       ComponentGroup *theComponentGroup = new ComponentGroup(nullptr,
+                                                              CG_data);
+       // add the ComponentGroup to the vector of CGs
+       vComponentGroups.append(theComponentGroup);
+       // add the ComponentGroup to the UI
+       loCGList->insertWidget(loCGList->count()-1, theComponentGroup);
+    }
+}
+
+
+void P58ComponentContainer::removeComponentGroup(void)
+{
+    if (selectedCompCombo->count() > 0) {
+        // get the vector of CG data from the compConfig dict
+        QVector<QMap<QString, QString>* > *vCG_data =
+                compConfig->value(selectedCompCombo->currentText(),
+                                  new QVector<QMap<QString, QString>* >);
+
+        // find the ones selected & remove them
+        int CGcount = vComponentGroups.size();
+        for (int i = CGcount-1; i >= 0; i--) {
+          ComponentGroup *theComponentGroup = vComponentGroups.at(i);
+          if (theComponentGroup->isSelectedForRemoval()) {
+              //remove the widget from the UI
+              theComponentGroup->close();
+              loCGList->removeWidget(theComponentGroup);
+              //remove the CG_data from the database
+              vCG_data->remove(i);
+              //remove the CG from the UI vector
+              vComponentGroups.remove(i);
+              //delete the CG_data object
+              theComponentGroup->delete_CG_data();
+              //delete the CG UI object
+              theComponentGroup->setParent(nullptr);
+              delete theComponentGroup;
+          }
+        }
+    }
 }
 
 bool
 P58ComponentContainer::outputToJSON(QJsonObject &jsonObject)
-{
+{    
     bool result = true;
 
     // first, save the DL data folder
     QString pathString;
     pathString = fragilityFolderPath->text();
     if (pathString != ""){
-        QJsonObject dataSources;
-
-        if (jsonObject.contains("DataSources"))
-            dataSources = jsonObject["DataSources"].toObject();
-
-        dataSources["ComponentDataFolder"] = pathString;
-        jsonObject["DataSources"] = dataSources;
+        jsonObject["ComponentDataFolder"] = pathString;
     }
 
     // then, for each component save the component information
-    QJsonArray compArray;
+    QJsonObject compData;
+    if (jsonObject.contains("Components"))
+        compData = jsonObject["Components"].toObject();
+
     const QStringList compList = selectedCBModel-> stringList();
     foreach (const QString compID, compList){
 
-        QJsonObject compObj;
-        compObj["ID"] = compID;
+        // get the vector of CG data from the compConfig dict
+        QVector<QMap<QString, QString>* > *vCG_data =
+                compConfig->value(compID, nullptr);
 
-        compObj["quantity"] = compQuantityMap->value(compID, tr(""));
-        compObj["cov"] = compQuantityCOVMap->value(compID, tr(""));
-        compObj["distribution"] = compQuantityDistMap->value(compID, tr(""));
+        if (vCG_data != nullptr) {
+            QJsonArray compArray;
+            for (int i=0; i<vCG_data->count(); i++){
+                QMap<QString, QString> *CG_data = vCG_data->at(i);
+                QJsonObject CGObj;
 
-        QStringList weightSL = QStringList();
-        QStringList directionSL = QStringList();
+                CGObj["location"] = CG_data -> value("location", tr(""));
+                CGObj["direction"] = CG_data -> value("direction", tr(""));
+                CGObj["median_quantity"] = CG_data -> value("median", tr(""));
+                CGObj["unit"] = CG_data -> value("unit", tr(""));
+                CGObj["distribution"] = CG_data -> value("distribution", tr(""));
+                CGObj["cov"] = CG_data -> value("cov", tr(""));
 
-        QStringList weightsD1 = (compWeightD1Map->value(compID, tr(""))).split(',');
-        foreach (const QString weight, weightsD1) {
-            QString netWeight = weight.simplified();
-            netWeight.replace(" ", "");
-
-            if (netWeight != ""){
-                weightSL.append(netWeight);
-                directionSL.append("1");
+                compArray.append(CGObj);
             }
-        }
 
-        QStringList weightsD2 = (compWeightD2Map->value(compID, tr(""))).split(',');
-        foreach (const QString weight, weightsD2) {
-            QString netWeight = weight.simplified();
-            netWeight.replace(" ", "");
-
-            if (netWeight != ""){
-                weightSL.append(netWeight);
-                directionSL.append("2");
-            }
-        }
-
-        compObj["directions"] = directionSL.join(',');
-        compObj["weights"] = weightSL.join(',');
-
-        // get some of the data that is stored in the DL file
-        // this will be removed eventually
-        QString compFileName = compID + ".json";
-        QDir fragDir(this->getFragilityFolder());
-        QFile compFile(fragDir.absoluteFilePath(compFileName));
-        compFile.open(QFile::ReadOnly | QFile::Text);
-
-        QString val;
-        val = compFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        QJsonObject compData = doc.object();
-        compFile.close();
-
-        QJsonArray compQData = compData["QuantityUnit"].toArray();
-
-        compObj["unit_size"] = QString("%1").arg(compQData[0].toDouble());
-        compObj["unit_type"] = compQData[1].toString();
-        compObj["structural"] = (compID.at(0) == 'B');
-        compObj["name"] = compData["Name"].toString();
-
-        compArray.append(compObj);
+            compData[compID] = compArray;
+        } 
     }
-    jsonObject["Components"]=compArray;
+    jsonObject["Components"]=compData;
 
-/*
-
-
-    bool result = true;
-    QJsonArray theArray;
-    for (int i = 0; i <theComponents.size(); ++i) {
-        QJsonObject rv;
-        if (theComponents.at(i)->outputToJSON(rv)) {
-            theArray.append(rv);
-
-        } else {
-            qDebug() << "OUTPUT FAILED" << theComponents.at(i)->getComponentName();
-            result = false;
-        }
-    }
-    jsonObject["Components"]=theArray;
-    return result;
-*/
     return result;
 }
 
 bool
-P58ComponentContainer::inputFromJSON(QJsonObject &rvObj)
+P58ComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-  bool result = true;
+    bool result = true;
 
-  // first, load the DL data folder
-  QJsonObject dataSources = rvObj["DataSources"].toObject();
+    // first, load the DL data folder
+    QString pathString;
+    pathString = jsonObject["ComponentDataFolder"].toString();
+    fragilityFolderPath->setText(pathString);
 
-  QString pathString;
-  pathString = dataSources["ComponentDataFolder"].toString();
+    // clear the selectedCompCombo
+    this->removeAllComponents();
 
-  fragilityFolderPath->setText(pathString);
+    // remove the existing compConfig and initialize a new one
+    delete compConfig;
+    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 
-  QJsonArray rvArray = rvObj["Components"].toArray();
-  //for each component object in the array, load the component information
-  foreach (const QJsonValue &rvValue, rvArray) {
-      
-      QJsonObject compObject = rvValue.toObject();
+    QJsonObject compData;
+    if (jsonObject.contains("Components"))
+      compData = jsonObject["Components"].toObject();
 
-      if (compObject.contains("ID")) {
-          QString compID = compObject["ID"].toString();
-          if (availableCompCombo->findText(compID) != -1){
-              availableCompCombo->setCurrentText(compID);
-              this->addComponent(false);
+    foreach (const QString& compID, compData.keys()) {
+        // first make sure that the comp ID is in the compConfig dict
+        // and a corresponding CG_data vector is also stored there
+        QVector<QMap<QString, QString>* > *vCG_data;
+        if (compConfig->contains(compID)) {
+          // get the vector of CG data from the compConfig dict
+          vCG_data = compConfig->value(compID, nullptr);
+        } else {
+          vCG_data = new QVector<QMap<QString, QString>* >;
+          compConfig->insert(compID, vCG_data);
+        }
 
-              compQuantityMap->insert(compID,
-                                      compObject["quantity"].toString());
+        QJsonArray CGDataList = compData[compID].toArray();
+        foreach (const QJsonValue& compValue, CGDataList) {
+            QJsonObject compInfo = compValue.toObject();
 
-              compQuantityDistMap->insert(compID,
-                                      compObject["distribution"].toString());
+            // create a new CG_data dict and add it to the vector
+            QMap<QString, QString> *CG_data = new QMap<QString, QString>;
+            vCG_data->append(CG_data);
 
-              compQuantityCOVMap->insert(compID,
-                                      compObject["cov"].toString());
+            CG_data -> insert("location",     compInfo["location"].toString());
+            CG_data -> insert("direction",    compInfo["direction"].toString());
+            CG_data -> insert("median",       compInfo["median_quantity"].toString());
+            CG_data -> insert("unit",         compInfo["unit"].toString());
+            CG_data -> insert("distribution", compInfo["distribution"].toString());
+            if (compInfo.contains("cov"))
+                CG_data -> insert("cov",          compInfo["cov"].toString());
+            else
+                CG_data -> insert("cov", tr(""));
+        }
+    }
 
-              QStringList directionSL = compObject["directions"].toString().split(',');
-              QStringList weightSL = compObject["weights"].toString().split(',');
-              QStringList weightsD1 = QStringList();
-              QStringList weightsD2 = QStringList();
+    // add the component IDs to the selectedCompCombo
+    for (auto compName: compConfig->keys()){
+        if (availableCompCombo->findText(compName) != -1) {
+            selectedCompCombo->addItem(compName);
+        } else {
+            qDebug() << "Component " << compName << "is not in the DL data folder!";
+        }
+    }
 
-              for (int i=0; i<weightSL.size(); i++){
-
-                  if ((directionSL.at(i) == "1") || (directionSL.at(i) == " 1"))
-                      weightsD1.append(weightSL.at(i));
-                  else
-                      weightsD2.append(weightSL.at(i));
-              }
-
-              if (weightsD1.size() > 0)
-                compWeightD1Map->insert(compID, weightsD1.join(','));
-
-              if (weightsD2.size() > 0)
-                compWeightD2Map->insert(compID, weightsD2.join(','));
-          }
-      }
-  }
-
-  this->refreshCompOverview();
-
-  return result;
+    return result;
 }
 
 bool 

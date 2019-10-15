@@ -90,9 +90,11 @@ public:
      */
     QString getHazusGeneralSettingsContainerName() const;
 
+    int setEDPFile(QString EDPFile);
     int setFragilityFolder(QString fragilityFolder);
     int setPopulationFile(QString populationFile);
 
+    QString getEDPFile();
     QString getFragilityFolder();
     QString getPopulationFile();
 
@@ -100,6 +102,7 @@ public:
 signals:
 
 public slots:
+    void chooseEDPFile(void);
     void chooseFragilityFolder(void);
     void choosePopulationFile(void);
 
@@ -119,6 +122,7 @@ private:
     QLineEdit * replacementTimeValue;
     QLineEdit * fragilityFolderPath;
     QLineEdit * populationFilePath;
+    QLineEdit * EDPFilePath;
 
     QComboBox * quantityDep;
     QComboBox * fragilityDep;

@@ -89,7 +89,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GoogleAnalytics.h>
 
 // static pointer for global procedure set in constructor
-static WorkflowAppPBE *theApp = 0;
+static WorkflowAppPBE *theApp = nullptr;
 
 // global procedure
 int getNumParallelTasks() {
@@ -112,18 +112,18 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Method = new InputWidgetSampling();
-    theLossModel = new LossModelContainer(theRVs);
+    theDLModel = new LossModelContainer(theRVs);
     theResults = new ResultsPelicun();
 
-    localApp = new LocalApplication("PBE workflow.py");
-    remoteApp = new RemoteApplication("PBE workflow.py", theService);
+    localApp = new LocalApplication("PBE_workflow.py");
+    remoteApp = new RemoteApplication("PBE_workflow.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
     // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
     SimCenterWidget *theWidgets[1];
     //    theWidgets[0] = theAnalysis;
     //    theWidgets[1] = theUQ_Method;
-    int numWidgets = 2;
+    //int numWidgets = 2;
     theRunWidget = new RunWidget(localApp, remoteApp, theWidgets, 0);
 
     //
@@ -161,15 +161,18 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(remoteApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
 
 
-    connect(localApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
-    connect(this,SIGNAL(setUpForApplicationRunDone(QString&, QString &)), theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
+    connect(localApp,SIGNAL(setupForRun(QString &,QString &)),
+            this, SLOT(setUpForApplicationRun(QString &,QString &)));
+    connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)),
+            this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(localApp,
-            SIGNAL(processResults(QString, QString, QString)),
-            this,
-            SLOT(processResults(QString, QString, QString)));
+    connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &, QString)),
+            theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &, QString)));
 
-    connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)), this, SLOT(setUpForApplicationRun(QString &,QString &)));
+    connect(localApp, SIGNAL(processResults(QString, QString, QString)),
+            this, SLOT(processResults(QString, QString, QString)));
+
+
 
     connect(theJobManager,
             SIGNAL(processResults(QString , QString, QString)),
@@ -281,7 +284,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theStackedWidget->addWidget(theEvent);
     theStackedWidget->addWidget(theAnalysis);
     theStackedWidget->addWidget(theUQ);
-    theStackedWidget->addWidget(theLossModel);
+    theStackedWidget->addWidget(theDLModel);
     theStackedWidget->addWidget(theResults);
 
     // add stacked widget to layout
@@ -396,11 +399,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theRunWidget->outputToJSON(jsonObjectTop);
 
     QJsonObject jsonLossModel;
-    theLossModel->outputToJSON(jsonLossModel);
-    jsonObjectTop["LossModel"] = jsonLossModel;
+    theDLModel->outputToJSON(jsonLossModel);
+    jsonObjectTop["DamageAndLoss"] = jsonLossModel;
 
     QJsonObject appsDL;
-    theLossModel->outputAppDataToJSON(appsDL);
+    theDLModel->outputAppDataToJSON(appsDL, jsonLossModel);
     apps["DL"] = appsDL;
 
     jsonObjectTop["Applications"]=apps;
@@ -432,57 +435,65 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     // get each of the main widgets to input themselves
     //
 
+
+    //qDebug() << "General Info";
     if (jsonObject.contains("GeneralInformation")) {
         QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
         if (theGI->inputFromJSON(jsonObjGeneralInformation) == false) {
-            emit errorMessage(": ERROR:  to read GeneralInformation");
+            emit errorMessage(": ERROR: failed to read GeneralInformation");
         }
     } else {
-        emit errorMessage(" ERROR:  to find GeneralInformation");
+        emit errorMessage(" ERROR: failed to find GeneralInformation");
         return false;
     }
 
+    //qDebug() << "Applications";
     if (jsonObject.contains("Applications")) {
 
         QJsonObject theApplicationObject = jsonObject["Applications"].toObject();
 
+        //qDebug() << "Modeling";
         if (theApplicationObject.contains("Modeling")) {
             QJsonObject theObject = theApplicationObject["Modeling"].toObject();
             if (theSIM->inputAppDataFromJSON(theObject) == false) {
-                emit errorMessage(" ERROR:  to read Modeling Application");
+                emit errorMessage(" ERROR: failed to read Modeling Application");
             }
         } else {
-            emit errorMessage(" ERROR:  to find Modeling Application");
+            emit errorMessage(" ERROR: failed to find Modeling Application");
             return false;
         }
 
         // note: Events is different because the object is an Array
+        //qDebug() << "Events";
         if (theApplicationObject.contains("Events")) {
             //  QJsonObject theObject = theApplicationObject["Events"].toObject(); it is null object, actually an array
             if (theEvent->inputAppDataFromJSON(theApplicationObject) == false) {
-                emit errorMessage(" ERROR:  to read Event Application");
+                emit errorMessage(" ERROR: failed to read Event Application");
             }
 
         } else {
-            emit errorMessage(" ERROR:  to find Event Application");
+            emit errorMessage(" ERROR: failed to find Event Application");
             return false;
         }
 
+
+        //qDebug() << "UQ";
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
             if (theUQ_Method->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR:  to read UQ application");
+                emit errorMessage(" ERROR: failed to read UQ application");
         } else {
-            emit errorMessage(" ERROR:  to find UQ application");
+            emit errorMessage(" ERROR: failed to find UQ application");
             return false;
         }
 
+        //qDebug() << "Simulation";
         if (theApplicationObject.contains("Simulation")) {
             QJsonObject theObject = theApplicationObject["Simulation"].toObject();
             if (theAnalysis->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR:  to read Simulation Application");
+                emit errorMessage(" ERROR: failed to read Simulation Application");
         } else {
-            emit errorMessage(" ERROR:  to find Simulation Application");
+            emit errorMessage(" ERROR: failed to find Simulation Application");
             return false;
         }
 
@@ -498,41 +509,44 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
+    //qDebug() << "Structural Information";
     if (jsonObject.contains("StructuralInformation")) {
         QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
         if (theSIM->inputFromJSON(jsonObjStructuralInformation) == false) {
-            emit errorMessage(" ERROR:  to read StructuralInformation");
+            emit errorMessage(" ERROR: failed to read StructuralInformation");
         }
     } else {
-        emit errorMessage(" ERROR:  to find StructuralInformation");
+        emit errorMessage(" ERROR: failed to find StructuralInformation");
         return false;
     }
 
+    //qDebug() << "UQ Method";
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ_Method"].toObject();
         if (theUQ_Method->inputFromJSON(jsonObjUQInformation) == false)
-            emit errorMessage(" ERROR:  to read UQ Method data");
+            emit errorMessage(" ERROR: failed to read UQ Method data");
     } else {
-        emit errorMessage(" ERROR:  to find UQ Method data");
+        emit errorMessage(" ERROR: failed to find UQ Method data");
         return false;
     }
 
+    //qDebug() << "Simulation";
     if (jsonObject.contains("Simulation")) {
         QJsonObject jsonObjSimInformation = jsonObject["Simulation"].toObject();
         if (theAnalysis->inputFromJSON(jsonObjSimInformation) == false)
-            emit errorMessage(" ERROR:  to read Simulation data");
+            emit errorMessage(" ERROR: failed to read Simulation data");
     } else {
-        emit errorMessage(" ERROR:  to find Simulation data");
+        emit errorMessage(" ERROR: failed to find Simulation data");
         return false;
     }
 
-
-    if (jsonObject.contains("LossModel")) {
-        QJsonObject jsonObjLossModel = jsonObject["LossModel"].toObject();
-        if (theLossModel->inputFromJSON(jsonObjLossModel) == false)
-            emit errorMessage(" ERROR:  to find Loss Model");
+    //qDebug() << "DamageAndLoss";
+    if (jsonObject.contains("DamageAndLoss")) {
+        QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
+        if (theDLModel->inputFromJSON(jsonObjLossModel) == false)
+            emit errorMessage(" ERROR: failed to find Damage and Loss Model");
     } else {
-        emit errorMessage("WARNING: failed to find Loss Model");
+        emit errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
 
@@ -637,15 +651,22 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
+    // if the EDPs are loaded for an external file, then there is no need
+    // to run the whole simulation
+    QJsonObject DL_app_data;
+    QString runType = QString("run");
+    DL_app_data = ((json["Applications"].toObject())["DL"].toObject())["ApplicationData"].toObject();
+    if (DL_app_data.contains("filenameEDP")) {
+        runType = QString("loss_only");
+    }
 
     QJsonDocument doc(json);
     file.write(doc.toJson());
     file.close();
 
-
     statusMessage("SetUp Done .. Now starting application");
 
-    emit setUpForApplicationRunDone(tmpDirectory, inputFile);
+    emit setUpForApplicationRunDone(tmpDirectory, inputFile, runType);
 }
 
 void

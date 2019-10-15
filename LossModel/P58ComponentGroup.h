@@ -1,5 +1,5 @@
-#ifndef P58GENERAL_SETTINGS_CONTAINER_H
-#define P58GENERAL_SETTINGS_CONTAINER_H
+#ifndef COMPONENTGROUP_H
+#define COMPONENTGROUP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,118 +37,91 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: fmckenna, mhgardner, adamzs
 
 #include <QCheckBox>
 
-#include "SimCenterAppWidget.h"
+#include "SimCenterWidget.h"
 
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QLabel;
-class QVBoxLayout;
 class QHBoxLayout;
 class QRadioButton;
 
 /*!
- * Widget for general loss assessment settings in PBE tool
+ * Widget for components in PBE tool
  */
-class P58GeneralSettingsContainer : public SimCenterAppWidget
+class ComponentGroup : public SimCenterWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of P58GeneralSettingsContainer
+     * @param[in] parent Parent widget of Component
      */
-    explicit P58GeneralSettingsContainer(QWidget *parent = 0);
+    explicit ComponentGroup(QWidget *parent = nullptr,
+                             QMap<QString, QString> *CG_data_in = nullptr);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~P58GeneralSettingsContainer();
+    virtual ~ComponentGroup();
 
     /*!
-     * Writes general settings contents to JSON
-     * @param[in, out] outputObject Write contents of general settings to this object
+     * Writes component contents to JSON
+     * @param[in, out] outputObject Write contents of component to this object
      * @return Returns true if successful, false otherwise
      */
     virtual bool outputToJSON(QJsonObject &outputObject);
 
     /*!
-     * Reads general settings contents from JSON
-     * @param[in] inputObject Read general settings contents from this object
+     * Reads component contents from JSON
+     * @param[in] inputObject Read component contents from this object
      * @return Returns true if successfull, false otherwise
      */
-    virtual bool inputFromJSON(QJsonObject &inputObject);
+    virtual bool inputFromJSON(const QJsonObject & inputObject);
 
     /*!
-     * Get the name of the general settings
-     * @return Returns the name of the general settings as a QString
+     * Checks whether button has been checked to remove component
+     * @return Current state of button
      */
-    QString getP58GeneralSettingsContainerName() const;
+    bool isSelectedForRemoval() const;
 
-    int setEDPFile(QString EDPFile);
-    QString getEDPFile();
+    /*!
+     * Get the name of the component
+     * @return Returns the name of the component as a QString
+     */
+    QString getComponentName() const;
 
-    int setPopulationFile(QString populationFile);
-    QString getPopulationFile();
-
+    void delete_CG_data();
     
 signals:
 
 public slots:
-    void chooseEDPFile(void);
-    void choosePopulationFile(void);
+
+    void storeCGLocation(void);
+    void storeCGDirection(void);
+    void storeCGMedian(void);
+    void storeCGUnit(void);
+    void storeCGDistribution(void);
+    void storeCGCOV(void);
        
 private:
 
-    QLineEdit * yieldDriftValue; /*!<  */
-    QLineEdit * driftDetLim;
-    QLineEdit * accDetLim;
-    QLineEdit * irrepResDriftMedian;
-    QLineEdit * irrepResDriftStd;
-    QLineEdit * driftColLim;
-    QLineEdit * accColLim;
-    QLineEdit * realizationsValue;
-    QLineEdit * addedUncertaintyGM;
-    QLineEdit * addedUncertaintyModel;
-    QLineEdit * peakPopulation;
-    QLineEdit * replacementCostValue;
-    QLineEdit * replacementTimeValue;
-    //QLineEdit * fragilityFolderPath;
-    QLineEdit * populationFilePath;
-    QLineEdit * colProbValue;
-    QLineEdit * EDPFilePath;
+    QMap<QString, QString> *CG_data;
 
-    /*
-    QComboBox * quantityDep;
-    QComboBox * fragilityDep;
-    QComboBox * costDep;
-    QComboBox * timeDep;
-    QComboBox * injuryDep;
-    QComboBox * redTagDep;
-    */
+    QLineEdit *cgLocation;
+    QLineEdit *cgDirection;
+    QLineEdit *cgMedianQNT;
+    QLineEdit *cgUnit;
+    QComboBox *cgDistribution;
+    QLineEdit *cgCOV;
 
-    QComboBox * occupancyType;
-    QComboBox * collProbApproach;
-    QComboBox * EDP_Distribution;
-    QComboBox * EDP_Fitting;
-    QComboBox * colBasis;
-    
-    /*
-    QCheckBox * costAndTimeDep;
-    QCheckBox * injSeverityDep;
-    */
-
-    QCheckBox * needRecCost;
-    QCheckBox * needRecTime;
-    QCheckBox * needInjuries;
-    QCheckBox * needRedTag;    
-
-    QVBoxLayout *mainLayout; /*!< Main layout for general settings */
+    QRadioButton *button; /*!< Button for selecting component */
+    QHBoxLayout *mainLayout; /*!< Main layout for component */
 };
 
-#endif // P58GENERAL_SETTINGS_CONTAINER_H
+#endif // COMPONENT_H

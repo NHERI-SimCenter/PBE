@@ -1,5 +1,5 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef P58DEPENDENCIES_CONTAINER_H
+#define P58DEPENDENCIES_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,64 +37,58 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, mhgardner, adamzs
+// Written: fmckenna, adamzs
 
 #include <QCheckBox>
 
-#include "SimCenterWidget.h"
+#include "SimCenterAppWidget.h"
 
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QLabel;
+class QVBoxLayout;
 class QHBoxLayout;
 class QRadioButton;
 
 /*!
- * Widget for components in PBE tool
+ * Widget for general loss assessment settings in PBE tool
  */
-class Component : public SimCenterWidget
+class P58DependenciesContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of Component
+     * @param[in] parent Parent widget of P58GeneralSettingsContainer
      */
-    explicit Component(QWidget *parent = 0);
+    explicit P58DependenciesContainer(QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~Component();
+    virtual ~P58DependenciesContainer();
 
     /*!
-     * Writes component contents to JSON
-     * @param[in, out] outputObject Write contents of component to this object
+     * Writes general settings contents to JSON
+     * @param[in, out] outputObject Write contents of general settings to this object
      * @return Returns true if successful, false otherwise
      */
     virtual bool outputToJSON(QJsonObject &outputObject);
 
     /*!
-     * Reads component contents from JSON
-     * @param[in] inputObject Read component contents from this object
+     * Reads general settings contents from JSON
+     * @param[in] inputObject Read general settings contents from this object
      * @return Returns true if successfull, false otherwise
      */
-    virtual bool inputFromJSON(const QJsonObject & inputObject);
+    virtual bool inputFromJSON(QJsonObject &inputObject);
 
     /*!
-     * Checks whether button has been checked to remove component
-     * @return Current state of button
+     * Get the name of the general settings
+     * @return Returns the name of the general settings as a QString
      */
-    bool isSelectedForRemoval() const;
-
-    /*!
-     * Get the name of the component
-     * @return Returns the name of the component as a QString
-     */
-    QString getComponentName() const;
-
+    QString getP58DependenciesContainerName() const;
     
 signals:
 
@@ -102,19 +96,50 @@ public slots:
        
 private:
 
-    QLineEdit * componentName; /*!< Line edit widget to input component name */
-    QLineEdit * componentID; /*!< Line edit widget to input component ID */
-    QLineEdit * componentQuantity; /*!< Line edit widget to input component quantity */
-    QLineEdit * componentCov; /*!< Line edit widget to input component coefficient of variation */
-    QComboBox * componentDist; /*!< Combo box for selecting the distribution family of the component quantity */
-    QLineEdit * unitSizeEdit; /*!< Line edit widget to input unit size of component quantity */
-    QComboBox * unitComboBox; /*!< Combo box for selcecting unit type as either linear or square feet */
-    QCheckBox * structuralCheckBox; /*!< Check box to indicate if component is structural */
-    QLineEdit * componentDirections; /*!< Line edit where directions are entered */
-    QLineEdit * componentWeights; /*!< Line edit to enter weights for each direction */
+    /*
+    QLineEdit * yieldDriftValue;
+    QLineEdit * driftDetLim;
+    QLineEdit * accDetLim;
+    QLineEdit * irrepResDriftMedian;
+    QLineEdit * irrepResDriftStd;
+    QLineEdit * driftColLim;
+    QLineEdit * accColLim;
+    QLineEdit * realizationsValue;
+    QLineEdit * addedUncertaintyGM;
+    QLineEdit * addedUncertaintyModel;
+    QLineEdit * peakPopulation;
+    QLineEdit * replacementCostValue;
+    QLineEdit * replacementTimeValue;
+    //QLineEdit * fragilityFolderPath;
+    QLineEdit * populationFilePath;
+    QLineEdit * colProbValue;
+    */
 
-    QRadioButton *button; /*!< Button for selecting component */
-    QHBoxLayout *mainLayout; /*!< Main layout for component */
+    QComboBox * quantityDep;
+    QComboBox * fragilityDep;
+    QComboBox * costDep;
+    QComboBox * timeDep;
+    QComboBox * injuryDep;
+    QComboBox * redTagDep;
+    /*
+    QComboBox * occupancyType;
+    QComboBox * collProbApproach;
+    QComboBox * EDP_Distribution;
+    QComboBox * EDP_Fitting;
+    QComboBox * colBasis;
+    */
+
+    QCheckBox * costAndTimeDep;
+    QCheckBox * injSeverityDep;
+
+    /*
+    QCheckBox * needRecCost;
+    QCheckBox * needRecTime;
+    QCheckBox * needInjuries;
+    QCheckBox * needRedTag;
+    */
+
+    QVBoxLayout *mainLayout; /*!< Main layout for general settings */
 };
 
-#endif // COMPONENT_H
+#endif // P58DEPENDENCIES_CONTAINER_H

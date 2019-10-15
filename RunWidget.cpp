@@ -112,8 +112,8 @@ RunWidget::showRemoteApplication(void) {
 }
 
 void
-RunWidget::setupForRunApplicationDone(QString &tmpDirectory, QString &inputFile) {
+RunWidget::setupForRunApplicationDone(QString &tmpDirectory, QString &inputFile, QString runType) {
     qDebug() << "RunWidget::setupForRunApplicationDone";
     //this->hide();
-    theCurrentApplication->setupDoneRunApplication(tmpDirectory, inputFile);
+    theCurrentApplication->setupDoneRunApplication(tmpDirectory, inputFile, runType);
 }

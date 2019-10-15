@@ -57,12 +57,14 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
+    int maxWidth = 333;
+
     mainLayout = new QVBoxLayout();
     QHBoxLayout *mainHLayout = new QHBoxLayout();
     QVBoxLayout *mainV1Layout = new QVBoxLayout();
     QVBoxLayout *mainV2Layout = new QVBoxLayout();
     QVBoxLayout *mainV3Layout = new QVBoxLayout();
-    QVBoxLayout *mainV4Layout = new QVBoxLayout();
+    //QVBoxLayout *mainV4Layout = new QVBoxLayout();
 
 
     // title -------------------------------------------------------------------
@@ -75,18 +77,27 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     titleLayout->addWidget(title);
     titleLayout->addStretch();
 
-    //QSpacerItem *spacerTop1 = new QSpacerItem(10,30);
-    // QSpacerItem *spacerGroupHeader = new QSpacerItem(20,5);
-    // QSpacerItem *spacerGroupMembers = new QSpacerItem(20,1);
-
     // response model ----------------------------------------------------------
     QGroupBox * responseGroupBox = new QGroupBox("Response Model");
+    responseGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * responseFormLayout = new QFormLayout();
 
     QLabel *describeEDPLabel = new QLabel();
     describeEDPLabel->setText(tr("response description:"));
     describeEDPLabel->setToolTip(tr("Some tooltip"));
     responseFormLayout->addRow(describeEDPLabel);
+
+    // EDP data
+    QHBoxLayout *EDP_dataLayout = new QHBoxLayout();
+    EDPFilePath = new QLineEdit;
+    QPushButton *chooseEDP_data = new QPushButton();
+    chooseEDP_data->setText(tr("Choose"));
+    connect(chooseEDP_data, SIGNAL(clicked()),this,SLOT(chooseEDPFile()));
+    EDP_dataLayout->addWidget(EDPFilePath);
+    EDP_dataLayout->addWidget(chooseEDP_data);
+    EDP_dataLayout->setSpacing(1);
+    EDP_dataLayout->setMargin(0);
+    responseFormLayout->addRow(tr("    EDP data: "), EDP_dataLayout);
 
     // EDP distribution
     EDP_Distribution = new QComboBox();
@@ -165,6 +176,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // damage model -----------------------------------------------------------
     QGroupBox * damageGroupBox = new QGroupBox("Damage Model");
+    damageGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
 
     // irrepairable residual drift
@@ -253,6 +265,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // loss model -------------------------------------------------------------
     QGroupBox * lossGroupBox = new QGroupBox("Loss Model");
+    lossGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * lossFormLayout = new QFormLayout(lossGroupBox);
 
     // replacement cost
@@ -375,148 +388,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     lossFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     lossFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
-    // dependencies -------------------------------------------------
-    QGroupBox * dependencyGroupBox = new QGroupBox("Model Dependencies");
-    QFormLayout * dependencyFormLayout = new QFormLayout(dependencyGroupBox);
-
-    // perfect correlation label
-    QLabel *perfectCorrelationLabel = new QLabel();
-    perfectCorrelationLabel->setText(tr("Perfect Correlation in ..."));
-    perfectCorrelationLabel->setToolTip(tr("Specify at which organizational level shall the following random variables be correlated. If no correlation is desired, choose Independent."));
-    dependencyFormLayout->addRow(perfectCorrelationLabel);
-
-    // quantities
-    quantityDep = new QComboBox();
-    quantityDep->setToolTip(tr("Some tooltip"));
-    quantityDep->addItem("btw. Fragility Groups",0);
-    quantityDep->addItem("btw. Performance Groups",1);
-    quantityDep->addItem("btw. Floors",2);
-    quantityDep->addItem("btw. Directions",3);    
-    quantityDep->addItem("Independent",4);
-    quantityDep->setCurrentIndex(4);
-    dependencyFormLayout->addRow(tr("    Component Quantities"), quantityDep);
-
-     QSpacerItem *spacerGroups9 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups9);
-
-    // fragilities
-    fragilityDep = new QComboBox();
-    fragilityDep->setToolTip(tr("Some tooltip"));
-    fragilityDep->addItem("btw. Performance Groups",0);
-    fragilityDep->addItem("btw. Floors",1);
-    fragilityDep->addItem("btw. Directions",2);
-    fragilityDep->addItem("btw. Damage States",3);
-    fragilityDep->addItem("btw. Component Groups",4);
-    fragilityDep->addItem("Independent",5);
-    fragilityDep->addItem("per ATC recommendation",6);
-    fragilityDep->setCurrentIndex(6);
-    dependencyFormLayout->addRow(tr("    Component Fragilities"), fragilityDep);
-
-     QSpacerItem *spacerGroups10 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups10);
-
-    // reconstruction cost
-    costDep = new QComboBox();
-    costDep->setToolTip(tr("Some tooltip"));
-    costDep->addItem("btw. Fragility Groups",0);
-    costDep->addItem("btw. Performance Groups",1);
-    costDep->addItem("btw. Floors",2);
-    costDep->addItem("btw. Directions",3);
-    costDep->addItem("btw. Damage States", 4);
-    costDep->addItem("Independent",5);
-    costDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Reconstruction Costs"), costDep);
-
-    // reconstruction time
-    timeDep = new QComboBox();
-    timeDep->setToolTip(tr("Some tooltip"));
-    timeDep->addItem("btw. Fragility Groups",0);
-    timeDep->addItem("btw. Performance Groups",1);
-    timeDep->addItem("btw. Floors",2);
-    timeDep->addItem("btw. Directions",3);
-    timeDep->addItem("btw. Damage States", 4);
-    timeDep->addItem("Independent",5);
-    timeDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Reconstruction Times"), timeDep);
-
-    // rec. cost and time
-    costAndTimeDep = new QCheckBox();
-    costAndTimeDep->setText("");
-    costAndTimeDep->setToolTip(tr("Some tooltip"));
-    costAndTimeDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. Rec. Cost and Time"),
-                                 costAndTimeDep);
-
-     QSpacerItem *spacerGroups11 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups11);
-
-    // injuries
-    injuryDep = new QComboBox();
-    injuryDep->setToolTip(tr("Some tooltip"));
-    injuryDep->addItem("btw. Fragility Groups",0);
-    injuryDep->addItem("btw. Performance Groups",1);
-    injuryDep->addItem("btw. Floors",2);
-    injuryDep->addItem("btw. Directions",3);
-    injuryDep->addItem("btw. Damage States", 4);
-    injuryDep->addItem("Independent",5);
-    injuryDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Injuries"), injuryDep);
-
-    // injuries and fatalities
-    injSeverityDep = new QCheckBox();
-    injSeverityDep->setText("");
-    injSeverityDep->setToolTip(tr("Some tooltip"));
-    injSeverityDep->setChecked(false);
-    dependencyFormLayout->addRow(tr("    btw. Injuries and Fatalities"),
-                                 injSeverityDep);
-
-     QSpacerItem *spacerGroups12 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups12);
-
-    // red tag
-    redTagDep = new QComboBox();
-    redTagDep->setToolTip(tr("Some tooltip"));
-    redTagDep->addItem("btw. Fragility Groups",0);
-    redTagDep->addItem("btw. Performance Groups",1);
-    redTagDep->addItem("btw. Floors",2);
-    redTagDep->addItem("btw. Directions",3);
-    redTagDep->addItem("btw. Damage States", 4);
-    redTagDep->addItem("Independent",5);
-    redTagDep->setCurrentIndex(5);
-    dependencyFormLayout->addRow(tr("    Red Tag Probabilities"), redTagDep);
-
-     QSpacerItem *spacerGroups13 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups13);   
-
-    /*
-    QHBoxLayout *fragilityLayout = new QHBoxLayout();
-
-    fragilityFolderPath = new QLineEdit;
-    QPushButton *chooseFragility = new QPushButton();
-    chooseFragility->setText(tr("Choose"));
-    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
-    fragilityLayout->addWidget(fragilityFolderPath);
-    fragilityLayout->addWidget(chooseFragility);
-    fragilityLayout->setSpacing(1);
-    fragilityLayout->setMargin(0);
-
-    resourcesFormLayout->addRow(tr("component damage and loss: "),
-                                fragilityLayout);
-
-    QSpacerItem *spacerGroups14 = new QSpacerItem(10,10);
-    resourcesFormLayout->addItem(spacerGroups14);
-    */
-
-    //QSpacerItem *spacerGroups8 = new QSpacerItem(10,10);
-    //uqFormLayout->addItem(spacerGroups8);
-
-
-
-
-
     // assemble the widgets-----------------------------------------------------
-
-
     mainV1Layout->addWidget(responseGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
@@ -532,56 +404,44 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     mainV3Layout->setSpacing(10);
     mainV3Layout->setMargin(0);
 
-    mainV4Layout->addWidget(dependencyGroupBox);
-    mainV4Layout->addStretch(1);
-    mainV4Layout->setSpacing(10);
-    mainV4Layout->setMargin(0);
-
-    mainHLayout->addLayout(mainV1Layout, 0);
-    mainHLayout->addLayout(mainV2Layout, 0);
-    mainHLayout->addLayout(mainV3Layout, 0);
-    mainHLayout->addLayout(mainV4Layout, 0);
-    mainHLayout->addStretch(1);
+    mainHLayout->addLayout(mainV1Layout, 1);
+    mainHLayout->addLayout(mainV2Layout, 1);
+    mainHLayout->addLayout(mainV3Layout, 1);
+    mainHLayout->addStretch();
     mainHLayout->setSpacing(10);
     mainHLayout->setMargin(0);
 
     mainLayout->addLayout(titleLayout);
-    //mainLayout->addItem(spacerTop1);
     mainLayout->addLayout(mainHLayout, 0);
     mainLayout->addStretch(1);
     mainLayout->setSpacing(10);
-    //mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
 }
 
-/*
 QString
-P58GeneralSettingsContainer::getFragilityFolder(){
-    return fragilityFolderPath->text();
+P58GeneralSettingsContainer::getEDPFile(){
+    return EDPFilePath->text();
 }
-*/
+
+int
+P58GeneralSettingsContainer::setEDPFile(QString EDPFile){
+    EDPFilePath->setText(EDPFile);
+    return 0;
+}
+
+void
+P58GeneralSettingsContainer::chooseEDPFile(void) {
+    QString EDPFile;
+    EDPFile=QFileDialog::getOpenFileName(this,tr("Select EDP File"),
+        "C://", "All files (*.*)");
+    this->setEDPFile(EDPFile);
+}
 
 QString
 P58GeneralSettingsContainer::getPopulationFile(){
     return populationFilePath->text();
 }
-
-/*
-int
-P58GeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
-    fragilityFolderPath->setText(fragilityFolder);
-    return 0;
-}
-
-void
-P58GeneralSettingsContainer::chooseFragilityFolder(void) {
-    QString fragilityFolder;
-    fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
-        "C://");
-    int ok = this->setFragilityFolder(fragilityFolder);
-}
-*/
 
 int
 P58GeneralSettingsContainer::setPopulationFile(QString populationFile){
@@ -592,10 +452,9 @@ P58GeneralSettingsContainer::setPopulationFile(QString populationFile){
 void
 P58GeneralSettingsContainer::choosePopulationFile(void) {
     QString populationFile;
-    populationFile=QFileDialog::getOpenFileName(this,tr("Select File"),
+    populationFile=QFileDialog::getOpenFileName(this,tr("Select Population File"),
         "C://", "All files (*.*)");
     this->setPopulationFile(populationFile);
-
 }
 
 P58GeneralSettingsContainer::~P58GeneralSettingsContainer()
@@ -603,218 +462,147 @@ P58GeneralSettingsContainer::~P58GeneralSettingsContainer()
 
 bool P58GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
 
-    QJsonObject UQ;
-    QJsonObject decVars;
-    QJsonObject response;
-    QJsonObject damage;
-    QJsonObject dependencies;
-    QJsonObject inhabitants;
-    QJsonObject dataSources;
-    
-    // UQ ---------------------------------------------------------------------
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel;
 
-    UQ["Realizations"] = realizationsValue->text();
-    
+    QJsonObject responseDescription;
+    responseDescription["EDP_Distribution"] = EDP_Distribution->currentText();
+    responseDescription["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
+    responseDescription["Realizations"] = realizationsValue->text();
+    responseDescription["CoupledAssessment"] = false;
+    if (EDPFilePath->text() != "")
+        responseDescription["EDPDataFile"] = EDPFilePath->text();
+    responseModel["ResponseDescription"] = responseDescription;
+
+    QJsonObject detLims;
+    detLims["PID"] = driftDetLim->text();
+    detLims["PFA"] = accDetLim->text();
+    responseModel["DetectionLimits"] = detLims;
+
     QJsonObject addUncertainty;
-
     addUncertainty["GroundMotion"] = addedUncertaintyGM->text();
     addUncertainty["Modeling"] = addedUncertaintyModel->text();
+    responseModel["AdditionalUncertainty"] =  addUncertainty;
 
-    UQ["AdditionalUncertainty"] =  addUncertainty;
+    outputObject["ResponseModel"] = responseModel;
 
-    outputObject["UncertaintyQuantification"] = UQ;
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel;
 
-    // decision vars ----------------------------------------------------------
+    QJsonObject irrepDrift;
+    irrepDrift["Median"] = irrepResDriftMedian->text();
+    irrepDrift["Beta"] = irrepResDriftStd->text();
+    irrepDrift["YieldDriftRatio"] = yieldDriftValue->text();
+    damageModel["IrrepairableResidualDrift"] = irrepDrift;
 
+
+    QJsonObject collProb;
+    if (collProbApproach->currentText() == "prescribed") {
+        collProb["Value"] = colProbValue->text();
+    } else {
+        collProb["Value"] = "estimated";
+        collProb["BasisOfCPEstimate"] = colBasis->currentText();
+    }
+    damageModel["CollapseProbability"] = collProb;
+
+    QJsonObject colLims;
+    colLims["PID"] = driftColLim->text();
+    colLims["PFA"] = accColLim->text();
+    damageModel["CollapseLimits"] = colLims;
+
+    outputObject["DamageModel"] = damageModel;
+
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel;
+
+    lossModel["ReplacementCost"] = replacementCostValue->text();
+    lossModel["ReplacementTime"] = replacementTimeValue->text();
+
+    QJsonObject decVars;
     decVars["ReconstructionCost"] = needRecCost->isChecked();
     decVars["ReconstructionTime"] = needRecTime->isChecked();
     decVars["Injuries"] = needInjuries->isChecked();
     decVars["RedTag"] = needRedTag->isChecked();
+    lossModel["DecisionVariables"] = decVars;
 
-    outputObject["DecisionVariables"] = decVars;
-
-    // building response ------------------------------------------------------
-
-    response["YieldDriftRatio"] = yieldDriftValue->text();
-
-    response["EDP_Distribution"] = EDP_Distribution->currentText();
-    response["BasisOfEDP_Distribution"] = EDP_Fitting->currentText();
-
-    if (collProbApproach->currentText() == "prescribed") {
-        response["CollapseProbability"] = colProbValue->text();
-    } else {
-        response["CollapseProbability"] = "estimated";
-        response["BasisOfCPEstimate"] = colBasis->currentText();
-    }
-
-    QJsonObject detLims;
-
-    detLims["PID"] = driftDetLim->text();
-    detLims["PFA"] = accDetLim->text();
-
-    response["DetectionLimits"] = detLims;
-
-    outputObject["BuildingResponse"] = response;
-
-    // building damage --------------------------------------------------------
-
-    damage["ReplacementCost"] = replacementCostValue->text();
-    damage["ReplacementTime"] = replacementTimeValue->text();
-
-    QJsonObject irrepDrift;
-
-    irrepDrift["Median"] = irrepResDriftMedian->text();
-    irrepDrift["Sig"] = irrepResDriftStd->text();
-
-    damage["IrrepairableResidualDrift"] = irrepDrift;
-
-    QJsonObject colLims;
-
-    colLims["PID"] = driftColLim->text();
-    colLims["PFA"] = accColLim->text();
-
-    damage["CollapseLimits"] = colLims;
-
-    outputObject["BuildingDamage"] = damage;
-
-    // loss model dependencies ------------------------------------------------
-
-    dependencies["Quantities"] = quantityDep->currentText();
-    dependencies["Fragilities"] = fragilityDep->currentText();
-    dependencies["ReconstructionCosts"] = costDep->currentText();
-    dependencies["ReconstructionTimes"] = timeDep->currentText();
-    dependencies["CostAndTime"] = costAndTimeDep->isChecked();
-    dependencies["Injuries"] = injuryDep->currentText();
-    dependencies["InjurySeverities"] = injSeverityDep->isChecked();
-    dependencies["RedTagProbabilities"] = redTagDep->currentText();
-
-    outputObject["LossModelDependencies"] = dependencies;
-
-    // inhabitants -------------------------------------------------------------
-
+    QJsonObject inhabitants;
     inhabitants["OccupancyType"] = occupancyType->currentText();
     inhabitants["PeakPopulation"] = peakPopulation->text();
+    if (populationFilePath->text() != "")
+        inhabitants["PopulationDataFile"] = populationFilePath->text();
+    lossModel["Inhabitants"] = inhabitants;
 
-    outputObject["Inhabitants"] = inhabitants;
-
-    // data sources ------------------------------------------------------------
-
-    QString pathString;
-    pathString = populationFilePath->text();
-
-    if (pathString != ""){
-
-        if (outputObject.contains("DataSources"))
-            dataSources = outputObject["DataSources"].toObject();
-
-        dataSources["PopulationDataFile"] = pathString;
-        outputObject["DataSources"] = dataSources;
-    }
+    outputObject["LossModel"] = lossModel;
 
     return 0;
 }
 
 bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    // UQ ---------------------------------------------------------------------
+    // Response ---------------------------------------------------------------
+    QJsonObject responseModel = inputObject["ResponseModel"].toObject();
 
-    QJsonObject UQ = inputObject["UncertaintyQuantification"].toObject();
- 
-    realizationsValue->setText(UQ["Realizations"].toString());
-    
-    QJsonObject addUncertainty;
-    addUncertainty = UQ["AdditionalUncertainty"].toObject();
+    QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
+    if (responseDescription.contains("EDPDataFile"))
+        EDPFilePath->setText(responseDescription["EDPDataFile"].toString());
+    else
+        EDPFilePath->setText(tr(""));
+    if (responseDescription.contains("EDP_Distribution"))
+        EDP_Distribution->setCurrentText(responseDescription["EDP_Distribution"].toString());
+    if (responseDescription.contains("BasisOfEDP_Distribution"))
+        EDP_Fitting->setCurrentText(responseDescription["BasisOfEDP_Distribution"].toString());
+    realizationsValue->setText(responseDescription["Realizations"].toString());
 
+    QJsonObject detLims = responseModel["DetectionLimits"].toObject();
+    driftDetLim->setText(detLims["PID"].toString());
+    accDetLim->setText(detLims["PFA"].toString());
+
+    QJsonObject addUncertainty = responseModel["AdditionalUncertainty"].toObject();
     addedUncertaintyGM->setText(addUncertainty["GroundMotion"].toString());
-    addedUncertaintyModel->setText(addUncertainty["Modeling"].toString()); 
+    addedUncertaintyModel->setText(addUncertainty["Modeling"].toString());
 
-    // decision vars ----------------------------------------------------------
+    // Damage -----------------------------------------------------------------
+    QJsonObject damageModel = inputObject["DamageModel"].toObject();
 
-    QJsonObject decVars = inputObject["DecisionVariables"].toObject();
+    QJsonObject irrepDrift = damageModel["IrrepairableResidualDrift"].toObject();
+    irrepResDriftMedian->setText(irrepDrift["Median"].toString());
+    irrepResDriftStd->setText(irrepDrift["Beta"].toString());
+    yieldDriftValue->setText(irrepDrift["YieldDriftRatio"].toString());
 
+    QJsonObject collProb = damageModel["CollapseProbability"].toObject();
+    if (collProb["Value"].toString() == "estimated") {
+        collProbApproach->setCurrentText("estimated");
+        colProbValue->setText("");
+        colBasis->setCurrentText(collProb["BasisOfCPEstimate"].toString());
+    } else {
+        collProbApproach->setCurrentText("prescribed");
+        colProbValue->setText(collProb["CollapseProbability"].toString());
+    }
+
+    QJsonObject colLims = damageModel["CollapseLimits"].toObject();
+    driftColLim->setText(colLims["PID"].toString());
+    accColLim->setText(colLims["PFA"].toString());
+
+    // Loss -------------------------------------------------------------------
+    QJsonObject lossModel = inputObject["LossModel"].toObject();
+
+    replacementCostValue->setText(lossModel["ReplacementCost"].toString());
+    replacementTimeValue->setText(lossModel["ReplacementTime"].toString());
+
+    QJsonObject decVars = lossModel["DecisionVariables"].toObject();
     needRecCost->setChecked(decVars["ReconstructionCost"].toBool());
     needRecTime->setChecked(decVars["ReconstructionTime"].toBool());
     needInjuries->setChecked(decVars["Injuries"].toBool());
     needRedTag->setChecked(decVars["RedTag"].toBool());
 
-    // building response ------------------------------------------------------
-
-    QJsonObject response = inputObject["BuildingResponse"].toObject();
-
-    yieldDriftValue->setText(response["YieldDriftRatio"].toString());
-
-    if (response.contains("EDP_Distribution"))
-        EDP_Distribution->setCurrentText(response["EDP_Distribution"].toString());
-
-    if (response.contains("BasisOfEDP_Distribution"))
-        EDP_Fitting->setCurrentText(response["BasisOfEDP_Distribution"].toString());
-
-    if (response.contains("CollapseProbability")){
-        if (response["CollapseProbability"].toString() == "estimated") {
-            collProbApproach->setCurrentText("estimated");
-            colProbValue->setText("");
-            colBasis->setCurrentText(response["BasisOfCPEstimate"].toString());
-        } else {
-            collProbApproach->setCurrentText("prescribed");
-            colProbValue->setText(response["CollapseProbability"].toString());
-        }
-    }
-
-    QJsonObject detLims;
-    detLims = response["DetectionLimits"].toObject();
-
-    driftDetLim->setText(detLims["PID"].toString());
-    accDetLim->setText(detLims["PFA"].toString());
-
-    // building damage --------------------------------------------------------
-
-    QJsonObject damage = inputObject["BuildingDamage"].toObject();
-
-    replacementCostValue->setText(damage["ReplacementCost"].toString());
-    replacementTimeValue->setText(damage["ReplacementTime"].toString());
-
-    QJsonObject irrepDrift;
-    irrepDrift = damage["IrrepairableResidualDrift"].toObject();
-
-    irrepResDriftMedian->setText(irrepDrift["Median"].toString());
-    irrepResDriftStd->setText(irrepDrift["Sig"].toString());
-
-    QJsonObject colLims;
-    colLims = damage["CollapseLimits"].toObject();
-
-    driftColLim->setText(colLims["PID"].toString());
-    accColLim->setText(colLims["PFA"].toString());
-
-    // loss model dependencies ------------------------------------------------
-
-    QJsonObject dependencies = inputObject["LossModelDependencies"].toObject();
-
-    quantityDep->setCurrentText(dependencies["Quantities"].toString());
-    fragilityDep->setCurrentText(dependencies["Fragilities"].toString());
-    costDep->setCurrentText(dependencies["ReconstructionCosts"].toString());
-    timeDep->setCurrentText(dependencies["ReconstructionTimes"].toString());
-    costAndTimeDep->setChecked(dependencies["CostAndTime"].toBool());
-    injuryDep->setCurrentText(dependencies["Injuries"].toString());
-    injSeverityDep->setChecked(dependencies["InjurySeverities"].toBool());
-    redTagDep->setCurrentText(dependencies["RedTagProbabilities"].toString());
-
-    // inhabitants ------------------------------------------------------------
-
-    QJsonObject inhabitants = inputObject["Inhabitants"].toObject();
-
+    QJsonObject inhabitants = lossModel["Inhabitants"].toObject();
     occupancyType->setCurrentText(inhabitants["OccupancyType"].toString());
     peakPopulation->setText(inhabitants["PeakPopulation"].toString());
-
-    // data sources -----------------------------------------------------------
-
-    QJsonObject dataSources = inputObject["DataSources"].toObject();
-
-    QString pathString;
-
-    pathString = dataSources["PopulationDataFile"].toString();
-    populationFilePath->setText(pathString);
+    if (inhabitants.contains("PopulationDataFile"))
+        populationFilePath->setText(inhabitants["PopulationDataFile"].toString());
+    else
+        populationFilePath->setText(tr(""));
 
     return 0;
-
 }
 

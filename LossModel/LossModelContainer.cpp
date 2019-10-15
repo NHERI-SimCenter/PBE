@@ -63,7 +63,7 @@ LossModelContainer::LossModelContainer(
     QHBoxLayout *methodSelectLayout = new QHBoxLayout();
 
     SectionTitle *textDL=new SectionTitle();
-    textDL->setText(tr("Loss Assessment Method"));
+    textDL->setText(tr("Damage and Loss Assessment"));
     textDL->setMinimumWidth(250);
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
@@ -127,8 +127,9 @@ LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 
     this->clear();
 
-    if (jsonObject.contains("DLMethod")) {
-        dlSelection->setCurrentText(jsonObject["DLMethod"].toString());
+    //qDebug() << "DLMethod";
+    if (jsonObject.contains("_method")) {
+        dlSelection->setCurrentText(jsonObject["_method"].toString());
     } else {
         dlSelection->setCurrentText("FEMA P58");
     }
@@ -139,7 +140,7 @@ LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
+LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -148,6 +149,15 @@ LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     jsonObject["Application"] = "pelicun";
     QJsonObject dataObj;
+    if (lossModelObject.contains("ResponseModel")) {
+        QJsonObject responseModel = lossModelObject["ResponseModel"] .toObject();
+        if (responseModel.contains("ResponseDescription")) {
+            QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
+            if (responseDescription.contains("EDPDataFile")) {
+                dataObj["filenameEDP"] = responseDescription["EDPDataFile"].toString();
+            }
+        }
+    }
     jsonObject["ApplicationData"] = dataObj;
     return true;
 }
@@ -178,7 +188,7 @@ void LossModelContainer::dlSelectionChanged(const QString &arg1)
         emit sendErrorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
     }
 
-    if (lossMethod != 0) {
+    if (lossMethod != nullptr) {
 
         this->dlWidgetChanged();
         layout->insertWidget(-1, lossMethod,1);
