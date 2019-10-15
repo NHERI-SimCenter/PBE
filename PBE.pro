@@ -23,13 +23,12 @@ win32 {
 }
 
 include(../EE-UQ/EE-UQ.pri)
-include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
-include(../SiteResponseTool/s3hark.pri)
+include(../s3hark/s3hark.pri)
 include(./MiniZip/MiniZip.pri)
 
 INCLUDEPATH += "./Component"
