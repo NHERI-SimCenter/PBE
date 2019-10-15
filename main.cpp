@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
     QCoreApplication::setApplicationVersion("2.0.0");
-    //GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    // GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
   QString version("Version 2.0.0");
   w.setVersion(version);
 
-  QString citeText("Frank McKenna, Adam Zsarnoczay, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, June 30). NHERI-SimCenter/PBE: Release v1.2.0 (Version v1.2.0). Zenodo. http://doi.org/10.5281/zenodo.3263910");
+  QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");
   w.setCite(citeText);
 
   QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");
