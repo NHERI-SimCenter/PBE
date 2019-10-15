@@ -416,7 +416,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
         QDir scriptDir(inputData["localAppDir"].toString());
         scriptDir.cd("applications");
         scriptDir.cd("Workflow");
-        QString pySCRIPT = scriptDir.absoluteFilePath("PBE workflow.py");
+        QString pySCRIPT = scriptDir.absoluteFilePath("PBE_workflow.py");
         QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
         QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
 
@@ -449,6 +449,9 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
         proc->waitForStarted();
 
+        // move the resultsDir to the runDir
+        resultsDir = runDirName;
+
     }
 
     this->clear();
@@ -473,7 +476,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     dakotaText->setText("\n");
 
     // check if the main DL result file is available
-    QString resultsStatsFile = resultsDir + "DL_summary_stats.csv";
+    QString resultsStatsFile = resultsDir + "/DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
 
@@ -645,7 +648,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     // now read the file with the detailed results
     //DL_Summary
-    QString resultsFile = resultsDir + "DL_summary.csv";
+    QString resultsFile = resultsDir + "/DL_summary.csv";
     std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
         emit sendErrorMessage(
