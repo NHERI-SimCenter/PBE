@@ -73,7 +73,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GeneralInformationWidget.h>
 #include <SIM_Selection.h>
 #include <RandomVariablesContainer.h>
-#include <InputWidgetSampling.h>
+#include <UQ_EngineSelection.h>
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
@@ -111,7 +111,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theSIM = new SIM_Selection(theRVs);
     theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
-    theUQ_Method = new InputWidgetSampling();
+    theUQ_Selection = new UQ_EngineSelection(theRVs);
     theDLModel = new LossModelContainer(theRVs);
     theResults = new ResultsPelicun();
 
@@ -189,7 +189,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     //
 
     //theBIM = new InputWidgetBIM(theGI, theSIM);
-    theUQ = new InputWidgetUQ(theUQ_Method,theRVs);
+    theUQ = new InputWidgetUQ(theUQ_Selection,theRVs);
 
     //
     //  NOTE: for displaying the widgets we will use a QTree View to label the widgets for selection
@@ -373,13 +373,17 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     appsEDP["ApplicationData"] = dataObj;
     apps["EDP"] = appsEDP;
 
-    QJsonObject jsonObjectUQ;
-    theUQ_Method->outputToJSON(jsonObjectUQ);
-    jsonObjectTop["UQ_Method"] = jsonObjectUQ;
+    //QJsonObject jsonObjectUQ;
+    //theUQ_Method->outputToJSON(jsonObjectUQ);
+    //jsonObjectTop["UQ_Method"] = jsonObjectUQ;
 
-    QJsonObject appsUQ;
-    theUQ_Method->outputAppDataToJSON(appsUQ);
-    apps["UQ"]=appsUQ;
+    theUQ_Selection->outputToJSON(jsonObjectTop);
+
+    //    QJsonObject appsUQ;
+    //    theUQ_Method->outputAppDataToJSON(appsUQ);
+    // apps["UQ"]=appsUQ;
+
+    theUQ_Selection->outputAppDataToJSON(apps);
 
     QJsonObject jsonObjectAna;
     theAnalysis->outputToJSON(jsonObjectAna);
@@ -478,6 +482,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 
 
         //qDebug() << "UQ";
+	/*
         if (theApplicationObject.contains("UQ")) {
             QJsonObject theObject = theApplicationObject["UQ"].toObject();
             if (theUQ_Method->inputAppDataFromJSON(theObject) == false)
@@ -486,6 +491,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
             emit errorMessage(" ERROR: failed to find UQ application");
             return false;
         }
+	*/
+
+        if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
+            emit errorMessage("PBE: failed to read UQ application");
 
         //qDebug() << "Simulation";
         if (theApplicationObject.contains("Simulation")) {
@@ -521,6 +530,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     }
 
     //qDebug() << "UQ Method";
+    /*
     if (jsonObject.contains("UQ_Method")) {
         QJsonObject jsonObjUQInformation = jsonObject["UQ_Method"].toObject();
         if (theUQ_Method->inputFromJSON(jsonObjUQInformation) == false)
@@ -529,6 +539,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         emit errorMessage(" ERROR: failed to find UQ Method data");
         return false;
     }
+    */
+
+    if (theUQ_Selection->inputFromJSON(jsonObject) == false)
+        emit errorMessage("PBE: failed to read UQ Method data");
 
     //qDebug() << "Simulation";
     if (jsonObject.contains("Simulation")) {
@@ -631,7 +645,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     theSIM->copyFiles(templateDirectory);
     theEvent->copyFiles(templateDirectory);
     theAnalysis->copyFiles(templateDirectory);
-    theUQ_Method->copyFiles(templateDirectory);
+    theUQ_Selection->copyFiles(templateDirectory);
 
     //
     // in new templatedir dir save the UI data into dakota.json file (same result as using saveAs)
@@ -706,5 +720,5 @@ WorkflowAppPBE::loadFile(const QString fileName){
 
 int
 WorkflowAppPBE::getMaxNumParallelTasks() {
-    return theUQ_Method->getNumParallelTasks();
+    return theUQ_Selection->getNumParallelTasks();
 }

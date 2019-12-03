@@ -51,8 +51,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class RandomVariablesContainer;
 //class InputWidgetSheetSIM;
+class InputWidgetUQ;
+
+class UQ_EngineSelection;
 class SIM_Selection;
-class InputWidgetSampling;
+
 class EarthquakeLoadingInput;
 class InputWidgetOpenSeesAnalysis;
 class UQOptions;
@@ -115,7 +118,7 @@ private:
     RandomVariablesContainer *theRVs;
 
     SIM_Selection *theSIM;
-    InputWidgetSampling *theUQ_Method;
+    UQ_EngineSelection *theUQ_Selection;
     EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
     LossModelContainer *theDLModel;
