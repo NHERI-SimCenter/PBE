@@ -22,7 +22,6 @@ win32 {
     }
 }
 
-include(../EE-UQ/EE-UQ.pri)
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
@@ -68,8 +67,8 @@ HEADERS  += \
 
 
 RESOURCES += \
-    #resources.qrc
-    #../EE-UQ/images.qrc \
+    images.qrc 
+
 
 
 #FORMS    += mainwindow.ui
