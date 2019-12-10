@@ -78,7 +78,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
-#include <LossModel/LossModelContainer.h>
+#include <LossModel/LossModelSelection.h>
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <InputWidgetUQ.h>
@@ -112,7 +112,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Selection = new UQ_EngineSelection(theRVs);
-    theDLModel = new LossModelContainer(theRVs);
+    theDLModelSelection = new LossModelSelection(theRVs);
     theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("PBE_workflow.py");
@@ -284,7 +284,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theStackedWidget->addWidget(theEvent);
     theStackedWidget->addWidget(theAnalysis);
     theStackedWidget->addWidget(theUQ);
-    theStackedWidget->addWidget(theDLModel);
+    theStackedWidget->addWidget(theDLModelSelection);
     theStackedWidget->addWidget(theResults);
 
     // add stacked widget to layout
@@ -403,11 +403,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theRunWidget->outputToJSON(jsonObjectTop);
 
     QJsonObject jsonLossModel;
-    theDLModel->outputToJSON(jsonLossModel);
+    theDLModelSelection->outputToJSON(jsonLossModel);
     jsonObjectTop["DamageAndLoss"] = jsonLossModel;
 
     QJsonObject appsDL;
-    theDLModel->outputAppDataToJSON(appsDL, jsonLossModel);
+    theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel);
     apps["DL"] = appsDL;
 
     jsonObjectTop["Applications"]=apps;
@@ -557,7 +557,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     //qDebug() << "DamageAndLoss";
     if (jsonObject.contains("DamageAndLoss")) {
         QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
-        if (theDLModel->inputFromJSON(jsonObjLossModel) == false)
+        if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
             emit errorMessage(" ERROR: failed to find Damage and Loss Model");
     } else {
         emit errorMessage("WARNING: failed to find Damage and Loss Model");
