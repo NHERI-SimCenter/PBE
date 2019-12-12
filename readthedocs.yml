@@ -1,0 +1,5 @@
+version: 1
+
+python:
+  extra_requirements:
+    - sphinxcontrib.bibtex
