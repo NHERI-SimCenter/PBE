@@ -47,12 +47,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
-#include <LossModel/LossModelContainer.h>
 
+class LossModelSelection;
 class RandomVariablesContainer;
-//class InputWidgetSheetSIM;
+class InputWidgetUQ;
+
+class UQ_EngineSelection;
 class SIM_Selection;
-class InputWidgetSampling;
+
 class EarthquakeLoadingInput;
 class InputWidgetOpenSeesAnalysis;
 class UQOptions;
@@ -115,10 +117,10 @@ private:
     RandomVariablesContainer *theRVs;
 
     SIM_Selection *theSIM;
-    InputWidgetSampling *theUQ_Method;
+    UQ_EngineSelection *theUQ_Selection;
     EarthquakeEventSelection *theEvent;
     InputWidgetOpenSeesAnalysis *theAnalysis;
-    LossModelContainer *theDLModel;
+    LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
 
     // other widgets appearing in UI

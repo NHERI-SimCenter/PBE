@@ -1,5 +1,5 @@
-#ifndef P58LOSS_MODEL_CONTAINER_H
-#define P58LOSS_MODEL_CONTAINER_H
+#ifndef P58LOSS_MODEL_H
+#define P58LOSS_MODEL_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -53,16 +53,16 @@ class P58ComponentContainer;
 class P58CollapseModeContainer;
 class P58DependenciesContainer;
 
-class P58LossModelContainer : public LossMethod
+class P58LossModel : public LossMethod
 {
     Q_OBJECT
 public:
-    explicit P58LossModelContainer(QWidget *parent = 0);
+    explicit P58LossModel(QWidget *parent = 0);
 
     QString getFragilityFolder();
     QString getPopulationFile();
 
-    ~P58LossModelContainer();
+    ~P58LossModel();
 
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
@@ -80,4 +80,4 @@ private:
     P58DependenciesContainer *contDependencies;
 };
 
-#endif // P58LOSS_MODEL_CONTAINER_H
+#endif // P58LOSS_MODEL_H

@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
     QCoreApplication::setApplicationVersion("2.0.0");
-    // GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    //    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
@@ -197,13 +197,33 @@ int main(int argc, char *argv[])
 
   w.show();
 
-
+  /*
   QFile file(":/styleCommon/common_experimental.qss");
   if(file.open(QFile::ReadOnly)) {
     QString styleSheet = QLatin1String(file.readAll());
     a.setStyleSheet(styleSheet);
     file.close();
   }
+*/
+#ifdef Q_OS_WIN
+    QFile file(":/styleCommon/stylesheetWIN.qss");
+#endif
+
+#ifdef Q_OS_MACOS
+    QFile file(":/styleCommon/stylesheetMAC.qss");
+#endif
+
+#ifdef Q_OS_LINUX
+    QFile file(":/styleCommon/stylesheetMAC.qss");
+#endif
+
+
+    if(file.open(QFile::ReadOnly)) {
+        a.setStyleSheet(file.readAll());
+        file.close();
+    } else {
+        qDebug() << "could not open stylesheet";
+    }
 
 
 

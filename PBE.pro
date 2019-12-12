@@ -22,11 +22,11 @@ win32 {
     }
 }
 
-include(../EE-UQ/EE-UQ.pri)
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
+include(../EE-UQ/EarthquakeEvents.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
 include(../s3hark/s3hark.pri)
 include(./MiniZip/MiniZip.pri)
@@ -37,15 +37,15 @@ SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
     ResultsPelicun.cpp \
-    LossModel/P58LossModelContainer.cpp \
+    LossModel/P58LossModel.cpp \
     LossModel/P58GeneralSettingsContainer.cpp \
     LossModel/P58ComponentContainer.cpp \
     LossModel/P58CollapseModeContainer.cpp \
     LossModel/P58DependenciesContainer.cpp \
     LossModel/P58CollapseMode.cpp \
-    LossModel/LossModelContainer.cpp \
+    LossModel/LossModelSelection.cpp \
     LossModel/HazusGeneralSettingsContainer.cpp \
-    LossModel/HazusLossModelContainer.cpp \
+    LossModel/HazusLossModel.cpp \
     LossModel/LossMethod.cpp \
     LossModel/P58ComponentGroup.cpp
 
@@ -54,22 +54,22 @@ HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
     ResultsPelicun.h \
+    LossModel/P58LossModel.h \
     LossModel/P58GeneralSettingsContainer.h \
     LossModel/P58ComponentContainer.h \
     LossModel/P58CollapseModeContainer.h \
     LossModel/P58DependenciesContainer.h \
     LossModel/P58CollapseMode.h \
-    LossModel/LossModelContainer.h \
-    LossModel/P58LossModelContainer.h \
-    LossModel/HazusLossModelContainer.h \
+    LossModel/LossModelSelection.h \
+    LossModel/HazusLossModel.h \
     LossModel/HazusGeneralSettingsContainer.h \
     LossModel/LossMethod.h \
     LossModel/P58ComponentGroup.h
 
 
 RESOURCES += \
-    #resources.qrc
-    #../EE-UQ/images.qrc \
+    images.qrc 
+
 
 
 #FORMS    += mainwindow.ui

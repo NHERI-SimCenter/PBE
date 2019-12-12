@@ -49,9 +49,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "LossMethod.h"
 #include <QTabWidget.h>
 
-#include "HazusLossModelContainer.h"
+#include "HazusLossModel.h"
 
-HazusLossModelContainer::HazusLossModelContainer(QWidget *parent)
+HazusLossModel::HazusLossModel(QWidget *parent)
     : LossMethod(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -64,13 +64,13 @@ HazusLossModelContainer::HazusLossModelContainer(QWidget *parent)
     this->setLayout(layout);
 }
 
-HazusLossModelContainer::~HazusLossModelContainer()
+HazusLossModel::~HazusLossModel()
 {
 
 }
 
 bool
-HazusLossModelContainer::outputToJSON(QJsonObject &jsonObject)
+HazusLossModel::outputToJSON(QJsonObject &jsonObject)
 {
 
     // set the type of analysis
@@ -83,7 +83,7 @@ HazusLossModelContainer::outputToJSON(QJsonObject &jsonObject)
 }
 
 bool
-HazusLossModelContainer::inputFromJSON(QJsonObject &jsonObject)
+HazusLossModel::inputFromJSON(QJsonObject &jsonObject)
 {
     theGeneralSettingsContainer->inputFromJSON(jsonObject);
     if (jsonObject.contains("DecisionVariables")) {        
@@ -95,7 +95,7 @@ HazusLossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-HazusLossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
+HazusLossModel::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -110,26 +110,26 @@ HazusLossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
 }
 
 bool
-HazusLossModelContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
+HazusLossModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
 bool
-HazusLossModelContainer::copyFiles(QString &dirName) {
+HazusLossModel::copyFiles(QString &dirName) {
     return true;
 }
 
 void
-HazusLossModelContainer::errorMessage(QString message){
+HazusLossModel::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
 QString
-HazusLossModelContainer::getFragilityFolder(){
+HazusLossModel::getFragilityFolder(){
     return theGeneralSettingsContainer->getFragilityFolder();
 }
 
 QString
-HazusLossModelContainer::getPopulationFile(){
+HazusLossModel::getPopulationFile(){
     return theGeneralSettingsContainer->getPopulationFile();
 }

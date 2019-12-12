@@ -53,9 +53,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QTabWidget.h>
 
-#include "P58LossModelContainer.h"
+#include "P58LossModel.h"
 
-P58LossModelContainer::P58LossModelContainer(QWidget *parent)
+P58LossModel::P58LossModel(QWidget *parent)
     : LossMethod(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -84,13 +84,13 @@ P58LossModelContainer::P58LossModelContainer(QWidget *parent)
     this->setLayout(layout);
 }
 
-P58LossModelContainer::~P58LossModelContainer()
+P58LossModel::~P58LossModel()
 {
 
 }
 
 bool
-P58LossModelContainer::outputToJSON(QJsonObject &jsonObject)
+P58LossModel::outputToJSON(QJsonObject &jsonObject)
 {
     // set the type of analysis
     jsonObject["_method"] = "FEMA P58";
@@ -108,7 +108,7 @@ P58LossModelContainer::outputToJSON(QJsonObject &jsonObject)
 }
 
 bool
-P58LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
+P58LossModel::inputFromJSON(QJsonObject &jsonObject)
 {
     //qDebug() << "DecisionVariables";
     contGeneralSettings->inputFromJSON(jsonObject);
@@ -138,7 +138,7 @@ P58LossModelContainer::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-P58LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
+P58LossModel::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -153,27 +153,27 @@ P58LossModelContainer::outputAppDataToJSON(QJsonObject &jsonObject) {
 }
 
 bool
-P58LossModelContainer::inputAppDataFromJSON(QJsonObject &jsonObject) {
+P58LossModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
 
 bool 
-P58LossModelContainer::copyFiles(QString &dirName) {
+P58LossModel::copyFiles(QString &dirName) {
     return true;
 }
 
 void
-P58LossModelContainer::errorMessage(QString message){
+P58LossModel::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
 QString
-P58LossModelContainer::getFragilityFolder(){
+P58LossModel::getFragilityFolder(){
     return contComponents->getFragilityFolder();
 }
 
 QString
-P58LossModelContainer::getPopulationFile(){
+P58LossModel::getPopulationFile(){
     return contGeneralSettings->getPopulationFile();
 }

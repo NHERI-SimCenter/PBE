@@ -1,5 +1,5 @@
-#ifndef LOSSMODELCONTAINER_H
-#define LOSSMODELCONTAINER_H
+#ifndef HAZUS_LOSS_MODEL_H
+#define HAZUS_LOSS_MODEL_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -41,49 +41,38 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 #include "LossMethod.h"
+
 #include <QGroupBox>
 
 class QComboBox;
 class QStackedWidget;
 class QVBoxLayout;
 
-class RandomVariablesContainer;
+class HazusGeneralSettingsContainer;
 
-class LossModelContainer : public SimCenterAppWidget
+class HazusLossModel : public LossMethod
 {
     Q_OBJECT
 public:
-    explicit LossModelContainer(
-      RandomVariablesContainer *theRV_IW, QWidget *parent = 0);
-
-    ~LossModelContainer();
+    explicit HazusLossModel(QWidget *parent = 0);
 
     QString getFragilityFolder();
     QString getPopulationFile();
 
+    ~HazusLossModel();
+
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject, QJsonObject &lossModelObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
     bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &dirName);
 
 public slots:
-    void clear(void);
-    void dlSelectionChanged(const QString &arg1);
+    //void eventSelectionChanged(const QString &arg1);
     void errorMessage(QString message);
 
-signals:
-    void dlWidgetChanged(void);
-
 private:
-    QVBoxLayout *layout;
-    QComboBox   *dlSelection;
-
-    RandomVariablesContainer *theRandVariableIW;
-
-    LossMethod *lossMethod;
-
-    bool selectionChangeOK;
+    HazusGeneralSettingsContainer *theGeneralSettingsContainer;
 };
 
-#endif // LOSSMODELCONTAINER_H
+#endif // HAZUS_LOSS_MODEL_H
