@@ -1,0 +1,4 @@
+.. _lbl-examples:
+
+Examples
+================
