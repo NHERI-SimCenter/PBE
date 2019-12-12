@@ -36,8 +36,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include "P58LossModel_Selection.h"
-#include "HazusLossModel_Selection.h"
+#include "P58LossModel.h"
+#include "HazusLossModel.h"
 #include "LossMethod.h"
 
 #include <QJsonArray>
@@ -49,9 +49,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <QComboBox>
 
-#include "LossModel_Selection.h"
+#include "LossModelSelection.h"
 
-LossModel_Selection::LossModel_Selection(
+LossModelSelection::LossModelSelection(
     RandomVariablesContainer *theRV_IW, QWidget *parent)
     : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
 {
@@ -100,18 +100,18 @@ LossModel_Selection::LossModel_Selection(
     layout->setMargin(0);
 }
 
-LossModel_Selection::~LossModel_Selection()
+LossModelSelection::~LossModelSelection()
 {
 
 }
 
-void LossModel_Selection::clear(void)
+void LossModelSelection::clear(void)
 {
 
 }
 
 bool
-LossModel_Selection::outputToJSON(QJsonObject &jsonObject)
+LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -121,7 +121,7 @@ LossModel_Selection::outputToJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModel_Selection::inputFromJSON(QJsonObject &jsonObject)
+LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -140,7 +140,7 @@ LossModel_Selection::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModel_Selection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
+LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -163,11 +163,11 @@ LossModel_Selection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &l
 }
 
 bool
-LossModel_Selection::inputAppDataFromJSON(QJsonObject &jsonObject) {
+LossModelSelection::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
-void LossModel_Selection::dlSelectionChanged(const QString &arg1)
+void LossModelSelection::dlSelectionChanged(const QString &arg1)
 {
     selectionChangeOK = true;
 
@@ -199,21 +199,21 @@ void LossModel_Selection::dlSelectionChanged(const QString &arg1)
 }
 
 bool
-LossModel_Selection::copyFiles(QString &dirName) {
+LossModelSelection::copyFiles(QString &dirName) {
     return true;
 }
 
 void
-LossModel_Selection::errorMessage(QString message){
+LossModelSelection::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
 QString
-LossModel_Selection::getFragilityFolder(){
+LossModelSelection::getFragilityFolder(){
     return lossMethod->getFragilityFolder();
 }
 
 QString
-LossModel_Selection::getPopulationFile(){
+LossModelSelection::getPopulationFile(){
     return lossMethod->getPopulationFile();
 }
