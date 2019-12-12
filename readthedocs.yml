@@ -1,5 +1,5 @@
-version: 1
+conda:
+  file: docs/environment.yml
 
 python:
-  extra_requirements:
-    - sphinxcontrib.bibtex
+  version: 3.7
