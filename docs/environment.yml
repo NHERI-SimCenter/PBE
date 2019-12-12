@@ -2,4 +2,4 @@ name: PBE-dev
 dependencies:
   - python=3.7
   - sphinx
-  - sphinxcontrib.bibtex
+  - sphinxcontrib-bibtex
