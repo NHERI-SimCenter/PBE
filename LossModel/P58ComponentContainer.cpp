@@ -64,7 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
-    int maxWidth = 800;
+    int maxWidth = 950;
 
     verticalLayout = new QVBoxLayout();    
 
@@ -127,22 +127,22 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     availableCLayout->addWidget(availableCompCombo, 1);
 
     QPushButton *addComponent = new QPushButton();
-    addComponent->setMinimumWidth(120);
-    addComponent->setMaximumWidth(120);
+    addComponent->setMinimumWidth(150);
+    addComponent->setMaximumWidth(150);
     addComponent->setText(tr("Add Selected"));
     connect(addComponent,SIGNAL(clicked()),this,SLOT(addOneComponent()));
     availableCLayout->addWidget(addComponent);
 
     QPushButton *addAllComponents = new QPushButton();
-    addAllComponents->setMinimumWidth(120);
-    addAllComponents->setMaximumWidth(120);
+    addAllComponents->setMinimumWidth(150);
+    addAllComponents->setMaximumWidth(150);
     addAllComponents->setText(tr("Add All"));    
     connect(addAllComponents,SIGNAL(clicked()),this,SLOT(addAllComponents()));
     availableCLayout->addWidget(addAllComponents);
 
     QPushButton* loadConfig = new QPushButton();
-    loadConfig->setMinimumWidth(240);
-    loadConfig->setMaximumWidth(240);
+    loadConfig->setMinimumWidth(300);
+    loadConfig->setMaximumWidth(300);
     loadConfig->setText(tr("Load Performance Model from CSV"));
     loadConfig->setToolTip(tr("Load Performance Model from a CSV file"));
     connect(loadConfig,SIGNAL(clicked()),this,SLOT(onLoadConfigClicked()));
@@ -169,22 +169,22 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     selectedCLayout->addWidget(selectedCompCombo, 1);
 
     QPushButton *removeComponent = new QPushButton();
-    removeComponent->setMinimumWidth(120);
-    removeComponent->setMaximumWidth(120);
+    removeComponent->setMinimumWidth(150);
+    removeComponent->setMaximumWidth(150);
     removeComponent->setText(tr("Remove Selected"));
     connect(removeComponent,SIGNAL(clicked()),this,SLOT(removeOneComponent()));
     selectedCLayout->addWidget(removeComponent);
 
     QPushButton *removeAllComponents = new QPushButton();
-    removeAllComponents->setMinimumWidth(120);
-    removeAllComponents->setMaximumWidth(120);
+    removeAllComponents->setMinimumWidth(150);
+    removeAllComponents->setMaximumWidth(150);
     removeAllComponents->setText(tr("Remove All"));
     connect(removeAllComponents,SIGNAL(clicked()),this, SLOT(removeAllComponents()));
     selectedCLayout->addWidget(removeAllComponents);
 
     QPushButton* saveConfig = new QPushButton();
-    saveConfig->setMinimumWidth(240);
-    saveConfig->setMaximumWidth(240);
+    saveConfig->setMinimumWidth(300);
+    saveConfig->setMaximumWidth(300);
     saveConfig->setText(tr("Save Performance Model to CSV"));
     saveConfig->setToolTip(tr("Save Performance Model to a CSV file"));
     connect(saveConfig,SIGNAL(clicked()),this,SLOT(onSaveConfigClicked()));
@@ -279,8 +279,8 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     QHBoxLayout *loCQuantity_title = new QHBoxLayout();
 
     QPushButton *addCGroup = new QPushButton();
-    addCGroup->setMinimumWidth(180);
-    addCGroup->setMaximumWidth(180);
+    addCGroup->setMinimumWidth(220);
+    addCGroup->setMaximumWidth(220);
     addCGroup->setText(tr("Add Component Group"));
     loCQuantity_title->addWidget(addCGroup);
     connect(addCGroup, SIGNAL(pressed()), this, SLOT(addComponentGroup()));
@@ -289,8 +289,8 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     loCQuantity_title->addItem(locQNT_title_spacer);
 
     QPushButton *removeCGroup = new QPushButton();
-    removeCGroup->setMinimumWidth(180);
-    removeCGroup->setMaximumWidth(180);
+    removeCGroup->setMinimumWidth(220);
+    removeCGroup->setMaximumWidth(220);
     removeCGroup->setText(tr("Remove Component Group"));
     loCQuantity_title->addWidget(removeCGroup);
     connect(removeCGroup, SIGNAL(pressed()), this, SLOT(removeComponentGroup()));
