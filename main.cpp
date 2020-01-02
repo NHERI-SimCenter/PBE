@@ -60,6 +60,8 @@ int main(int argc, char *argv[])
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
+    QApplication::setAttribute(Qt::AA_UseOpenGLES);
+
   //
   // set up logging of output messages for user debugging
   //
