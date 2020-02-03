@@ -47,11 +47,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QDebug>
 #include <QHBoxLayout>
-#include <QTreeView>
-#include <QStandardItemModel>
-#include <QItemSelectionModel>
-#include <QModelIndex>
-#include <QStackedWidget>
 #include <QProcess>
 #include <QCoreApplication>
 #include <QDir>
@@ -61,12 +56,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 #include <QHostInfo>
-#include <QUuid>
 #include <QSettings>
-#include "CustomizedItemModel.h"
 #include <StandardEarthquakeEDP.h>
 
 // SimCenter Widgets
+#include <SimCenterComponentSelection.h>
 #include <EarthquakeEventSelection.h>
 #include <RunLocalWidget.h>
 #include <RemoteService.h>
@@ -84,8 +78,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetUQ.h>
 #include <ResultsPelicun.h>
 
-#include "CustomizedItemModel.h"
-#include <ResultsPelicun.h>
 #include <GoogleAnalytics.h>
 
 // static pointer for global procedure set in constructor
@@ -111,7 +103,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theSIM = new SIM_Selection(theRVs);
     theEvent = new EarthquakeEventSelection(theRVs);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
-    theUQ_Selection = new UQ_EngineSelection(theRVs);
+    theUQ_Selection = new UQ_EngineSelection(theRVs, ForwardOnly);
     theDLModelSelection = new LossModelSelection(theRVs);
     theResults = new ResultsPelicun();
 
@@ -182,116 +174,26 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
 
-    //connect(theRunLocalWidget, SIGNAL(runButtonPressed(QString, QString)), this, SLOT(runLocal(QString, QString)));
-
     //
-    // some of above widgets are inside some tabbed widgets
+    // create layout, create component selction & add to layout & then add components to cmponentselection
     //
 
-    //theBIM = new InputWidgetBIM(theGI, theSIM);
-    theUQ = new InputWidgetUQ(theUQ_Selection,theRVs);
-
-    //
-    //  NOTE: for displaying the widgets we will use a QTree View to label the widgets for selection
-    //  and we will use a QStacked widget for displaying the widget. Which of widgets displayed in StackedView depends on
-    //  item selected in tree view.
-    //
-
-    //
-    // create layout to hold tree view and stackedwidget
-    //
-
-    horizontalLayout = new QHBoxLayout();
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
     this->setLayout(horizontalLayout);
 
-    //
-    // create a TreeView widget & provide items for each widget to be displayed & add to layout
-    //
+    theComponentSelection = new SimCenterComponentSelection();
+    horizontalLayout->addWidget(theComponentSelection);
 
-    treeView = new QTreeView();
-    standardModel = new CustomizedItemModel;// QStandardItemModel ;
-    QStandardItem *rootNode = standardModel->invisibleRootItem();
+    theComponentSelection->addComponent(QString("UQ"),  theUQ_Selection);
+    theComponentSelection->addComponent(QString("GI"),  theGI);
+    theComponentSelection->addComponent(QString("SIM"), theSIM);
+    theComponentSelection->addComponent(QString("EVT"), theEvent);
+    theComponentSelection->addComponent(QString("FEM"), theAnalysis);
+    theComponentSelection->addComponent(QString("RV"),  theRVs);
+    theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
+    theComponentSelection->addComponent(QString("RES"), theResults);
 
-    //defining bunch of items for inclusion in model
-    QStandardItem *giItem = new QStandardItem("GI");
-    QStandardItem *bimItem = new QStandardItem("SIM");
-    QStandardItem *evtItem = new QStandardItem("EVT");
-    QStandardItem *uqItem   = new QStandardItem("UQ");
-    QStandardItem *femItem = new QStandardItem("FEM");
-    QStandardItem *contentsItem = new QStandardItem("DL");
-    QStandardItem *resultsItem = new QStandardItem("RES");
-
-    //building up the hierarchy of the model
-    rootNode->appendRow(giItem);
-    rootNode->appendRow(bimItem);
-    rootNode->appendRow(evtItem);
-    rootNode->appendRow(femItem);
-    rootNode->appendRow(uqItem);
-    rootNode->appendRow(contentsItem);
-    rootNode->appendRow(resultsItem);
-
-    infoItemIdx = rootNode->index();
-
-    //register the model
-    treeView->setModel(standardModel);
-    treeView->expandAll();
-    treeView->setHeaderHidden(true);
-    treeView->setMaximumWidth(100);
-    treeView->setMinimumWidth(100);
-    treeView->setEditTriggers(QTreeView::EditTrigger::NoEditTriggers);//Disable Edit for the TreeView
-
-    //
-    // customize the apperance of the menu on the left
-    //
-
-    treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar
-    treeView->setObjectName("treeViewOnTheLeft");
-    treeView->setIndentation(0);
-    QFile fileeeuq(":/styles/stylesheet_eeuq.qss");
-    QFile filebar(":/styles/menuBar.qss");
-    if(fileeeuq.open(QFile::ReadOnly) && filebar.open(QFile::ReadOnly)) {
-        QString styleeeuq = QLatin1String(fileeeuq.readAll());
-        QString stylebar = QLatin1String(filebar.readAll());
-        this->setStyleSheet(styleeeuq + stylebar);
-        fileeeuq.close();
-        filebar.close();
-    }
-    else
-        qDebug() << "Open Style File Failed!";
-
-
-
-    //
-    // set up so that a slection change triggers the selectionChanged slot
-    //
-
-    QItemSelectionModel *selectionModel= treeView->selectionModel();
-    connect(selectionModel,
-            SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this,
-            SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
-
-    // add the TreeView widget to the layout
-    horizontalLayout->addWidget(treeView);
-
-    //
-    // create the staked widget, and add to it the widgets to be displayed, and add the stacked widget itself to layout
-    //
-
-    theStackedWidget = new QStackedWidget();
-    theStackedWidget->addWidget(theGI);
-    theStackedWidget->addWidget(theSIM);
-    theStackedWidget->addWidget(theEvent);
-    theStackedWidget->addWidget(theAnalysis);
-    theStackedWidget->addWidget(theUQ);
-    theStackedWidget->addWidget(theDLModelSelection);
-    theStackedWidget->addWidget(theResults);
-
-    // add stacked widget to layout
-    horizontalLayout->addWidget(theStackedWidget);
-
-    // set current selection to GI
-    treeView->setCurrentIndex( infoItemIdx );
+    theComponentSelection->displayComponent("UQ");
 
     // access a web page which will increment the usage count for this tool
     manager = new QNetworkAccessManager(this);
@@ -301,14 +203,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
 
-    // access a web page which will increment the usage count for this tool
-    manager = new QNetworkAccessManager(this);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
-
-    manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/bfm/use.php")));
-
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
 }
 
@@ -316,31 +210,6 @@ WorkflowAppPBE::~WorkflowAppPBE()
 {
 
 }
-
-
-void
-WorkflowAppPBE::selectionChangedSlot(const QItemSelection & /*newSelection*/, const QItemSelection &/*oldSelection*/) {
-
-    //get the text of the selected item
-    const QModelIndex index = treeView->selectionModel()->currentIndex();
-    QString selectedText = index.data(Qt::DisplayRole).toString();
-
-    if (selectedText == "GI")
-        theStackedWidget->setCurrentIndex(0);
-    else if (selectedText == "SIM")
-        theStackedWidget->setCurrentIndex(1);
-    else if (selectedText == "EVT")
-        theStackedWidget->setCurrentIndex(2);
-    else if (selectedText == "FEM")
-        theStackedWidget->setCurrentIndex(3);
-    else if (selectedText == "UQ")
-        theStackedWidget->setCurrentIndex(4);
-    else if (selectedText == "DL")
-        theStackedWidget->setCurrentIndex(5);
-    else if (selectedText == "RES")
-        theStackedWidget->setCurrentIndex(6);
-}
-
 
 bool
 WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
@@ -416,14 +285,13 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 }
 
 
- void
- WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
-
-   theResults->processResults(dakotaTab);
-   theRunWidget->hide();
-   treeView->setCurrentIndex(infoItemIdx);
-   theStackedWidget->setCurrentIndex(6);
- }
+void
+WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
+  
+  theResults->processResults(dakotaTab);
+  theRunWidget->hide();
+  theComponentSelection->displayComponent("RES");
+}
 
 void
 WorkflowAppPBE::clear(void)
