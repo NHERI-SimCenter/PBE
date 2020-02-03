@@ -180,6 +180,8 @@ int main(int argc, char *argv[])
   QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");
   w.setDocumentationURL(manualURL);
 
+  QString messageBoardURL("https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0");
+  w.setFeedbackURL(messageBoardURL);
 
   //
   // move remote interface to a thread
