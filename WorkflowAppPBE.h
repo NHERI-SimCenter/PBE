@@ -40,11 +40,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <QWidget>
-
-#include <QItemSelection>
-#include <QTreeView>
-#include <QStandardItemModel>
-#include <QHBoxLayout>
 #include "MainWindow.h"
 #include <WorkflowAppWidget.h>
 
@@ -71,6 +66,8 @@ class RemoteJobManager;
 class InputWidgetBIM;
 class InputWidgetUQ;
 class QNetworkAccessManager;
+
+class SimCenterComponentSelection;
 
 class DakotaResults;
 
@@ -99,8 +96,6 @@ signals:
 
 
 public slots:  
-    void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
-
     void setUpForApplicationRun(QString &, QString &);
     void processResults(QString dakotaOut, QString dakotaTab, QString inputFile);
 
@@ -108,14 +103,12 @@ public slots:
 
 private:
 
-    QHBoxLayout *horizontalLayout;
-    QTreeView *treeView;
-    QStandardItemModel *standardModel;
-    QStandardItem *rootNode;
+    // sidebar container selection
+    SimCenterComponentSelection *theComponentSelection;
 
+    // objects that go in sidebar
     GeneralInformationWidget *theGI;
     RandomVariablesContainer *theRVs;
-
     SIM_Selection *theSIM;
     UQ_EngineSelection *theUQ_Selection;
     EarthquakeEventSelection *theEvent;
@@ -123,22 +116,14 @@ private:
     LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
 
-    // other widgets appearing in UI
-    InputWidgetBIM *theBIM; // contains GI and SIM
-    InputWidgetUQ *theUQ;
-
+    // objects for running the workflow and obtaining results
     RunWidget *theRunWidget;
     Application *localApp;
     Application *remoteApp;
     RemoteJobManager *theJobManager;
 
-    QModelIndex infoItemIdx;
-    SimCenterWidget  *currentWidget;
     QJsonObject *jsonObjOrig;
-
-    QStackedWidget *theStackedWidget;
     QNetworkAccessManager *manager;
-
 };
 
 #endif // WORKFLOW_APP_PBE_H

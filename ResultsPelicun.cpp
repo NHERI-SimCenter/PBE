@@ -454,6 +454,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     }
 
+
     this->clear();
     mLeft = true;
     col1 = 0;
