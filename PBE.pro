@@ -9,6 +9,9 @@ QT       += core gui charts concurrent network sql qml webenginewidgets uitools 
 TARGET = PBE
 TEMPLATE = app
 
+DEFINES += CURL_STATICLIB
+#_GRAPHICS_Qt3D
+
 macos:LIBS += /usr/lib/libcurl.dylib -llapack -lblas
 win32:INCLUDEPATH += "c:\Users\SimCenter\libCurl-7.59.0\include"
 win32:LIBS += C:\Users\SimCenter\libCurl-7.59.0/lib/libcurl.lib
