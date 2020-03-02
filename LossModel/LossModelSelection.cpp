@@ -129,7 +129,15 @@ LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 
     //qDebug() << "DLMethod";
     if (jsonObject.contains("_method")) {
-        dlSelection->setCurrentText(jsonObject["_method"].toString());
+        QString method_str_raw = jsonObject["_method"].toString();
+
+        QString method_str = method_str_raw;
+
+        if (method_str_raw == "HAZUS MH EQ"){
+            method_str = "HAZUS MH";
+        }
+
+        dlSelection->setCurrentText(method_str);
     } else {
         dlSelection->setCurrentText("FEMA P58");
     }
