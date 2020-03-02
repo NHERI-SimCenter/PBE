@@ -409,32 +409,41 @@ P58ComponentContainer::showSelectedComponent(){
 
     if (selectedCompCombo->count() > 0) {
 
-        QString compFileName = selectedCompCombo->currentText() + ".json";
-        QDir fragDir(this->getFragilityFolder());
-        QFile compFile(fragDir.absoluteFilePath(compFileName));
-        compFile.open(QFile::ReadOnly | QFile::Text);
+        qDebug() << selectedCompCombo->count() << selectedCompCombo->currentText();
 
-        QString val;
-        val = compFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        QJsonObject compData = doc.object();
-        compFile.close();
+        if (selectedCompCombo->currentText() != "") {
 
-        compName->setText(compData["Name"].toString());
+            QString compFileName = selectedCompCombo->currentText() + ".json";
+            QDir fragDir(this->getFragilityFolder());
+            QFile compFile(fragDir.absoluteFilePath(compFileName));
+            compFile.open(QFile::ReadOnly | QFile::Text);
 
-        QJsonObject compGI = compData["GeneralInformation"].toObject();
-        compDescription->setText(compGI["Description"].toString());
+            QString val;
+            val = compFile.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+            QJsonObject compData = doc.object();
+            compFile.close();
 
-        QJsonObject compEDPVar = compData["EDP"].toObject();
-        compEDP->setText(compEDPVar["Type"].toString());
+            qDebug() << compFileName;
+            qDebug() << compFile;
+            qDebug() << compData;
 
-        QJsonArray compQData = compData["QuantityUnit"].toArray();
-        //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-        compUnit->setText(QString("%1").arg(compQData[0].toDouble())+
-                          compQData[1].toString());
+            compName->setText(compData["Name"].toString());
 
-        this->clearCompGroupWidget();
-        this->retrieveCompGroups();
+            QJsonObject compGI = compData["GeneralInformation"].toObject();
+            compDescription->setText(compGI["Description"].toString());
+
+            QJsonObject compEDPVar = compData["EDP"].toObject();
+            compEDP->setText(compEDPVar["Type"].toString());
+
+            QJsonArray compQData = compData["QuantityUnit"].toArray();
+            //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+            compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
+                              compQData[1].toString());
+
+            this->clearCompGroupWidget();
+            this->retrieveCompGroups();
+        }
     } else {
         compName->setText("");
         compDescription->setText("");
@@ -458,15 +467,6 @@ P58ComponentContainer::updateAvailableComponents(){
     }
 
     availableCompCombo->addItems(DL_files);
-
-    /*
-    int counter = 0;
-    foreach(QString DL_filename, DL_files){        
-        QString DL_name = DL_files[i].remove(DL_files[i].size()-5, 5);
-        availableCompCombo->addItem(DL_name, counter);
-        counter += 1;
-    }
-    */
 
     return 0;
 }
@@ -607,9 +607,9 @@ P58ComponentContainer::onLoadConfigClicked(void) {
 
         // add the component IDs to the selectedCompCombo
         for (auto compName: compConfig->keys()){
+
             if (availableCompCombo->findText(compName) != -1) {
-                selectedCompCombo->addItem(compName,
-                                           availableCompCombo->findText(compName));
+                selectedCompCombo->addItem(compName);
             } else {
                 qDebug() << "Component " << compName << "is not in the DL data folder!";
             }
