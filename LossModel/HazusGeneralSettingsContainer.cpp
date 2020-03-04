@@ -628,7 +628,7 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     QJsonArray compArray;
     QJsonObject CGObj;
     CGObj["location"] = "all";
-    CGObj["direction"] = "all";
+    CGObj["direction"] = "1";
     CGObj["median_quantity"] = "1.0";
     CGObj["unit"] = "ea";
     CGObj["distribution"] = "N/A";
