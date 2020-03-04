@@ -203,7 +203,7 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     // name
     QHBoxLayout *loCDName = new QHBoxLayout();
 
-    int CD_lbl_width = 70;
+    int CD_lbl_width = 110;
 
     QLabel *lblCompName = new QLabel();
     lblCompName->setText("Name:");
@@ -274,6 +274,22 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
 
     //loCDUnit->addStretch();
     loCDetails->addLayout(loCDUnit);
+
+    // Additional info
+    QHBoxLayout *loCDInfo = new QHBoxLayout();
+
+    QLabel *lblInfo = new QLabel();
+    lblInfo->setText("Additional info:");
+    lblInfo->setMaximumWidth(CD_lbl_width);
+    lblInfo->setMinimumWidth(CD_lbl_width);
+    loCDInfo->addWidget(lblInfo);
+
+    compInfo = new QLabel();
+    compInfo->setWordWrap(true);
+    compInfo->setText("");
+    loCDInfo->addWidget(compInfo, 1);
+
+    loCDetails->addLayout(loCDInfo);
 
     // Quantity title & buttons
     QHBoxLayout *loCQuantity_title = new QHBoxLayout();
@@ -409,37 +425,56 @@ P58ComponentContainer::showSelectedComponent(){
 
     if (selectedCompCombo->count() > 0) {
 
-        QString compFileName = selectedCompCombo->currentText() + ".json";
-        QDir fragDir(this->getFragilityFolder());
-        QFile compFile(fragDir.absoluteFilePath(compFileName));
-        compFile.open(QFile::ReadOnly | QFile::Text);
+        if (selectedCompCombo->currentText() != "") {
 
-        QString val;
-        val = compFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        QJsonObject compData = doc.object();
-        compFile.close();
+            QString compFileName = selectedCompCombo->currentText() + ".json";
+            QDir fragDir(this->getFragilityFolder());
+            QFile compFile(fragDir.absoluteFilePath(compFileName));
+            compFile.open(QFile::ReadOnly | QFile::Text);
 
-        compName->setText(compData["Name"].toString());
+            QString val;
+            val = compFile.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+            QJsonObject compData = doc.object();
+            compFile.close();
 
-        QJsonObject compGI = compData["GeneralInformation"].toObject();
-        compDescription->setText(compGI["Description"].toString());
+            compName->setText(compData["Name"].toString());
 
-        QJsonObject compEDPVar = compData["EDP"].toObject();
-        compEDP->setText(compEDPVar["Type"].toString());
+            QJsonObject compGI = compData["GeneralInformation"].toObject();
+            compDescription->setText(compGI["Description"].toString());
 
-        QJsonArray compQData = compData["QuantityUnit"].toArray();
-        //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-        compUnit->setText(QString("%1").arg(compQData[0].toDouble())+
-                          compQData[1].toString());
+            QJsonObject compEDPVar = compData["EDP"].toObject();
+            compEDP->setText(compEDPVar["Type"].toString());
 
-        this->clearCompGroupWidget();
-        this->retrieveCompGroups();
+            QJsonArray compQData = compData["QuantityUnit"].toArray();
+            //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+            compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
+                              compQData[1].toString());
+
+            QString infoString = "";
+            if (compData["Directional"] == true) {
+                infoString += "Directional, ";
+            } else {
+                infoString += "Non-directional, ";
+            }
+            if (compData["Correlated"] == true) {
+                infoString += "identical behavior among Component Groups.";
+            } else {
+                infoString += "independent behavior among Component Groups.";
+            }
+
+            if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
+            compInfo->setText(infoString);
+
+            this->clearCompGroupWidget();
+            this->retrieveCompGroups();
+        }
     } else {
         compName->setText("");
         compDescription->setText("");
         compEDP->setText("");
         compUnit->setText("");
+        compInfo->setText("");
         this->clearCompGroupWidget();
     }
 }
@@ -459,15 +494,6 @@ P58ComponentContainer::updateAvailableComponents(){
 
     availableCompCombo->addItems(DL_files);
 
-    /*
-    int counter = 0;
-    foreach(QString DL_filename, DL_files){        
-        QString DL_name = DL_files[i].remove(DL_files[i].size()-5, 5);
-        availableCompCombo->addItem(DL_name, counter);
-        counter += 1;
-    }
-    */
-
     return 0;
 }
 
@@ -485,7 +511,7 @@ P58ComponentContainer::getFragilityFolder(){
         if (appDirVariant.isValid())
           appDir = appDirVariant.toString();
 
-        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 first edition/DL json";
+        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 second edition/DL json";
     }    
 
     return fragilityFolder;
@@ -607,9 +633,9 @@ P58ComponentContainer::onLoadConfigClicked(void) {
 
         // add the component IDs to the selectedCompCombo
         for (auto compName: compConfig->keys()){
+
             if (availableCompCombo->findText(compName) != -1) {
-                selectedCompCombo->addItem(compName,
-                                           availableCompCombo->findText(compName));
+                selectedCompCombo->addItem(compName);
             } else {
                 qDebug() << "Component " << compName << "is not in the DL data folder!";
             }

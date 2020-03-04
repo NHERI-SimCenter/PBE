@@ -166,45 +166,12 @@ ComponentGroup::storeCGCOV(){
 }
 
 bool ComponentGroup::outputToJSON(QJsonObject &outputObject) {
-/*
-    if (!componentName->text().isEmpty()) {
-        outputObject["name"] = componentName->text();
-        outputObject["ID"] = componentID->text();
-        outputObject["quantity"] = componentQuantity->text();        
-        outputObject["cov"] = componentCov->text();
-        outputObject["distribution"] = componentDist->currentText();
-        outputObject["unit_size"] = unitSizeEdit->text();
-        outputObject["unit_type"] = unitComboBox->currentText();
-        outputObject["structural"] = structuralCheckBox->isChecked();
-        outputObject["directions"] = componentDirections->text();
-        outputObject["weights"] = componentWeights->text();
-        return true;
-    } else {
-        emit sendErrorMessage("ERROR: Component - cannot output as no \"name\" entry!");
-        return false;
-    }
-   */
+
     return true;
 }
 
 bool ComponentGroup::inputFromJSON(const QJsonObject & inputObject) {
-/*
-    if (inputObject.contains("name")) {
-        componentName->setText(inputObject["name"].toString());
-        componentID->setText(inputObject["ID"].toString());
-        componentQuantity->setText(inputObject["quantity"].toString());
-        componentCov->setText(inputObject["cov"].toString());
-        componentDist->setCurrentText(inputObject["distribution"].toString());
-        unitComboBox->setCurrentText(inputObject["unit_type"].toString());
-        unitSizeEdit->setText(inputObject["unit_size"].toString());
-        structuralCheckBox->setChecked(inputObject["structural"].toBool());
-        componentDirections->setText(inputObject["directions"].toString());
-        componentWeights->setText(inputObject["weights"].toString());
-        return true;
-    } else {
-        return false;
-    }
-*/
+
     return true;
 }
 

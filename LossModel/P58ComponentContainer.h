@@ -128,6 +128,7 @@ private:
     QLabel *compDescription;
     QLabel *compEDP;
     QLabel *compUnit;
+    QLabel *compInfo;
 
     QLineEdit *compQuantity;
     QLabel *compUnitSize;

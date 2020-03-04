@@ -580,6 +580,22 @@ int ResultsPelicun::processResults(QString filenameTab) {
     sepLine->setFrameShadow(QFrame::Sunken);
     summaryLayout->addWidget(sepLine);
 
+    QMap<QString, QString> resultsToShow;
+    resultsToShow.insert("inhabitants/","inhabitants");
+    resultsToShow.insert("collapses/collapsed?","collapsed?");
+    resultsToShow.insert("red_tagged?/","red tagged?");
+    resultsToShow.insert("reconstruction/irrepairable?","irrepairable?");
+    resultsToShow.insert("reconstruction/cost_impractical?","excessive repair cost?");
+    resultsToShow.insert("reconstruction/cost","repair cost");
+    resultsToShow.insert("reconstruction/time","repair time");
+    resultsToShow.insert("reconstruction/time_impractical?","excessive repair time?");
+    resultsToShow.insert("reconstruction/time-sequential","repair time - sequential");
+    resultsToShow.insert("reconstruction/time-parallel","repair time - parallel");
+    resultsToShow.insert("injuries/sev._1","injuries-1");
+    resultsToShow.insert("injuries/sev._2","injuries-2");
+    resultsToShow.insert("injuries/sev._3","injuries-3");
+    resultsToShow.insert("injuries/sev._4","injuries-4");
+
     while(std::getline(ssName, tokenName, ',')) {
 
         std::getline(ssMean, tokenMean, ',');
@@ -589,8 +605,6 @@ int ResultsPelicun::processResults(QString filenameTab) {
         std::getline(ss50, token50, ',');
         std::getline(ss90, token90, ',');
         std::getline(ssMax, tokenMax, ',');
-
-	//        std::cerr << tokenName << " " << tokenMean << " " << tokenStd << '\n';
 
         QString DV_name(tokenName.c_str());
         std::string::size_type sz;
@@ -602,17 +616,22 @@ int ResultsPelicun::processResults(QString filenameTab) {
         double DV_90 = std::stod(token90.c_str(), &sz);
         double DV_max = std::stod(tokenMax.c_str(), &sz);
 
-        theHeadings <<DV_name;
+        theHeadings << DV_name;
 
-        QWidget *theWidget = this->createSummaryItem2(DV_name, DV_mean,
-            DV_stdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
-        summaryLayout->addWidget(theWidget);
+        if (resultsToShow.contains(DV_name)) {
 
-        // add a separator line after the row
-        QFrame *sepLine = new QFrame;
-        sepLine->setFrameShape(QFrame::HLine);
-        sepLine->setFrameShadow(QFrame::Sunken);
-        summaryLayout->addWidget(sepLine);
+            QString DV_DisplayName = resultsToShow.value(DV_name);
+
+            QWidget *theWidget = this->createSummaryItem2(DV_DisplayName,
+                DV_mean, DV_stdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
+            summaryLayout->addWidget(theWidget);
+
+            // add a separator line after the row
+            QFrame *sepLine = new QFrame;
+            sepLine->setFrameShape(QFrame::HLine);
+            sepLine->setFrameShadow(QFrame::Sunken);
+            summaryLayout->addWidget(sepLine);
+        }
 
         colCount++;
     }
@@ -641,11 +660,21 @@ int ResultsPelicun::processResults(QString filenameTab) {
    // std::getline(fileResults, inputLine);
    // std::istringstream iss(inputLine);
 
-    qDebug() << "SETTINGS: " << theHeadings << " " << theHeadings.count();
+    resultsToShow.insert("Realization","#");
+    resultsToShow.insert("event_time/month","month");
+    resultsToShow.insert("event_time/weekday?","weekday?");
+    resultsToShow.insert("event_time/hour","hour");
+    resultsToShow.insert("collapses/mode","collapse mode");
 
-    colCount = theHeadings.count();
+    QStringList modHeadings = QStringList();
+
+    for (const auto& colHeader: theHeadings){
+        modHeadings << resultsToShow.value(colHeader);
+    }
+
+    colCount = modHeadings.count();
     spreadsheet->setColumnCount(colCount);
-    spreadsheet->setHorizontalHeaderLabels(theHeadings);
+    spreadsheet->setHorizontalHeaderLabels(modHeadings);
 
     // now read the file with the detailed results
     //DL_Summary
@@ -1036,8 +1065,14 @@ ResultsPelicun::createSummaryHeader() {
     QLabel *nameLabel = new QLabel();
     nameLabel->setText(tr("<b><i>Decision Variable</i></b>"));
     nameLabel->setAlignment(Qt::AlignLeft);
-    nameLabel->setFixedWidth(240);
+    nameLabel->setFixedWidth(160);
     itemLayout->addWidget(nameLabel);
+
+    QLabel *probLabel = new QLabel();
+    probLabel->setText(tr("<b>Probability</b>"));
+    probLabel->setAlignment(Qt::AlignRight);
+    probLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(probLabel);
 
     QLabel *meanLabel = new QLabel();
     meanLabel->setText(tr("<b>Mean</b>"));
@@ -1090,6 +1125,10 @@ QWidget *
 ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
     double min, double p10, double p50, double p90, double max) {
 
+    QStringList probOnly = (QStringList() << "collapse" << "red tag" <<
+                            "irrepairable" << "excessive repair cost" <<
+                            "excessive repair time");
+
     QWidget *item = new QWidget;
     QHBoxLayout *itemLayout = new QHBoxLayout();
     item->setLayout(itemLayout);
@@ -1099,50 +1138,89 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
     QLabel *nameLabel = new QLabel();
     nameLabel->setText("<i>"+name.replace("/",": ").replace("_"," ")+"</i>");
     nameLabel->setAlignment(Qt::AlignLeft);
-    nameLabel->setFixedWidth(240);
+    nameLabel->setFixedWidth(160);
     itemLayout->addWidget(nameLabel);
     theNames.append(name);
 
+    QLabel *probLabel = new QLabel();
+    QString probText;
+    if (probOnly.contains(name)) {
+        probLabel->setText(QString::number(mean));
+    } else {
+        probLabel->setText("-");
+    }
+    probLabel->setAlignment(Qt::AlignRight);
+    probLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(probLabel);
+
     QLabel *meanLabel = new QLabel();
-    meanLabel->setText(QString::number(mean));
+    if (probOnly.contains(name)) {
+        meanLabel->setText("-");
+    } else {
+        meanLabel->setText(QString::number(mean));
+    }
     meanLabel->setAlignment(Qt::AlignRight);
     meanLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(meanLabel);
     theMeans.append(mean);
 
     QLabel *stdLabel = new QLabel();
-    stdLabel->setText(QString::number(stdDev));
+    if (probOnly.contains(name)) {
+        stdLabel->setText("-");
+    } else {
+        stdLabel->setText(QString::number(stdDev));
+    }
     stdLabel->setAlignment(Qt::AlignRight);
     stdLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(stdLabel);
     theStdDevs.append(stdDev);
 
     QLabel *minLabel = new QLabel();
-    minLabel->setText(QString::number(min));
+    if (probOnly.contains(name)) {
+        minLabel->setText("-");
+    } else {
+        minLabel->setText(QString::number(min));
+    }
     minLabel->setAlignment(Qt::AlignRight);
     minLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(minLabel);
 
     QLabel *p10Label = new QLabel();
-    p10Label->setText(QString::number(p10));
+    if (probOnly.contains(name)) {
+        p10Label->setText("-");
+    } else {
+        p10Label->setText(QString::number(p10));
+    }
     p10Label->setAlignment(Qt::AlignRight);
     p10Label->setFixedWidth(columnWidth);
     itemLayout->addWidget(p10Label);
 
     QLabel *p50Label = new QLabel();
-    p50Label->setText(QString::number(p50));
+    if (probOnly.contains(name)) {
+        p50Label->setText("-");
+    } else {
+        p50Label->setText(QString::number(p50));
+    }
     p50Label->setAlignment(Qt::AlignRight);
     p50Label->setFixedWidth(columnWidth);
     itemLayout->addWidget(p50Label);
 
     QLabel *p90Label = new QLabel();
-    p90Label->setText(QString::number(p90));
+    if (probOnly.contains(name)) {
+        p90Label->setText("-");
+    } else {
+        p90Label->setText(QString::number(p90));
+    }
     p90Label->setAlignment(Qt::AlignRight);
     p90Label->setFixedWidth(columnWidth);
     itemLayout->addWidget(p90Label);
 
     QLabel *maxLabel = new QLabel();
-    maxLabel->setText(QString::number(max));
+    if (probOnly.contains(name)) {
+        maxLabel->setText("-");
+    } else {
+        maxLabel->setText(QString::number(max));
+    }
     maxLabel->setAlignment(Qt::AlignRight);
     maxLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(maxLabel);
