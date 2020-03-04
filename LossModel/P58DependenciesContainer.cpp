@@ -95,11 +95,11 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     fragilityDep->addItem("btw. Performance Groups",0);
     fragilityDep->addItem("btw. Floors",1);
     fragilityDep->addItem("btw. Directions",2);
-    fragilityDep->addItem("btw. Damage States",3);
-    fragilityDep->addItem("btw. Component Groups",4);
-    fragilityDep->addItem("Independent",5);
-    fragilityDep->addItem("per ATC recommendation",6);
-    fragilityDep->setCurrentIndex(6);
+    fragilityDep->addItem("btw. Component Groups",3);
+    fragilityDep->addItem("per ATC recommendation",4);
+    fragilityDep->addItem("btw. Damage States",5);
+    fragilityDep->addItem("Independent",6);
+    fragilityDep->setCurrentIndex(4);
     dependencyFormLayout->addRow(tr("Component Fragilities"), fragilityDep);
 
      QSpacerItem *spacerGroups10 = new QSpacerItem(10,10);
