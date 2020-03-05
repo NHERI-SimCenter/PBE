@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("2.0.0");
+    QCoreApplication::setApplicationVersion("2.0.1");
     //    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
              we provide and will be enthused to provide their own applications for others \
              to use. \
           <p>\
-          This is Version 2.0.0 of the tool and as such is limited in scope. Researchers are\
+          This is Version 2.0.1 of the tool and as such is limited in scope. Researchers are\
            encouraged to comment on what additional features and applications they would \
            like to see in the PBE App. If you want a feature, chances are many of your \
            colleagues would also benefit from it.\
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
      w.setAbout(textAboutPBE);
 
-  QString version("Version 2.0.0");
+  QString version("Version 2.0.1");
   w.setVersion(version);
 
   QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");
