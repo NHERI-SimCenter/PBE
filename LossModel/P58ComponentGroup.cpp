@@ -56,7 +56,13 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     mainLayout = new QHBoxLayout();    
 
     cgLocation = new QLineEdit();
-    cgLocation->setToolTip(tr(""));
+    cgLocation->setToolTip(tr("In buildings, locations are typically stories.\n"
+                              "The ground floor is story 1. Providing 'all' \n"
+                              "assigns the same setting to every story. You can use\n"
+                              "a dash to specify a range of stories, such as '3-7'.\n"
+                              "If a component is only assigned to the top story, or \n"
+                              "the roof, you can use 'top' or 'roof'. You can also\n"
+                              "combine these and use '3-roof', for example."));
     //cgLocation->setMaximumWidth(75);
     //cgLocation->setMinimumWidth(75);
     cgLocation->setText(CG_data->value("location", tr("")));
@@ -65,7 +71,13 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
             SLOT(storeCGLocation()));
 
     cgDirection = new QLineEdit();
-    cgDirection->setToolTip(tr(""));
+    cgDirection->setToolTip(tr("Directions correspond to EDPs that are used to assess\n"
+                               "the fragility of components. They shall match the \n"
+                               "directions in the EDP results available from the \n"
+                               "simulations. By default, 1 and 2 are horizontal X and Y\n"
+                               "directions. If a component is non-directional (see the \n"
+                               "additional info field above), it is sufficient to provide \n"
+                               "1 as direction."));
     //cgDirection->setMaximumWidth(75);
     //cgDirection->setMinimumWidth(75);
     cgDirection->setText(CG_data->value("direction", tr("")));
@@ -74,7 +86,13 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
             SLOT(storeCGDirection()));
 
     cgMedianQNT = new QLineEdit();
-    cgMedianQNT->setToolTip(tr(""));
+    cgMedianQNT->setToolTip(tr("The list of quantities provided here specifies the number\n"
+                               "of Component Groups in each Performance Group that is \n"
+                               "created by this row.\n"
+                               "If the fragility of component groups is assumed perfectly \n"
+                               "correlated, there is no good reason to have more than \n"
+                               "one Component Group (i.e. more than one quantity value)\n"
+                               "defined for each Performance Group below."));
     //cgMedianQNT->setMaximumWidth(75);
     //cgMedianQNT->setMinimumWidth(75);
     cgMedianQNT->setText(CG_data->value("median", tr("")));
@@ -83,7 +101,12 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
             SLOT(storeCGMedian()));
 
     cgUnit = new QLineEdit();
-    cgUnit->setToolTip(tr(""));
+    cgUnit->setToolTip(tr("The unit used to specify component quantities. The default\n"
+                          "unit from the fragility database is shown above. As long as\n"
+                          "the specified unit belongs to the same class (i.e., length\n"
+                          "area, etc.), any commonly used metric or US unit is acceptable.\n"
+                          "Squared units are expressed by using a 2 after the name,\n"
+                          "such as 'ft2' for square foot."));
     cgUnit->setMaximumWidth(60);
     cgUnit->setMinimumWidth(60);
     cgUnit->setText(CG_data->value("unit", tr("")));
@@ -92,7 +115,8 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
             SLOT(storeCGUnit()));
 
     cgDistribution = new QComboBox();
-    cgDistribution->setToolTip(tr("Distribution family assigned to the component quantity."));
+    cgDistribution->setToolTip(tr("Distribution family assigned to the component quantities.\n"
+                                  "The N/A setting corresponds to known quantities with no uncertainty."));
     cgDistribution->addItem(tr("N/A"));
     cgDistribution->addItem(tr("normal"));
     cgDistribution->addItem(tr("lognormal"));
@@ -104,7 +128,10 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
             SLOT(storeCGDistribution()));
 
     cgCOV = new QLineEdit();
-    cgCOV->setToolTip(tr(""));
+    cgCOV->setToolTip(tr("Coefficient of variation for the random distribution of \n"
+                         "component quantities.\n"
+                         "If the distribution is set to N/A, this field will not \n"
+                         "be considered and it can be left blank."));
     cgCOV->setMaximumWidth(60);
     cgCOV->setMinimumWidth(60);
     cgCOV->setText(CG_data->value("cov", tr("")));

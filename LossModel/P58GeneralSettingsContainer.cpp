@@ -84,7 +84,6 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     QLabel *describeEDPLabel = new QLabel();
     describeEDPLabel->setText(tr("response description:"));
-    describeEDPLabel->setToolTip(tr("Some tooltip"));
     responseFormLayout->addRow(describeEDPLabel);
 
     // EDP data
@@ -101,7 +100,10 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // EDP distribution
     EDP_Distribution = new QComboBox();
-    EDP_Distribution->setToolTip(tr("Some tooltip"));
+    EDP_Distribution->setToolTip(tr("Approach used to re-sample EDPs.\n"
+                                    "empirical - use raw data as is\n"
+                                    "lognormal - use multivariate lognormal distribution\n"
+                                    "truncated lognormal - truncate the multivar. lognorm. at the detection limits"));
     EDP_Distribution->addItem("empirical",0);
     EDP_Distribution->addItem("lognormal",1);
     EDP_Distribution->addItem("truncated lognormal",2);
@@ -111,7 +113,9 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // basis of EDP fitting
     EDP_Fitting = new QComboBox();
-    EDP_Fitting ->setToolTip(tr("Some tooltip"));
+    EDP_Fitting ->setToolTip(tr("Basis of EDP fitting (only used when the EDP distribution is not empirical)\n"
+                                "all results - use all samples\n"
+                                "non-collapse results - use only the samples that have all EDP values below the corresponding collapse limits"));
     EDP_Fitting ->addItem("all results",0);
     EDP_Fitting ->addItem("non-collapse results",1);
 
@@ -120,7 +124,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // realizations
     realizationsValue = new QLineEdit();
-    realizationsValue->setToolTip(tr("Number of simulated building-performance outcomes."));
+    realizationsValue->setToolTip(tr("Number of simulated decision-variable samples."));
     realizationsValue->setText("2000");
     realizationsValue->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Realizations"), realizationsValue);
@@ -131,18 +135,21 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     // additional uncertainty
     QLabel *addedUncertaintyLabel = new QLabel();
     addedUncertaintyLabel->setText(tr("Additional Uncertainty:"));
-    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs to consider additional sources of uncertainty."));
+    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs \n"
+                                         "to consider additional sources of uncertainty."));
     responseFormLayout->addRow(addedUncertaintyLabel);
 
     addedUncertaintyGM = new QLineEdit();
-    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));
-    addedUncertaintyGM->setText("0.1");
+    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum \n"
+                                      "for intensity- and scenario-based assessment."));
+    addedUncertaintyGM->setText("");
     addedUncertaintyGM->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
 
     addedUncertaintyModel = new QLineEdit();
-    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
-    addedUncertaintyModel->setText("0.1");
+    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling,\n"
+                                         "damping and mass assumptions."));
+    addedUncertaintyModel->setText("");
     addedUncertaintyModel->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Model"), addedUncertaintyModel);
 
@@ -155,13 +162,15 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     responseFormLayout->addRow(detLimLabel);
 
     driftDetLim = new QLineEdit();
-    driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the response estimation method can provide reliably."));
-    driftDetLim->setText("0.15");
+    driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the \n"
+                               "response estimation method can provide reliably."));
+    driftDetLim->setText("");
     driftDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Interstory Drift"), driftDetLim);
 
     accDetLim = new QLineEdit();
-    accDetLim->setToolTip(tr("Maximum floor acceleration that the response estimation method can provide reliably."));
+    accDetLim->setToolTip(tr("Maximum floor acceleration that the \n"
+                             "response estimation method can provide reliably."));
     accDetLim->setText("");
     accDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Floor Acceleration"), accDetLim);
@@ -186,20 +195,25 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // yield drift
     yieldDriftValue = new QLineEdit();
-    yieldDriftValue->setToolTip(tr("Interstory drift ratio corresponding to significant yielding (i.e. when the forces in the main components of the lateral load resisting system reach the plastic capacity of the components) in the structure."));
+    yieldDriftValue->setToolTip(tr("Interstory drift ratio corresponding to significant yielding in the structure \n"
+                                   "(i.e. when the forces in the main components of the lateral load resisting \n"
+                                   "system reach the plastic capacity of the components) in the structure."));
     yieldDriftValue->setText("0.01");
     yieldDriftValue->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Yield Drift Ratio"), yieldDriftValue);
 
     irrepResDriftMedian = new QLineEdit();
-    irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irrepairable damage in the building."));
-    irrepResDriftMedian->setText("0.15");
+    irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irrepairable \n"
+                                       "damage in the building.\n"
+                                       "If left empty, all non-collapse results are considered repairable."));
+    irrepResDriftMedian->setText("");
     irrepResDriftMedian->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Median"), irrepResDriftMedian);
 
     irrepResDriftStd = new QLineEdit();
-    irrepResDriftStd->setToolTip(tr("Logarithmic standard deviation of the residual drift distribution conditioned on irrepairable damage in the building."));
-    irrepResDriftStd->setText("0.3");
+    irrepResDriftStd->setToolTip(tr("Logarithmic standard deviation of the residual drift distribution \n"
+                                    "conditioned on irrepairable damage in the building."));
+    irrepResDriftStd->setText("");
     irrepResDriftStd->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Log Standard Dev"), irrepResDriftStd);
 
@@ -213,7 +227,9 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // approach
     collProbApproach = new QComboBox();
-    collProbApproach->setToolTip(tr("Some tooltip"));
+    collProbApproach->setToolTip(tr("Specifies how to define the probability of collapse:\n"
+                                    "estimated - use sampled EDPs and the collapse limits below\n"
+                                    "prescribed - use a prescribed (user-defined) value"));
     collProbApproach->addItem("estimated",0);
     collProbApproach->addItem("prescribed",1);
 
@@ -222,13 +238,16 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // prescribed value
     colProbValue = new QLineEdit();
-    colProbValue->setToolTip(tr("Some tooltip"));
+    colProbValue->setToolTip(tr("User-defined probability of collapse\n"
+                                "Only used when Approach is set to prescribed above"));
     colProbValue->setText("");
     colProbValue->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Prescribed value:"), colProbValue);
 
     colBasis = new QComboBox();
-    colBasis ->setToolTip(tr("Some tooltip"));
+    colBasis ->setToolTip(tr("Basis of collapse probability estimation:\n"
+                             "sampled EDP - re-sampled EDP values\n"
+                             "raw EDP - empirical (input) EDP values"));
     colBasis ->addItem("sampled EDP",0);
     colBasis ->addItem("raw EDP",1);
 
@@ -244,13 +263,15 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     damageFormLayout->addRow(colLimLabel);
 
     driftColLim = new QLineEdit();
-    driftColLim->setToolTip(tr("Peak interstory drift ratio that corresponds to the collapse of the building."));
+    driftColLim->setToolTip(tr("Peak interstory drift ratio that corresponds to \n"
+                               "the collapse of the building."));
     driftColLim->setText("0.15");
     driftColLim->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Interstory Drift"), driftColLim);
 
     accColLim = new QLineEdit();
-    accColLim->setToolTip(tr("Peak floor acceleration that corresponds to the collapse of the building."));
+    accColLim->setToolTip(tr("Peak floor acceleration that corresponds to \n"
+                             "the collapse of the building."));
     accColLim->setText("");
     accColLim->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Floor Acceleration"), accColLim);
@@ -270,14 +291,23 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // replacement cost
     replacementCostValue = new QLineEdit();
-    replacementCostValue->setToolTip(tr("Some tooltip"));
+    replacementCostValue->setToolTip(tr("The cost to replace the building with a new one.\n"
+                                        "Note: monetary units used in the replacement cost\n"
+                                        "must be consistent with those used in the consequence\n"
+                                        "functions. \n"
+                                        "Consequences in FEMA P58 are based on 2011 US dollars"));
     replacementCostValue->setText("");
     replacementCostValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
 
     // replacement cost
     replacementTimeValue = new QLineEdit();
-    replacementTimeValue->setToolTip(tr("Some tooltip"));
+    replacementTimeValue->setToolTip(tr("The time it takes to replace the building with a new one.\n"
+                                        "Note: the time unit used for replacement time must be \n"
+                                        "consistent with those used in the consequence functions.\n"
+                                        "Consequence in FEMA P58 are based on days in the first edition\n"
+                                        "and worker-days in the second edition. We use the second\n"
+                                        "edition here by default."));
     replacementTimeValue->setText("");
     replacementTimeValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
@@ -288,19 +318,17 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     // decision variables
     QLabel *decisionVarLabel = new QLabel();
     decisionVarLabel->setText(tr("Decision variables of interest: "));
-    decisionVarLabel->setToolTip(tr("Some tooltip"));
+    decisionVarLabel->setToolTip(tr("Select the decision variables that shall be calculated."));
     lossFormLayout->addRow(decisionVarLabel);
 
     // reconstruction cost
     needRecCost = new QCheckBox();
     needRecCost->setText("");
-    needRecCost->setToolTip(tr("Some tooltip"));
     needRecCost->setChecked(true);
 
     // reconstruction time
     needRecTime = new QCheckBox();
     needRecTime->setText("");
-    needRecTime->setToolTip(tr("Some tooltip"));
     needRecTime->setChecked(true);
 
     QHBoxLayout *costAndTimeLayout = new QHBoxLayout();
@@ -317,13 +345,11 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     // injuries
     needInjuries = new QCheckBox();
     needInjuries->setText("");
-    needInjuries->setToolTip(tr("Some tooltip"));
     needInjuries->setChecked(true);
 
     // red tag
     needRedTag = new QCheckBox();
     needRedTag->setText("");
-    needRedTag->setToolTip(tr("Some tooltip"));
     needRedTag->setChecked(true);
 
     QHBoxLayout *injAndRedLayout = new QHBoxLayout();
@@ -343,12 +369,11 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     // inhabitants
     QLabel *inhabitantLabel = new QLabel();
     inhabitantLabel->setText(tr("Inhabitants: "));
-    inhabitantLabel->setToolTip(tr("Some tooltip"));
     lossFormLayout->addRow(inhabitantLabel);
 
     // occupancy
     occupancyType = new QComboBox();
-    occupancyType->setToolTip(tr("Some tooltip"));
+    occupancyType->setToolTip(tr("Occupancy defines the function of the building."));
     occupancyType->addItem("Commercial Office",0);
     occupancyType->addItem("Elementary School",1);
     occupancyType->addItem("Middle School",2);
@@ -364,7 +389,9 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     // peak population
     peakPopulation = new QLineEdit();
-    peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building."));
+    peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building.\n"
+                                  "If a single number is provided, the population is assumed to\n"
+                                  "be idential on every floor.\n"));
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Peak Population"), peakPopulation);
@@ -489,19 +516,20 @@ bool P58GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     // Damage -----------------------------------------------------------------
     QJsonObject damageModel;
 
-    QJsonObject irrepDrift;
+    QJsonObject irrepDrift;    
     irrepDrift["Median"] = irrepResDriftMedian->text();
     irrepDrift["Beta"] = irrepResDriftStd->text();
     irrepDrift["YieldDriftRatio"] = yieldDriftValue->text();
-    damageModel["IrrepairableResidualDrift"] = irrepDrift;
-
+    if ((irrepDrift["Median"] != "") && (irrepDrift["Beta"] != "")) {
+        damageModel["IrrepairableResidualDrift"] = irrepDrift;
+    }
 
     QJsonObject collProb;
     if (collProbApproach->currentText() == "prescribed") {
         collProb["Value"] = colProbValue->text();
     } else {
         collProb["Value"] = "estimated";
-        collProb["BasisOfCPEstimate"] = colBasis->currentText();
+        collProb["BasisOfEstimate"] = colBasis->currentText();
     }
     damageModel["CollapseProbability"] = collProb;
 
@@ -573,7 +601,7 @@ bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
     if (collProb["Value"].toString() == "estimated") {
         collProbApproach->setCurrentText("estimated");
         colProbValue->setText("");
-        colBasis->setCurrentText(collProb["BasisOfCPEstimate"].toString());
+        colBasis->setCurrentText(collProb["BasisOfEstimate"].toString());
     } else {
         collProbApproach->setCurrentText("prescribed");
         colProbValue->setText(collProb["CollapseProbability"].toString());

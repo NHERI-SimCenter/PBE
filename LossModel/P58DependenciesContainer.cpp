@@ -77,7 +77,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // quantities
     quantityDep = new QComboBox();
-    quantityDep->setToolTip(tr("Some tooltip"));
+    quantityDep->setToolTip(tr("Correlation between the amount of components\n"
+                               "in the building."));
     quantityDep->addItem("btw. Fragility Groups",0);
     quantityDep->addItem("btw. Performance Groups",1);
     quantityDep->addItem("btw. Floors",2);
@@ -91,7 +92,10 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // fragilities
     fragilityDep = new QComboBox();
-    fragilityDep->setToolTip(tr("Some tooltip"));
+    fragilityDep->setToolTip(tr("Correlation between the EDP limits used to trigger\n"
+                                "Damage States for each Component Group.\n"
+                                "per ATC recommendation - use the information from\n"
+                                "the damage and loss data for each component"));
     fragilityDep->addItem("btw. Performance Groups",0);
     fragilityDep->addItem("btw. Floors",1);
     fragilityDep->addItem("btw. Directions",2);
@@ -107,7 +111,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // reconstruction cost
     costDep = new QComboBox();
-    costDep->setToolTip(tr("Some tooltip"));
+    costDep->setToolTip(tr("Correlation between the reconstruction cost of components\n"
+                           "in the building."));
     costDep->addItem("btw. Fragility Groups",0);
     costDep->addItem("btw. Performance Groups",1);
     costDep->addItem("btw. Floors",2);
@@ -119,7 +124,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // reconstruction time
     timeDep = new QComboBox();
-    timeDep->setToolTip(tr("Some tooltip"));
+    timeDep->setToolTip(tr("Correlation between the reconstruction time of components\n"
+                           "in the building."));
     timeDep->addItem("btw. Fragility Groups",0);
     timeDep->addItem("btw. Performance Groups",1);
     timeDep->addItem("btw. Floors",2);
@@ -132,7 +138,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     // rec. cost and time
     costAndTimeDep = new QCheckBox();
     costAndTimeDep->setText("");
-    costAndTimeDep->setToolTip(tr("Some tooltip"));
+    costAndTimeDep->setToolTip(tr("Correlation between the reconstruction cost \n"
+                                  "and time of the same component."));
     costAndTimeDep->setChecked(false);
     dependencyFormLayout->addRow(tr("between Rec. Cost and Time"),
                                  costAndTimeDep);
@@ -142,7 +149,9 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // injuries
     injuryDep = new QComboBox();
-    injuryDep->setToolTip(tr("Some tooltip"));
+    injuryDep->setToolTip(tr("Correlation between the probability of getting injured\n"
+                             "when in the area affected by component damage for \n"
+                             "various components in the building."));
     injuryDep->addItem("btw. Fragility Groups",0);
     injuryDep->addItem("btw. Performance Groups",1);
     injuryDep->addItem("btw. Floors",2);
@@ -155,7 +164,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     // injuries and fatalities
     injSeverityDep = new QCheckBox();
     injSeverityDep->setText("");
-    injSeverityDep->setToolTip(tr("Some tooltip"));
+    injSeverityDep->setToolTip(tr("Correlation between injuries of different severity\n"
+                                  "for the same component."));
     injSeverityDep->setChecked(false);
     dependencyFormLayout->addRow(tr("between Injuries and Fatalities"),
                                  injSeverityDep);
@@ -165,7 +175,8 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
 
     // red tag
     redTagDep = new QComboBox();
-    redTagDep->setToolTip(tr("Some tooltip"));
+    redTagDep->setToolTip(tr("Correlation between the amount of damage that triggers\n"
+                             "a red tag for various components in the building."));
     redTagDep->addItem("btw. Fragility Groups",0);
     redTagDep->addItem("btw. Performance Groups",1);
     redTagDep->addItem("btw. Floors",2);

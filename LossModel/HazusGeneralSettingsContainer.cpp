@@ -134,13 +134,13 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     addedUncertaintyGM = new QLineEdit();
     addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));
-    addedUncertaintyGM->setText("0.1");
+    addedUncertaintyGM->setText("");
     addedUncertaintyGM->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
 
     addedUncertaintyModel = new QLineEdit();
     addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
-    addedUncertaintyModel->setText("0.1");
+    addedUncertaintyModel->setText("");
     addedUncertaintyModel->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Model"), addedUncertaintyModel);
 
@@ -154,7 +154,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     driftDetLim = new QLineEdit();
     driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the response estimation method can provide reliably."));
-    driftDetLim->setText("0.15");
+    driftDetLim->setText("");
     driftDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Interstory Drift"), driftDetLim);
 
