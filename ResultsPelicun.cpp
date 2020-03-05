@@ -584,7 +584,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     resultsToShow.insert("inhabitants/","inhabitants");
     resultsToShow.insert("collapses/collapsed?","collapsed?");
     resultsToShow.insert("red_tagged?/","red tagged?");
-    resultsToShow.insert("reconstruction/irrepairable?","irrepairable?");
+    resultsToShow.insert("reconstruction/irrepairable?","not repairable?");
     resultsToShow.insert("reconstruction/cost_impractical?","excessive repair cost?");
     resultsToShow.insert("reconstruction/cost","repair cost");
     resultsToShow.insert("reconstruction/time","repair time");
@@ -1125,9 +1125,9 @@ QWidget *
 ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
     double min, double p10, double p50, double p90, double max) {
 
-    QStringList probOnly = (QStringList() << "collapse" << "red tag" <<
-                            "irrepairable" << "excessive repair cost" <<
-                            "excessive repair time");
+    QStringList probOnly = (QStringList() << "collapsed?" << "red tagged?" <<
+                            "not repairable?" << "excessive repair cost?" <<
+                            "excessive repair time?");
 
     QWidget *item = new QWidget;
     QHBoxLayout *itemLayout = new QHBoxLayout();
