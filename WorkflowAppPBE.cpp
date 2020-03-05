@@ -208,7 +208,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
 WorkflowAppPBE::~WorkflowAppPBE()
 {
-
+   QWidget *newUQ = new QWidget();
+   theComponentSelection->swapComponent("RV",newUQ);
 }
 
 bool
