@@ -71,7 +71,8 @@ CollapseMode::CollapseMode(QWidget *parent)
     QLabel *probabilityLabel = new QLabel();
     probabilityLabel->setText(tr("probability"));
     collapseModeProbability = new QLineEdit();
-    collapseModeProbability->setToolTip(tr("The probability that the building collapses in this mode when it collapses."));
+    collapseModeProbability->setToolTip(tr("The probability that the building collapses in this \n"
+                                           "mode when it collapses."));
     collapseModeProbability->setMaximumWidth(100);
     collapseModeProbability->setMinimumWidth(100);
     probabilityLayout->addWidget(probabilityLabel);
@@ -84,7 +85,11 @@ CollapseMode::CollapseMode(QWidget *parent)
     QLabel *collapseModeAffectedAreaLabel = new QLabel();
     collapseModeAffectedAreaLabel->setText(tr("affected area"));
     collapseModeAffectedArea = new QLineEdit();
-    collapseModeAffectedArea->setToolTip(tr("The proportion of the total floor area in each story affected by this collapse mode."));
+    collapseModeAffectedArea->setToolTip(tr("The proportion of the total floor area in each story \n"
+                                            "affected by this collapse mode.\n"
+                                            "If one value is provided, the same proportion is assumed \n"
+                                            "to apply to all floors. A list of values allows you to define\n"
+                                            "floor-specific proportions."));
     collapseModeAffectedArea->setMaximumWidth(200);
     collapseModeAffectedArea->setMinimumWidth(200);
     affectedAreaLayout->addWidget(collapseModeAffectedAreaLabel);
@@ -97,7 +102,9 @@ CollapseMode::CollapseMode(QWidget *parent)
     QLabel *collapseModeInjuriesLabel = new QLabel();
     collapseModeInjuriesLabel->setText(tr("injuries"));
     collapseModeInjuries = new QLineEdit();
-    collapseModeInjuries->setToolTip(tr("Proportion of the inhabitants in the affected area getting injured when this mode of collapse happens. Provide a list of numbers when multiple levels of injury severity are considered."));
+    collapseModeInjuries->setToolTip(tr("Proportion of the inhabitants in the affected area getting injured\n"
+                                        "when this mode of collapse happens. Provide a list of numbers when\n"
+                                        "multiple levels of injury severity are considered. (2 for FEMA P58)"));
     collapseModeInjuries->setMaximumWidth(150);
     collapseModeInjuries->setMinimumWidth(150);
     injuriesLayout->addWidget(collapseModeInjuriesLabel);

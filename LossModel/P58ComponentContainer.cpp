@@ -93,6 +93,9 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     customFolderLayout->addWidget(lblChooseFragility);
 
     fragilityFolderPath = new QLineEdit;
+    fragilityFolderPath->setToolTip(tr("Location of the folder with damage and loss data files.\n"
+                                       "If empty, the default files are used that correspond to \n"
+                                       "FEMA P58 Second Edition."));
     customFolderLayout->addWidget(fragilityFolderPath, 1);
 
     QPushButton *btnChooseFragility = new QPushButton();
@@ -120,7 +123,8 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     availableCompCombo = new QComboBox();
     availableCBModel = new QStringListModel();
     availableCompCombo->setModel(availableCBModel);
-    availableCompCombo->setToolTip(tr("List of available components. Click on the buttons to add the component to the ensemble."));
+    availableCompCombo->setToolTip(tr("List of available components. \n"
+                                      "Click on the buttons to add the component to the ensemble."));
 
     this-> updateAvailableComponents();
 
@@ -144,7 +148,7 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     loadConfig->setMinimumWidth(300);
     loadConfig->setMaximumWidth(300);
     loadConfig->setText(tr("Load Performance Model from CSV"));
-    loadConfig->setToolTip(tr("Load Performance Model from a CSV file"));
+    loadConfig->setToolTip(tr("Load Performance Model from a CSV file."));
     connect(loadConfig,SIGNAL(clicked()),this,SLOT(onLoadConfigClicked()));
     availableCLayout->addWidget(loadConfig);
 
@@ -164,7 +168,8 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     selectedCompCombo = new QComboBox();
     selectedCBModel = new QStringListModel();
     selectedCompCombo->setModel(selectedCBModel);
-    selectedCompCombo->setToolTip(tr("List of selected components. Click on the buttons to remove the component from the ensemble."));
+    selectedCompCombo->setToolTip(tr("List of selected components. \n"
+                                     "Click on the buttons to remove the component from the ensemble."));
     connect(selectedCompCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(showSelectedComponent()));
     selectedCLayout->addWidget(selectedCompCombo, 1);
 
@@ -186,7 +191,7 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     saveConfig->setMinimumWidth(300);
     saveConfig->setMaximumWidth(300);
     saveConfig->setText(tr("Save Performance Model to CSV"));
-    saveConfig->setToolTip(tr("Save Performance Model to a CSV file"));
+    saveConfig->setToolTip(tr("Save Performance Model to a CSV file."));
     connect(saveConfig,SIGNAL(clicked()),this,SLOT(onSaveConfigClicked()));
     selectedCLayout->addWidget(saveConfig);
 
