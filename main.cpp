@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
   QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");
   w.setCite(citeText);
 
-  QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/PBE");
+  QString manualURL("https://nheri-simcenter.github.io/PBE-Documentation/");
   w.setDocumentationURL(manualURL);
 
   QString messageBoardURL("https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0");
