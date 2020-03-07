@@ -207,8 +207,12 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
-{
-
+{  
+   // hack to get around a sometimes occuring seg fault
+   // as some classes in destructur remove RV from the RVCOntainer
+   // which may already have been destructed .. so removing so no destructor calles
+   //QWidget *newUQ = new QWidget();
+   //theComponentSelection->swapComponent("RV",newUQ);
 }
 
 bool

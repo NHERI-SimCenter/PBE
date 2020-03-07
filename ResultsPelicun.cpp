@@ -377,6 +377,7 @@ static int mergesort(double *input, int size)
 
 int ResultsPelicun::processResults(QString filenameTab) {
 
+
     // Get the results directory path
     QString resultsDir = filenameTab.remove("dakotaTab.out");
     QDir rDir(resultsDir);
@@ -390,7 +391,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     QJsonObject inputData = doc.object();
     inputFile.close();
 
-    // If the runType is HPC, then we need to do additional calculations
+    // If the runType is HPC, then we need to do additional operations
     QString runType = inputData["runType"].toString();
     if (runType == "HPC"){
         // create the workdir and copy the two result files there
@@ -430,6 +431,8 @@ int ResultsPelicun::processResults(QString filenameTab) {
         }
 
 
+         emit sendErrorMessage("Now Running Pelicun to deremine losses");
+
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");
             QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
@@ -454,6 +457,8 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     }
 
+
+    emit sendErrorMessage("Loading Loss Results");
 
     this->clear();
     mLeft = true;
@@ -755,6 +760,9 @@ int ResultsPelicun::processResults(QString filenameTab) {
     fileResults.close();
 
     // close input file
+
+    // clear messages
+    emit sendErrorMessage("");
     return 0;
 }
 
