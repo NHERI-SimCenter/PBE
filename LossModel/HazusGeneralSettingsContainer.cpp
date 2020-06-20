@@ -85,7 +85,6 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     QLabel *describeEDPLabel = new QLabel();
     describeEDPLabel->setText(tr("response description:"));
-    describeEDPLabel->setToolTip(tr("Some tooltip"));
     responseFormLayout->addRow(describeEDPLabel);
 
     // EDP data
@@ -102,7 +101,10 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // EDP distribution
     EDP_Distribution = new QComboBox();
-    EDP_Distribution->setToolTip(tr("Some tooltip"));
+    EDP_Distribution->setToolTip(tr("Approach used to re-sample EDPs.\n"
+                                    "empirical - use raw data as is\n"
+                                    "lognormal - use multivariate lognormal distribution\n"
+                                    "truncated lognormal - truncate the multivar. lognorm. at the detection limits"));
     EDP_Distribution->addItem("empirical",0);
     EDP_Distribution->addItem("lognormal",1);
     EDP_Distribution->addItem("truncated lognormal",2);
@@ -112,7 +114,9 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // basis of EDP fitting
     EDP_Fitting = new QComboBox();
-    EDP_Fitting ->setToolTip(tr("Some tooltip"));
+    EDP_Fitting ->setToolTip(tr("Basis of EDP fitting (only used when the EDP distribution is not empirical)\n"
+                                "all results - use all samples\n"
+                                "non-collapse results - use only the samples that have all EDP values below the corresponding collapse limits"));
     EDP_Fitting ->addItem("all results",0);
     EDP_Fitting ->addItem("non-collapse results",1);
 
@@ -121,7 +125,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // realizations
     realizationsValue = new QLineEdit();
-    realizationsValue->setToolTip(tr("Number of simulated building-performance outcomes."));
+    realizationsValue->setToolTip(tr("Number of simulated decision-variable samples."));
     realizationsValue->setText("2000");
     realizationsValue->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Realizations"), realizationsValue);
@@ -132,17 +136,20 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // additional uncertainty
     QLabel *addedUncertaintyLabel = new QLabel();
     addedUncertaintyLabel->setText(tr("Additional Uncertainty:"));
-    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs to consider additional sources of uncertainty."));
+    addedUncertaintyLabel->setToolTip(tr("Increase in logarithmic standard deviation of EDPs \n"
+                                         "to consider additional sources of uncertainty."));
     responseFormLayout->addRow(addedUncertaintyLabel);
 
     addedUncertaintyGM = new QLineEdit();
-    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum for scenario-based assessment."));
+    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum \n"
+                                      "for intensity- and scenario-based assessment."));
     addedUncertaintyGM->setText("");
     addedUncertaintyGM->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Ground Motion"), addedUncertaintyGM);
 
     addedUncertaintyModel = new QLineEdit();
-    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling, damping and mass assumptions."));
+    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling,\n"
+                                         "damping and mass assumptions."));
     addedUncertaintyModel->setText("");
     addedUncertaintyModel->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Model"), addedUncertaintyModel);
@@ -156,13 +163,15 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     responseFormLayout->addRow(detLimLabel);
 
     driftDetLim = new QLineEdit();
-    driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the response estimation method can provide reliably."));
+    driftDetLim->setToolTip(tr("Maximum interstory drift ratio that the \n"
+                               "response estimation method can provide reliably."));
     driftDetLim->setText("");
     driftDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Interstory Drift"), driftDetLim);
 
     accDetLim = new QLineEdit();
-    accDetLim->setToolTip(tr("Maximum floor acceleration that the response estimation method can provide reliably."));
+    accDetLim->setToolTip(tr("Maximum floor acceleration that the \n"
+                             "response estimation method can provide reliably."));
     accDetLim->setText("");
     accDetLim->setAlignment(Qt::AlignRight);
     responseFormLayout->addRow(tr("    Floor Acceleration"), accDetLim);
@@ -289,14 +298,20 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // replacement cost
     replacementCostValue = new QLineEdit();
-    replacementCostValue->setToolTip(tr("Some tooltip"));
+    replacementCostValue->setToolTip(tr("The cost to replace the building with a new one.\n"
+                                        "Note: following the HAZUS MH Technical Manual, \n"
+                                        "repair costs are estimated as a fraction of \n"
+                                        "the replacement cost provided here."));
     replacementCostValue->setText("");
     replacementCostValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
 
     // replacement cost
     replacementTimeValue = new QLineEdit();
-    replacementTimeValue->setToolTip(tr("Some tooltip"));
+    replacementTimeValue->setToolTip(tr("The time it takes to replace the building with a new one.\n"
+                                        "Note: the time unit used for replacement time must be \n"
+                                        "consistent with those used in the consequence functions.\n"
+                                        "Repair times in HAZUS MH are measured in days."));
     replacementTimeValue->setText("");
     replacementTimeValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
@@ -307,36 +322,33 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // decision variables
     QLabel *decisionVarLabel = new QLabel();
     decisionVarLabel->setText(tr("Decision variables of interest: "));
-    decisionVarLabel->setToolTip(tr("Some tooltip"));
+    decisionVarLabel->setToolTip(tr("Select the decision variables that shall be calculated."));
     lossFormLayout->addRow(decisionVarLabel);
 
     // reconstruction cost
     needRecCost = new QCheckBox();
     needRecCost->setText("");
-    needRecCost->setToolTip(tr("Some tooltip"));
     needRecCost->setChecked(true);
 
     // reconstruction time
     needRecTime = new QCheckBox();
     needRecTime->setText("");
-    needRecTime->setToolTip(tr("Some tooltip"));
     needRecTime->setChecked(true);
 
     QHBoxLayout *costAndTimeLayout = new QHBoxLayout();
     QLabel *recTimeLabel = new QLabel();
-    recTimeLabel->setText(tr("    Reconstruction Time"));
+    recTimeLabel->setText(tr("    Repair Time"));
     costAndTimeLayout->addWidget(needRecCost);
     costAndTimeLayout->setSpacing(5);
     costAndTimeLayout->addWidget(recTimeLabel);
     costAndTimeLayout->addWidget(needRecTime);
 
-    lossFormLayout->addRow(tr("    Reconstruction Cost"),
+    lossFormLayout->addRow(tr("    Repair Cost"),
                                  costAndTimeLayout);
 
     // injuries
     needInjuries = new QCheckBox();
     needInjuries->setText("");
-    needInjuries->setToolTip(tr("Some tooltip"));
     needInjuries->setChecked(true);
 
     lossFormLayout->addRow(tr("    Injuries"),
@@ -348,7 +360,6 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // inhabitants
     QLabel *inhabitantLabel = new QLabel();
     inhabitantLabel->setText(tr("Inhabitants: "));
-    inhabitantLabel->setToolTip(tr("Some tooltip"));
     lossFormLayout->addRow(inhabitantLabel);
 
     // occupancy
@@ -417,7 +428,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
 
     // peak population
     peakPopulation = new QLineEdit();
-    peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building."));
+    peakPopulation->setToolTip(tr("Peak population in the building."));
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Peak Population"), peakPopulation);
@@ -442,7 +453,6 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // component database
     QLabel *componentLabel = new QLabel();
     componentLabel->setText(tr("Components: "));
-    componentLabel->setToolTip(tr("Some tooltip"));
     lossFormLayout->addRow(componentLabel);
 
     QHBoxLayout *fragilityLayout = new QHBoxLayout();

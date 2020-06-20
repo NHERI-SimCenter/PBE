@@ -333,13 +333,13 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     QHBoxLayout *costAndTimeLayout = new QHBoxLayout();
     QLabel *recTimeLabel = new QLabel();
-    recTimeLabel->setText(tr("    Reconstruction Time"));
+    recTimeLabel->setText(tr("    Repair Time"));
     costAndTimeLayout->addWidget(needRecCost);
     costAndTimeLayout->setSpacing(5);
     costAndTimeLayout->addWidget(recTimeLabel);
     costAndTimeLayout->addWidget(needRecTime);
 
-    lossFormLayout->addRow(tr("    Reconstruction Cost"),
+    lossFormLayout->addRow(tr("    Repair Cost"),
                                  costAndTimeLayout);
 
     // injuries
@@ -390,8 +390,8 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     // peak population
     peakPopulation = new QLineEdit();
     peakPopulation->setToolTip(tr("A list of the peak population at each floor of the building.\n"
-                                  "If a single number is provided, the population is assumed to\n"
-                                  "be idential on every floor.\n"));
+                                  "If a single number is provided, the population is evenly \n"
+                                  "distributed across every floor.\n"));
     peakPopulation->setText("");
     peakPopulation->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Peak Population"), peakPopulation);
