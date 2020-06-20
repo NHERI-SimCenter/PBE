@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "P58ComponentContainer.h"
 #include "P58ComponentGroup.h"
 
+#include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -111,6 +112,13 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
     connect(fragilityDataBasePath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
     customFolderLayout->addWidget(btnChooseFragility);
+
+    QPushButton *btnExportDataBase = new QPushButton();
+    btnExportDataBase->setMinimumWidth(150);
+    btnExportDataBase->setMaximumWidth(150);
+    btnExportDataBase->setText(tr("Export Default DB"));
+    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportFragilityDataBase()));
+    customFolderLayout->addWidget(btnExportDataBase);
 
     loCEns->addLayout(customFolderLayout);
     //compListFormLayout->addRow(tr("DL Data Folder: "), customFolderLayout);
@@ -666,6 +674,65 @@ P58ComponentContainer::chooseFragilityFolder(void) {
     this->setFragilityFolder(fragilityFolder);
 
     this->updateAvailableComponents();
+}
+
+void
+P58ComponentContainer::exportFragilityDataBase(void) {
+
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
+
+    QString destinationFolder;
+    destinationFolder = 
+        QFileDialog::getExistingDirectory(this, tr("Select Destination Folder"),
+                                          appDir);
+
+    qDebug() << QString("Exporting default damage and loss database...");
+
+    // run the export script    
+    QDir scriptDir(appDir);
+    scriptDir.cd("applications");
+    scriptDir.cd("performDL");
+    scriptDir.cd("pelicun");
+    QString exportScript = scriptDir.absoluteFilePath("export_DB.py");
+    scriptDir.cd("pelicunPBE");
+    scriptDir.cd("resources");
+    QString dbFile = scriptDir.absoluteFilePath("FEMA_P58_2nd_ed.hdf");
+
+    QProcess *proc = new QProcess();
+    QString python = QString("python");
+    QSettings settingsPy("SimCenter", "Common"); //These names will need to be constants to be shared
+    QVariant  pythonLocationVariant = settingsPy.value("pythonExePath");
+    if (pythonLocationVariant.isValid()) {
+      python = pythonLocationVariant.toString();
+    }
+
+#ifdef Q_OS_WIN
+    python = QString("\"") + python + QString("\"");
+    QStringList args{exportScript, "--DL_DB_path",dbFile,"--target_dir",destinationFolder};
+
+    qDebug() << "PYTHON COMMAND: " << python << args;
+
+    proc->execute(python, args);
+
+#else
+    // note the above not working under linux because basrc not being called so no env variables!!
+
+    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+        exportScript + QString("\"--DL_DB_path\"") + dbFile + QString("\"--target_dir\"") +
+        destinationFolder;
+
+    qDebug() << "PYTHON COMMAND: " << command;
+    proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+    proc->waitForStarted();
+
+    qDebug() << QString("Successfully exported default damage and loss database...");
 }
 
 void

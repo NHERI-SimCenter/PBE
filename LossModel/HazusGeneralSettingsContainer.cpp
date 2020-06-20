@@ -51,6 +51,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonArray>
 #include <QJsonObject>
 #include <sectiontitle.h>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QSettings>
 
 #include "HazusGeneralSettingsContainer.h"
 
@@ -455,6 +458,14 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     lossFormLayout->addRow(tr("Custom DL data: "),
                                 fragilityLayout);
 
+    QPushButton *btnExportDataBase = new QPushButton();
+    btnExportDataBase->setMinimumWidth(150);
+    //btnExportDataBase->setMaximumWidth(150);
+    btnExportDataBase->setText(tr("Export Default DB"));
+    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportFragilityDataBase()));
+
+    lossFormLayout->addRow(tr(" "), btnExportDataBase);
+
     // set style
     lossFormLayout->setAlignment(Qt::AlignLeft);
     lossFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -532,6 +543,65 @@ HazusGeneralSettingsContainer::chooseFragilityDataBase(void) {
     fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
         "C://");
     this->setFragilityDataBase(fragilityFolder);
+}
+
+void
+HazusGeneralSettingsContainer::exportFragilityDataBase(void) {
+
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
+
+    QString destinationFolder;
+    destinationFolder = 
+        QFileDialog::getExistingDirectory(this, tr("Select Destination Folder"),
+                                          appDir);
+
+    qDebug() << QString("Exporting default damage and loss database...");
+
+    // run the export script    
+    QDir scriptDir(appDir);
+    scriptDir.cd("applications");
+    scriptDir.cd("performDL");
+    scriptDir.cd("pelicun");
+    QString exportScript = scriptDir.absoluteFilePath("export_DB.py");
+    scriptDir.cd("pelicunPBE");
+    scriptDir.cd("resources");
+    QString dbFile = scriptDir.absoluteFilePath("HAZUS_MH_2.1_EQ.hdf");
+
+    QProcess *proc = new QProcess();
+    QString python = QString("python");
+    QSettings settingsPy("SimCenter", "Common"); //These names will need to be constants to be shared
+    QVariant  pythonLocationVariant = settingsPy.value("pythonExePath");
+    if (pythonLocationVariant.isValid()) {
+      python = pythonLocationVariant.toString();
+    }
+
+#ifdef Q_OS_WIN
+    python = QString("\"") + python + QString("\"");
+    QStringList args{exportScript, "--DL_DB_path",dbFile,"--target_dir",destinationFolder};
+
+    qDebug() << "PYTHON COMMAND: " << python << args;
+
+    proc->execute(python, args);
+
+#else
+    // note the above not working under linux because basrc not being called so no env variables!!
+
+    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+        exportScript + QString("\"--DL_DB_path\"") + dbFile + QString("\"--target_dir\"") +
+        destinationFolder;
+
+    qDebug() << "PYTHON COMMAND: " << command;
+    proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+    proc->waitForStarted();
+
+    qDebug() << QString("Successfully exported default damage and loss database...");
 }
 
 int
