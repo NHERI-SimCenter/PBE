@@ -15,6 +15,15 @@ DEFINES += CURL_STATICLIB
 macos:LIBS += /usr/lib/libcurl.dylib -llapack -lblas
 win32:INCLUDEPATH += "c:\Users\SimCenter\libCurl-7.59.0\include"
 win32:LIBS += C:\Users\SimCenter\libCurl-7.59.0/lib/libcurl.lib
+win32:INCLUDEPATH += "c:\Tools\common\hdf5\include\hdf5"
+win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_cpp.lib"
+win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5.lib"
+win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_hl_cpp.lib"
+win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_hl.lib"
+
+win32:INCLUDEPATH += "c:\Tools\common\zlib\include"
+win32:LIBS += "C:\Tools\common\zlib\lib\zlib.lib"
+
 linux:LIBS += /usr/lib/x86_64-linux-gnu/libcurl.so
 
 win32 {
@@ -37,6 +46,7 @@ include(./MiniZip/MiniZip.pri)
 INCLUDEPATH += "./Component"
 
 SOURCES += main.cpp \
+    HDF5Handler.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
     ResultsPelicun.cpp \
@@ -54,6 +64,7 @@ SOURCES += main.cpp \
 
 
 HEADERS  += \
+    HDF5Handler.h \
     WorkflowAppPBE.h \
     RunWidget.h \
     ResultsPelicun.h \
