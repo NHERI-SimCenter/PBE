@@ -82,6 +82,7 @@ private:
    int col1, col2;
    bool mLeft;
    QStringList theHeadings;
+   QMap<QString, QString> resultsToShow;
 
    QVector<QString>theNames;
    QVector<double>theMeans;
