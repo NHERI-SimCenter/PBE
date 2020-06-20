@@ -126,7 +126,7 @@ HazusLossModel::errorMessage(QString message){
 
 QString
 HazusLossModel::getFragilityFolder(){
-    return theGeneralSettingsContainer->getFragilityFolder();
+    return theGeneralSettingsContainer->getFragilityDataBase();
 }
 
 QString

@@ -446,7 +446,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     fragilityFolderPath = new QLineEdit;
     QPushButton *chooseFragility = new QPushButton();
     chooseFragility->setText(tr("Choose"));
-    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
+    connect(chooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
     fragilityLayout->addWidget(fragilityFolderPath);
     fragilityLayout->addWidget(chooseFragility);
     fragilityLayout->setSpacing(1);
@@ -511,7 +511,7 @@ HazusGeneralSettingsContainer::chooseEDPFile(void) {
 }
 
 QString
-HazusGeneralSettingsContainer::getFragilityFolder(){
+HazusGeneralSettingsContainer::getFragilityDataBase(){
     return fragilityFolderPath->text();
 }
 
@@ -521,17 +521,17 @@ HazusGeneralSettingsContainer::getPopulationFile(){
 }
 
 int
-HazusGeneralSettingsContainer::setFragilityFolder(QString fragilityFolder){
+HazusGeneralSettingsContainer::setFragilityDataBase(QString fragilityFolder){
     fragilityFolderPath->setText(fragilityFolder);
     return 0;
 }
 
 void
-HazusGeneralSettingsContainer::chooseFragilityFolder(void) {
+HazusGeneralSettingsContainer::chooseFragilityDataBase(void) {
     QString fragilityFolder;
     fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
         "C://");
-    this->setFragilityFolder(fragilityFolder);
+    this->setFragilityDataBase(fragilityFolder);
 }
 
 int

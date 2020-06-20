@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
+#include <HDF5Handler.h>
+
 class ComponentGroup;
 
 class QVBoxLayout;
@@ -64,8 +66,8 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool copyFiles(QString &dirName);
 
-    int setFragilityFolder(QString fragilityFolder);
-    QString getFragilityFolder();
+    int setFragilityDataBase(QString fragilityDataBase);
+    QString getFragilityDataBase();
 
     void addCompToOverview(QString compName, QVBoxLayout *compAreaVBox);
 
@@ -92,7 +94,8 @@ public slots:
    void onLoadConfigClicked(void);
    void onSaveConfigClicked(void);
 
-   void chooseFragilityFolder(void);
+   void chooseFragilityDataBase(void);
+   void exportFragilityDataBase(void);
 
    /*
    void storeCompQuantity(void);
@@ -113,11 +116,15 @@ public slots:
    */
 
 private:
+
+    void deleteCompDB();
+    void deleteCompConfig();
+
     QVBoxLayout *verticalLayout;
     QVBoxLayout *eventLayout;
     QVBoxLayout *loCGList;
 
-    QLineEdit * fragilityFolderPath;
+    QLineEdit * fragilityDataBasePath;
 
     QComboBox *availableCompCombo;
     QStringListModel *availableCBModel;
@@ -143,8 +150,13 @@ private:
     QGroupBox *compOverviewGroupBox;
     QVBoxLayout *compOverviewLayout;
 
+    // component DL information
+    QMap<QString, QMap<QString, QString>* > *compDB;
+
     // component properties
     QMap<QString, QVector<QMap<QString, QString>* >* > *compConfig;
+
+    QString dbType = "N/A";
 
     /*
     QMap<QString, QVector<QString>> *compLocationMap;

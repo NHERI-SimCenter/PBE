@@ -66,6 +66,12 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
 {
     int maxWidth = 950;
 
+    // initialize the compDB Map 
+    compDB = new QMap<QString, QMap<QString, QString>* >;
+
+    // initialize component property containers
+    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
+
     verticalLayout = new QVBoxLayout();    
 
     // title
@@ -92,18 +98,18 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     lblChooseFragility->setText("Damage and Loss Data Folder:");
     customFolderLayout->addWidget(lblChooseFragility);
 
-    fragilityFolderPath = new QLineEdit;
-    fragilityFolderPath->setToolTip(tr("Location of the folder with damage and loss data files.\n"
+    fragilityDataBasePath = new QLineEdit;
+    fragilityDataBasePath->setToolTip(tr("Location of the folder with damage and loss data files.\n"
                                        "If empty, the default files are used that correspond to \n"
                                        "FEMA P58 Second Edition."));
-    customFolderLayout->addWidget(fragilityFolderPath, 1);
+    customFolderLayout->addWidget(fragilityDataBasePath, 1);
 
     QPushButton *btnChooseFragility = new QPushButton();
-    btnChooseFragility->setMinimumWidth(60);
-    btnChooseFragility->setMaximumWidth(60);
+    btnChooseFragility->setMinimumWidth(70);
+    btnChooseFragility->setMaximumWidth(70);
     btnChooseFragility->setText(tr("Choose"));
-    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
-    connect(fragilityFolderPath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
+    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
+    connect(fragilityDataBasePath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
     customFolderLayout->addWidget(btnChooseFragility);
 
     loCEns->addLayout(customFolderLayout);
@@ -432,44 +438,72 @@ P58ComponentContainer::showSelectedComponent(){
 
         if (selectedCompCombo->currentText() != "") {
 
-            QString compFileName = selectedCompCombo->currentText() + ".json";
-            QDir fragDir(this->getFragilityFolder());
-            QFile compFile(fragDir.absoluteFilePath(compFileName));
-            compFile.open(QFile::ReadOnly | QFile::Text);
+            if (dbType == "JSON") {
 
-            QString val;
-            val = compFile.readAll();
-            QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-            QJsonObject compData = doc.object();
-            compFile.close();
+                QString compFileName = selectedCompCombo->currentText() + ".json";
+                QDir fragDir(this->getFragilityDataBase());
+                QFile compFile(fragDir.absoluteFilePath(compFileName));
+                compFile.open(QFile::ReadOnly | QFile::Text);
 
-            compName->setText(compData["Name"].toString());
+                QString val;
+                val = compFile.readAll();
+                QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+                QJsonObject compData = doc.object();
+                compFile.close();
 
-            QJsonObject compGI = compData["GeneralInformation"].toObject();
-            compDescription->setText(compGI["Description"].toString());
+                compName->setText(compData["Name"].toString());
 
-            QJsonObject compEDPVar = compData["EDP"].toObject();
-            compEDP->setText(compEDPVar["Type"].toString());
+                QJsonObject compGI = compData["GeneralInformation"].toObject();
+                compDescription->setText(compGI["Description"].toString());
 
-            QJsonArray compQData = compData["QuantityUnit"].toArray();
-            //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-            compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
-                              compQData[1].toString());
+                QJsonObject compEDPVar = compData["EDP"].toObject();
+                compEDP->setText(compEDPVar["Type"].toString());
 
-            QString infoString = "";
-            if (compData["Directional"] == true) {
-                infoString += "Directional, ";
-            } else {
-                infoString += "Non-directional, ";
+                QJsonArray compQData = compData["QuantityUnit"].toArray();
+                //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+                compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
+                                  compQData[1].toString());
+
+                QString infoString = "";
+                if (compData["Directional"] == true) {
+                    infoString += "Directional, ";
+                } else {
+                    infoString += "Non-directional, ";
+                }
+                if (compData["Correlated"] == true) {
+                    infoString += "identical behavior among Component Groups.";
+                } else {
+                    infoString += "independent behavior among Component Groups.";
+                }
+
+                if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
+                compInfo->setText(infoString);
             }
-            if (compData["Correlated"] == true) {
-                infoString += "identical behavior among Component Groups.";
-            } else {
-                infoString += "independent behavior among Component Groups.";
-            }
+            else if (dbType == "HDF5") {
 
-            if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
-            compInfo->setText(infoString);
+                QString compID = selectedCompCombo->currentText();
+                QMap<QString, QString>* C_info = compDB->value(compID);
+
+                compName->setText(C_info->value("Name"));
+                compDescription->setText(C_info->value("Description"));
+                compEDP->setText(C_info->value("EDPType"));
+                compUnit->setText(C_info->value("QuantityUnit"));
+
+                QString infoString = "";
+                if (C_info->value("Directional") == "1") {
+                    infoString += "Directional, ";
+                } else {
+                    infoString += "Non-directional, ";
+                }
+                if (C_info->value("Correlated") == "1") {
+                    infoString += "identical behavior among Component Groups.";
+                } else {
+                    infoString += "independent behavior among Component Groups.";
+                }
+
+                if (C_info->value("Incomplete") == "1") infoString += "  INCOMPLETE DATA!";
+                compInfo->setText(infoString);
+            }
 
             this->clearCompGroupWidget();
             this->retrieveCompGroups();
@@ -484,31 +518,122 @@ P58ComponentContainer::showSelectedComponent(){
     }
 }
 
+void 
+P58ComponentContainer::deleteCompDB(){
+
+    qDeleteAll(compDB->begin(), compDB->end());
+    compDB->clear();
+    delete compDB;
+}
+
 int
 P58ComponentContainer::updateAvailableComponents(){
 
     availableCompCombo->clear();
 
-    QDir directory(this->getFragilityFolder());
+    QString fragilityDataBase = this->getFragilityDataBase();
 
-    QStringList DL_files = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
+    QStringList compIDs;
 
-    for (int i=0; i<DL_files.length(); i++){
-        DL_files[i] = DL_files[i].remove(DL_files[i].size()-5, 5);
+    if (fragilityDataBase.endsWith("hdf")) {
+
+        qDebug() << "HDF file recognized";
+        dbType = "HDF5";
+
+        // we are dealing with an HDF5 file...
+
+        HDF5Data *DLDB = new HDF5Data(fragilityDataBase);
+
+        QVector<QString> qvComp;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("index"), &qvComp);
+
+        // when using an HDF5 file, all component info is loaded at once here
+        QVector<QString> qvName;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Name"), &qvName);
+
+        QVector<QString> qvDescription;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")), 
+                          QString("Description"), &qvDescription);
+
+        QVector<QString> qvEDPType;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/EDP")), 
+                          QString("Type"), &qvEDPType);
+
+        QVector<int> qvQuantityCount;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("QuantityUnit#0"), &qvQuantityCount);
+
+        QVector<QString> qvQuantityUnit;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("QuantityUnit#1"), &qvQuantityUnit);
+
+        QVector<int> qvDirectional;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Directional"), &qvDirectional);
+
+        QVector<int> qvCorrelated;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Correlated"), &qvCorrelated);
+
+        QVector<int> qvIncomplete;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")), 
+                          QString("Incomplete"), &qvIncomplete);
+
+        //initialize the component map
+        deleteCompDB();
+        compDB = new QMap<QString, QMap<QString, QString>* >;
+
+        for (int i =0; i < qvComp.size(); i++){
+
+            QString compName = qvComp[i];
+            compIDs << compName;
+            
+            // Create a new C_info dict and add it to the compDB dict
+
+            QMap<QString, QString> *C_info = new QMap<QString, QString>;
+            compDB->insert(compName, C_info);
+
+            // Then fill it with the info from the DL DB
+
+            C_info -> insert("Name",         qvName[i]);
+            C_info -> insert("Description",  qvDescription[i]);
+            C_info -> insert("EDPType",      qvEDPType[i]);
+            C_info -> insert("QuantityUnit", 
+                QString("%1").arg(qvQuantityCount[i])+QString(" ")+qvQuantityUnit[i]);
+            C_info -> insert("Directional",  QString::number(qvDirectional[i]));
+            C_info -> insert("Correlated",   QString::number(qvCorrelated[i]));
+            C_info -> insert("Incomplete",   QString::number(qvIncomplete[i]));
+        }
+
+        delete DLDB;
+
+    } else {
+
+        dbType = "JSON";
+
+        // we are dealing with json files...
+        QDir directory(fragilityDataBase);
+
+        compIDs = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
+
+        for (int i=0; i<compIDs.length(); i++){
+            compIDs[i] = compIDs[i].remove(compIDs[i].size()-5, 5);
+        }
     }
 
-    availableCompCombo->addItems(DL_files);
+    availableCompCombo->addItems(compIDs);
 
     return 0;
 }
 
-
 QString
-P58ComponentContainer::getFragilityFolder(){
+P58ComponentContainer::getFragilityDataBase(){
 
-    QString fragilityFolder = fragilityFolderPath->text();
+    QString fragilityDataBase = fragilityDataBasePath->text();
 
-    if (fragilityFolder == "") {
+    if (fragilityDataBase == "") {
 
         QString appDir = QString("");
         QSettings settings("SimCenter", QCoreApplication::applicationName());
@@ -516,15 +641,19 @@ P58ComponentContainer::getFragilityFolder(){
         if (appDirVariant.isValid())
           appDir = appDirVariant.toString();
 
-        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 second edition/DL json";
-    }    
+        fragilityDataBase = appDir + 
+        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
+        //"/applications/performDL/pelicun/pelicunPBE/resources/DL json/";
+    }
 
-    return fragilityFolder;
+    qDebug() << "updating frag folder with " << fragilityDataBase;
+
+    return fragilityDataBase;
 }
 
 int
-P58ComponentContainer::setFragilityFolder(QString fragilityFolder){
-    fragilityFolderPath->setText(fragilityFolder);
+P58ComponentContainer::setFragilityDataBase(QString fragilityDataBase){
+    fragilityDataBasePath->setText(fragilityDataBase);
     return 0;
 }
 
