@@ -71,8 +71,8 @@ LossModelSelection::LossModelSelection(
     dlSelection->setMaximumWidth(200);
     dlSelection->setMinimumWidth(200);
 
-    dlSelection->addItem(tr("FEMA P58"));
     dlSelection->addItem(tr("HAZUS MH"));
+    dlSelection->addItem(tr("FEMA P58"));    
 
     methodSelectLayout->addWidget(textDL);
     methodSelectLayout->addItem(spacer);
@@ -95,8 +95,9 @@ LossModelSelection::LossModelSelection(
 
     this->setLayout(layout);
 
-    // set FEMA P58 as the default
-    this->dlSelectionChanged(tr("FEMA P58"));
+    // set HAZUS as the default
+    dlSelection->setCurrentText("HAZUS MH");
+    this->dlSelectionChanged(QString("HAZUS MH"));
     layout->setMargin(0);
 }
 
