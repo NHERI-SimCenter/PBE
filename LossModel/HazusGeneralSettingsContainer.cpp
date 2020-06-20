@@ -694,25 +694,39 @@ bool HazusGeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     // Components -------------------------------------------------------------
     QJsonObject compData;
 
-    // prepare a generic component description
-    QJsonArray compArray;
-    QJsonObject CGObj;
-    CGObj["location"] = "all";
-    CGObj["direction"] = "1";
-    CGObj["median_quantity"] = "1.0";
-    CGObj["unit"] = "ea";
-    CGObj["distribution"] = "N/A";
-    compArray.append(CGObj);
-
-    // assign it to the three components
+    // set up the three components
     QString comp_S = "S-"+damageModel["StructureType"].toString()+"-"+design_code+"-"+inhabitants["OccupancyType"].toString();
-    compData[comp_S] = compArray;
+    QJsonArray compArray_S;
+    QJsonObject CGObj_S;
+    CGObj_S["location"] = "1";
+    CGObj_S["direction"] = "1";
+    CGObj_S["median_quantity"] = "1.0";
+    CGObj_S["unit"] = "ea";
+    CGObj_S["distribution"] = "N/A";
+    compArray_S.append(CGObj_S);
+    compData[comp_S] = compArray_S;
 
     QString comp_NSA = "NSA-"+design_code+"-"+inhabitants["OccupancyType"].toString();
-    compData[comp_NSA] = compArray;
+    QJsonArray compArray_NSA;
+    QJsonObject CGObj_NSA;
+    CGObj_NSA["location"] = "roof";
+    CGObj_NSA["direction"] = "1";
+    CGObj_NSA["median_quantity"] = "1.0";
+    CGObj_NSA["unit"] = "ea";
+    CGObj_NSA["distribution"] = "N/A";
+    compArray_NSA.append(CGObj_NSA);
+    compData[comp_NSA] = compArray_NSA;
 
     QString comp_NSD = "NSD-"+inhabitants["OccupancyType"].toString();
-    compData[comp_NSD] = compArray;
+    QJsonArray compArray_NSD;
+    QJsonObject CGObj_NSD;
+    CGObj_NSD["location"] = "1";
+    CGObj_NSD["direction"] = "1";
+    CGObj_NSD["median_quantity"] = "1.0";
+    CGObj_NSD["unit"] = "ea";
+    CGObj_NSD["distribution"] = "N/A";
+    compArray_NSD.append(CGObj_NSD);
+    compData[comp_NSD] = compArray_NSD;
 
     outputObject["Components"] = compData;
 
