@@ -745,7 +745,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     QWidget *widget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout(widget);
-    layout->addWidget(chartView, 1);
+    layout->addWidget(chartView, 3);
     layout->addWidget(spreadsheet, 1);
 
     //
