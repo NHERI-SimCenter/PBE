@@ -666,12 +666,20 @@ P58ComponentContainer::setFragilityDataBase(QString fragilityDataBase){
 }
 
 void
-P58ComponentContainer::chooseFragilityFolder(void) {
-    QString fragilityFolder;
-    fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
-        "C://");
+P58ComponentContainer::chooseFragilityDataBase(void) {
 
-    this->setFragilityFolder(fragilityFolder);
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
+
+    QString fragilityDataBase;
+    fragilityDataBase = 
+        QFileDialog::getExistingDirectory(this, 
+                                          tr("Select Database Folder"), appDir);
+
+    this->setFragilityDataBase(fragilityDataBase);
 
     this->updateAvailableComponents();
 }
