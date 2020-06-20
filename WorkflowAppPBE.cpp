@@ -101,7 +101,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theRVs = new RandomVariablesContainer();
     theGI = GeneralInformationWidget::getInstance();
     theSIM = new SIM_Selection(theRVs);
-    theEvent = new EarthquakeEventSelection(theRVs);
+    theEvent = new EarthquakeEventSelection(theRVs, theGI);
     theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
     theUQ_Selection = new UQ_EngineSelection(theRVs, ForwardOnly);
     theDLModelSelection = new LossModelSelection(theRVs);
@@ -158,13 +158,11 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)),
             this, SLOT(setUpForApplicationRun(QString &,QString &)));
 
-    connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &, QString)),
-            theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &, QString)));
+    connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &)), 
+            theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
 
     connect(localApp, SIGNAL(processResults(QString, QString, QString)),
             this, SLOT(processResults(QString, QString, QString)));
-
-
 
     connect(theJobManager,
             SIGNAL(processResults(QString , QString, QString)),
@@ -552,7 +550,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
 
     statusMessage("SetUp Done .. Now starting application");
 
-    emit setUpForApplicationRunDone(tmpDirectory, inputFile, runType);
+    emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }
 
 void

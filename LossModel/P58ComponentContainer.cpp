@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "P58ComponentContainer.h"
 #include "P58ComponentGroup.h"
 
+#include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -66,6 +67,12 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
 {
     int maxWidth = 950;
 
+    // initialize the compDB Map 
+    compDB = new QMap<QString, QMap<QString, QString>* >;
+
+    // initialize component property containers
+    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
+
     verticalLayout = new QVBoxLayout();    
 
     // title
@@ -92,19 +99,26 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     lblChooseFragility->setText("Damage and Loss Data Folder:");
     customFolderLayout->addWidget(lblChooseFragility);
 
-    fragilityFolderPath = new QLineEdit;
-    fragilityFolderPath->setToolTip(tr("Location of the folder with damage and loss data files.\n"
+    fragilityDataBasePath = new QLineEdit;
+    fragilityDataBasePath->setToolTip(tr("Location of the folder with damage and loss data files.\n"
                                        "If empty, the default files are used that correspond to \n"
                                        "FEMA P58 Second Edition."));
-    customFolderLayout->addWidget(fragilityFolderPath, 1);
+    customFolderLayout->addWidget(fragilityDataBasePath, 1);
 
     QPushButton *btnChooseFragility = new QPushButton();
-    btnChooseFragility->setMinimumWidth(60);
-    btnChooseFragility->setMaximumWidth(60);
+    btnChooseFragility->setMinimumWidth(70);
+    btnChooseFragility->setMaximumWidth(70);
     btnChooseFragility->setText(tr("Choose"));
-    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityFolder()));
-    connect(fragilityFolderPath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
+    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
+    connect(fragilityDataBasePath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
     customFolderLayout->addWidget(btnChooseFragility);
+
+    QPushButton *btnExportDataBase = new QPushButton();
+    btnExportDataBase->setMinimumWidth(150);
+    btnExportDataBase->setMaximumWidth(150);
+    btnExportDataBase->setText(tr("Export Default DB"));
+    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportFragilityDataBase()));
+    customFolderLayout->addWidget(btnExportDataBase);
 
     loCEns->addLayout(customFolderLayout);
     //compListFormLayout->addRow(tr("DL Data Folder: "), customFolderLayout);
@@ -387,9 +401,6 @@ P58ComponentContainer::P58ComponentContainer(QWidget *parent)
     //verticalLayout->setMargin(0);
 
     this->setLayout(verticalLayout);
-
-    // initialize component property containers
-    compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 }
 
 void
@@ -416,11 +427,14 @@ P58ComponentContainer::retrieveCompGroups(){
         // get the vector of CG data from the compConfig dict
         QVector<QMap<QString, QString>* > *vCG_data =
                 compConfig->value(selectedCompCombo->currentText(),
-                                  new QVector<QMap<QString, QString>* >);
+                                  nullptr);
+                                  //new QVector<QMap<QString, QString>* >);
 
-        // create the CG UI elements for the existing data
-        for (int i=0; i<vCG_data->count(); i++){
-            addComponentGroup(vCG_data->at(i));
+        if (vCG_data != nullptr) {
+            // create the CG UI elements for the existing data
+            for (int i=0; i<vCG_data->count(); i++){
+                addComponentGroup(vCG_data->at(i));
+            }
         }
     }
 }
@@ -432,44 +446,72 @@ P58ComponentContainer::showSelectedComponent(){
 
         if (selectedCompCombo->currentText() != "") {
 
-            QString compFileName = selectedCompCombo->currentText() + ".json";
-            QDir fragDir(this->getFragilityFolder());
-            QFile compFile(fragDir.absoluteFilePath(compFileName));
-            compFile.open(QFile::ReadOnly | QFile::Text);
+            if (dbType == "JSON") {
 
-            QString val;
-            val = compFile.readAll();
-            QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-            QJsonObject compData = doc.object();
-            compFile.close();
+                QString compFileName = selectedCompCombo->currentText() + ".json";
+                QDir fragDir(this->getFragilityDataBase());
+                QFile compFile(fragDir.absoluteFilePath(compFileName));
+                compFile.open(QFile::ReadOnly | QFile::Text);
 
-            compName->setText(compData["Name"].toString());
+                QString val;
+                val = compFile.readAll();
+                QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+                QJsonObject compData = doc.object();
+                compFile.close();
 
-            QJsonObject compGI = compData["GeneralInformation"].toObject();
-            compDescription->setText(compGI["Description"].toString());
+                compName->setText(compData["Name"].toString());
 
-            QJsonObject compEDPVar = compData["EDP"].toObject();
-            compEDP->setText(compEDPVar["Type"].toString());
+                QJsonObject compGI = compData["GeneralInformation"].toObject();
+                compDescription->setText(compGI["Description"].toString());
 
-            QJsonArray compQData = compData["QuantityUnit"].toArray();
-            //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-            compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
-                              compQData[1].toString());
+                QJsonObject compEDPVar = compData["EDP"].toObject();
+                compEDP->setText(compEDPVar["Type"].toString());
 
-            QString infoString = "";
-            if (compData["Directional"] == true) {
-                infoString += "Directional, ";
-            } else {
-                infoString += "Non-directional, ";
+                QJsonArray compQData = compData["QuantityUnit"].toArray();
+                //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
+                compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
+                                  compQData[1].toString());
+
+                QString infoString = "";
+                if (compData["Directional"] == true) {
+                    infoString += "Directional, ";
+                } else {
+                    infoString += "Non-directional, ";
+                }
+                if (compData["Correlated"] == true) {
+                    infoString += "identical behavior among Component Groups.";
+                } else {
+                    infoString += "independent behavior among Component Groups.";
+                }
+
+                if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
+                compInfo->setText(infoString);
             }
-            if (compData["Correlated"] == true) {
-                infoString += "identical behavior among Component Groups.";
-            } else {
-                infoString += "independent behavior among Component Groups.";
-            }
+            else if (dbType == "HDF5") {
 
-            if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
-            compInfo->setText(infoString);
+                QString compID = selectedCompCombo->currentText();
+                QMap<QString, QString>* C_info = compDB->value(compID);
+
+                compName->setText(C_info->value("Name"));
+                compDescription->setText(C_info->value("Description"));
+                compEDP->setText(C_info->value("EDPType"));
+                compUnit->setText(C_info->value("QuantityUnit"));
+
+                QString infoString = "";
+                if (C_info->value("Directional") == "1") {
+                    infoString += "Directional, ";
+                } else {
+                    infoString += "Non-directional, ";
+                }
+                if (C_info->value("Correlated") == "1") {
+                    infoString += "identical behavior among Component Groups.";
+                } else {
+                    infoString += "independent behavior among Component Groups.";
+                }
+
+                if (C_info->value("Incomplete") == "1") infoString += "  INCOMPLETE DATA!";
+                compInfo->setText(infoString);
+            }
 
             this->clearCompGroupWidget();
             this->retrieveCompGroups();
@@ -484,31 +526,152 @@ P58ComponentContainer::showSelectedComponent(){
     }
 }
 
+void 
+P58ComponentContainer::deleteCompDB(){
+
+    qDeleteAll(compDB->begin(), compDB->end());
+    compDB->clear();
+    delete compDB;
+}
+
+void 
+P58ComponentContainer::deleteCompConfig(){
+
+    // get an iterator for the main map
+    QMap<QString, QVector<QMap<QString, QString>* >* >::iterator m;
+    for (m=compConfig->begin(); m!=compConfig->end(); ++m){
+
+        // for each vector in the map, get an iterator
+        QVector<QMap<QString, QString>* > *vi = *m;
+        QVector<QMap<QString, QString>* >::iterator i;
+        for(i=vi->begin(); i != vi->end(); ++i){
+
+            // free each vector element
+            delete *i;
+        }
+
+        // then remove the vector elements
+        vi->clear();
+
+        // and free the vector itself
+        delete *m;
+    }
+
+    // then remove the vectors from the map
+    compConfig->clear();
+
+    // and free the map
+    delete compConfig;
+}
+
 int
 P58ComponentContainer::updateAvailableComponents(){
 
     availableCompCombo->clear();
 
-    QDir directory(this->getFragilityFolder());
+    QString fragilityDataBase = this->getFragilityDataBase();
 
-    QStringList DL_files = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
+    QStringList compIDs;
 
-    for (int i=0; i<DL_files.length(); i++){
-        DL_files[i] = DL_files[i].remove(DL_files[i].size()-5, 5);
+    if (fragilityDataBase.endsWith("hdf")) {
+
+        qDebug() << "HDF file recognized";
+        dbType = "HDF5";
+
+        // we are dealing with an HDF5 file...
+
+        HDF5Data *DLDB = new HDF5Data(fragilityDataBase);
+
+        QVector<QString> qvComp;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("index"), &qvComp);
+
+        // when using an HDF5 file, all component info is loaded at once here
+        QVector<QString> qvName;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Name"), &qvName);
+
+        QVector<QString> qvDescription;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")), 
+                          QString("Description"), &qvDescription);
+
+        QVector<QString> qvEDPType;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/EDP")), 
+                          QString("Type"), &qvEDPType);
+
+        QVector<int> qvQuantityCount;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("QuantityUnit#0"), &qvQuantityCount);
+
+        QVector<QString> qvQuantityUnit;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("QuantityUnit#1"), &qvQuantityUnit);
+
+        QVector<int> qvDirectional;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Directional"), &qvDirectional);
+
+        QVector<int> qvCorrelated;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")), 
+                          QString("Correlated"), &qvCorrelated);
+
+        QVector<int> qvIncomplete;
+        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")), 
+                          QString("Incomplete"), &qvIncomplete);
+
+        //initialize the component map
+        deleteCompDB();
+        compDB = new QMap<QString, QMap<QString, QString>* >;
+
+        for (int i =0; i < qvComp.size(); i++){
+
+            QString compName = qvComp[i];
+            compIDs << compName;
+            
+            // Create a new C_info dict and add it to the compDB dict
+
+            QMap<QString, QString> *C_info = new QMap<QString, QString>;
+            compDB->insert(compName, C_info);
+
+            // Then fill it with the info from the DL DB
+
+            C_info -> insert("Name",         qvName[i]);
+            C_info -> insert("Description",  qvDescription[i]);
+            C_info -> insert("EDPType",      qvEDPType[i]);
+            C_info -> insert("QuantityUnit", 
+                QString("%1").arg(qvQuantityCount[i])+QString(" ")+qvQuantityUnit[i]);
+            C_info -> insert("Directional",  QString::number(qvDirectional[i]));
+            C_info -> insert("Correlated",   QString::number(qvCorrelated[i]));
+            C_info -> insert("Incomplete",   QString::number(qvIncomplete[i]));
+        }
+
+        delete DLDB;
+
+    } else {
+
+        dbType = "JSON";
+
+        // we are dealing with json files...
+        QDir directory(fragilityDataBase);
+
+        compIDs = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
+
+        for (int i=0; i<compIDs.length(); i++){
+            compIDs[i] = compIDs[i].remove(compIDs[i].size()-5, 5);
+        }
     }
 
-    availableCompCombo->addItems(DL_files);
+    availableCompCombo->addItems(compIDs);
 
     return 0;
 }
 
-
 QString
-P58ComponentContainer::getFragilityFolder(){
+P58ComponentContainer::getFragilityDataBase(){
 
-    QString fragilityFolder = fragilityFolderPath->text();
+    QString fragilityDataBase = fragilityDataBasePath->text();
 
-    if (fragilityFolder == "") {
+    if (fragilityDataBase == "") {
 
         QString appDir = QString("");
         QSettings settings("SimCenter", QCoreApplication::applicationName());
@@ -516,27 +679,98 @@ P58ComponentContainer::getFragilityFolder(){
         if (appDirVariant.isValid())
           appDir = appDirVariant.toString();
 
-        fragilityFolder = appDir + "/applications/performDL/pelicun/pelicunPBE/resources/FEMA P58 second edition/DL json";
-    }    
+        fragilityDataBase = appDir + 
+        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
+        //"/applications/performDL/pelicun/pelicunPBE/resources/DL json/";
+    }
 
-    return fragilityFolder;
+    qDebug() << "updating frag folder with " << fragilityDataBase;
+
+    return fragilityDataBase;
 }
 
 int
-P58ComponentContainer::setFragilityFolder(QString fragilityFolder){
-    fragilityFolderPath->setText(fragilityFolder);
+P58ComponentContainer::setFragilityDataBase(QString fragilityDataBase){
+    fragilityDataBasePath->setText(fragilityDataBase);
     return 0;
 }
 
 void
-P58ComponentContainer::chooseFragilityFolder(void) {
-    QString fragilityFolder;
-    fragilityFolder=QFileDialog::getExistingDirectory(this,tr("Select Folder"),
-        "C://");
+P58ComponentContainer::chooseFragilityDataBase(void) {
 
-    this->setFragilityFolder(fragilityFolder);
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
+
+    QString fragilityDataBase;
+    fragilityDataBase = 
+        QFileDialog::getExistingDirectory(this, 
+                                          tr("Select Database Folder"), appDir);
+
+    this->setFragilityDataBase(fragilityDataBase);
 
     this->updateAvailableComponents();
+}
+
+void
+P58ComponentContainer::exportFragilityDataBase(void) {
+
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
+
+    QString destinationFolder;
+    destinationFolder = 
+        QFileDialog::getExistingDirectory(this, tr("Select Destination Folder"),
+                                          appDir);
+
+    qDebug() << QString("Exporting default damage and loss database...");
+
+    // run the export script    
+    QDir scriptDir(appDir);
+    scriptDir.cd("applications");
+    scriptDir.cd("performDL");
+    scriptDir.cd("pelicun");
+    QString exportScript = scriptDir.absoluteFilePath("export_DB.py");
+    scriptDir.cd("pelicunPBE");
+    scriptDir.cd("resources");
+    QString dbFile = scriptDir.absoluteFilePath("FEMA_P58_2nd_ed.hdf");
+
+    QProcess *proc = new QProcess();
+    QString python = QString("python");
+    QSettings settingsPy("SimCenter", "Common"); //These names will need to be constants to be shared
+    QVariant  pythonLocationVariant = settingsPy.value("pythonExePath");
+    if (pythonLocationVariant.isValid()) {
+      python = pythonLocationVariant.toString();
+    }
+
+#ifdef Q_OS_WIN
+    python = QString("\"") + python + QString("\"");
+    QStringList args{exportScript, "--DL_DB_path",dbFile,"--target_dir",destinationFolder};
+
+    qDebug() << "PYTHON COMMAND: " << python << args;
+
+    proc->execute(python, args);
+
+#else
+    // note the above not working under linux because basrc not being called so no env variables!!
+
+    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+        exportScript + QString("\"--DL_DB_path\"") + dbFile + QString("\"--target_dir\"") +
+        destinationFolder;
+
+    qDebug() << "PYTHON COMMAND: " << command;
+    proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+    proc->waitForStarted();
+
+    qDebug() << QString("Successfully exported default damage and loss database...");
 }
 
 void
@@ -553,7 +787,7 @@ P58ComponentContainer::onLoadConfigClicked(void) {
         this->removeAllComponents();
 
         // remove the existing compConfig and initialize a new one
-        delete compConfig;
+        deleteCompConfig();
         compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 
         QTextStream stream(&file);
@@ -570,7 +804,7 @@ P58ComponentContainer::onLoadConfigClicked(void) {
             bool save_element = false;
             int c_0 = 0;
             for (int c=0; c<line.length(); c++) {
-                if (line[c] == '\"') {
+                if (line[c] == "\"") {
                     if (in_commented_block) {
                         save_element = true;
                         in_commented_block = false;
@@ -578,7 +812,7 @@ P58ComponentContainer::onLoadConfigClicked(void) {
                         in_commented_block = true;
                         c_0 = c+1;
                     }
-                } else if (line[c] == ',') {
+                } else if (line[c] == ",") {
                     if (c_0 == c){
                         c_0++;
                     } else if (in_commented_block == false) {
@@ -751,14 +985,22 @@ void P58ComponentContainer::addComponentGroup(QMap<QString, QString> *CG_data_in
            // get the vector of CG data from the compConfig dict
            QVector<QMap<QString, QString>* > *vCG_data =
                    compConfig->value(selectedCompCombo->currentText(),
-                                     new QVector<QMap<QString, QString>* >);
+                                     nullptr);
+
            // create a new CG_data dict and add it to the vector
            CG_data = new QMap<QString, QString>;
-           vCG_data->append(CG_data);
-           // save the vector of CG data to the compConfig dict
-           // (only really needed when the component was not in there earlier)
-           compConfig->insert(selectedCompCombo->currentText(),
-                              vCG_data);
+
+           if (vCG_data != nullptr) {
+                vCG_data->append(CG_data);
+           } else {
+               QVector<QMap<QString, QString>* > *new_vCG_data = 
+                                          new QVector<QMap<QString, QString>* >;
+               new_vCG_data->append(CG_data);                              
+               
+               // save the vector of CG data to the compConfig dict
+               compConfig->insert(selectedCompCombo->currentText(),
+                                  new_vCG_data);
+           }
        } else {
            CG_data = CG_data_in;
        }
@@ -780,26 +1022,29 @@ void P58ComponentContainer::removeComponentGroup(void)
         // get the vector of CG data from the compConfig dict
         QVector<QMap<QString, QString>* > *vCG_data =
                 compConfig->value(selectedCompCombo->currentText(),
-                                  new QVector<QMap<QString, QString>* >);
+                                  nullptr);
+                                  //new QVector<QMap<QString, QString>* >);
 
-        // find the ones selected & remove them
-        int CGcount = vComponentGroups.size();
-        for (int i = CGcount-1; i >= 0; i--) {
-          ComponentGroup *theComponentGroup = vComponentGroups.at(i);
-          if (theComponentGroup->isSelectedForRemoval()) {
-              //remove the widget from the UI
-              theComponentGroup->close();
-              loCGList->removeWidget(theComponentGroup);
-              //remove the CG_data from the database
-              vCG_data->remove(i);
-              //remove the CG from the UI vector
-              vComponentGroups.remove(i);
-              //delete the CG_data object
-              theComponentGroup->delete_CG_data();
-              //delete the CG UI object
-              theComponentGroup->setParent(nullptr);
-              delete theComponentGroup;
-          }
+        if (vCG_data != nullptr) {
+            // find the ones selected & remove them
+            int CGcount = vComponentGroups.size();
+            for (int i = CGcount-1; i >= 0; i--) {
+              ComponentGroup *theComponentGroup = vComponentGroups.at(i);
+              if (theComponentGroup->isSelectedForRemoval()) {
+                  //remove the widget from the UI
+                  theComponentGroup->close();
+                  loCGList->removeWidget(theComponentGroup);
+                  //remove the CG_data from the database
+                  vCG_data->remove(i);
+                  //remove the CG from the UI vector
+                  vComponentGroups.remove(i);
+                  //delete the CG_data object
+                  theComponentGroup->delete_CG_data();
+                  //delete the CG UI object
+                  theComponentGroup->setParent(nullptr);
+                  delete theComponentGroup;
+              }
+            }
         }
     }
 }
@@ -811,7 +1056,7 @@ P58ComponentContainer::outputToJSON(QJsonObject &jsonObject)
 
     // first, save the DL data folder
     QString pathString;
-    pathString = fragilityFolderPath->text();
+    pathString = fragilityDataBasePath->text();
     if (pathString != ""){
         jsonObject["ComponentDataFolder"] = pathString;
     }
@@ -860,13 +1105,13 @@ P58ComponentContainer::inputFromJSON(QJsonObject &jsonObject)
     // first, load the DL data folder
     QString pathString;
     pathString = jsonObject["ComponentDataFolder"].toString();
-    fragilityFolderPath->setText(pathString);
+    fragilityDataBasePath->setText(pathString);
 
     // clear the selectedCompCombo
     this->removeAllComponents();
 
     // remove the existing compConfig and initialize a new one
-    delete compConfig;
+    deleteCompConfig();
     compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 
     QJsonObject compData;

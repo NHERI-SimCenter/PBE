@@ -170,7 +170,7 @@ P58LossModel::errorMessage(QString message){
 
 QString
 P58LossModel::getFragilityFolder(){
-    return contComponents->getFragilityFolder();
+    return contComponents->getFragilityDataBase();
 }
 
 QString

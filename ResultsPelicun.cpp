@@ -435,8 +435,8 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");
-            QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
-            proc->execute(python, args);
+        QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
+        proc->execute(python, args);
 
 #else
         // note the above not working under linux because basrc not being called so no env variables!!
@@ -585,21 +585,24 @@ int ResultsPelicun::processResults(QString filenameTab) {
     sepLine->setFrameShadow(QFrame::Sunken);
     summaryLayout->addWidget(sepLine);
 
-    QMap<QString, QString> resultsToShow;
+    resultsToShow.clear();
     resultsToShow.insert("inhabitants/","inhabitants");
-    resultsToShow.insert("collapses/collapsed?","collapsed?");
-    resultsToShow.insert("red_tagged?/","red tagged?");
-    resultsToShow.insert("reconstruction/irrepairable?","not repairable?");
-    resultsToShow.insert("reconstruction/cost_impractical?","excessive repair cost?");
+    resultsToShow.insert("collapses/collapsed","collapsed?");
+    resultsToShow.insert("red_tagged/","red tagged?");
+    resultsToShow.insert("reconstruction/irreparable","irreparable?");
+    resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
     resultsToShow.insert("reconstruction/cost","repair cost");
     resultsToShow.insert("reconstruction/time","repair time");
-    resultsToShow.insert("reconstruction/time_impractical?","excessive repair time?");
+    resultsToShow.insert("reconstruction/time_impractical","excessive repair time?");
     resultsToShow.insert("reconstruction/time-sequential","repair time - sequential");
     resultsToShow.insert("reconstruction/time-parallel","repair time - parallel");
-    resultsToShow.insert("injuries/sev._1","injuries-1");
-    resultsToShow.insert("injuries/sev._2","injuries-2");
-    resultsToShow.insert("injuries/sev._3","injuries-3");
-    resultsToShow.insert("injuries/sev._4","injuries-4");
+    resultsToShow.insert("injuries/sev1","injuries-1");
+    resultsToShow.insert("injuries/sev2","injuries-2");
+    resultsToShow.insert("injuries/sev3","injuries-3");
+    resultsToShow.insert("injuries/sev4","injuries-4");
+    resultsToShow.insert("highest_damage_state/S","top DS S");
+    resultsToShow.insert("highest_damage_state/NSA","top DS NSA");
+    resultsToShow.insert("highest_damage_state/NSD","top DS NSD");
 
     while(std::getline(ssName, tokenName, ',')) {
 
@@ -695,7 +698,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     std::getline(fileResults, summaryName);
 
     // now until end of file, read lines and place data into spreadsheet
-    // (do not read more than 10000 lines to avoid visualization issues)
+    // (do not read more than 20000 lines to avoid visualization issues)
     int rowCount = 0;
     while ((std::getline(fileResults, inputLine)) && (rowCount <= 20000)) {
         spreadsheet->insertRow(rowCount);
@@ -742,7 +745,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
     QWidget *widget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout(widget);
-    layout->addWidget(chartView, 1);
+    layout->addWidget(chartView, 3);
     layout->addWidget(spreadsheet, 1);
 
     //
@@ -862,7 +865,7 @@ ResultsPelicun::getColDataExt(QList<QPointF> &dataXY, int numRow, int colX,
 void
 ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 {
-    qDebug() << "onSPreadSheetCellClicked() :" << row << " " << col;
+    //qDebug() << "onSPreadSheetCellClicked() :" << row << " " << col;
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     // create a new series
@@ -887,18 +890,28 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
     int rowCount = spreadsheet->rowCount();
     if (col1 != col2) {
         QScatterSeries *series = new QScatterSeries;
-        if (rowCount < 100) {
+
+        // adjust marker size and opacity based on the number of samples
+        if (rowCount < 10) {
             series->setMarkerSize(15.0);
+            series->setColor(QColor(0, 114, 178, 200));
+        } else if (rowCount < 100) {
+            series->setMarkerSize(11.0);
+            series->setColor(QColor(0, 114, 178, 160));
         } else if (rowCount < 1000) {
-            series->setMarkerSize(10.0);
+            series->setMarkerSize(8.0);
+            series->setColor(QColor(0, 114, 178, 100));
         } else if (rowCount < 10000) {
             series->setMarkerSize(6.0);
+            series->setColor(QColor(0, 114, 178, 70));
         } else if (rowCount < 100000) {
-            series->setMarkerSize(4.0);
-        } else
-            series->setMarkerSize(3.0);
-
-        series->setColor(QColor(0, 114, 178, 64));
+            series->setMarkerSize(5.0);
+            series->setColor(QColor(0, 114, 178, 50));
+        } else {
+            series->setMarkerSize(4.5);
+            series->setColor(QColor(0, 114, 178, 30));
+        }
+        
         series->setBorderColor(QColor(255,255,255,0));
 
         QList<QPointF> dataXY;
@@ -916,8 +929,8 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
         QValueAxis *axisX = new QValueAxis();
         QValueAxis *axisY = new QValueAxis();
 
-        axisX->setTitleText(theHeadings.at(col1));
-        axisY->setTitleText(theHeadings.at(col2));
+        axisX->setTitleText(resultsToShow.value(theHeadings.at(col1)));
+        axisY->setTitleText(resultsToShow.value(theHeadings.at(col2)));
 
         chart->setAxisX(axisX, series);
         chart->setAxisY(axisY, series);
@@ -932,8 +945,8 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
 
         int binCount = int(pow(rowCount, 1.0/3.0));
         if (binCount > 20) binCount = 20;
-        qDebug() << "row count: " << rowCount;
-        qDebug() << "bin count: " << binCount;
+        //qDebug() << "row count: " << rowCount;
+        //qDebug() << "bin count: " << binCount;
 
         // initialize histogram data
         QList<qreal> histogram;
@@ -996,7 +1009,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             QStringList xLabels = QStringList(xLabelList);
             QBarCategoryAxis *axisX = new QBarCategoryAxis();
             axisX->append(xLabels);
-            axisX->setTitleText(theHeadings.at(col1));
+            axisX->setTitleText(resultsToShow.value(theHeadings.at(col1)));
             //axisX->setTickCount(NUM_DIVISIONS+1);
             chart->setAxisX(axisX, series);
 
@@ -1027,7 +1040,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             axisX->setRange(min, max);
             axisY->setRange(0, 1);
             axisY->setTitleText("Cumulative Probability");
-            axisX->setTitleText(theHeadings.at(col1));
+            axisX->setTitleText(resultsToShow.value(theHeadings.at(col1)));
             axisX->setTickCount(11);
             axisY->setTickCount(11);
             chart->setAxisX(axisX, series);

@@ -41,7 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QCheckBox>
 
-#include "SimCenterAppWidget.h"
+#include <SimCenterAppWidget.h>
 
 class QCheckBox;
 class QComboBox;
@@ -91,11 +91,11 @@ public:
     QString getHazusGeneralSettingsContainerName() const;
 
     int setEDPFile(QString EDPFile);
-    int setFragilityFolder(QString fragilityFolder);
+    int setFragilityDataBase(QString fragilityFolder);
     int setPopulationFile(QString populationFile);
 
     QString getEDPFile();
-    QString getFragilityFolder();
+    QString getFragilityDataBase();
     QString getPopulationFile();
 
 
@@ -103,8 +103,9 @@ signals:
 
 public slots:
     void chooseEDPFile(void);
-    void chooseFragilityFolder(void);
+    void chooseFragilityDataBase(void);
     void choosePopulationFile(void);
+    void exportFragilityDataBase(void);
 
 private:
     
