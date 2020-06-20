@@ -77,10 +77,10 @@ HDF5Data::describeGroup(hid_t gid) {
     ssize_t m_len;
     int m_type;
     char memb_name[MAX_NAME];
-    hid_t subgid;
+    //hid_t subgid;
 
     err = H5Gget_num_objs(gid, &nobj);
-    for (i = 0; i < nobj; i++) {
+    for (hsize_t i = 0; i < nobj; i++) {
 
     	// get the member name
     	m_len = H5Gget_objname_by_idx(gid, (hsize_t)i, memb_name, 
@@ -171,7 +171,7 @@ HDF5Data::getStringDataSet(hid_t gid, char dsName[MAX_NAME], char ***udata,
    		rdata[0] = (char *) malloc (dims[0] * dims[1] * dataDim * sizeof(char));
    	}
 
-    for (i=1; i<dims[0]; i++) {
+    for (hsize_t i=1; i<dims[0]; i++) {
     	if (dimCount == 1) {
         	rdata[i] = rdata[0] + i * dataDim;
         } else if (dimCount == 2) {
@@ -356,7 +356,8 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<int> *qvRes) {
 	int dSize, row;
 	QVector<int> results;
 
-    strcpy_s(blockName, ds_name.toStdString().c_str());
+    //strcpy_s(blockName, ds_name.toStdString().c_str());
+    strcpy(blockName, ds_name.toStdString().c_str());
 
     getIntegerDataSet(gid, blockName, &intData, &dSize);
 
@@ -378,7 +379,7 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<QString> *qvRes) {
 	int dSize, row;
 	QVector<QString> results;
 
-    strcpy_s(blockName, ds_name.toStdString().c_str());
+    strcpy(blockName, ds_name.toStdString().c_str());
 
     getStringDataSet(gid, blockName, &stringData, &dSize);
 
@@ -400,7 +401,7 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<double> *qvRes) {
 	int dSize, row;
 	QVector<double> results;
 
-    strcpy_s(blockName, ds_name.toStdString().c_str());
+    strcpy(blockName, ds_name.toStdString().c_str());
 
     getFloatDataSet(gid, blockName, &floatData, &dSize);
 
@@ -455,7 +456,7 @@ HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames
 		qDebug() << columnNames[colLvl];
 
         blockNameStr = "block" + std::to_string(blockID) + "_items_level" + std::to_string(colLvl);
-        strcpy_s(blockName, blockNameStr.c_str());
+        strcpy(blockName, blockNameStr.c_str());
 
         getStringDataSet(gid, blockName, &stringData, &dSize);
 
@@ -491,7 +492,7 @@ HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames
         qDebug() << "block " << blockID;
 
         blockNameStr = "block" + std::to_string(blockID) + "_items_label" + std::to_string(0);
-        strcpy_s(blockName, blockNameStr.c_str());
+        strcpy(blockName, blockNameStr.c_str());
 
         getIntegerDataSet(gid, blockName, &intData, &dSize);
 
@@ -503,7 +504,7 @@ HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames
             for (colLvl=0; colLvl<colCount; colLvl++) {
 
                 blockNameStr = "block" + std::to_string(blockID) + "_items_label" + std::to_string(colLvl);
-                strcpy_s(blockName, blockNameStr.c_str());
+                strcpy(blockName, blockNameStr.c_str());
 
                 getIntegerDataSet(gid, blockName, &intData, &dSize);
 
