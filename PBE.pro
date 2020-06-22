@@ -20,7 +20,7 @@ include($$PWD/ConanHelper.pri)
 
 win32{
     LIBS -= -llapacke.dll.lib -llapack.dll.lib -lblas.dll.lib -lcblas.dll.lib
-    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll
+    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll -lAdvapi32
 }
 
 win32 {
