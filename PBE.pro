@@ -6,32 +6,22 @@
 
 QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel 3dcore 3drender 3dextras
 
+MOC_DIR = $$DESTDIR/.moc
+UI_DIR = $$DESTDIR/.ui
+OBJECTS_DIR = $$DESTDIR/.obj
+
 TARGET = PBE
 TEMPLATE = app
 
 VERSION=2.1.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
-DEFINES += CURL_STATICLIB
-#_GRAPHICS_Qt3D
+include($$PWD/ConanHelper.pri)
 
-macos:LIBS += /usr/lib/libcurl.dylib -llapack -lblas
-macos:LIBS += /usr/local/hdf5/lib/libhdf5.a
-macos:INCLUDEPATH += /usr/local/hdf5/include
-
-win32:INCLUDEPATH += "c:\Users\SimCenter\libCurl-7.59.0\include"
-win32:LIBS += C:\Users\SimCenter\libCurl-7.59.0/lib/libcurl.lib
-win32:INCLUDEPATH += "c:\Tools\common\hdf5\include\hdf5"
-
-win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_cpp.lib"
-win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5.lib"
-win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_hl_cpp.lib"
-win32:LIBS += "C:\Tools\common\hdf5\lib\libhdf5_hl.lib"
-
-win32:INCLUDEPATH += "c:\Tools\common\zlib\include"
-win32:LIBS += "C:\Tools\common\zlib\lib\zlib.lib"
-
-linux:LIBS += /usr/lib/x86_64-linux-gnu/libcurl.so
+win32{
+    LIBS -= -llapacke.dll.lib -llapack.dll.lib -lblas.dll.lib -lcblas.dll.lib
+    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll -lAdvapi32
+}
 
 win32 {
     RC_ICONS = icons/NHERI-PBE-Icon.ico
@@ -49,7 +39,6 @@ include(../EE-UQ/EarthquakeEvents.pri)
 include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
 include(../s3hark/s3hark.pri)
 
-#include(./MiniZip/MiniZip.pri)
 
 INCLUDEPATH += "./Component"
 
@@ -92,12 +81,5 @@ HEADERS  += \
 RESOURCES += \
     images.qrc 
 
-
-
-#FORMS    += mainwindow.ui
-
-#RESOURCES += \
-#    schema.qrc
-
-
+OTHER_FILES += conanfile.py
 
