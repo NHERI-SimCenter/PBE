@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "P58ComponentContainer.h"
 #include "P58ComponentGroup.h"
+#include "SimCenterPreferences.h"
 
 #include <QProcess>
 #include <QPushButton>
@@ -673,11 +674,7 @@ P58ComponentContainer::getFragilityDataBase(){
 
     if (fragilityDataBase == "") {
 
-        QString appDir = QString("");
-        QSettings settings("SimCenter", QCoreApplication::applicationName());
-        QVariant  appDirVariant = settings.value("appDir");
-        if (appDirVariant.isValid())
-          appDir = appDirVariant.toString();
+        QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
         fragilityDataBase = appDir + 
         "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
@@ -698,11 +695,7 @@ P58ComponentContainer::setFragilityDataBase(QString fragilityDataBase){
 void
 P58ComponentContainer::chooseFragilityDataBase(void) {
 
-    QString appDir = QString("");
-    QSettings settings("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settings.value("appDir");
-    if (appDirVariant.isValid())
-      appDir = appDirVariant.toString();
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     QString fragilityDataBase;
     fragilityDataBase = 
@@ -717,11 +710,7 @@ P58ComponentContainer::chooseFragilityDataBase(void) {
 void
 P58ComponentContainer::exportFragilityDataBase(void) {
 
-    QString appDir = QString("");
-    QSettings settings("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settings.value("appDir");
-    if (appDirVariant.isValid())
-      appDir = appDirVariant.toString();
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     QString destinationFolder;
     destinationFolder = 

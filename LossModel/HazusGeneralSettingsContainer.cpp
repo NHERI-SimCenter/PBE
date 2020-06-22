@@ -56,6 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSettings>
 
 #include "HazusGeneralSettingsContainer.h"
+#include "SimCenterPreferences.h"
 
 HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -558,11 +559,7 @@ HazusGeneralSettingsContainer::chooseFragilityDataBase(void) {
 void
 HazusGeneralSettingsContainer::exportFragilityDataBase(void) {
 
-    QString appDir = QString("");
-    QSettings settings("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settings.value("appDir");
-    if (appDirVariant.isValid())
-      appDir = appDirVariant.toString();
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     QString destinationFolder;
     destinationFolder = 
