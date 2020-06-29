@@ -604,7 +604,7 @@ bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
         colBasis->setCurrentText(collProb["BasisOfEstimate"].toString());
     } else {
         collProbApproach->setCurrentText("prescribed");
-        colProbValue->setText(collProb["CollapseProbability"].toString());
+        colProbValue->setText(collProb["Value"].toString());
     }
 
     QJsonObject colLims = damageModel["CollapseLimits"].toObject();
