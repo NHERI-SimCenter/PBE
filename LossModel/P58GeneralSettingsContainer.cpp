@@ -188,9 +188,9 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     damageGroupBox->setMaximumWidth(maxWidth);
     QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
 
-    // irrepairable residual drift
+    // irreparable residual drift
     QLabel *irrepResDriftLabel = new QLabel();
-    irrepResDriftLabel->setText(tr("Irrepairable Residual Drift:"));
+    irrepResDriftLabel->setText(tr("Irreparable Residual Drift:"));
     damageFormLayout->addRow(irrepResDriftLabel);
 
     // yield drift
@@ -203,7 +203,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
     damageFormLayout->addRow(tr("    Yield Drift Ratio"), yieldDriftValue);
 
     irrepResDriftMedian = new QLineEdit();
-    irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irrepairable \n"
+    irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irreparable \n"
                                        "damage in the building.\n"
                                        "If left empty, all non-collapse results are considered repairable."));
     irrepResDriftMedian->setText("");
@@ -212,7 +212,7 @@ P58GeneralSettingsContainer::P58GeneralSettingsContainer(QWidget *parent)
 
     irrepResDriftStd = new QLineEdit();
     irrepResDriftStd->setToolTip(tr("Logarithmic standard deviation of the residual drift distribution \n"
-                                    "conditioned on irrepairable damage in the building."));
+                                    "conditioned on irreparable damage in the building."));
     irrepResDriftStd->setText("");
     irrepResDriftStd->setAlignment(Qt::AlignRight);
     damageFormLayout->addRow(tr("    Log Standard Dev"), irrepResDriftStd);
@@ -521,7 +521,7 @@ bool P58GeneralSettingsContainer::outputToJSON(QJsonObject &outputObject) {
     irrepDrift["Beta"] = irrepResDriftStd->text();
     irrepDrift["YieldDriftRatio"] = yieldDriftValue->text();
     if ((irrepDrift["Median"] != "") && (irrepDrift["Beta"] != "")) {
-        damageModel["IrrepairableResidualDrift"] = irrepDrift;
+        damageModel["IrreparableResidualDrift"] = irrepDrift;
     }
 
     QJsonObject collProb;
@@ -592,7 +592,7 @@ bool P58GeneralSettingsContainer::inputFromJSON(QJsonObject & inputObject) {
     // Damage -----------------------------------------------------------------
     QJsonObject damageModel = inputObject["DamageModel"].toObject();
 
-    QJsonObject irrepDrift = damageModel["IrrepairableResidualDrift"].toObject();
+    QJsonObject irrepDrift = damageModel["IrreparableResidualDrift"].toObject();
     irrepResDriftMedian->setText(irrepDrift["Median"].toString());
     irrepResDriftStd->setText(irrepDrift["Beta"].toString());
     yieldDriftValue->setText(irrepDrift["YieldDriftRatio"].toString());
