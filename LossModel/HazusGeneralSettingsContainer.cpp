@@ -303,7 +303,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
                                         "Note: following the HAZUS MH Technical Manual, \n"
                                         "repair costs are estimated as a fraction of \n"
                                         "the replacement cost provided here."));
-    replacementCostValue->setText("");
+    replacementCostValue->setText("1");
     replacementCostValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Cost"), replacementCostValue);
 
@@ -313,7 +313,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
                                         "Note: the time unit used for replacement time must be \n"
                                         "consistent with those used in the consequence functions.\n"
                                         "Repair times in HAZUS MH are measured in days."));
-    replacementTimeValue->setText("");
+    replacementTimeValue->setText("1");
     replacementTimeValue->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Replacement Time"), replacementTimeValue);
 
@@ -430,7 +430,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     // peak population
     peakPopulation = new QLineEdit();
     peakPopulation->setToolTip(tr("Peak population in the building."));
-    peakPopulation->setText("");
+    peakPopulation->setText("1");
     peakPopulation->setAlignment(Qt::AlignRight);
     lossFormLayout->addRow(tr("    Peak Population"), peakPopulation);
 
