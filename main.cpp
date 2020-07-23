@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 
 // connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *w, SLOT(errorM))
 
+  /*
   QString textAboutPBE = "\
           <p> \
           This is the Performance Based Engineering (PBE) Application.\
@@ -170,6 +171,12 @@ int main(int argc, char *argv[])
           <p>";
 
      w.setAbout(textAboutPBE);
+    */
+
+
+  QString aboutTitle = "About the SimCenter PBE Application"; // this is the title displayed in the on About dialog
+  QString aboutSource = ":/resources/docs/textAboutPBE.html";  // this is an HTML file stored under resources
+  w.setAbout(aboutTitle, aboutSource);
 
   QString version("Version 2.1.0");
   w.setVersion(version);
