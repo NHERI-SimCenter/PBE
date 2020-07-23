@@ -1,11 +1,10 @@
 <RCC>
     <qresource prefix="/images">
         <file>Rinaldi.json</file>
-    </qresource>
-    <qresource prefix="/images">
         <file>ElCentro.json</file>
     </qresource>
-    <qresource>
-        <file>./resources/directivityParameters.png</file>
+    <qresource prefix="/">
+        <file>resources/directivityParameters.png</file>
+        <file>resources/docs/textAboutPBE.html</file>
     </qresource>
 </RCC>
