@@ -6,9 +6,13 @@
 
 QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel 3dcore 3drender 3dextras
 
-MOC_DIR = $$DESTDIR/.moc
-UI_DIR = $$DESTDIR/.ui
-OBJECTS_DIR = $$DESTDIR/.obj
+#MOC_DIR = $$DESTDIR/.moc
+#UI_DIR = $$DESTDIR/.ui
+#OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$OUT_PWD/.moc
+UI_DIR = $$OUT_PWD/.ui
+OBJECTS_DIR = $$OUT_PWD/.obj
+
 
 TARGET = PBE
 TEMPLATE = app
