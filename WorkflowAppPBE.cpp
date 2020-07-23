@@ -68,7 +68,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SIM_Selection.h>
 #include <RandomVariablesContainer.h>
 #include <UQ_EngineSelection.h>
-#include <InputWidgetOpenSeesAnalysis.h>
+#include <FEM_Selection.h>
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
@@ -102,7 +102,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theGI = GeneralInformationWidget::getInstance();
     theSIM = new SIM_Selection(theRVs);
     theEvent = new EarthquakeEventSelection(theRVs, theGI);
-    theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
+    theAnalysis = new FEM_Selection(theRVs);
     theUQ_Selection = new UQ_EngineSelection(theRVs, ForwardOnly);
     theDLModelSelection = new LossModelSelection(theRVs);
     theResults = new ResultsPelicun();
@@ -178,6 +178,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     this->setLayout(horizontalLayout);
+    this->setContentsMargins(0,5,0,5);
+    horizontalLayout->setMargin(0);
 
     theComponentSelection = new SimCenterComponentSelection();
     horizontalLayout->addWidget(theComponentSelection);
