@@ -68,7 +68,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SIM_Selection.h>
 #include <RandomVariablesContainer.h>
 #include <UQ_EngineSelection.h>
-#include <InputWidgetOpenSeesAnalysis.h>
+#include <FEM_Selection.h>
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
@@ -102,13 +102,15 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theGI = GeneralInformationWidget::getInstance();
     theSIM = new SIM_Selection(theRVs);
     theEvent = new EarthquakeEventSelection(theRVs, theGI);
-    theAnalysis = new InputWidgetOpenSeesAnalysis(theRVs);
+    theAnalysis = new FEM_Selection(theRVs);
     theUQ_Selection = new UQ_EngineSelection(theRVs, ForwardOnly);
     theDLModelSelection = new LossModelSelection(theRVs);
     theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("PBE_workflow.py");
     remoteApp = new RemoteApplication("PBE_workflow.py", theService);
+    //    localApp = new LocalApplication("femUQ.py");
+    //    remoteApp = new RemoteApplication("femUQ.py", theService);
     theJobManager = new RemoteJobManager(theService);
 
     // theRunLocalWidget = new RunLocalWidget(theUQ_Method);
@@ -178,6 +180,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     this->setLayout(horizontalLayout);
+    this->setContentsMargins(0,5,0,5);
+    horizontalLayout->setMargin(0);
 
     theComponentSelection = new SimCenterComponentSelection();
     horizontalLayout->addWidget(theComponentSelection);
@@ -244,25 +248,11 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     appsEDP["ApplicationData"] = dataObj;
     apps["EDP"] = appsEDP;
 
-    //QJsonObject jsonObjectUQ;
-    //theUQ_Method->outputToJSON(jsonObjectUQ);
-    //jsonObjectTop["UQ_Method"] = jsonObjectUQ;
-
+    theUQ_Selection->outputAppDataToJSON(apps);
     theUQ_Selection->outputToJSON(jsonObjectTop);
 
-    //    QJsonObject appsUQ;
-    //    theUQ_Method->outputAppDataToJSON(appsUQ);
-    // apps["UQ"]=appsUQ;
-
-    theUQ_Selection->outputAppDataToJSON(apps);
-
-    QJsonObject jsonObjectAna;
-    theAnalysis->outputToJSON(jsonObjectAna);
-    jsonObjectTop["Simulation"] = jsonObjectAna;
-
-    QJsonObject appsAna;
-    theAnalysis->outputAppDataToJSON(appsAna);
-    apps["Simulation"]=appsAna;
+    theAnalysis->outputAppDataToJSON(apps);
+    theAnalysis->outputToJSON(jsonObjectTop);
 
     QJsonObject edpData;
     jsonObjectTop["EDP"] = edpData;
@@ -351,31 +341,11 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         }
 
 
-        //qDebug() << "UQ";
-	/*
-        if (theApplicationObject.contains("UQ")) {
-            QJsonObject theObject = theApplicationObject["UQ"].toObject();
-            if (theUQ_Method->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR: failed to read UQ application");
-        } else {
-            emit errorMessage(" ERROR: failed to find UQ application");
-            return false;
-        }
-	*/
-
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             emit errorMessage("PBE: failed to read UQ application");
 
-        //qDebug() << "Simulation";
-        if (theApplicationObject.contains("Simulation")) {
-            QJsonObject theObject = theApplicationObject["Simulation"].toObject();
-            if (theAnalysis->inputAppDataFromJSON(theObject) == false)
-                emit errorMessage(" ERROR: failed to read Simulation Application");
-        } else {
-            emit errorMessage(" ERROR: failed to find Simulation Application");
-            return false;
-        }
-
+        if (theAnalysis->inputAppDataFromJSON(theApplicationObject) == false)
+            emit errorMessage("EE_UQ: failed to read FEM application");
 
     } else
         return false;
@@ -400,29 +370,11 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     }
 
     //qDebug() << "UQ Method";
-    /*
-    if (jsonObject.contains("UQ_Method")) {
-        QJsonObject jsonObjUQInformation = jsonObject["UQ_Method"].toObject();
-        if (theUQ_Method->inputFromJSON(jsonObjUQInformation) == false)
-            emit errorMessage(" ERROR: failed to read UQ Method data");
-    } else {
-        emit errorMessage(" ERROR: failed to find UQ Method data");
-        return false;
-    }
-    */
-
     if (theUQ_Selection->inputFromJSON(jsonObject) == false)
         emit errorMessage("PBE: failed to read UQ Method data");
 
-    //qDebug() << "Simulation";
-    if (jsonObject.contains("Simulation")) {
-        QJsonObject jsonObjSimInformation = jsonObject["Simulation"].toObject();
-        if (theAnalysis->inputFromJSON(jsonObjSimInformation) == false)
-            emit errorMessage(" ERROR: failed to read Simulation data");
-    } else {
-        emit errorMessage(" ERROR: failed to find Simulation data");
-        return false;
-    }
+    if (theAnalysis->inputFromJSON(jsonObject) == false)
+        emit errorMessage("EE_UQ: failed to read FEM Method data");
 
     //qDebug() << "DamageAndLoss";
     if (jsonObject.contains("DamageAndLoss")) {

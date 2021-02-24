@@ -10,10 +10,10 @@ class PBE(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake"
     requires = "jansson/2.11@bincrafters/stable", \
-               "libcurl/7.64.1@bincrafters/stable", \
-               "lapack/3.7.1@conan/stable", \
-               "hdf5/1.12.0",\
-               "zlib/1.2.11@conan/stable"
+               "libcurl/7.64.1", \
+               "zlib/1.2.11", \
+               "lapack/3.7.1@conan/stable" , \
+               "hdf5/1.12.0"
 
     build_policy = "missing"
 
@@ -29,3 +29,22 @@ class PBE(ConanFile):
         if self.settings.os == "Windows":
             output = './%s' % self.settings.build_type
             self.copy("lib*.dll", dst=output, src="bin")
+
+        appsDestination = "./applications"
+        if self.settings.os == "Windows":
+            appsDestination = './%s/applications' % self.settings.build_type
+        elif self.settings.os == "Macos":
+            appsDestination = './PBE.app/Contents/MacOS/applications'
+
+        self.copy("createEVENT/multiple*", dst=appsDestination, src="bin")
+        self.copy("createEVENT/siteRes*", dst=appsDestination, src="bin")
+        self.copy("createEVENT/stochasticGr*", dst=appsDestination, src="bin")
+
+        self.copy("createSAM/*", dst=appsDestination, src="bin")
+        self.copy("createEDP/*", dst=appsDestination, src="bin")
+        self.copy("performSIMULATION/*", dst=appsDestination, src="bin")
+        self.copy("performUQ/*", dst=appsDestination, src="bin")
+        self.copy("performDL/*", dst=appsDestination, src="bin")
+        self.copy("Workflow/*", dst=appsDestination, src="bin")
+        self.copy("*", dst="{}/opensees".format(appsDestination), src="opensees")
+        self.copy("*", dst="{}/dakota".format(appsDestination), src="dakota")
