@@ -1,5 +1,0 @@
-
-.. _lbl-architecture:
-
-Architecture
-=============
