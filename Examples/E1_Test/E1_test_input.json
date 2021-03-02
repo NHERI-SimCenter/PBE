@@ -1,0 +1,233 @@
+{
+    "Applications": {
+        "DL": {
+            "Application": "pelicun",
+            "ApplicationData": {
+            }
+        },
+        "EDP": {
+            "Application": "StandardEarthquakeEDP",
+            "ApplicationData": {
+            }
+        },
+        "Events": [
+            {
+                "Application": "StochasticGroundMotion",
+                "ApplicationData": {
+                    "modelName": "VlachosSiteSpecificEQ",
+                    "seed": 500
+                },
+                "EventClassification": "Earthquake"
+            }
+        ],
+        "Modeling": {
+            "Application": "MDOF_BuildingModel",
+            "ApplicationData": {
+            }
+        },
+        "Simulation": {
+            "Application": "OpenSees-Simulation",
+            "ApplicationData": {
+            }
+        },
+        "UQ": {
+            "Application": "Dakota-UQ1",
+            "ApplicationData": {
+            }
+        }
+    },
+    "DamageAndLoss": {
+        "Components": {
+            "NSA-MC-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "roof",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ],
+            "NSD-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "1",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ],
+            "S-S1M-MC-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "1",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ]
+        },
+        "DamageModel": {
+            "DesignLevel": "Moderate-Code",
+            "StructureType": "S1M"
+        },
+        "LossModel": {
+            "DecisionVariables": {
+                "Injuries": true,
+                "ReconstructionCost": true,
+                "ReconstructionTime": true
+            },
+            "Inhabitants": {
+                "OccupancyType": "COM1",
+                "PeakPopulation": "1"
+            },
+            "ReplacementCost": "1",
+            "ReplacementTime": "1"
+        },
+        "ResponseModel": {
+            "AdditionalUncertainty": {
+                "GroundMotion": "",
+                "Modeling": ""
+            },
+            "DetectionLimits": {
+                "PFA": "",
+                "PID": ""
+            },
+            "ResponseDescription": {
+                "BasisOfEDP_Distribution": "all results",
+                "CoupledAssessment": false,
+                "EDP_Distribution": "lognormal",
+                "Realizations": "2000"
+            }
+        },
+        "_method": "HAZUS MH EQ"
+    },
+    "EDP": {
+    },
+    "Events": [
+        {
+            "EventClassification": "Earthquake",
+            "modelName": "Vlachos et al. (2018)",
+            "momentMagnitude": 7,
+            "ruptureDist": 40,
+            "seed": 500,
+            "type": "StochasticMotion",
+            "vs30": "RV.vs"
+        }
+    ],
+    "GeneralInformation": {
+        "NumberOfStories": 3,
+        "PlanArea": 129600,
+        "depth": 360,
+        "height": 144,
+        "location": {
+            "latitude": 37.426,
+            "longitude": -122.171
+        },
+        "name": "Test",
+        "planArea": 129600,
+        "stories": 3,
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        },
+        "width": 360
+    },
+    "Simulation": {
+        "Application": "OpenSees-Simulation",
+        "algorithm": "Newton",
+        "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
+        "convergenceTest": "NormUnbalance 1.0e-2 10",
+        "dampingModel": "Rayleigh Damping",
+        "dampingRatio": 0.02,
+        "dampingRatioModal": 0.02,
+        "firstMode": 1,
+        "integration": "Newmark 0.5 0.25",
+        "modalRayleighTangentRatio": 0,
+        "numModesModal": 1,
+        "rayleighTangent": "Initial",
+        "secondMode": 0,
+        "solver": "Umfpack"
+    },
+    "StructuralInformation": {
+        "Bx": 0.1,
+        "By": 0.1,
+        "Fyx": 1000000,
+        "Fyy": 1000000,
+        "Krz": 10000000000,
+        "Kx": 100,
+        "Ky": 100,
+        "ModelData": [
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 48,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 48,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 48,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            }
+        ],
+        "height": 48,
+        "massX": 0,
+        "massY": 0,
+        "numStories": 3,
+        "randomVar": [
+        ],
+        "responseX": 0,
+        "responseY": 0,
+        "type": "MDOF_BuildingModel",
+        "weight": 144
+    },
+    "UQ_Method": {
+        "samplingMethodData": {
+            "keepSamples": false,
+            "method": "LHS",
+            "samples": 40,
+            "seed": 867
+        },
+        "uqEngine": "Dakota",
+        "uqType": "Forward Propagation"
+    },
+    "localAppDir": "C:/SimCenter",
+    "randomVariables": [
+        {
+            "distribution": "Normal",
+            "inputType": "Parameters",
+            "mean": 400,
+            "name": "vs",
+            "refCount": 1,
+            "stdDev": 100,
+            "value": "RV.vs",
+            "variableClass": "Uncertain"
+        }
+    ],
+    "remoteAppDir": "C:/SimCenter",
+    "runType": "runningLocal",
+    "workingDir": "C:/Workdir/PBE"
+}

@@ -1,5 +1,0 @@
-
-.. _lbl-verification:
-
-Verification
-=============
