@@ -17,7 +17,7 @@ OBJECTS_DIR = $$OUT_PWD/.obj
 TARGET = PBE
 TEMPLATE = app
 
-VERSION=2.1.0
+VERSION=2.2.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 include($$PWD/ConanHelper.pri)
@@ -32,6 +32,7 @@ win32 {
 } else {
     mac {
     ICON = icons/NHERI-PBE-Icon.icns
+    DEFINES += _GRAPHICS_Qt3D
     }
 }
 

@@ -1,0 +1,8 @@
+{
+    "Examples": [
+        {
+	    "name": "E0 Test",
+            "InputFile": "E0_Test/E0_test_input.json"
+        }
+    ]
+}

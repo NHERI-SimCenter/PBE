@@ -12,7 +12,6 @@ class PBE(ConanFile):
     requires = "jansson/2.11@bincrafters/stable", \
                "libcurl/7.64.1", \
                "zlib/1.2.11", \
-               "lapack/3.7.1@conan/stable" , \
                "hdf5/1.12.0"
 
     build_policy = "missing"
