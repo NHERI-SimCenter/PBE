@@ -166,6 +166,12 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(localApp, SIGNAL(processResults(QString, QString, QString)),
             this, SLOT(processResults(QString, QString, QString)));
 
+    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));
+    connect(remoteApp,SIGNAL(successfullJobStart()), this, SLOT(runComplete()));
+    connect(theService, SIGNAL(closeDialog()), this, SLOT(runComplete()));
+    connect(theJobManager, SIGNAL(closeDialog()), this, SLOT(runComplete()));
+    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));    
+    
     connect(theJobManager,
             SIGNAL(processResults(QString , QString, QString)),
             this,
@@ -283,6 +289,7 @@ WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inp
   theResults->processResults(dakotaTab);
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
+  this->runComplete();
 }
 
 void
@@ -385,7 +392,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         emit errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
-
+    this->runComplete();
     return true;
 }
 
@@ -536,7 +543,7 @@ WorkflowAppPBE::loadFile(const QString fileName){
 
     this->clear();
     this->inputFromJSON(jsonObj);
-
+    this->runComplete();
 }
 
 
