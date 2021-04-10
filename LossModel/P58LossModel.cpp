@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "P58DependenciesContainer.h"
 #include "LossMethod.h"
 
-#include <QTabWidget.h>
+#include <QTabWidget>
 
 #include "P58LossModel.h"
 
