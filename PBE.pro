@@ -31,8 +31,10 @@ win32 {
     RC_ICONS = icons/NHERI-PBE-Icon.ico
 } else {
     mac {
-    ICON = icons/NHERI-PBE-Icon.icns
-    DEFINES += _GRAPHICS_Qt3D
+      ICON = icons/NHERI-PBE-Icon.icns
+      DEFINES += _GRAPHICS_Qt3D
+    } else {
+      LIBS += -lc
     }
 }
 
@@ -42,7 +44,6 @@ include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../EE-UQ/EarthquakeEvents.pri)
 include(../QS3hark/QS3hark.pri)
-
 
 INCLUDEPATH += "./Component"
 
