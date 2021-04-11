@@ -2,7 +2,7 @@ version: 1.0.{build}
 
 image:
   - macOS
-  - Ubuntu1804
+  - Ubuntu2004
   - Visual Studio 2019
 
 for:
@@ -49,11 +49,11 @@ for:
        - gcc --version
        - python --version
 
-  # Ubuntu1804 
+  # Ubuntu2004 
   -
     matrix:
       only:
-        - image: Ubuntu1804
+        - image: Ubuntu2004
 
     clone_folder: ~/SimCenter
 
