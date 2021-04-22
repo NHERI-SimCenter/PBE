@@ -33,6 +33,7 @@ win32 {
     mac {
       ICON = icons/NHERI-PBE-Icon.icns
       DEFINES += _GRAPHICS_Qt3D
+      QMAKE_INFO_PLIST=$$PWD/Info.plist
     } else {
       LIBS += -lc
     }
