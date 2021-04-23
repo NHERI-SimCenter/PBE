@@ -2,7 +2,7 @@ version: 1.0.{build}
 
 image:
   - macOS
-  - Ubuntu2004
+  - Ubuntu1804
   - Visual Studio 2019
 
 for:
@@ -15,29 +15,29 @@ for:
     clone_folder: ~/SimCenter
 
     init:
-       - blah
+       - uname
        - export PATH="$HOME/Qt/5.15.2/clang_64/bin:$HOME/venv3.8.6/bin:$PATH"
        - python -m pip install --upgrade pip
        - pip install conan
        - conan user
-       - conan remote add simcenter https://api.bintray.com/conan/nheri-simcenter/simcenter       
+       - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter       
 
 
     install:
-       - uname
        - git clone https://github.com/NHERI-SimCenter/SimCenterBackendApplications.git
        - git clone https://github.com/NHERI-SimCenter/SimCenterCommon.git
        - git clone https://github.com/NHERI-SimCenter/EE-UQ.git
        - git clone https://github.com/NHERI-SimCenter/QS3hark.git
-       - git clone https://github.com/NHERI-SimCenter/PBE.git       
+       - git clone https://github.com/NHERI-SimCenter/PBE.git
 
     build_script:
+
        # build SimCenterBackendApplications
        - cd SimCenterBackendApplications
        - chmod 'u+x' makeEXE.sh
        - ./makeEXE.sh
-       - cd ..       
-       
+       - cd ..
+
        # build PBE
        - cd PBE
        - chmod 'u+x' makeEXE.sh
@@ -49,25 +49,25 @@ for:
        - gcc --version
        - python --version
 
-  # Ubuntu2004 
+  # Ubuntu1804 
   -
     matrix:
       only:
-        - image: Ubuntu2004
+        - image: Ubuntu1804
 
     clone_folder: ~/SimCenter
 
     init:
+       - uname
        - export PATH="$HOME/Qt/5.15.2/gcc_64/bin:$HOME/venv3.8.6/bin:$PATH"
-       - sudo update-alternatives --set gcc /usr/bin/gcc-9
+       - sudo update-alternatives --set gcc /usr/bin/gcc-8
        - sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libblas-dev liblapack-dev
        - python -m pip install --upgrade pip
        - pip install conan
        - conan user
-       - conan remote add simcenter https://api.bintray.com/conan/nheri-simcenter/simcenter
+       - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        
     install:
-       - uname
        - git clone https://github.com/NHERI-SimCenter/SimCenterBackendApplications.git
        - git clone https://github.com/NHERI-SimCenter/SimCenterCommon.git
        - git clone https://github.com/NHERI-SimCenter/EE-UQ.git
@@ -78,7 +78,7 @@ for:
        # build SimCenterBackendApplications
        - cd SimCenterBackendApplications
        - chmod 'u+x' makeEXE.sh
-       # - ./makeEXE.sh
+       - ./makeEXE.sh
        - cd ..
        
        # build PBE
@@ -103,7 +103,6 @@ for:
     clone_folder: c:\projects\SimCenter
 
     init:
-       - cmd: blah
        - cmd: set PYTHON=C:\PYTHON38-x64
        - cmd: set PYTHONNET_PYDLL=%PYTHON%\python3.8.dll
        - cmd: set QT=C:\Qt\5.15.2\msvc2019_64\bin
@@ -115,7 +114,7 @@ for:
        - cmd: conan profile show default
        - cmd: conan profile update settings.compiler="Visual Studio" default
        - cmd: conan profile update settings.compiler.version="16" default
-       - cmd: conan remote add simcenter https://api.bintray.com/conan/nheri-simcenter/simcenter
+       - cmd: conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter                     
        - cmd: echo %PATH%
 
     install:
@@ -123,7 +122,7 @@ for:
        - git clone https://github.com/NHERI-SimCenter/SimCenterCommon.git
        - git clone https://github.com/NHERI-SimCenter/EE-UQ.git
        - git clone https://github.com/NHERI-SimCenter/QS3hark.git
-       - git clone https://github.com/NHERI-SimCenter/PBE.git
+       - git clone https://github.com/NHERI-SimCenter/PBE.git       
        - cmd: dir
 
     build_script:
@@ -139,7 +138,11 @@ for:
       - cmd: cd ..
       - cmd: cd ..
 
-      # PBE
+      #
+      # build PBE
+      #
+
+      # first UI
       - cmd: cd PBE
       - cmd: mkdir build
       - cmd: cd build
@@ -147,6 +150,7 @@ for:
       - cmd: qmake ..\PBE.pro
       - cmd: nmake
       - cmd: cd ..
+      - cmd: cd ..      
 
     test_script:
       -cmd: python --version
