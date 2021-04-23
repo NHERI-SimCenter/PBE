@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel 3dcore 3drender 3dextras
+QT += core gui charts concurrent network widgets
+QT += sql qml webenginewidgets uitools
+QT += webengine webchannel 3dcore 3drender 3dextras
 
 #MOC_DIR = $$DESTDIR/.moc
 #UI_DIR = $$DESTDIR/.ui
@@ -23,8 +25,12 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 include($$PWD/ConanHelper.pri)
 
 win32{
-    LIBS -= -llapacke.dll.lib -llapack.dll.lib -lblas.dll.lib -lcblas.dll.lib
-    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll -lAdvapi32
+    LIBS = $$replace(LIBS, .dll.lib, .dll)
+    LIBS += -lAdvapi32
+    LIBS +=CRYPT32.lib
+    LIBS +=Ws2_32.lib
+    LIBS +=User32.lib
+    DEFINES += CURL_STATICLIB
 }
 
 win32 {
