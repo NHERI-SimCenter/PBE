@@ -2,13 +2,14 @@
    Tested for:
    - PBE version 2.1.0
    Accompanying files:
-   - HAZUS_assessment.json
-   - P58_assessment.json
+   - src/input.json
 
-Shear Building: HAZUS & FEMA P58 Assessments
-============================================
+.. _pbdl-0002:
 
-Consider the problem of uncertainty quantification in the following three story shear building:
+Shear Building: HAZUS Assessment
+================================
+
+This study explores the problem of uncertainty quantification in the following three story shear building and employs the HAZUS methodology for assessing damage and loss:
 
 .. figure:: figures/model3.png
    :align: center
@@ -27,9 +28,6 @@ This example will use the PBE application to organize both a HAZUS, and FEMA P58
 
 The deterministic structural analysis model for this problem is implemented with the MDOF program, which PBE provides a built-in interface for (OpenSees may also be used for this purpose, as noted throughout). 
 
-
-HAZUS Assessment with a PEER Ground Motion Suite
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We will first demonstrate the steps to perform a HAZUS style damage and loss assessment by sequentially walking through the input panels and highlighting their role in the workflow. The file ``HAZUS_assessment.json`` contains all of the data for this exercise and may be used to bypass the manual entry of data into these panels.
 
@@ -125,20 +123,3 @@ Once a full workflow has been defined click on the **Run** button. When the anal
 
 In the **Data** tab of the **RES** panel, we are presented with both a graphical plot and a tabular listing of the data. By left- and right-clicking on the individual columns the plot axis changes (left mouse click controls vertical axis, right mouse click the horizontal axis). If a singular column of the tabular data is selected with both right and left mouse buttons, a frequency and CDF plot will be displayed.
 
-
-FEMA P58 Style Assessment 
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We now revisit our experience with the **DL** panel to explore the interface PBE offers for a FEMA P58 style assessment. Similarly to the previous exercise, the file ``P58_assessment.json`` contains all of the problem data and may be used to bypass the manual entry of data into the UI panels.
-
-The following figure shows a tab from the alternate **DL** panel interface which is provided when **FEMA P58** is selected from the **Damage and Loss Assessment** dropdown menu:
-
-.. figure:: figures/DL-P58.png
-   :align: center
-   :figclass: align-center
-
-When the **DL** panel is filled out in this manner and all other panels are left unchanged, the following results are rendered on the **RES** panel. Note that only some metrics are calculated by both the FEMA P58 and HAZUS style assessments while others may be absent for a given style.
-
-.. figure:: figures/RES-P58-1.png
-   :align: center
-   :figclass: align-center

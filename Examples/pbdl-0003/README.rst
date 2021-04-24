@@ -2,11 +2,15 @@
    Tested for:
    - PBE version 2.1.0
    Accompanying files:
-   - HAZUS_assessment.json
-   - P58_assessment.json
+   - src/input.json
+
+.. _pbdl-0003:
 
 Shear Building: FEMA P58 Assessments
-====================================
+======================================
+
+This study revisits the :ref:`pbdl-0002` example, but now employs the FEMA P-58 methodology for damage and loss assessment.
+As with all SimCenter examples, the ``input.json`` file provided in the example's ``src/`` directory contains all of the problem data and may be used to bypass the manual entry of data into the UI panels.
 
 Consider the problem of uncertainty quantification in the following three story shear building:
 
@@ -23,15 +27,12 @@ The structure has the following uncertain properties that all follow normal dist
 2. Weight of the Roof (``wRoof``): mean :math:`\mu_E=50 \mathrm{kip}` and standard deviation :math:`\sigma_E =5 \mathrm{kip}` (COV = 10%)
 3. Story Stiffness (``k``): mean :math:`\mu_k =326 \quad \mathrm{kip/in}` and a standard deviation of :math:`\sigma_P = 25 \mathrm{kN}`, (COV = 12%).
 
-This example will use the PBE application to organize both a HAZUS, and FEMA P58 damage and loss assesment of this model when subjected to a suite of ground motions selected from the PEER NGA database. 
+This example will use the PBE application to organize FEMA P58 damage and loss assessment of this model when subjected to a suite of ground motions selected from the PEER NGA database. 
 
 The deterministic structural analysis model for this problem is implemented with the MDOF program, which PBE provides a built-in interface for (OpenSees may also be used for this purpose, as noted throughout). 
 
 
-HAZUS Assessment with a PEER Ground Motion Suite
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We will first demonstrate the steps to perform a HAZUS style damage and loss assessment by sequentially walking through the input panels and highlighting their role in the workflow. The file ``HAZUS_assessment.json`` contains all of the data for this exercise and may be used to bypass the manual entry of data into these panels.
+We will first demonstrate the steps to perform a FEMA P-58 style damage and loss assessment by sequentially walking through the input panels and highlighting their role in the workflow. 
 
 Step 1: UQ
 ~~~~~~~~~~~~
@@ -106,39 +107,21 @@ Now in the **RV** panel we will enter the distributions and values for our rando
 Step 7: DL
 ~~~~~~~~~~~~
 
-We now end our journey at the **DL** panel. This is where we will specify our parameters for the damage and loss assessment procedure. PBE will feed the data entered into this panel to the Pelicun Python package which will run an appropriate damage and loss assessment. The following figures show the interface we are provided upon selecting a **HAZUS MH** style assessment from the **Damage and Loss Assessment** dropdown menu:
-
-.. figure:: figures/DL.png
-   :align: center
-   :figclass: align-center
-
-
-HAZUS Results
-~~~~~~~~~~~~~~~~
-
-Once a full workflow has been defined click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. When a HAZUS assessment has been conducted, the results panel will resemble the following figures which show both the **Summary** and **Data** tabs, respectively.
-
-.. image:: figures/RES-HAZUS-1.png
-   :width: 45%
-.. image:: figures/RES-HAZUS-2.png
-   :width: 45%
-
-In the **Data** tab of the **RES** panel, we are presented with both a graphical plot and a tabular listing of the data. By left- and right-clicking on the individual columns the plot axis changes (left mouse click controls vertical axis, right mouse click the horizontal axis). If a singular column of the tabular data is selected with both right and left mouse buttons, a frequency and CDF plot will be displayed.
-
-
-FEMA P58 Style Assessment 
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We now revisit our experience with the **DL** panel to explore the interface PBE offers for a FEMA P58 style assessment. Similarly to the previous exercise, the file ``P58_assessment.json`` contains all of the problem data and may be used to bypass the manual entry of data into the UI panels.
-
 The following figure shows a tab from the alternate **DL** panel interface which is provided when **FEMA P58** is selected from the **Damage and Loss Assessment** dropdown menu:
 
 .. figure:: figures/DL-P58.png
    :align: center
    :figclass: align-center
 
-When the **DL** panel is filled out in this manner and all other panels are left unchanged, the following results are rendered on the **RES** panel. Note that only some metrics are calculated by both the FEMA P58 and HAZUS style assessments while others may be absent for a given style.
+Results
+~~~~~~~~~~~~~~~~
+
+Once a full workflow has been defined click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. When a FEMA P-58 assessment has been conducted, the results panel will resemble the following figures which show both the **Summary** and **Data** tabs, respectively.
 
 .. figure:: figures/RES-P58-1.png
    :align: center
    :figclass: align-center
+
+In the **Data** tab of the **RES** panel, we are presented with both a graphical plot and a tabular listing of the data. By left- and right-clicking on the individual columns the plot axis changes (left mouse click controls vertical axis, right mouse click the horizontal axis). If a singular column of the tabular data is selected with both right and left mouse buttons, a frequency and CDF plot will be displayed.
+Note that only some metrics are calculated by both the FEMA P58 and HAZUS style assessments while others may be absent for a given style.
+
