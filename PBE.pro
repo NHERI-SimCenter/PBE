@@ -19,7 +19,7 @@ OBJECTS_DIR = $$OUT_PWD/.obj
 TARGET = PBE
 TEMPLATE = app
 
-VERSION=2.2.0
+VERSION=2.2.3
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 include($$PWD/ConanHelper.pri)

@@ -2,7 +2,7 @@ from conans import ConanFile
 
 class PBE(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    version = "2.1.0"
+    version = "2.2.3"
     license = "BSD"
     author = "NHERI SimCenter"
     url = "https://github.com/NHERI-SimCenter/PBE"
@@ -18,6 +18,9 @@ class PBE(ConanFile):
 
 
     def configure(self):
+        
+        self.output.success("CONFIGURE")
+        
         if self.settings.os == "Windows":
             self.options["libcurl"].with_winssl = True
             self.options["libcurl"].with_openssl = False
@@ -25,6 +28,9 @@ class PBE(ConanFile):
             self.options["lapack"].shared = True
 
     def imports(self):
+        
+        self.output.success("IMPORTS")
+        
         if self.settings.os == "Windows":
             output = './%s' % self.settings.build_type
             self.copy("lib*.dll", dst=output, src="bin")
@@ -33,17 +39,23 @@ class PBE(ConanFile):
         if self.settings.os == "Windows":
             appsDestination = './%s/applications' % self.settings.build_type
         elif self.settings.os == "Macos":
-            appsDestination = './PBE.app/Contents/MacOS/applications'
+            appsDestination = './PBE.app/Contents/MacOS'
 
-        self.copy("createEVENT/multiple*", dst=appsDestination, src="bin")
-        self.copy("createEVENT/siteRes*", dst=appsDestination, src="bin")
-        self.copy("createEVENT/stochasticGr*", dst=appsDestination, src="bin")
 
-        self.copy("createSAM/*", dst=appsDestination, src="bin")
-        self.copy("createEDP/*", dst=appsDestination, src="bin")
-        self.copy("performSIMULATION/*", dst=appsDestination, src="bin")
-        self.copy("performUQ/*", dst=appsDestination, src="bin")
-        self.copy("performDL/*", dst=appsDestination, src="bin")
-        self.copy("Workflow/*", dst=appsDestination, src="bin")
+        appsSRC = "../../SimCenterBackendApplications/applications"
+        appsSRC = "bin"        
+        
+        self.output.success("CONFIGURE %s, %s" % (appsDestination, appsSRC))
+                                            
+        self.copy("createEVENT/multiple*", dst=appsDestination, src=appsSRC)
+        self.copy("createEVENT/siteRes*", dst=appsDestination, src=appsSRC)
+        self.copy("createEVENT/stochasticGr*", dst=appsDestination, src=appsSRC)
+
+        self.copy("createSAM/*", dst=appsDestination, src=appsSRC)
+        self.copy("createEDP/*", dst=appsDestination, src=appsSRC)
+        self.copy("performSIMULATION/*", dst=appsDestination, src=appsSRC)
+        self.copy("performUQ/*", dst=appsDestination, src=appsSRC)
+        self.copy("performDL/*", dst=appsDestination, src=appsSRC)
+        self.copy("Workflow/*", dst=appsDestination, src=appsSRC)
         self.copy("*", dst="{}/opensees".format(appsDestination), src="opensees")
         self.copy("*", dst="{}/dakota".format(appsDestination), src="dakota")

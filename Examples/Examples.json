@@ -1,19 +1,14 @@
 {
   "Examples": [
     {
-      "name": "Shear Building: FEMA P58 Assessments",
+      "name": "E1: Shear Building: FEMA P58 Assessments",
       "description": "",
-      "InputFile": "pbdl-0003/input.json"
+      "inputFile": "pbdl-0003/src/input.json"
     },
     {
-      "name": "Shear Building: HAZUS & FEMA P58 Assessments",
+      "name": "E2: Shear Building: HAZUS & FEMA P58 Assessments",
       "description": "This study conducts a HAZUS style assessment of a 3-story shear building.",
-      "InputFile": "pbdl-0002/input.json"
-    },
-    {
-      "name": "Test",
-      "description": "",
-      "InputFile": "pbdl-0001/input.json"
+      "inputFile": "pbdl-0002/src/input.json"
     }
   ]
 }

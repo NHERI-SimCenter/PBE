@@ -77,6 +77,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetBIM.h>
 #include <InputWidgetUQ.h>
 #include <ResultsPelicun.h>
+#include <Utils/PythonProgressDialog.h>
 
 #include <GoogleAnalytics.h>
 
@@ -212,6 +213,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
 
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
+    PythonProgressDialog *theDialog=PythonProgressDialog::getInstance();
+    theDialog->appendInfoMessage("Welcome to PBE");
+    theDialog->hideAfterElapsedTime(1);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
