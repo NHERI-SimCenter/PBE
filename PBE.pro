@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts concurrent network sql qml webenginewidgets uitools webengine webchannel 3dcore 3drender 3dextras
+QT += core gui charts concurrent network widgets
+QT += sql qml webenginewidgets uitools
+QT += webengine webchannel 3dcore 3drender 3dextras
 
 #MOC_DIR = $$DESTDIR/.moc
 #UI_DIR = $$DESTDIR/.ui
@@ -17,21 +19,29 @@ OBJECTS_DIR = $$OUT_PWD/.obj
 TARGET = PBE
 TEMPLATE = app
 
-VERSION=2.1.0
+VERSION=2.2.3
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 include($$PWD/ConanHelper.pri)
 
 win32{
-    LIBS -= -llapacke.dll.lib -llapack.dll.lib -lblas.dll.lib -lcblas.dll.lib
-    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll -lAdvapi32
+    LIBS = $$replace(LIBS, .dll.lib, .dll)
+    LIBS += -lAdvapi32
+    LIBS +=CRYPT32.lib
+    LIBS +=Ws2_32.lib
+    LIBS +=User32.lib
+    DEFINES += CURL_STATICLIB
 }
 
 win32 {
     RC_ICONS = icons/NHERI-PBE-Icon.ico
 } else {
     mac {
-    ICON = icons/NHERI-PBE-Icon.icns
+      ICON = icons/NHERI-PBE-Icon.icns
+      DEFINES += _GRAPHICS_Qt3D
+      QMAKE_INFO_PLIST=$$PWD/Info.plist
+    } else {
+      LIBS += -lc
     }
 }
 
@@ -40,9 +50,7 @@ include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../EE-UQ/EarthquakeEvents.pri)
-include(../GroundMotionUtilities/UI/GroundMotionWidgets.pri)
-include(../s3hark/s3hark.pri)
-
+include(../QS3hark/QS3hark.pri)
 
 INCLUDEPATH += "./Component"
 

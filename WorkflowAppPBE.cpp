@@ -77,6 +77,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetBIM.h>
 #include <InputWidgetUQ.h>
 #include <ResultsPelicun.h>
+#include <Utils/PythonProgressDialog.h>
 
 #include <GoogleAnalytics.h>
 
@@ -166,6 +167,12 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(localApp, SIGNAL(processResults(QString, QString, QString)),
             this, SLOT(processResults(QString, QString, QString)));
 
+    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));
+    connect(remoteApp,SIGNAL(successfullJobStart()), this, SLOT(runComplete()));
+    connect(theService, SIGNAL(closeDialog()), this, SLOT(runComplete()));
+    connect(theJobManager, SIGNAL(closeDialog()), this, SLOT(runComplete()));
+    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));    
+    
     connect(theJobManager,
             SIGNAL(processResults(QString , QString, QString)),
             this,
@@ -206,6 +213,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
 
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
+    PythonProgressDialog *theDialog=PythonProgressDialog::getInstance();
+    theDialog->appendInfoMessage("Welcome to PBE");
+    theDialog->hideAfterElapsedTime(1);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
@@ -283,6 +293,7 @@ WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inp
   theResults->processResults(dakotaTab);
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
+  this->runComplete();
 }
 
 void
@@ -385,7 +396,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         emit errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
-
+    this->runComplete();
     return true;
 }
 
@@ -536,7 +547,7 @@ WorkflowAppPBE::loadFile(const QString fileName){
 
     this->clear();
     this->inputFromJSON(jsonObj);
-
+    this->runComplete();
 }
 
 

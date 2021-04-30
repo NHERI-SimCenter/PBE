@@ -82,6 +82,8 @@ using namespace QtCharts;
 #include <QLabel>
 #include <QSettings>
 
+#include <SimCenterPreferences.h>
+
 #define NUM_DIVISIONS 10
 
 ResultsPelicun::ResultsPelicun(QWidget *parent)
@@ -423,15 +425,18 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
 
         QProcess *proc = new QProcess();
-        QString python = QString("python");
-        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-        QVariant  pythonLocationVariant = settings.value("pythonExePath");
-        if (pythonLocationVariant.isValid()) {
-          python = pythonLocationVariant.toString();
-        }
+	SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+	QString python = preferences->getPython();
 
+	QFileInfo pythonFile(python);
+	if (pythonFile.exists()) {
+	  QString pythonPath = pythonFile.absolutePath();
+	} else {
+	  emit sendErrorMessage("No python found, see the manual");
+	  return 0;
+	}
 
-         emit sendErrorMessage("Now Running Pelicun to deremine losses");
+	emit sendErrorMessage("Now Running Pelicun to deremine losses");
 
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");

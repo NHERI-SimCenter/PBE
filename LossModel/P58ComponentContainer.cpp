@@ -676,8 +676,13 @@ P58ComponentContainer::getFragilityDataBase(){
 
         QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
+#ifdef Q_OS_WIN
         fragilityDataBase = appDir + 
         "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
+#else
+        fragilityDataBase = appDir + 
+        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
+#endif
         //"/applications/performDL/pelicun/pelicunPBE/resources/DL json/";
     }
 

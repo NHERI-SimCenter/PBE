@@ -53,3 +53,4 @@ extractEDP
 applications/performDL/pelicunPBE/__pycache__/
 
 *.bak
+userID.sh

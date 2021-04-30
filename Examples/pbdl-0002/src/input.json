@@ -1,0 +1,640 @@
+{
+    "Applications": {
+        "DL": {
+            "Application": "pelicun",
+            "ApplicationData": {
+            }
+        },
+        "EDP": {
+            "Application": "StandardEarthquakeEDP",
+            "ApplicationData": {
+            }
+        },
+        "Events": [
+            {
+                "Application": "ExistingPEER_Events",
+                "ApplicationData": {
+                },
+                "EventClassification": "Earthquake",
+                "subtype": "PEER NGA Records"
+            }
+        ],
+        "Modeling": {
+            "Application": "MDOF_BuildingModel",
+            "ApplicationData": {
+            }
+        },
+        "Simulation": {
+            "Application": "OpenSees-Simulation",
+            "ApplicationData": {
+            }
+        },
+        "UQ": {
+            "Application": "Dakota-UQ1",
+            "ApplicationData": {
+            }
+        }
+    },
+    "DamageAndLoss": {
+        "Components": {
+            "NSA-MC-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "roof",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ],
+            "NSD-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "1",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ],
+            "S-S1L-MC-COM1": [
+                {
+                    "direction": "1",
+                    "distribution": "N/A",
+                    "location": "1",
+                    "median_quantity": "1.0",
+                    "unit": "ea"
+                }
+            ]
+        },
+        "DamageModel": {
+            "DesignLevel": "Moderate-Code",
+            "StructureType": "S1L"
+        },
+        "LossModel": {
+            "DecisionVariables": {
+                "Injuries": true,
+                "ReconstructionCost": true,
+                "ReconstructionTime": true
+            },
+            "Inhabitants": {
+                "OccupancyType": "COM1",
+                "PeakPopulation": "1"
+            },
+            "ReplacementCost": "1",
+            "ReplacementTime": "1"
+        },
+        "ResponseModel": {
+            "AdditionalUncertainty": {
+                "GroundMotion": "0.05",
+                "Modeling": "0.30"
+            },
+            "DetectionLimits": {
+                "PFA": "",
+                "PID": ""
+            },
+            "ResponseDescription": {
+                "BasisOfEDP_Distribution": "all results",
+                "CoupledAssessment": false,
+                "EDP_Distribution": "lognormal",
+                "Realizations": "5000"
+            }
+        },
+        "_method": "HAZUS MH EQ"
+    },
+    "EDP": {
+    },
+    "Events": [
+        {
+            "EventClassification": "Earthquake",
+            "Events": [
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 4.3313,
+                            "fileName": "RSN161_IMPVALL.H_H-BRA225.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 4.3313,
+                            "fileName": "RSN161_IMPVALL.H_H-BRA315.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-161",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 2.2292,
+                            "fileName": "RSN179_IMPVALL.H_H-E04140.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 2.2292,
+                            "fileName": "RSN179_IMPVALL.H_H-E04230.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-179",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 2.1951,
+                            "fileName": "RSN184_IMPVALL.H_H-EDA270.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 2.1951,
+                            "fileName": "RSN184_IMPVALL.H_H-EDA360.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-184",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 2.6035,
+                            "fileName": "RSN802_LOMAP_STG000.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 2.6035,
+                            "fileName": "RSN802_LOMAP_STG090.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-802",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 1.549,
+                            "fileName": "RSN1085_NORTHR_SCE011.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 1.549,
+                            "fileName": "RSN1085_NORTHR_SCE281.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-1085",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 3.4673,
+                            "fileName": "RSN1489_CHICHI_TCU049-E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 3.4673,
+                            "fileName": "RSN1489_CHICHI_TCU049-N.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-1489",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 4.5341,
+                            "fileName": "RSN1493_CHICHI_TCU053-E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 4.5341,
+                            "fileName": "RSN1493_CHICHI_TCU053-N.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-1493",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 3.5875,
+                            "fileName": "RSN1528_CHICHI_TCU101-E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 3.5875,
+                            "fileName": "RSN1528_CHICHI_TCU101-N.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-1528",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 3.5558,
+                            "fileName": "RSN1546_CHICHI_TCU122-E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 3.5558,
+                            "fileName": "RSN1546_CHICHI_TCU122-N.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-1546",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 4.8949,
+                            "fileName": "RSN2655_CHICHI.03_TCU122N.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 4.8949,
+                            "fileName": "RSN2655_CHICHI.03_TCU122E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-2655",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 4.3695,
+                            "fileName": "RSN4457_MONTENE.GRO_ULA000.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 4.3695,
+                            "fileName": "RSN4457_MONTENE.GRO_ULA090.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-4457",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 3.6281,
+                            "fileName": "RSN5823_SIERRA.MEX_CHI000.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 3.6281,
+                            "fileName": "RSN5823_SIERRA.MEX_CHI090.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-5823",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 2.0239,
+                            "fileName": "RSN5827_SIERRA.MEX_MDO000.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 2.0239,
+                            "fileName": "RSN5827_SIERRA.MEX_MDO090.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-5827",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 3.5494,
+                            "fileName": "RSN6890_DARFIELD_CMHSN10E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 3.5494,
+                            "fileName": "RSN6890_DARFIELD_CMHSS80E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-6890",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 1.3167,
+                            "fileName": "RSN6906_DARFIELD_GDLCN55W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 1.3167,
+                            "fileName": "RSN6906_DARFIELD_GDLCS35W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-6906",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 1.8123,
+                            "fileName": "RSN6911_DARFIELD_HORCN18E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 1.8123,
+                            "fileName": "RSN6911_DARFIELD_HORCS72E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-6911",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 9.0834,
+                            "fileName": "RSN6930_DARFIELD_LRSCN49W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 9.0834,
+                            "fileName": "RSN6930_DARFIELD_LRSCS41W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-6930",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 7.5741,
+                            "fileName": "RSN8102_CCHURCH_LINCN23E.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 7.5741,
+                            "fileName": "RSN8102_CCHURCH_LINCN67W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-8102",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 1.6145,
+                            "fileName": "RSN8119_CCHURCH_PRPCS.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 1.6145,
+                            "fileName": "RSN8119_CCHURCH_PRPCW.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-8119",
+                    "type": "PeerEvent"
+                },
+                {
+                    "EventClassification": "Earthquake",
+                    "Records": [
+                        {
+                            "dirn": 1,
+                            "factor": 5.0308,
+                            "fileName": "RSN8134_CCHURCH_SMTCN88W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        },
+                        {
+                            "dirn": 2,
+                            "factor": 5.0308,
+                            "fileName": "RSN8134_CCHURCH_SMTCS02W.AT2",
+                            "filePath": "C:/Users/zsarn/AppData/Local/Temp.PIHHys"
+                        }
+                    ],
+                    "name": "PEER-Record-8134",
+                    "type": "PeerEvent"
+                }
+            ],
+            "TargetSpectrum": {
+                "Edition": "2014",
+                "ReturnPeriod": "2500",
+                "SpectrumType": "Uniform Hazard Spectrum (USGS NSHMP)",
+                "Vs30": "360"
+            },
+            "components": "Two (Horizontal)",
+            "distanceMax": "20.0",
+            "distanceMin": "0.0",
+            "distanceRange": true,
+            "magnitudeMax": "8.0",
+            "magnitudeMin": "6.0",
+            "magnitudeRange": true,
+            "records": "20",
+            "type": "ExistingPEER_Events",
+            "vs30Max": "500.0",
+            "vs30Min": "200",
+            "vs30Range": true
+        }
+    ],
+    "GeneralInformation": {
+        "depth": 360,
+        "height": 432,
+        "location": {
+            "latitude": 37.426,
+            "longitude": -122.171
+        },
+        "name": "",
+        "planArea": 129600,
+        "stories": 3,
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        },
+        "width": 360
+    },
+    "Simulation": {
+        "Application": "OpenSees-Simulation",
+        "algorithm": "Newton",
+        "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
+        "convergenceTest": "NormUnbalance 1.0e-2 10",
+        "dampingModel": "Rayleigh Damping",
+        "dampingRatio": 0.05,
+        "dampingRatioModal": 0.02,
+        "firstMode": 1,
+        "integration": "Newmark 0.5 0.25",
+        "modalRayleighTangentRatio": 0,
+        "numModesModal": 1,
+        "rayleighTangent": "Initial",
+        "secondMode": 5,
+        "solver": "Umfpack"
+    },
+    "StructuralInformation": {
+        "Bx": 0.1,
+        "By": 0.1,
+        "Fyx": 1000000,
+        "Fyy": 1000000,
+        "Krz": 10000000000,
+        "Kx": "RV.k",
+        "Ky": "RV.k",
+        "ModelData": [
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 144,
+                "kx": "RV.k",
+                "ky": "RV.k",
+                "weight": "RV.wFloor"
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 144,
+                "kx": "RV.k",
+                "ky": "RV.k",
+                "weight": "RV.wFloor"
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 144,
+                "kx": "RV.k",
+                "ky": "RV.k",
+                "weight": "RV.wRoof"
+            }
+        ],
+        "height": 144,
+        "massX": 0,
+        "massY": 0,
+        "numStories": 3,
+        "randomVar": [
+        ],
+        "responseX": 0,
+        "responseY": 0,
+        "type": "MDOF_BuildingModel",
+        "weight": "RV.wFloor"
+    },
+    "UQ_Method": {
+        "samplingMethodData": {
+            "method": "LHS",
+            "samples": 100,
+            "seed": 775
+        },
+        "uqEngine": "Dakota",
+        "uqType": "Forward Propagation"
+    },
+    "localAppDir": "C:/SimCenter/PBE",
+    "randomVariables": [
+        {
+            "distribution": "Lognormal",
+            "mean": 326,
+            "name": "k",
+            "refCount": 1,
+            "stdDev": 25,
+            "value": "RV.k",
+            "variableClass": "Uncertain"
+        },
+        {
+            "distribution": "Normal",
+            "mean": 100,
+            "name": "wFloor",
+            "refCount": 1,
+            "stdDev": 10,
+            "value": "RV.wFloor",
+            "variableClass": "Uncertain"
+        },
+        {
+            "distribution": "Normal",
+            "mean": 50,
+            "name": "wRoof",
+            "refCount": 1,
+            "stdDev": 5,
+            "value": "RV.wRoof",
+            "variableClass": "Uncertain"
+        }
+    ],
+    "remoteAppDir": "C:/SimCenter/PBE",
+    "runType": "runningLocal",
+    "workingDir": "C:/Workdir/PBE"
+}

@@ -1,0 +1,14 @@
+{
+  "Examples": [
+    {
+      "name": "E1: Shear Building: FEMA P58 Assessments",
+      "description": "",
+      "inputFile": "pbdl-0003/src/input.json"
+    },
+    {
+      "name": "E2: Shear Building: HAZUS & FEMA P58 Assessments",
+      "description": "This study conducts a HAZUS style assessment of a 3-story shear building.",
+      "inputFile": "pbdl-0002/src/input.json"
+    }
+  ]
+}

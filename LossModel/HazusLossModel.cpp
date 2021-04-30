@@ -47,7 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "HazusGeneralSettingsContainer.h"
 #include "LossMethod.h"
-#include <QTabWidget.h>
+#include <QTabWidget>
 
 #include "HazusLossModel.h"
 
