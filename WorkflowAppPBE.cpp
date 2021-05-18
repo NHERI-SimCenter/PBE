@@ -108,8 +108,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theDLModelSelection = new LossModelSelection(theRVs);
     theResults = new ResultsPelicun();
 
-    localApp = new LocalApplication("PBE_workflow.py");
-    remoteApp = new RemoteApplication("PBE_workflow.py", theService);
+    localApp = new LocalApplication("sWHALE.py");
+    remoteApp = new RemoteApplication("sWHALE.py", theService);
     //    localApp = new LocalApplication("femUQ.py");
     //    remoteApp = new RemoteApplication("femUQ.py", theService);
     theJobManager = new RemoteJobManager(theService);

@@ -419,7 +419,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
         QDir scriptDir(inputData["localAppDir"].toString());
         scriptDir.cd("applications");
         scriptDir.cd("Workflow");
-        QString pySCRIPT = scriptDir.absoluteFilePath("PBE_workflow.py");
+        QString pySCRIPT = scriptDir.absoluteFilePath("sWHALE.py");
         QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
         QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
 
