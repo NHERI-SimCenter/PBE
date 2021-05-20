@@ -23,7 +23,7 @@ HDF5Data::HDF5Data(QString HDF5FilePath_)
 
 };
 
-HDF5Data::~HDF5Data() {	
+HDF5Data::~HDF5Data() {
 
 	H5Gclose(HDF5Root);
 
@@ -83,8 +83,8 @@ HDF5Data::describeGroup(hid_t gid) {
     for (hsize_t i = 0; i < nobj; i++) {
 
     	// get the member name
-    	m_len = H5Gget_objname_by_idx(gid, (hsize_t)i, memb_name, 
-    		                          (size_t)MAX_NAME);    	
+    	m_len = H5Gget_objname_by_idx(gid, (hsize_t)i, memb_name,
+    		                          (size_t)MAX_NAME);
 
     	// get the member type
     	m_type = H5Gget_objtype_by_idx(gid, (size_t)i);
@@ -127,14 +127,14 @@ HDF5Data::getDFIndexValues(hid_t gid) {
 	//for (i=0; i<dims[0]; i++) {
 	for (i=0; i<10; i++) {
         qDebug() << i << QString(stringData[i]);
-	} 
+	}
 
 	free (stringData[0]);
 	free (stringData);
 }
 
 void
-HDF5Data::getStringDataSet(hid_t gid, char dsName[MAX_NAME], char ***udata, 
+HDF5Data::getStringDataSet(hid_t gid, char dsName[MAX_NAME], char ***udata,
                            int *dataSize, int dimCount){
 
 	// open the dataset
@@ -177,7 +177,7 @@ HDF5Data::getStringDataSet(hid_t gid, char dsName[MAX_NAME], char ***udata,
         } else if (dimCount == 2) {
         	rdata[i] = rdata[0] + i * dataDim * dims[1];
         }
-    }	
+    }
 
 	// Create the memory datatype
 	herr_t status;
@@ -199,7 +199,7 @@ HDF5Data::getStringDataSet(hid_t gid, char dsName[MAX_NAME], char ***udata,
 }
 
 void
-HDF5Data::getIntegerDataSet(hid_t gid, char dsName[MAX_NAME], int ***udata, 
+HDF5Data::getIntegerDataSet(hid_t gid, char dsName[MAX_NAME], int ***udata,
                            int *dataSize, int dimCount){
 
 	// open the dataset
@@ -234,11 +234,11 @@ HDF5Data::getIntegerDataSet(hid_t gid, char dsName[MAX_NAME], int ***udata,
         } else if (dimCount == 2) {
         	rdata[i] = rdata[0] + i * dims[1];
         }
-    }	
+    }
 
 	// Read the data
     herr_t status;
-    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
     				 rdata[0]);
 
     *udata = rdata;
@@ -249,7 +249,7 @@ HDF5Data::getIntegerDataSet(hid_t gid, char dsName[MAX_NAME], int ***udata,
 }
 
 void
-HDF5Data::getFloatDataSet(hid_t gid, char dsName[MAX_NAME], double ***udata, 
+HDF5Data::getFloatDataSet(hid_t gid, char dsName[MAX_NAME], double ***udata,
                            int *dataSize, int dimCount){
 
 	// open the dataset
@@ -284,11 +284,11 @@ HDF5Data::getFloatDataSet(hid_t gid, char dsName[MAX_NAME], double ***udata,
         } else if (dimCount == 2) {
         	rdata[i] = rdata[0] + i * dims[1];
         }
-    }	
+    }
 
 	// Read the data
     herr_t status;
-    status = H5Dread(dset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+    status = H5Dread(dset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT,
     				 rdata[0]);
 
     *udata = rdata;
@@ -299,7 +299,7 @@ HDF5Data::getFloatDataSet(hid_t gid, char dsName[MAX_NAME], double ***udata,
 }
 
 void
-HDF5Data::getBoolDataSet(hid_t gid, char dsName[MAX_NAME], unsigned char ***udata, 
+HDF5Data::getBoolDataSet(hid_t gid, char dsName[MAX_NAME], unsigned char ***udata,
                            int *dataSize, int dimCount){
 
 	// open the dataset
@@ -334,11 +334,11 @@ HDF5Data::getBoolDataSet(hid_t gid, char dsName[MAX_NAME], unsigned char ***udat
         } else if (dimCount == 2) {
         	rdata[i] = rdata[0] + i * dims[1];
         }
-    }	
+    }
 
 	// Read the data
     herr_t status;
-    status = H5Dread(dset, H5T_NATIVE_B8, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+    status = H5Dread(dset, H5T_NATIVE_B8, H5S_ALL, H5S_ALL, H5P_DEFAULT,
     				 rdata[0]);
 
     *udata = rdata;
@@ -369,6 +369,8 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<int> *qvRes) {
 
     free (intData[0]);
     free (intData);
+
+    H5Gclose(gid);
 }
 
 void
@@ -391,6 +393,8 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<QString> *qvRes) {
 
     free (stringData[0]);
     free (stringData);
+
+    H5Gclose(gid);
 }
 
 void
@@ -413,12 +417,14 @@ HDF5Data::getDFEntry(hid_t gid, QString ds_name, QVector<double> *qvRes) {
 
     free (floatData[0]);
     free (floatData);
+
+    H5Gclose(gid);
 }
 
 void
 HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames,
 	                         int *blockID_out, int *colID_out){
-	// Start by getting the number of blocks and the number of levels in the 
+	// Start by getting the number of blocks and the number of levels in the
 	// column header
 
 	int *numLvls, *numBlocks;
@@ -466,8 +472,8 @@ HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames
 				qDebug() << blockColID << QString(stringData[blockColID]);
 				colLvlIDs[colLvl] = blockColID;
 				break;
-			}		        
-		} 
+			}
+		}
 
 		free (stringData[0]);
 		free (stringData);
@@ -516,7 +522,7 @@ HDF5Data::getDFEntryLocation(hid_t gid, QString rowName, QStringList columnNames
                     continue;
                 }
                 break;
-			} 
+			}
 
 			free (intData[0]);
 			free (intData);
