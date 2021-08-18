@@ -71,7 +71,6 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-    void errorMessage(QString message);
 
 private:   
     P58GeneralSettingsContainer *contGeneralSettings;

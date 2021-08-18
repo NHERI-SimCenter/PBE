@@ -69,7 +69,6 @@ public:
 public slots:
     void clear(void);
     void dlSelectionChanged(const QString &arg1);
-    void errorMessage(QString message);
 
 signals:
     void dlWidgetChanged(void);

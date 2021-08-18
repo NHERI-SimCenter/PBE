@@ -58,7 +58,6 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-   void errorMessage(QString message);
    void addCollapseMode(void);
    void removeCollapseModes(void);
    void clear(void);

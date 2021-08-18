@@ -119,7 +119,7 @@ void P58CollapseModeContainer::addCollapseMode(void)
    CollapseMode *theCollapseMode = new CollapseMode();
    theCollapseModes.append(theCollapseMode);
    eventLayout->insertWidget(eventLayout->count()-1, theCollapseMode);
-   connect(this,SLOT(InputWidgetExistingCollapseModeErrorMessage(QString)), theCollapseMode, SIGNAL(sendErrorMessage(QString)));
+   //   connect(this,SLOT(InputWidgetExistingCollapseModeErrorMessage(QString)), theCollapseMode, SIGNAL(sendErrorMessage(QString)));
 }
 
 
@@ -206,8 +206,5 @@ P58CollapseModeContainer::copyFiles(QString &dirName) {
     return true;
 }
 
-void
-P58CollapseModeContainer::errorMessage(QString message){
-    emit sendErrorMessage(message);
-}
+
 

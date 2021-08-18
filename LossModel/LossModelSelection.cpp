@@ -194,14 +194,14 @@ void LossModelSelection::dlSelectionChanged(const QString &arg1)
 
     } else {
         selectionChangeOK = false;
-        emit sendErrorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
+        errorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
     }
 
     if (lossMethod != nullptr) {
 
         this->dlWidgetChanged();
         layout->insertWidget(-1, lossMethod,1);
-        connect(lossMethod,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+        // connect(lossMethod,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
     }
 
     return;
@@ -212,10 +212,6 @@ LossModelSelection::copyFiles(QString &dirName) {
     return true;
 }
 
-void
-LossModelSelection::errorMessage(QString message){
-    emit sendErrorMessage(message);
-}
 
 QString
 LossModelSelection::getFragilityFolder(){

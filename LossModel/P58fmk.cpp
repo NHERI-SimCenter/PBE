@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "P58ComponentContainer.h"
 #include "P58ComponentGroup.h"
-#include "SimCenterPreferences.h"
 
 #include <QProcess>
 #include <QPushButton>
@@ -674,15 +673,14 @@ P58ComponentContainer::getFragilityDataBase(){
 
     if (fragilityDataBase == "") {
 
-        QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+        QString appDir = QString("");
+        QSettings settings("SimCenter", QCoreApplication::applicationName());
+        QVariant  appDirVariant = settings.value("appDir");
+        if (appDirVariant.isValid())
+          appDir = appDirVariant.toString();
 
-#ifdef Q_OS_WIN
         fragilityDataBase = appDir + 
-        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
-#else
-        fragilityDataBase = appDir + 
-        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed.hdf";
-#endif
+        "/applications/performDL/pelicun/pelicunPBE/resources/FEMA_P58_2nd_ed_MAC.hdf";
         //"/applications/performDL/pelicun/pelicunPBE/resources/DL json/";
     }
 
@@ -700,7 +698,11 @@ P58ComponentContainer::setFragilityDataBase(QString fragilityDataBase){
 void
 P58ComponentContainer::chooseFragilityDataBase(void) {
 
-    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
 
     QString fragilityDataBase;
     fragilityDataBase = 
@@ -715,7 +717,11 @@ P58ComponentContainer::chooseFragilityDataBase(void) {
 void
 P58ComponentContainer::exportFragilityDataBase(void) {
 
-    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString appDir = QString("");
+    QSettings settings("SimCenter", QCoreApplication::applicationName());
+    QVariant  appDirVariant = settings.value("appDir");
+    if (appDirVariant.isValid())
+      appDir = appDirVariant.toString();
 
     QString destinationFolder;
     destinationFolder = 
@@ -732,7 +738,7 @@ P58ComponentContainer::exportFragilityDataBase(void) {
     QString exportScript = scriptDir.absoluteFilePath("export_DB.py");
     scriptDir.cd("pelicunPBE");
     scriptDir.cd("resources");
-    QString dbFile = scriptDir.absoluteFilePath("FEMA_P58_2nd_ed.hdf");
+    QString dbFile = scriptDir.absoluteFilePath("FEMA_P58_2nd_ed_MAC.hdf");
 
     QProcess *proc = new QProcess();
     QString python = QString("python");
@@ -1159,5 +1165,10 @@ P58ComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 bool 
 P58ComponentContainer::copyFiles(QString &dirName) {
     return true;
+}
+
+void
+P58ComponentContainer::errorMessage(QString message){
+    emit sendErrorMessage(message);
 }
 

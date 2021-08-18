@@ -142,7 +142,7 @@ bool CollapseMode::outputToJSON(QJsonObject &outputObject) {
         outputObject["injuries"] = collapseModeInjuries->text();        
         return true;
     } else {
-        emit sendErrorMessage("ERROR: Component - cannot output as no \"name\" entry!");
+        errorMessage("ERROR: Component - cannot output as no \"name\" entry!");
         return false;
     }
 }

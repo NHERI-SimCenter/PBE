@@ -119,10 +119,6 @@ HazusLossModel::copyFiles(QString &dirName) {
     return true;
 }
 
-void
-HazusLossModel::errorMessage(QString message){
-    emit sendErrorMessage(message);
-}
 
 QString
 HazusLossModel::getFragilityFolder(){

@@ -68,8 +68,6 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-    //void eventSelectionChanged(const QString &arg1);
-    void errorMessage(QString message);
 
 private:
     HazusGeneralSettingsContainer *theGeneralSettingsContainer;
