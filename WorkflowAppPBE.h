@@ -51,7 +51,7 @@ class UQ_EngineSelection;
 class SIM_Selection;
 
 class EarthquakeLoadingInput;
-class FEM_Selection;
+class FEA_Selection;
 class UQOptions;
 class ResultsPelicun;
 class GeneralInformationWidget;
@@ -112,7 +112,7 @@ private:
     SIM_Selection *theSIM;
     UQ_EngineSelection *theUQ_Selection;
     EarthquakeEventSelection *theEvent;
-    FEM_Selection *theAnalysis;
+    FEA_Selection *theAnalysis;
     LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
 

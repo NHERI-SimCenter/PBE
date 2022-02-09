@@ -68,14 +68,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SIM_Selection.h>
 #include <RandomVariablesContainer.h>
 #include <UQ_EngineSelection.h>
-#include <FEM_Selection.h>
+#include <FEA_Selection.h>
 #include <LocalApplication.h>
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
 #include <LossModel/LossModelSelection.h>
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
-#include <InputWidgetUQ.h>
 #include <ResultsPelicun.h>
 #include <Utils/PythonProgressDialog.h>
 
@@ -99,13 +98,13 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // create the various widgets
     //
 
-    theRVs = new RandomVariablesContainer();
+    theRVs = RandomVariablesContainer::getInstance();
     theGI = GeneralInformationWidget::getInstance();
     theSIM = new SIM_Selection(theRVs);
     theEvent = new EarthquakeEventSelection(theRVs, theGI);
-    theAnalysis = new FEM_Selection(theRVs);
-    theUQ_Selection = new UQ_EngineSelection(theRVs, ForwardOnly);
-    theDLModelSelection = new LossModelSelection(theRVs);
+    theAnalysis = new FEA_Selection(theRVs);
+    theUQ_Selection = new UQ_EngineSelection(ForwardOnly);
+    theDLModelSelection = new LossModelSelection();
     theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("sWHALE.py");
@@ -283,6 +282,26 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     apps["DL"] = appsDL;
 
     jsonObjectTop["Applications"]=apps;
+
+    QJsonObject defaultValues;
+    defaultValues["workflowInput"]=QString("dakota.json");    
+    defaultValues["filenameBIM"]=QString("BIM.json");
+    defaultValues["filenameEVENT"] = QString("EVENT.json");
+    defaultValues["filenameSAM"]= QString("SAM.json");
+    defaultValues["filenameEDP"]= QString("EDP.json");
+    defaultValues["filenameSIM"]= QString("SIM.json");
+    defaultValues["driverFile"]= QString("driver");
+    defaultValues["filenameDL"]= QString("BIM.json");
+    defaultValues["workflowOutput"]= QString("EDP.json");
+    QJsonArray rvFiles, edpFiles;
+    rvFiles.append(QString("BIM.json"));
+    rvFiles.append(QString("SAM.json"));
+    rvFiles.append(QString("EVENT.json"));
+    rvFiles.append(QString("SIM.json"));
+    edpFiles.append(QString("EDP.json"));
+    defaultValues["rvFiles"]= rvFiles;
+    defaultValues["edpFiles"]=edpFiles;
+    jsonObjectTop["DefaultValues"]=defaultValues;
     
     return true;
 }

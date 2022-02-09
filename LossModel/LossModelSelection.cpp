@@ -52,8 +52,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "LossModelSelection.h"
 
 LossModelSelection::LossModelSelection(
-    RandomVariablesContainer *theRV_IW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
+    QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
     layout = new QVBoxLayout();
 
