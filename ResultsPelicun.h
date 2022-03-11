@@ -57,7 +57,7 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString filenameTab);
+  int processResults(QString &inputFile, QString &resultsDir);
 
 signals:
 

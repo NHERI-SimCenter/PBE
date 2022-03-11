@@ -100,9 +100,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     theRVs = RandomVariablesContainer::getInstance();
     theGI = GeneralInformationWidget::getInstance();
-    theSIM = new SIM_Selection(theRVs);
+    theSIM = new SIM_Selection();
     theEvent = new EarthquakeEventSelection(theRVs, theGI);
-    theAnalysis = new FEA_Selection(theRVs);
+    theAnalysis = new FEA_Selection();
     theUQ_Selection = new UQ_EngineSelection(ForwardOnly);
     theDLModelSelection = new LossModelSelection();
     theResults = new ResultsPelicun();
@@ -164,8 +164,8 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &)), 
             theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
 
-    connect(localApp, SIGNAL(processResults(QString, QString, QString)),
-            this, SLOT(processResults(QString, QString, QString)));
+    connect(localApp, SIGNAL(processResults(QString &)),
+            this, SLOT(processResults(QString &)));
 
     connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));
     connect(remoteApp,SIGNAL(successfullJobStart()), this, SLOT(runComplete()));
@@ -174,10 +174,10 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));    
     
     connect(theJobManager,
-            SIGNAL(processResults(QString , QString, QString)),
+            SIGNAL(processResults(QString &)),
             this,
-            SLOT(processResults(QString, QString, QString)));
-    connect(theJobManager,SIGNAL(loadFile(QString)), this, SLOT(loadFile(QString)));
+            SLOT(processResults(QString &)));
+    connect(theJobManager,SIGNAL(loadFile(QString&)), this, SLOT(loadFile(QString&)));
 
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
 
@@ -229,6 +229,9 @@ WorkflowAppPBE::~WorkflowAppPBE()
 
 bool
 WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
+
+  bool result = true;
+  
     //
     // get each of the main widgets to output themselves
     //
@@ -238,13 +241,6 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     QJsonObject jsonObjGenInfo;
     theGI->outputToJSON(jsonObjGenInfo);
     jsonObjectTop["GeneralInformation"] = jsonObjGenInfo;
-
-    QJsonObject jsonObjStructural;
-    theSIM->outputToJSON(jsonObjStructural);
-    jsonObjectTop["StructuralInformation"] = jsonObjStructural;
-    QJsonObject appsSIM;
-    theSIM->outputAppDataToJSON(appsSIM);
-    apps["Modeling"]=appsSIM;
 
     // FMK - note to self, random varaibales need to be changed
     //QJsonObject jsonObjectRVs;
@@ -258,6 +254,12 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     appsEDP["ApplicationData"] = dataObj;
     apps["EDP"] = appsEDP;
 
+    if (theSIM->outputAppDataToJSON(apps) == false)
+        return result;
+
+    if (theSIM->outputToJSON(jsonObjectTop) == false)
+      return false;;
+    
     theUQ_Selection->outputAppDataToJSON(apps);
     theUQ_Selection->outputToJSON(jsonObjectTop);
 
@@ -284,7 +286,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     jsonObjectTop["Applications"]=apps;
 
     QJsonObject defaultValues;
-    defaultValues["workflowInput"]=QString("dakota.json");    
+    defaultValues["workflowInput"]=QString("scInput.json");    
     defaultValues["filenameBIM"]=QString("BIM.json");
     defaultValues["filenameEVENT"] = QString("EVENT.json");
     defaultValues["filenameSAM"]= QString("SAM.json");
@@ -308,9 +310,9 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 
 void
-WorkflowAppPBE::processResults(QString dakotaOut, QString dakotaTab, QString inputFile) {
+WorkflowAppPBE::processResults(QString &dirPath) {
   
-  theResults->processResults(dakotaTab);
+  theResults->processResults(loadedFile, dirPath);
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
   this->runComplete();
@@ -347,17 +349,6 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 
         QJsonObject theApplicationObject = jsonObject["Applications"].toObject();
 
-        //qDebug() << "Modeling";
-        if (theApplicationObject.contains("Modeling")) {
-            QJsonObject theObject = theApplicationObject["Modeling"].toObject();
-            if (theSIM->inputAppDataFromJSON(theObject) == false) {
-                emit errorMessage(" ERROR: failed to read Modeling Application");
-            }
-        } else {
-            emit errorMessage(" ERROR: failed to find Modeling Application");
-            return false;
-        }
-
         // note: Events is different because the object is an Array
         //qDebug() << "Events";
         if (theApplicationObject.contains("Events")) {
@@ -375,6 +366,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             emit errorMessage("PBE: failed to read UQ application");
 
+        if (theSIM->inputAppDataFromJSON(theApplicationObject) == false)
+            emit errorMessage("EE_UQ: failed to read SIM application");
+	
         if (theAnalysis->inputAppDataFromJSON(theApplicationObject) == false)
             emit errorMessage("EE_UQ: failed to read FEM application");
 
@@ -389,25 +383,15 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
-    //qDebug() << "Structural Information";
-    if (jsonObject.contains("StructuralInformation")) {
-        QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
-        if (theSIM->inputFromJSON(jsonObjStructuralInformation) == false) {
-            emit errorMessage(" ERROR: failed to read StructuralInformation");
-        }
-    } else {
-        emit errorMessage(" ERROR: failed to find StructuralInformation");
-        return false;
-    }
-
-    //qDebug() << "UQ Method";
     if (theUQ_Selection->inputFromJSON(jsonObject) == false)
         emit errorMessage("PBE: failed to read UQ Method data");
 
+    if (theSIM->inputFromJSON(jsonObject) == false)
+        emit errorMessage("PBE: failed to read FEM Method data");    
+    
     if (theAnalysis->inputFromJSON(jsonObject) == false)
-        emit errorMessage("EE_UQ: failed to read FEM Method data");
+        emit errorMessage("PBE: failed to read FEM Method data");
 
-    //qDebug() << "DamageAndLoss";
     if (jsonObject.contains("DamageAndLoss")) {
         QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
@@ -416,7 +400,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         emit errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
+    
     this->runComplete();
+    
     return true;
 }
 
@@ -501,11 +487,11 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     theUQ_Selection->copyFiles(templateDirectory);
 
     //
-    // in new templatedir dir save the UI data into dakota.json file (same result as using saveAs)
+    // in new templatedir dir save the UI data into scInput.json file (same result as using saveAs)
     // NOTE: we append object workingDir to this which points to template dir
     //
 
-    QString inputFile = templateDirectory + QDir::separator() + tr("dakota.json");
+    QString inputFile = templateDirectory + QDir::separator() + tr("scInput.json");
 
     QFile file(inputFile);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -537,7 +523,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
 }
 
 int
-WorkflowAppPBE::loadFile(const QString fileName){
+WorkflowAppPBE::loadFile(QString &fileName){
 
     //
     // open file
@@ -572,6 +558,8 @@ WorkflowAppPBE::loadFile(const QString fileName){
     
     this->runComplete();
 
+    loadedFile = fileName;
+    
     return 0;
 }
 

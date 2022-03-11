@@ -97,9 +97,8 @@ signals:
 
 public slots:  
     void setUpForApplicationRun(QString &, QString &);
-    void processResults(QString dakotaOut, QString dakotaTab, QString inputFile);
-
-    int loadFile(QString filename);
+    void processResults(QString &dirPath);
+    int loadFile(QString &filename);
 
 private:
 
@@ -115,7 +114,8 @@ private:
     FEA_Selection *theAnalysis;
     LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
-
+    QString loadedFile;
+  
     // objects for running the workflow and obtaining results
     RunWidget *theRunWidget;
     Application *localApp;

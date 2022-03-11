@@ -377,16 +377,19 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString filenameTab) {
+int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath) {
 
+  // Get the results directory path
+  //    QString resultsDir = filenameTab.remove("dakotaTab.out");
+  QDir rDir(resultsPath);
 
-    // Get the results directory path
-    QString resultsDir = filenameTab.remove("dakotaTab.out");
-    QDir rDir(resultsDir);
+  QString resultsDir = resultsPath;
 
-    // Get the input json data from the dakota.json file
-    QFile inputFile(rDir.absoluteFilePath("dakota.json"));
-    inputFile.open(QFile::ReadOnly | QFile::Text);
+  // Get the input json data from the dakota.json file
+  QFile inputFile(inputFileName);
+
+  inputFile.open(QFile::ReadOnly | QFile::Text);
+  
     QString val;
     val=inputFile.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
@@ -396,6 +399,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     // If the runType is HPC, then we need to do additional operations
     QString runType = inputData["runType"].toString();
     if (runType == "HPC"){
+      
         // create the workdir and copy the two result files there
         QString runDirName = inputData["runDir"].toString();
         if (!QDir(runDirName).exists()) {
@@ -436,7 +440,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 	  return 0;
 	}
 
-	errorMessage("Now Running Pelicun to deremine losses");
+	errorMessage("Now Running Pelicun to determine losses");
 
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");
@@ -459,7 +463,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
         // move the resultsDir to the runDir
         resultsDir = runDirName;
-
+	
     }
 
 
@@ -498,6 +502,8 @@ int ResultsPelicun::processResults(QString filenameTab) {
         // be properly assessed .. i.e. not always the fault of pelicun.
         //
 
+      QString filenameTab = resultsDir + QDir::separator() + "dakotaTab.out";
+      
         QFileInfo fileTabInfo(filenameTab);
         QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
