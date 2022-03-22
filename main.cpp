@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("2.2.3");
-    //GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    QCoreApplication::setApplicationVersion("2.2.4");
+    //    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
@@ -122,67 +122,12 @@ int main(int argc, char *argv[])
 
 // connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *w, SLOT(errorM))
 
-  /*
-  QString textAboutPBE = "\
-          <p> \
-          This is the Performance Based Engineering (PBE) Application.\
-          <p> \
-          The PBE Application (PBE App) is an open-source software \
-          (https://github.com/NHERI-SimCenterPBE) that provides researchers a tool to \
-          assess the performance of a building in an earthquake scenario. The application \
-          focuses on quantifying building performance through decision variables. Given \
-          that the properties of the buildings and the earthquake events are not known \
-          exactly, and that the simulation software and the user make simplifying \
-          assumptions in the numerical modeling of the structure, the estimate response of\
-           the structure already exhibits significant variability. Such response can be \
-           estimated using our EE-UQ Application (https://simcenter.designsafe-ci.org/\
-              research-tools/ee-uq-application/). The PBE App builds on the EE-UQ App and \
-           uses its response estimates to assess the damage to building components and the\
-            consequences of such damage.\
-          <p> \
-          The user can characterize the simulation model, and the damage and loss model of\
-           the structure, and the seismic hazard model in the PBE App. All models are \
-           interconnected by an uncertainty quantification framework that allows the user \
-           to define a flexible stochastic model for the problem. Given the stochastic \
-           model, the application first performs nonlinear response history simulations to\
-            get the Engineering Demand Parameters (EDPs) that describe structural response\
-            . Then those EDPs are used to assess the Damage Measures (DM) and Decision \
-            Variables (DV) that characterize structural performance. \
-          <p> \
-          Depending on the type of structural system, the fidelity of the numerical model \
-          and the number of EDP samples required, the response history simulations can be \
-          computationally prohibitively expensive. To overcome this impediment, the user \
-          has the option to perform the response simulations on the Stampede2 \
-          supercomputer. Stampede2 is located at the Texas Advanced Computing Center and \
-          made available to the user through NHERI DesignSafe-CI, the cyberinfrastructure \
-          provider for the distributed NSF funded Natural Hazards in Engineering Research \
-          Infrastructure (NHERI) facility.\
-          <p> \
-          The computations are performed in a workflow application. That is, the numerical\
-           simulations are actually performed by a sequence of different applications. The\
-            PBE backend software runs these various applications for the user, taking the \
-            outputs from some programs and providing them as inputs to others. The design \
-            of the PBE App is such that researchers are able to modify the backend \
-            application to utilize their own application in the workflow computations. \
-            This will ensure researchers are not limited to using the default applications\
-             we provide and will be enthused to provide their own applications for others \
-             to use. \
-          <p>\
-          This is Version 2.2.2 of the tool and as such is limited in scope. Researchers are\
-           encouraged to comment on what additional features and applications they would \
-           like to see in the PBE App. If you want a feature, chances are many of your \
-           colleagues would also benefit from it.\
-          <p>";
-
-     w.setAbout(textAboutPBE);
-    */
-
 
   QString aboutTitle = "About the SimCenter PBE Application"; // this is the title displayed in the on About dialog
   QString aboutSource = ":/resources/docs/textAboutPBE.html";  // this is an HTML file stored under resources
   w.setAbout(aboutTitle, aboutSource);
 
-  QString version("Version 2.2.2");
+  QString version("Version 2.2.4");
   w.setVersion(version);
 
   QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");

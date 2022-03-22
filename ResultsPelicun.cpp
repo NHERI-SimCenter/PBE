@@ -432,11 +432,11 @@ int ResultsPelicun::processResults(QString filenameTab) {
 	if (pythonFile.exists()) {
 	  QString pythonPath = pythonFile.absolutePath();
 	} else {
-	  emit sendErrorMessage("No python found, see the manual");
+	  errorMessage("No python found, see the manual");
 	  return 0;
 	}
 
-	emit sendErrorMessage("Now Running Pelicun to deremine losses");
+	errorMessage("Now Running Pelicun to deremine losses");
 
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");
@@ -463,7 +463,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     }
 
 
-    emit sendErrorMessage("Loading Loss Results");
+    errorMessage("Loading Loss Results");
 
     this->clear();
     mLeft = true;
@@ -503,7 +503,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
         QFileInfo filenameErrorInfo(filenameErrorString);
         if (!filenameErrorInfo.exists()) {
-            emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
+            errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
             return 0;
         }
         QFile fileError(filenameErrorString);
@@ -518,17 +518,17 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
         if (line.length() != 0) {
             qDebug() << line.length() << " " << line;
-            emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
+            errorMessage(QString(QString("Error Running Dakota: ") + line));
             return 0;
         }
 
         QFileInfo filenameTabInfo(filenameTab);
         if (!filenameTabInfo.exists()) {
-            emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+            errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
             return 0;
         }
 
-        emit sendErrorMessage(
+        errorMessage(
             QString("Could not open file: ") + resultsStatsFile +
             QString(" . Damage and loss results are not available."));
         return -1;
@@ -694,7 +694,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     QString resultsFile = resultsDir + "/DL_summary.csv";
     std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
-        emit sendErrorMessage(
+        errorMessage(
             QString("Could not open file: ") + resultsFile +
             QString(" . Damage and loss results are not available."));
         return -1;
@@ -724,7 +724,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
 
     if (rowCount == 0) {
-      emit sendErrorMessage("Damage and loss result file is empty.");
+      errorMessage("Damage and loss result file is empty.");
       return -2;
     }
    // rowCount;
@@ -770,7 +770,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     // close input file
 
     // clear messages
-    emit sendErrorMessage("");
+    errorMessage("");
     return 0;
 }
 

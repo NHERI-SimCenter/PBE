@@ -598,7 +598,7 @@
     "UQ_Method": {
         "samplingMethodData": {
             "method": "LHS",
-            "samples": 100,
+            "samples": 10,
             "seed": 775
         },
         "uqEngine": "Dakota",

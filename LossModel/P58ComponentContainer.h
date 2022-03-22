@@ -78,8 +78,6 @@ public:
     void retrieveCompGroups();
 
 public slots:
-   void errorMessage(QString message);
-
    int updateAvailableComponents();
 
    void addOneComponent(void);

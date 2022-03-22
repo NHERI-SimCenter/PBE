@@ -163,11 +163,6 @@ P58LossModel::copyFiles(QString &dirName) {
     return true;
 }
 
-void
-P58LossModel::errorMessage(QString message){
-    emit sendErrorMessage(message);
-}
-
 QString
 P58LossModel::getFragilityFolder(){
     return contComponents->getFragilityDataBase();

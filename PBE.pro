@@ -15,6 +15,7 @@ MOC_DIR = $$OUT_PWD/.moc
 UI_DIR = $$OUT_PWD/.ui
 OBJECTS_DIR = $$OUT_PWD/.obj
 
+CONFIG += c++17
 
 TARGET = PBE
 TEMPLATE = app

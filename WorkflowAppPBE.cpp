@@ -126,6 +126,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     //
 
     // error messages and signals
+    /*
     connect(theResults,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
     connect(theResults,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
     connect(theResults,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
@@ -154,7 +155,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     connect(remoteApp,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
     connect(remoteApp,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
     connect(remoteApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
+    */
 
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)),
             this, SLOT(setUpForApplicationRun(QString &,QString &)));
@@ -516,7 +517,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }
 
-void
+int
 WorkflowAppPBE::loadFile(const QString fileName){
 
     //
@@ -526,7 +527,7 @@ WorkflowAppPBE::loadFile(const QString fileName){
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         emit errorMessage(QString("Could Not Open File: ") + fileName);
-        return;
+        return -1;
     }
 
     //
@@ -546,8 +547,13 @@ WorkflowAppPBE::loadFile(const QString fileName){
     //
 
     this->clear();
-    this->inputFromJSON(jsonObj);
+    bool result = this->inputFromJSON(jsonObj);
+    if (result == false)
+      return -1;
+    
     this->runComplete();
+
+    return 0;
 }
 
 
