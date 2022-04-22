@@ -124,38 +124,6 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     // connect signals and slots
     //
 
-    // error messages and signals
-    /*
-    connect(theResults,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theResults,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(theResults,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-    connect(theGI,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theGI,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(theGI,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-    connect(theSIM,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theSIM,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(theSIM,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-    connect(theEvent,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theEvent,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(theEvent,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-    connect(theRunWidget,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(theRunWidget,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(theRunWidget,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-
-    connect(localApp,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(localApp,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(localApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-
-    connect(remoteApp,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
-    connect(remoteApp,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));
-    connect(remoteApp,SIGNAL(sendFatalMessage(QString)), this,SLOT(fatalMessage(QString)));
-    */
-
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)),
             this, SLOT(setUpForApplicationRun(QString &,QString &)));
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)),
@@ -239,48 +207,69 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     QJsonObject apps;
 
     QJsonObject jsonObjGenInfo;
-    theGI->outputToJSON(jsonObjGenInfo);
+    result = theGI->outputToJSON(jsonObjGenInfo);    
+    if (result == false)
+        return result;
+    
     jsonObjectTop["GeneralInformation"] = jsonObjGenInfo;
 
-    // FMK - note to self, random varaibales need to be changed
-    //QJsonObject jsonObjectRVs;
-    //theRVs->outputToJSON(jsonObjectRVs);
-    //jsonObjectTop["RandomVariables"] = jsonObjectRVs;
-    theRVs->outputToJSON(jsonObjectTop);
+    result = theRVs->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;    
 
+    // built in EDP
     QJsonObject appsEDP;
     appsEDP["Application"] = "StandardEarthquakeEDP";
     QJsonObject dataObj;
     appsEDP["ApplicationData"] = dataObj;
     apps["EDP"] = appsEDP;
-
+    
+    QJsonObject edpData;
+    jsonObjectTop["EDP"] = edpData;
+    
     if (theSIM->outputAppDataToJSON(apps) == false)
         return result;
 
     if (theSIM->outputToJSON(jsonObjectTop) == false)
       return false;;
     
-    theUQ_Selection->outputAppDataToJSON(apps);
-    theUQ_Selection->outputToJSON(jsonObjectTop);
+    result = theUQ_Selection->outputAppDataToJSON(apps);
+    if (result == false)
+        return result;
+    
+    result = theUQ_Selection->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;    
 
-    theAnalysis->outputAppDataToJSON(apps);
-    theAnalysis->outputToJSON(jsonObjectTop);
+    result = theAnalysis->outputAppDataToJSON(apps);
+    if (result == false)
+        return result;
 
-    QJsonObject edpData;
-    jsonObjectTop["EDP"] = edpData;
+    result = theAnalysis->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;
 
    // NOTE: Events treated differently, due to array nature of objects
-    theEvent->outputToJSON(jsonObjectTop);
-    theEvent->outputAppDataToJSON(apps);
+    result = theEvent->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;
+
+    result = theEvent->outputAppDataToJSON(apps);
+    if (result == false)
+        return result;
 
     theRunWidget->outputToJSON(jsonObjectTop);
 
     QJsonObject jsonLossModel;
-    theDLModelSelection->outputToJSON(jsonLossModel);
+    if (theDLModelSelection->outputToJSON(jsonLossModel) == false)
+      return false;
+    
     jsonObjectTop["DamageAndLoss"] = jsonLossModel;
 
     QJsonObject appsDL;
-    theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel);
+    if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false)
+      return false;
+    
     apps["DL"] = appsDL;
 
     jsonObjectTop["Applications"]=apps;
@@ -337,10 +326,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     if (jsonObject.contains("GeneralInformation")) {
         QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
         if (theGI->inputFromJSON(jsonObjGeneralInformation) == false) {
-            emit errorMessage(": ERROR: failed to read GeneralInformation");
+            this->errorMessage(": ERROR: failed to read GeneralInformation");
         }
     } else {
-        emit errorMessage(" ERROR: failed to find GeneralInformation");
+        this->errorMessage(" ERROR: failed to find GeneralInformation");
         return false;
     }
 
@@ -354,23 +343,23 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Events")) {
             //  QJsonObject theObject = theApplicationObject["Events"].toObject(); it is null object, actually an array
             if (theEvent->inputAppDataFromJSON(theApplicationObject) == false) {
-                emit errorMessage(" ERROR: failed to read Event Application");
+                this->errorMessage(" ERROR: failed to read Event Application");
             }
 
         } else {
-            emit errorMessage(" ERROR: failed to find Event Application");
+            this->errorMessage(" ERROR: failed to find Event Application");
             return false;
         }
 
 
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
-            emit errorMessage("PBE: failed to read UQ application");
+            this->errorMessage("PBE: failed to read UQ application");
 
         if (theSIM->inputAppDataFromJSON(theApplicationObject) == false)
-            emit errorMessage("EE_UQ: failed to read SIM application");
+            this->errorMessage("EE_UQ: failed to read SIM application");
 	
         if (theAnalysis->inputAppDataFromJSON(theApplicationObject) == false)
-            emit errorMessage("EE_UQ: failed to read FEM application");
+            this->errorMessage("EE_UQ: failed to read FEM application");
 
     } else
         return false;
@@ -384,20 +373,20 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     theRunWidget->inputFromJSON(jsonObject);
 
     if (theUQ_Selection->inputFromJSON(jsonObject) == false)
-        emit errorMessage("PBE: failed to read UQ Method data");
+        this->errorMessage("PBE: failed to read UQ Method data");
 
     if (theSIM->inputFromJSON(jsonObject) == false)
-        emit errorMessage("PBE: failed to read FEM Method data");    
+        this->errorMessage("PBE: failed to read FEM Method data");    
     
     if (theAnalysis->inputFromJSON(jsonObject) == false)
-        emit errorMessage("PBE: failed to read FEM Method data");
+        this->errorMessage("PBE: failed to read FEM Method data");
 
     if (jsonObject.contains("DamageAndLoss")) {
         QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
-            emit errorMessage(" ERROR: failed to find Damage and Loss Model");
+            this->errorMessage(" ERROR: failed to find Damage and Loss Model");
     } else {
-        emit errorMessage("WARNING: failed to find Damage and Loss Model");
+        this->errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
     
@@ -415,7 +404,7 @@ WorkflowAppPBE::onRunButtonClicked() {
 
 void
 WorkflowAppPBE::onRemoteRunButtonClicked(){
-    emit errorMessage("");
+    this->errorMessage("");
 
     bool loggedIn = theRemoteService->isLoggedIn();
 
@@ -434,7 +423,7 @@ WorkflowAppPBE::onRemoteRunButtonClicked(){
 void
 WorkflowAppPBE::onRemoteGetButtonClicked(){
 
-    emit errorMessage("");
+    this->errorMessage("");
 
     bool loggedIn = theRemoteService->isLoggedIn();
 
@@ -499,7 +488,10 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
         return;
     }
     QJsonObject json;
-    this->outputToJSON(json);
+    if (this->outputToJSON(json) == false) {
+        this->errorMessage("WorkflowApp - failed in outputToJson");
+        return;
+    }    
 
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
@@ -531,7 +523,7 @@ WorkflowAppPBE::loadFile(QString &fileName){
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit errorMessage(QString("Could Not Open File: ") + fileName);
+        this->errorMessage(QString("Could Not Open File: ") + fileName);
         return -1;
     }
 
@@ -559,7 +551,8 @@ WorkflowAppPBE::loadFile(QString &fileName){
     this->runComplete();
 
     loadedFile = fileName;
-    
+
+    this->statusMessage("Done Loading File");
     return 0;
 }
 

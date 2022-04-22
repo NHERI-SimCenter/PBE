@@ -201,7 +201,6 @@ void LossModelSelection::dlSelectionChanged(const QString &arg1)
 
         this->dlWidgetChanged();
         layout->insertWidget(-1, lossMethod,1);
-        // connect(lossMethod,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
     }
 
     return;
