@@ -16,6 +16,7 @@
 #include <GoogleAnalytics.h>
 #include <QDir>
 #include <QStandardPaths>
+#include <QProcessEnvironment>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -73,6 +74,12 @@ int main(int argc, char *argv[])
     logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
       + QDir::separator() + QCoreApplication::applicationName();
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      logFilePath = workDir;
+    }    
+    
     // make sure tool dir exists in Documentss folder
     QDir dirWork(logFilePath);
     if (!dirWork.exists())
