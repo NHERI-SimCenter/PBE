@@ -440,7 +440,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
 	  return 0;
 	}
 
-	errorMessage("Now Running Pelicun to determine losses");
+	statusMessage("Now Running Pelicun to determine losses");
 
 #ifdef Q_OS_WIN
         python = QString("\"") + python + QString("\"");
@@ -467,7 +467,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     }
 
 
-    errorMessage("Loading Loss Results");
+    statusMessage("Loading Loss Results");
 
     this->clear();
     mLeft = true;
