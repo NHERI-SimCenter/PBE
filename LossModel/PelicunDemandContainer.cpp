@@ -202,6 +202,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     // Collapse Limit list
     QHBoxLayout *loCLimitLayout = new QHBoxLayout();
 
+    /*
     loCLimitRemove = new QVBoxLayout();
 
     loCLimitRemove->addStretch();
@@ -211,6 +212,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
             SLOT(removeCollapseLimit(QWidget*)));
 
     loCLimitLayout->addLayout(loCLimitRemove);
+    */
 
     QScrollArea *saCollapseLims = new QScrollArea;
     saCollapseLims->setWidgetResizable(true);

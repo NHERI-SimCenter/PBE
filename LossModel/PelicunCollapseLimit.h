@@ -95,7 +95,7 @@ public slots:
 
 private:
 
-    QMap<QString, QString> *PG_data;
+    QMap<QString, QString> *CL_data;
 
     QLineEdit *clDemandType;
     QLineEdit *clDemandLimit;
