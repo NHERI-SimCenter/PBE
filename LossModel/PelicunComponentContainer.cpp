@@ -265,6 +265,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     lineDS->setFrameShadow(QFrame::Sunken);
     loCEns->addWidget(lineDS);
 
+    /*
     // population variation data folder
     QHBoxLayout *selectDB_POPLayout = new QHBoxLayout();
 
@@ -320,9 +321,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
                 SLOT(POPDBSelectionChanged(QString)));
 
     loCEns->addLayout(customPOPFolderLayout);
+    */
 
     loCEns->addStretch();
 
+    /*
     // population details  ----------------------------------------------------------
 
     QGroupBox *popDetailsGroupBox = new QGroupBox("Population Assignment");
@@ -430,6 +433,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     loPQuantityLayout->addWidget(POPQuantityList, 1);
 
     loPDetails->addLayout(loPQuantityLayout, 1);
+    */
 
     // component details  ----------------------------------------------------------
 
@@ -439,7 +443,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QVBoxLayout *loCDetails = new QVBoxLayout(compDetailsGroupBox);
     //QFormLayout *compDetailsFormLayout = new QFormLayout(compDetailsGroupBox);
 
-    // load/save population model
+    // load/save component model
     QHBoxLayout *loadsaveCLayout = new QHBoxLayout();
 
     QPushButton* loadConfig = new QPushButton();
@@ -728,7 +732,8 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     loCQuantityRemove->addStretch();
 
     smRemoveCG = new QSignalMapper(this);
-    connect(smRemoveCG, SIGNAL(mapped(QWidget*)), this, SLOT(removeComponentGroup(QWidget*)));
+    connect(smRemoveCG, SIGNAL(mapped(QWidget*)), this,
+            SLOT(removeComponentGroup(QWidget*)));
 
     loCQuantityLayout->addLayout(loCQuantityRemove);
 
@@ -752,7 +757,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     gridLayout->addWidget(generalGroupBox,0,0);
     gridLayout->addWidget(DataBasesGroupBox,0,1);
-    gridLayout->addWidget(popDetailsGroupBox, 1, 0, 1, 2);
+    //gridLayout->addWidget(popDetailsGroupBox, 1, 0, 1, 2);
     gridLayout->addWidget(compDetailsGroupBox, 2, 0, 1, 2);
     gridLayout->setRowStretch(2, 1);
 
@@ -797,6 +802,17 @@ PelicunComponentContainer::clearCompGroupWidget(){
       //delete the CG UI object
       theComponentGroup->setParent(nullptr);
       delete theComponentGroup;
+
+      // get the corresponding remove button
+      QPushButton *theRemoveButton = vRemoveButtons.at(i);
+      // remove the button from the UI
+      theRemoveButton->close();
+      loCQuantityRemove->removeWidget(theRemoveButton);
+      // remove the button from the UI vector
+      vRemoveButtons.remove(i);
+      // delete the button object
+      theRemoveButton->setParent(nullptr);
+      delete theRemoveButton;
     }
 }
 
@@ -813,6 +829,7 @@ PelicunComponentContainer::retrieveCompGroups(){
         if (vCG_data != nullptr) {
             // create the CG UI elements for the existing data
             for (int i=0; i<vCG_data->count(); i++){
+
                 addComponentGroup(vCG_data->at(i));
             }
         }
@@ -992,6 +1009,7 @@ int PelicunComponentContainer::updateAvailableComponents(){
                 this->parseCSVLine(line, line_list);
 
                 QString compName = line_list[0];
+
                 if (compName == "ID") {
                     this->parseCSVLine(line, header);
                     continue;
@@ -1595,6 +1613,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
            } else {
                QVector<QMap<QString, QString>* > *new_vCG_data =
                                           new QVector<QMap<QString, QString>* >;
+
                new_vCG_data->append(CG_data);
 
                // save the vector of CG data to the compConfig dict
@@ -1608,6 +1627,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
        // create the new UI object and assign CG_data to it
        ComponentGroup *theComponentGroup = new ComponentGroup(nullptr,
                                                               CG_data);
+
        // add the ComponentGroup to the vector of CGs
        vComponentGroups.append(theComponentGroup);
 

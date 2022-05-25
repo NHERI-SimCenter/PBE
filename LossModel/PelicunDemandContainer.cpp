@@ -51,9 +51,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QScrollArea>
 #include <sectiontitle.h>
+#include <QSignalMapper>
 
 #include "SimCenterPreferences.h"
 #include "PelicunDemandContainer.h"
+#include "PelicunCollapseLimit.h"
+#include "PelicunTruncationLimit.h"
 
 PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -61,6 +64,10 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     this->setMaximumWidth(600);
 
     int maxWidth = 300;
+
+    collConfig = new QVector<QMap<QString, QString>* >;
+    truncConfig = new QVector<QMap<QString, QString>* >;
+    residualConfig = new QVector<QMap<QString, QString>* >;
 
     gridLayout = new QGridLayout();
 
@@ -82,8 +89,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     // database selection
     databaseCombo = new QComboBox();
     databaseCombo->setToolTip(tr("This data source provides the raw demand data for the analysis."));
-    databaseCombo->addItem("Workflow",0);
-    databaseCombo->addItem("User Defined",1);
+    databaseCombo->addItem("from Workflow",0);
+    databaseCombo->addItem("from File",1);
 
     databaseCombo->setItemData(0, "Demands calculated as part of the workflow and passed on to the performance assessment module automatically.", Qt::ToolTipRole);
     databaseCombo->setItemData(1, "Demands pre-calculated and formatted by the user and provided as an external file.", Qt::ToolTipRole);
@@ -182,13 +189,13 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     connect(addCLimit, SIGNAL(pressed()), this, SLOT(addCollapseLimit()));
 
     QLabel *lblDEM_type = new QLabel();
-    lblDEM_type->setText(" Demand Type");
+    lblDEM_type->setText("Demand");
     lblDEM_type->setMaximumWidth(75);
     lblDEM_type->setMinimumWidth(75);
     loCLimit_header->addWidget(lblDEM_type);
 
     QLabel *lblDEM_limit = new QLabel();
-    lblDEM_limit->setText(" Collapse Limit");
+    lblDEM_limit->setText("Collapse Lim");
     lblDEM_limit->setMaximumWidth(75);
     lblDEM_limit->setMinimumWidth(75);
     loCLimit_header->addWidget(lblDEM_limit);
@@ -202,17 +209,15 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     // Collapse Limit list
     QHBoxLayout *loCLimitLayout = new QHBoxLayout();
 
-    /*
-    loCLimitRemove = new QVBoxLayout();
+    loCollLimRemove = new QVBoxLayout();
 
-    loCLimitRemove->addStretch();
+    loCollLimRemove->addStretch();
 
     smRemoveCL = new QSignalMapper(this);
     connect(smRemoveCL, SIGNAL(mapped(QWidget*)), this,
             SLOT(removeCollapseLimit(QWidget*)));
 
-    loCLimitLayout->addLayout(loCLimitRemove);
-    */
+    loCLimitLayout->addLayout(loCollLimRemove);
 
     QScrollArea *saCollapseLims = new QScrollArea;
     saCollapseLims->setWidgetResizable(true);
@@ -227,7 +232,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     saCollapseLims->setWidget(CLWidget);
 
     loCLimitLayout->addWidget(saCollapseLims);
-    loDM->addLayout(loCLimitLayout);
+    loDM->addLayout(loCLimitLayout, 1);
 
     // add line
     lineBeta = new QFrame();
@@ -309,6 +314,54 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loDM->addLayout(truncationLimitsLayout);
 
+    // Truncation Limit header
+    QHBoxLayout *loTLimit_header = new QHBoxLayout();
+
+    QPushButton *addTLimit = new QPushButton();
+    addTLimit->setMinimumWidth(20);
+    addTLimit->setMaximumWidth(20);
+    addTLimit->setMaximumHeight(20);
+    addTLimit->setText(tr("+"));
+    loTLimit_header->addWidget(addTLimit);
+    connect(addTLimit, SIGNAL(pressed()), this, SLOT(addTruncationLimit()));
+
+    QLabel *lblTDEM_type = new QLabel();
+    lblTDEM_type->setText("Demand");
+    lblTDEM_type->setMaximumWidth(75);
+    lblTDEM_type->setMinimumWidth(75);
+    loTLimit_header->addWidget(lblTDEM_type);
+
+    QLabel *lblLower_limit = new QLabel();
+    lblLower_limit->setText("Lower Lim");
+    lblLower_limit->setMaximumWidth(75);
+    lblLower_limit->setMinimumWidth(75);
+    loTLimit_header->addWidget(lblLower_limit);
+
+    QLabel *lblUpper_limit = new QLabel();
+    lblUpper_limit->setText("Upper Lim");
+    lblUpper_limit->setMaximumWidth(75);
+    lblUpper_limit->setMinimumWidth(75);
+    loTLimit_header->addWidget(lblUpper_limit);
+
+    loTLimit_header->addStretch();
+    loTLimit_header->setSpacing(10);
+    loTLimit_header->setMargin(0);
+
+    loDM->addLayout(loTLimit_header);
+
+    // Truncation Limit list
+    QHBoxLayout *loTLimitLayout = new QHBoxLayout();
+
+    loTruncLimRemove = new QVBoxLayout();
+
+    loTruncLimRemove->addStretch();
+
+    smRemoveTL = new QSignalMapper(this);
+    connect(smRemoveTL, SIGNAL(mapped(QWidget*)), this,
+            SLOT(removeTruncationLimit(QWidget*)));
+
+    loTLimitLayout->addLayout(loTruncLimRemove);
+
     // truncation limits
 
     QScrollArea *saTruncLimits = new QScrollArea;
@@ -323,7 +376,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     TLWidget->setLayout(loTLList);
     saTruncLimits->setWidget(TLWidget);
 
-    loDM->addWidget(saTruncLimits);
+    loTLimitLayout->addWidget(saTruncLimits);
+    loDM->addLayout(loTLimitLayout, 1);
 
     // Demand Sample -------
 
@@ -380,8 +434,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     inferenceCombo = new QComboBox();
     inferenceCombo->setToolTip(tr("Select the method to use to infer residual drift values."));
-    inferenceCombo->addItem("None",0);
-    inferenceCombo->addItem("FEMA P58",1);
+    inferenceCombo->addItem("do not infer",0);
+    inferenceCombo->addItem("infer as per FEMA P58",1);
 
     inferenceCombo->setItemData(0, "No inference; residual drifts are either provided by the user or irreparable damage is not part of the assessment.", Qt::ToolTipRole);
     inferenceCombo->setItemData(1, "Residual drifts inferred from peak drifts using the method described in FEMA P58.", Qt::ToolTipRole);
@@ -397,22 +451,52 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loResidual->addWidget(lineYDR);
 
     //yield drift ratio label
-    QHBoxLayout *yieldDriftLayout = new QHBoxLayout();
+    QHBoxLayout *loRParam_header = new QHBoxLayout();
 
-    QLabel *lblyieldDrift = new QLabel();
-    lblyieldDrift->setText("Yield Drift Ratio");
-    lblyieldDrift->setToolTip(tr("Interstory drift ratio corresponding to significant yielding in the structure \n"
-                              "(i.e. when the forces in the main components of the lateral load resisting \n"
-                              "system reach the plastic capacity of the components) in the structure."));
-    lblyieldDrift->setMaximumWidth(100);
-    lblyieldDrift->setMinimumWidth(100);
-    yieldDriftLayout->addWidget(lblyieldDrift);
+    QPushButton *addRParam = new QPushButton();
+    addRParam->setMinimumWidth(20);
+    addRParam->setMaximumWidth(20);
+    addRParam->setMaximumHeight(20);
+    addRParam->setText(tr("+"));
+    loRParam_header->addWidget(addRParam);
+    connect(addRParam, SIGNAL(pressed()), this, SLOT(addResidualParam()));
 
-    yieldDriftLayout->addStretch();
+    QLabel *lblRP_Direction = new QLabel();
+    lblRP_Direction->setText("Direction");
+    lblRP_Direction->setToolTip(tr("Structural systems and structural behavior might be different\n"
+                                   "in different horizontal directions. These panels allow you to\n"
+                                   "provide direction-specific parameters. If you prefer to use the\n"
+                                   "same parameters for every direction, use \"all\" for this field."));
+    lblRP_Direction->setMaximumWidth(75);
+    lblRP_Direction->setMinimumWidth(75);
+    loRParam_header->addWidget(lblRP_Direction);
 
-    loResidual->addLayout(yieldDriftLayout);
+    QLabel *lblRP_YieldDrift = new QLabel();
+    lblRP_YieldDrift->setText("Yield Drift Ratio");
+    lblRP_YieldDrift->setMaximumWidth(100);
+    lblRP_YieldDrift->setMinimumWidth(100);
+    loRParam_header->addWidget(lblRP_YieldDrift);
 
-    // yield drift ratio values
+    loRParam_header->addStretch();
+    loRParam_header->setSpacing(10);
+    loRParam_header->setMargin(0);
+
+    loResidual->addLayout(loRParam_header);
+
+    // residual param list
+    QHBoxLayout *loRParamLayout = new QHBoxLayout();
+
+    loResidualPRemove = new QVBoxLayout();
+
+    loResidualPRemove->addStretch();
+
+    smRemoveRP = new QSignalMapper(this);
+    connect(smRemoveRP, SIGNAL(mapped(QWidget*)), this,
+            SLOT(removeResidualParam(QWidget*)));
+
+    loRParamLayout->addLayout(loResidualPRemove);
+
+    // residual param values
 
     QScrollArea *saYieldDrift = new QScrollArea;
     saYieldDrift->setWidgetResizable(true);
@@ -420,13 +504,14 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     saYieldDrift->setFrameShape(QFrame::NoFrame);
 
     QWidget *YDWidget = new QWidget;
-    loYDList = new QVBoxLayout();
-    loYDList->addStretch();
-    loYDList->setMargin(0);
-    YDWidget->setLayout(loYDList);
+    loRPList = new QVBoxLayout();
+    loRPList->addStretch();
+    loRPList->setMargin(0);
+    YDWidget->setLayout(loRPList);
     saYieldDrift->setWidget(YDWidget);
 
-    loResidual->addWidget(saYieldDrift);
+    loRParamLayout->addWidget(saYieldDrift);
+    loResidual->addLayout(loRParamLayout, 1);
 
     /*
 
@@ -492,7 +577,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 }
 
 PelicunDemandContainer::~PelicunDemandContainer()
-{}
+{
+}
 
 void
 PelicunDemandContainer::chooseDemandData(void) {
@@ -517,12 +603,224 @@ PelicunDemandContainer::setDemandData(QString demandPath){
 void
 PelicunDemandContainer::DemandDSSelectionChanged(const QString &arg1)
 {
-    if (arg1 == QString("User Defined")) {
+    if (arg1 == QString("from File")) {
         demandDataPath->setVisible(true);
         btnChooseDemand->setVisible(true);
     } else {
         demandDataPath->setVisible(false);
         btnChooseDemand->setVisible(false);
+    }
+}
+
+void PelicunDemandContainer::addCollapseLimit(QMap<QString, QString> *CL_data_in)
+{
+
+    // add a new CL_data dict in the vector
+    QMap<QString, QString> *CL_data;
+    if (CL_data_in == nullptr) {
+
+        // create a new CL_data dict and add it to the vector
+        CL_data = new QMap<QString, QString>;
+
+    } else {
+       CL_data = CL_data_in;
+    }
+    collConfig->append(CL_data);
+
+    // create the new UI object and assign CL_data to it
+    CollapseLimit *theCollapseLimit = new CollapseLimit(nullptr, CL_data);
+
+    // add the CollapseLimit to the vector of CLs
+    vCollapseLimits.append(theCollapseLimit);
+
+    theCollapseLimit->setMinimumHeight(20);
+    theCollapseLimit->setMaximumHeight(20);
+
+    // add the CollapseLimit to the UI
+    loCLList->insertWidget(loCLList->count()-1, theCollapseLimit);
+
+    // add a remove button to the UI
+    QPushButton *removeCLimit = new QPushButton();
+    removeCLimit->setMinimumWidth(20);
+    removeCLimit->setMaximumWidth(20);
+    removeCLimit->setMaximumHeight(20);
+    removeCLimit->setText(tr("-"));
+    loCollLimRemove->insertWidget(loCollLimRemove->count()-1,
+                                  removeCLimit);
+
+    smRemoveCL->setMapping(removeCLimit, theCollapseLimit);
+    connect(removeCLimit, SIGNAL(clicked()), smRemoveCL, SLOT(map()));
+
+    vRemoveCLButtons.append(removeCLimit);
+}
+
+void PelicunDemandContainer::removeCollapseLimit(QWidget *theCollapseLimit)
+{
+
+    if (collConfig != nullptr) {
+        // remove the requested collapse limit
+        int CLcount = vCollapseLimits.size();
+        for (int i = CLcount-1; i >= 0; i--) {
+          CollapseLimit *theCollapseLimit_i = vCollapseLimits.at(i);
+          if (theCollapseLimit_i == theCollapseLimit){
+              //remove the widget from the UI
+              theCollapseLimit_i->close();
+              loCLList->removeWidget(theCollapseLimit);
+              //remove the CL_data from the database
+              collConfig->remove(i);
+              //remove the CL from the UI vector
+              vCollapseLimits.remove(i);
+              //delete the CL UI object
+              theCollapseLimit->setParent(nullptr);
+              delete theCollapseLimit;
+              //remove the PushButton from the button list
+              QPushButton *theRemoveButton = vRemoveCLButtons.at(i);
+              vRemoveCLButtons.remove(i);
+              theRemoveButton->setParent(nullptr);
+              delete theRemoveButton;
+          }
+        }
+    }
+}
+
+void PelicunDemandContainer::addTruncationLimit(QMap<QString, QString> *TL_data_in)
+{
+    // add a new TL_data dict in the vector
+    QMap<QString, QString> *TL_data;
+    if (TL_data_in == nullptr) {
+
+        // create a new TL_data dict and add it to the vector
+        TL_data = new QMap<QString, QString>;
+
+    } else {
+       TL_data = TL_data_in;
+    }
+    truncConfig->append(TL_data);
+
+    // create the new UI object and assign TL_data to it
+    TruncationLimit *theTruncationLimit = new TruncationLimit(nullptr, TL_data);
+
+    // add the TruncationLimit to the vector of TLs
+    vTruncationLimits.append(theTruncationLimit);
+
+    theTruncationLimit->setMinimumHeight(20);
+    theTruncationLimit->setMaximumHeight(20);
+
+    // add the TruncationLimit to the UI
+    loTLList->insertWidget(loTLList->count()-1, theTruncationLimit);
+
+    // add a remove button to the UI
+    QPushButton *removeTLimit = new QPushButton();
+    removeTLimit->setMinimumWidth(20);
+    removeTLimit->setMaximumWidth(20);
+    removeTLimit->setMaximumHeight(20);
+    removeTLimit->setText(tr("-"));
+    loTruncLimRemove->insertWidget(loTruncLimRemove->count()-1,
+                                  removeTLimit);
+
+    smRemoveTL->setMapping(removeTLimit, theTruncationLimit);
+    connect(removeTLimit, SIGNAL(clicked()), smRemoveTL, SLOT(map()));
+
+    vRemoveTLButtons.append(removeTLimit);
+}
+
+void PelicunDemandContainer::removeTruncationLimit(QWidget *theTruncationLimit)
+{
+
+    if (truncConfig != nullptr) {
+        // remove the requested truncation limit
+        int TLcount = vTruncationLimits.size();
+        for (int i = TLcount-1; i >= 0; i--) {
+          TruncationLimit *theTruncationLimit_i = vTruncationLimits.at(i);
+          if (theTruncationLimit_i == theTruncationLimit){
+              //remove the widget from the UI
+              theTruncationLimit_i->close();
+              loTLList->removeWidget(theTruncationLimit);
+              //remove the TL_data from the database
+              truncConfig->remove(i);
+              //remove the TL from the UI vector
+              vTruncationLimits.remove(i);
+              //delete the TL UI object
+              theTruncationLimit->setParent(nullptr);
+              delete theTruncationLimit;
+              //remove the PushButton from the button list
+              QPushButton *theRemoveButton = vRemoveTLButtons.at(i);
+              vRemoveTLButtons.remove(i);
+              theRemoveButton->setParent(nullptr);
+              delete theRemoveButton;
+          }
+        }
+    }
+}
+
+void PelicunDemandContainer::addResidualParam(QMap<QString, QString> *RP_data_in)
+{
+    // add a new RP_data dict in the vector
+    QMap<QString, QString> *RP_data;
+    if (RP_data_in == nullptr) {
+
+        // create a new RP_data dict and add it to the vector
+        RP_data = new QMap<QString, QString>;
+
+    } else {
+       RP_data = RP_data_in;
+    }
+
+    residualConfig->append(RP_data);
+
+    // create the new UI object and assign RP_data to it
+    ResidualParam *theResidualParam = new ResidualParam(nullptr, RP_data);
+
+    // add the ResidualParam to the vector of TLs
+    vResidualParams.append(theResidualParam);
+
+    theResidualParam->setMinimumHeight(20);
+    theResidualParam->setMaximumHeight(20);
+
+    // add the ResidualParam to the UI
+    loRPList->insertWidget(loRPList->count()-1, theResidualParam);
+
+    // add a remove button to the UI
+    QPushButton *removeRParam = new QPushButton();
+    removeRParam->setMinimumWidth(20);
+    removeRParam->setMaximumWidth(20);
+    removeRParam->setMaximumHeight(20);
+    removeRParam->setText(tr("-"));
+    loResidualPRemove->insertWidget(loResidualPRemove->count()-1,
+                                  removeRParam);
+
+    smRemoveRP->setMapping(removeRParam, theResidualParam);
+    connect(removeRParam, SIGNAL(clicked()), smRemoveRP, SLOT(map()));
+
+    vRemoveRPButtons.append(removeRParam);
+}
+
+void PelicunDemandContainer::removeResidualParam(QWidget *theResidualParam)
+{
+
+    if (residualConfig != nullptr) {
+        // remove the requested truncation limit
+        int count = vResidualParams.size();
+        for (int i = count-1; i >= 0; i--) {
+          ResidualParam *theResidualParam_i = vResidualParams.at(i);
+          if (theResidualParam_i == theResidualParam){
+              //remove the widget from the UI
+              theResidualParam_i->close();
+              loRPList->removeWidget(theResidualParam);
+              //remove the RP_data from the database
+              residualConfig->remove(i);
+              //remove the RP from the UI vector
+              vResidualParams.remove(i);
+              //delete the RP UI object
+              theResidualParam->setParent(nullptr);
+              delete theResidualParam;
+              //remove the PushButton from the button list
+              QPushButton *theRemoveButton = vRemoveRPButtons.at(i);
+              vRemoveRPButtons.remove(i);
+              theRemoveButton->setParent(nullptr);
+              delete theRemoveButton;
+          }
+        }
     }
 }
 

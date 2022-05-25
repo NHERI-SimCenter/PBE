@@ -42,6 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 
 #include "SimCenterAppWidget.h"
+#include "PelicunCollapseLimit.h"
+#include "PelicunTruncationLimit.h"
+#include "PelicunResidualParams.h"
 
 class QCheckBox;
 class QComboBox;
@@ -54,6 +57,7 @@ class QPushButton;
 class QCheckBox;
 class QGridLayout;
 class QFrame;
+class QSignalMapper;
 
 /*!
  * Widget for general loss assessment settings in PBE tool
@@ -100,11 +104,24 @@ signals:
 
 public slots:
 
+    void addCollapseLimit(QMap<QString, QString> *CL_data_in=nullptr);
+    void removeCollapseLimit(QWidget *theCollapseLimit);
+
+    void addTruncationLimit(QMap<QString, QString> *TL_data_in=nullptr);
+    void removeTruncationLimit(QWidget *theTruncationLimit);
+
+    void addResidualParam(QMap<QString, QString> *RP_data_in=nullptr);
+    void removeResidualParam(QWidget *theResidualParam);
+
     void DemandDSSelectionChanged(const QString &arg1);
 
     void chooseDemandData(void);
 
 private:
+
+    QSignalMapper *smRemoveCL;
+    QSignalMapper *smRemoveTL;
+    QSignalMapper *smRemoveRP;
 
     QLineEdit *demandDataPath;
     QLineEdit *addedUncertaintyGM;
@@ -123,7 +140,10 @@ private:
 
     QVBoxLayout *loCLList;
     QVBoxLayout *loTLList;
-    QVBoxLayout *loYDList;
+    QVBoxLayout *loRPList;
+    QVBoxLayout *loCollLimRemove;
+    QVBoxLayout *loTruncLimRemove;
+    QVBoxLayout *loResidualPRemove;
 
     QFrame *lineTL;
     QFrame *lineBeta;
@@ -136,6 +156,24 @@ private:
     QLineEdit * EDPFilePath;
 
     QComboBox * EDP_Fitting;
+
+    // collapse limit data
+    QVector<QMap<QString, QString>* > *collConfig;
+
+    QVector<CollapseLimit *> vCollapseLimits;
+    QVector<QPushButton *> vRemoveCLButtons;
+
+    // truncation limit data
+    QVector<QMap<QString, QString>* > *truncConfig;
+
+    QVector<TruncationLimit *> vTruncationLimits;
+    QVector<QPushButton *> vRemoveTLButtons;
+
+    // residual drift data
+    QVector<QMap<QString, QString>* > *residualConfig;
+
+    QVector<ResidualParam *> vResidualParams;
+    QVector<QPushButton *> vRemoveRPButtons;
 
     QGridLayout *gridLayout; /*!< Main layout for general settings */
 };

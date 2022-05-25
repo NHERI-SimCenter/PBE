@@ -51,7 +51,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_in)
   : SimCenterWidget(parent) {
 
+    qDebug() << "Creating component group...";
+
     CG_data = CG_data_in;
+
+    qDebug() << CG_data->value("unit", tr("")) ;
+
+    qDebug() << "CG data stored.";
 
     mainLayout = new QHBoxLayout();
 
@@ -65,8 +71,16 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgUnit->setMaximumWidth(45);
     cgUnit->setMinimumWidth(45);
     cgUnit->setText(CG_data->value("unit", tr("")));
+
+    qDebug() << "CG unit test retrieved.";
+
     this->storeCGUnit();
+
+    qDebug() << "CG unit info stored.";
+
     connect(cgUnit, SIGNAL(editingFinished()), this, SLOT(storeCGUnit()));
+
+    qDebug() << "CG unit added.";
 
     cgLocation = new QLineEdit();
     cgLocation->setToolTip(tr("In buildings, locations are typically stories.\n"
@@ -148,6 +162,8 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     this->storeCGComment();
     connect(cgComment, SIGNAL(editingFinished()), this, SLOT(storeCGComment()));
 
+    qDebug() << "Widgets created";
+
     //button = new QRadioButton();
 
     // Create the main layout inside which we place a spacer & main widget
@@ -171,9 +187,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
 }
 
 ComponentGroup::~ComponentGroup()
-{
-    this->delete_CG_data();
-}
+{}
 
 void
 ComponentGroup::storeCGLocation(){
@@ -233,8 +247,4 @@ bool ComponentGroup::inputFromJSON(const QJsonObject & inputObject) {
 QString ComponentGroup::getComponentName() const {
      //return componentName->text();
     return "";
-}
-
-void ComponentGroup::delete_CG_data() {
-    delete CG_data;
 }

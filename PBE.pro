@@ -68,6 +68,8 @@ SOURCES += main.cpp \
     LossModel/PelicunLossContainer.cpp \
     LossModel/PelicunCollapseModeContainer.cpp \
     LossModel/PelicunCollapseLimit.cpp \
+    LossModel/PelicunTruncationLimit.cpp \
+    LossModel/PelicunResidualParams.cpp \
     LossModel/PelicunOutputsContainer.cpp \
     LossModel/PelicunCollapseMode.cpp \
     LossModel/PelicunComponentGroup.cpp \
@@ -92,6 +94,8 @@ HEADERS  += \
     LossModel/PelicunLossContainer.h \
     LossModel/PelicunCollapseModeContainer.h \
     LossModel/PelicunCollapseLimit.h \
+    LossModel/PelicunTruncationLimit.h \
+    LossModel/PelicunResidualParams.h \
     LossModel/PelicunOutputsContainer.h \
     LossModel/PelicunCollapseMode.h \
     LossModel/PelicunComponentGroup.h \

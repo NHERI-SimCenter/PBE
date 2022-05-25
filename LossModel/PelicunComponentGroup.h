@@ -96,8 +96,6 @@ public:
      */
     QString getComponentName() const;
 
-    void delete_CG_data();
-
 signals:
 
 public slots:

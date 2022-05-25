@@ -1,5 +1,5 @@
-#ifndef COLLAPSELIMIT_H
-#define COLLAPSELIMIT_H
+#ifndef RESIDUALPARAMS_H
+#define RESIDUALPARAMS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -53,7 +53,7 @@ class QRadioButton;
 /*!
  * Widget for collapse limits in PBE tool
  */
-class CollapseLimit : public SimCenterWidget
+class ResidualParam : public SimCenterWidget
 {
     Q_OBJECT
 public:
@@ -62,13 +62,13 @@ public:
      * @contructor Constructor taking pointer to parent widget
      * @param[in] parent Parent widget of Component
      */
-    explicit CollapseLimit(QWidget *parent = nullptr,
-                             QMap<QString, QString> *CL_data_in = nullptr);
+    explicit ResidualParam(QWidget *parent = nullptr,
+                             QMap<QString, QString> *RP_data_in = nullptr);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~CollapseLimit();
+    virtual ~ResidualParam();
 
     /*!
      * Writes collapse limit data to JSON
@@ -84,23 +84,23 @@ public:
      */
     virtual bool inputFromJSON(const QJsonObject & inputObject);
 
-    void delete_CL_data();
+    void delete_RP_data();
 
 signals:
 
 public slots:
 
-    void storeCLDemandType(void);
-    void storeCLDemandLimit(void);
+    void storeRPDirection(void);
+    void storeRPYieldDrift(void);
 
 private:
 
-    QMap<QString, QString> *CL_data;
+    QMap<QString, QString> *RP_data;
 
-    QLineEdit *clDemandType;
-    QLineEdit *clDemandLimit;
+    QLineEdit *rpDirection;
+    QLineEdit *rpYieldDrift;
 
-    QHBoxLayout *mainLayout; /*!< Main layout for collapse limit*/
+    QHBoxLayout *mainLayout; /*!< Main layout for truncation limit */
 };
 
-#endif // COLLAPSELIMIT_H
+#endif // RESIDUALPARAMS_H
