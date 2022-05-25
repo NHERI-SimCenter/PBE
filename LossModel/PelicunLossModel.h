@@ -1,11 +1,11 @@
-#ifndef P58LOSS_MODEL_H
-#define P58LOSS_MODEL_H
+#ifndef PelicunLOSS_MODEL_H
+#define PelicunLOSS_MODEL_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,10 +29,10 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
@@ -48,21 +48,24 @@ class QComboBox;
 class QStackedWidget;
 class QVBoxLayout;
 
-class P58GeneralSettingsContainer;
-class P58ComponentContainer;
-class P58CollapseModeContainer;
-class P58DependenciesContainer;
+class PelicunPreferencesContainer;
+class PelicunComponentContainer;
+class PelicunDemandContainer;
+class PelicunDamageContainer;
+class PelicunLossContainer;
+class PelicunCollapseModeContainer;
+class PelicunOutputsContainer;
 
-class P58LossModel : public LossMethod
+class PelicunLossModel : public LossMethod
 {
     Q_OBJECT
 public:
-    explicit P58LossModel(QWidget *parent = 0);
+    explicit PelicunLossModel(QWidget *parent = 0);
 
     QString getFragilityFolder();
     QString getPopulationFile();
 
-    ~P58LossModel();
+    ~PelicunLossModel();
 
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
@@ -72,11 +75,14 @@ public:
 
 public slots:
 
-private:   
-    P58GeneralSettingsContainer *contGeneralSettings;
-    P58ComponentContainer *contComponents;
-    P58CollapseModeContainer *contCollapseModes;
-    P58DependenciesContainer *contDependencies;
+private:
+    PelicunPreferencesContainer *contPreferences;
+    PelicunComponentContainer *contAsset;
+    PelicunDemandContainer *contDemand;
+    PelicunDamageContainer *contDamage;
+    PelicunLossContainer *contLoss;
+    PelicunCollapseModeContainer *contCollapseModes;
+    PelicunOutputsContainer *contOutputs;
 };
 
-#endif // P58LOSS_MODEL_H
+#endif // PelicunLOSS_MODEL_H

@@ -1,11 +1,11 @@
-#ifndef P58DEPENDENCIES_CONTAINER_H
-#define P58DEPENDENCIES_CONTAINER_H
+#ifndef PelicunPREFERENCES_CONTAINER_H
+#define PelicunPREFERENCES_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,10 +29,10 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
@@ -54,21 +54,21 @@ class QRadioButton;
 /*!
  * Widget for general loss assessment settings in PBE tool
  */
-class P58DependenciesContainer : public SimCenterAppWidget
+class PelicunPreferencesContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
 
     /*!
      * @contructor Constructor taking pointer to parent widget
-     * @param[in] parent Parent widget of P58GeneralSettingsContainer
+     * @param[in] parent Parent widget of PelicunPreferencesContainer
      */
-    explicit P58DependenciesContainer(QWidget *parent = 0);
+    explicit PelicunPreferencesContainer(QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~P58DependenciesContainer();
+    virtual ~PelicunPreferencesContainer();
 
     /*!
      * Writes general settings contents to JSON
@@ -88,16 +88,24 @@ public:
      * Get the name of the general settings
      * @return Returns the name of the general settings as a QString
      */
-    QString getP58DependenciesContainerName() const;
-    
+    QString getPelicunPreferencesContainerName() const;
+
+    int setEDPFile(QString EDPFile);
+    QString getEDPFile();
+
+    int setPopulationFile(QString populationFile);
+    QString getPopulationFile();
+
+
 signals:
 
 public slots:
-       
+    void chooseEDPFile(void);
+    void choosePopulationFile(void);
+
 private:
 
-    /*
-    QLineEdit * yieldDriftValue;
+    QLineEdit * yieldDriftValue; /*!<  */
     QLineEdit * driftDetLim;
     QLineEdit * accDetLim;
     QLineEdit * irrepResDriftMedian;
@@ -113,33 +121,34 @@ private:
     //QLineEdit * fragilityFolderPath;
     QLineEdit * populationFilePath;
     QLineEdit * colProbValue;
-    */
+    QLineEdit * EDPFilePath;
 
+    /*
     QComboBox * quantityDep;
     QComboBox * fragilityDep;
     QComboBox * costDep;
     QComboBox * timeDep;
     QComboBox * injuryDep;
     QComboBox * redTagDep;
-    /*
+    */
+
     QComboBox * occupancyType;
     QComboBox * collProbApproach;
     QComboBox * EDP_Distribution;
     QComboBox * EDP_Fitting;
     QComboBox * colBasis;
-    */
-
-    QCheckBox * costAndTimeDep;
-    QCheckBox * injSeverityDep;
 
     /*
+    QCheckBox * costAndTimeDep;
+    QCheckBox * injSeverityDep;
+    */
+
     QCheckBox * needRecCost;
     QCheckBox * needRecTime;
     QCheckBox * needInjuries;
     QCheckBox * needRedTag;
-    */
 
     QVBoxLayout *mainLayout; /*!< Main layout for general settings */
 };
 
-#endif // P58DEPENDENCIES_CONTAINER_H
+#endif // PelicunPREFERENCES_CONTAINER_H

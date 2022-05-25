@@ -1,11 +1,11 @@
-#ifndef COLLAPSE_MODE_CONTAINER_H
-#define COLLAPSE_MODE_CONTAINER_H
+#ifndef COLLAPSELIMIT_H
+#define COLLAPSELIMIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,44 +29,78 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: fmckenna, mhgardner, adamzs
 
-#include <SimCenterWidget.h>
-#include <SimCenterAppWidget.h>
+#include <QCheckBox>
 
-class QVBoxLayout;
-class CollapseMode;
+#include "SimCenterWidget.h"
 
-class P58CollapseModeContainer : public SimCenterAppWidget
+class QCheckBox;
+class QComboBox;
+class QLineEdit;
+class QLabel;
+class QHBoxLayout;
+class QRadioButton;
+
+/*!
+ * Widget for collapse limits in PBE tool
+ */
+class CollapseLimit : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit P58CollapseModeContainer(QWidget *parent = 0);
 
-    ~P58CollapseModeContainer();
+    /*!
+     * @contructor Constructor taking pointer to parent widget
+     * @param[in] parent Parent widget of Component
+     */
+    explicit CollapseLimit(QWidget *parent = nullptr,
+                             QMap<QString, QString> *PG_data_in = nullptr);
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    /*!
+     * @destructor Virtual destructor
+     */
+    virtual ~CollapseLimit();
+
+    /*!
+     * Writes population contents to JSON
+     * @param[in, out] outputObject Write contents of population to this object
+     * @return Returns true if successful, false otherwise
+     */
+    virtual bool outputToJSON(QJsonObject &outputObject);
+
+    /*!
+     * Reads population contents from JSON
+     * @param[in] inputObject Read population contents from this object
+     * @return Returns true if successfull, false otherwise
+     */
+    virtual bool inputFromJSON(const QJsonObject & inputObject);
+
+    void delete_CL_data();
+
+signals:
 
 public slots:
-   void addCollapseMode(void);
-   void removeCollapseModes(void);
-   void clear(void);
+
+    void storeCLDemandType(void);
+    void storeCLDemandLimit(void);
 
 private:
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *eventLayout;
 
-    QVector<CollapseMode *>theCollapseModes;
+    QMap<QString, QString> *PG_data;
+
+    QLineEdit *clDemandType;
+    QLineEdit *clDemandLimit;
+
+    QHBoxLayout *mainLayout; /*!< Main layout for population */
 };
 
-#endif // COLLAPSE_MODE_CONTAINER_H
+#endif // COLLAPSELIMIT_H

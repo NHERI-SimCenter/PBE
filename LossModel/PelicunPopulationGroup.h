@@ -1,3 +1,6 @@
+#ifndef POPULATIONGROUP_H
+#define POPULATIONGROUP_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,62 +37,88 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: fmckenna, mhgardner, adamzs
 
-#include <QVBoxLayout>
+#include <QCheckBox>
 
-#include "LossMethod.h"
+#include "SimCenterWidget.h"
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+class QCheckBox;
+class QComboBox;
+class QLineEdit;
+class QLabel;
+class QHBoxLayout;
+class QRadioButton;
+
+/*!
+ * Widget for populations in PBE tool
+ */
+class PopulationGroup : public SimCenterWidget
 {
+    Q_OBJECT
+public:
 
-}
+    /*!
+     * @contructor Constructor taking pointer to parent widget
+     * @param[in] parent Parent widget of Component
+     */
+    explicit PopulationGroup(QWidget *parent = nullptr,
+                             QMap<QString, QString> *PG_data_in = nullptr);
 
-LossMethod::~LossMethod()
-{
+    /*!
+     * @destructor Virtual destructor
+     */
+    virtual ~PopulationGroup();
 
-}
+    /*!
+     * Writes population contents to JSON
+     * @param[in, out] outputObject Write contents of population to this object
+     * @return Returns true if successful, false otherwise
+     */
+    virtual bool outputToJSON(QJsonObject &outputObject);
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
+    /*!
+     * Reads population contents from JSON
+     * @param[in] inputObject Read population contents from this object
+     * @return Returns true if successfull, false otherwise
+     */
+    virtual bool inputFromJSON(const QJsonObject & inputObject);
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
+    /*!
+     * Checks whether button has been checked to remove population
+     * @return Current state of button
+     */
+    //bool isSelectedForRemoval() const;
 
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
+    /*!
+     * Get the name of the population
+     * @return Returns the name of the population as a QString
+     */
+    QString getPopulationName() const;
 
-    return true;
-}
+    void delete_PG_data();
 
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
+signals:
 
+public slots:
 
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
+    void storePGLocation(void);
+    void storePGMedian(void);
+    void storePGDistribution(void);
+    void storePGCOV(void);
+    void storePGComment(void);
 
-void
-LossMethod::errorMessage(QString message){
-}
+private:
 
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
+    QMap<QString, QString> *PG_data;
 
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}
+    QLineEdit *pgLocation;
+    QLineEdit *pgMedianQNT;
+    QComboBox *pgDistribution;
+    QLineEdit *pgCOV;
+    QLineEdit *pgComment;
+
+    QHBoxLayout *mainLayout; /*!< Main layout for population */
+};
+
+#endif // POPULATION_H

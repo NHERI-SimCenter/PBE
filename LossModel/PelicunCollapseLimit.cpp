@@ -34,62 +34,84 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: adamzs
 
+#include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QDebug>
+#include <QJsonObject>
 
-#include "LossMethod.h"
+#include "PelicunCollapseLimit.h"
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+CollapseLimit::CollapseLimit(QWidget *parent, QMap<QString, QString> *CL_data_in)
+  : SimCenterWidget(parent) {
+
+    CL_data = CL_data_in;
+
+    mainLayout = new QHBoxLayout();
+
+    clDemandType = new QLineEdit();
+    clDemandType->setToolTip(
+      tr("The type of demand that triggers collapse.\n"
+         "Providing location and direction of the demand is optional.\n"
+         "If only the type ID is provided, demands across all locations\n"
+         "and directions are checked against the specified limit."));
+    clDemandType->setMaximumWidth(75);
+    clDemandType->setMinimumWidth(75);
+    clDemandType->setText(CL_data->value("type", tr("")));
+    this->storeCLDemandType();
+    connect(clDemandType, SIGNAL(editingFinished()), this, SLOT(storeCLDemandType()));
+
+
+    clDemandLimit = new QLineEdit();
+    clDemandLimit->setToolTip(
+      tr("The magnitude of the given demand type that triggers collapse."));
+    clDemandLimit->setMaximumWidth(75);
+    clDemandLimit->setMinimumWidth(75);
+    clDemandLimit->setText(CL_data->value("limit", tr("")));
+    this->storeCLDemandLimit();
+    connect(clDemandLimit, SIGNAL(editingFinished()), this, SLOT(storeCLDemandLimit()));
+
+    // Set up main layout
+    mainLayout->addWidget(clDemandType);
+    mainLayout->addWidget(clDemandLimit);
+    mainLayout->addStretch();
+    mainLayout->setSpacing(10);
+    mainLayout->setMargin(0);
+
+    this->setLayout(mainLayout);
+}
+
+CollapseLimit::~CollapseLimit()
 {
-
-}
-
-LossMethod::~LossMethod()
-{
-
-}
-
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
-
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
-
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
-
-    return true;
-}
-
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
-
-
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
+    this->delete_CL_data();
 }
 
 void
-LossMethod::errorMessage(QString message){
+CollapseLimit::storeCLDemandType(){
+    CL_data -> insert("type", clDemandType->text());
 }
 
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
+void
+CollapseLimit::storeCLDemandLimit(){
+    CL_data -> insert("limit", clDemandLimit->text());
 }
 
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
+bool CollapseLimit::outputToJSON(QJsonObject &outputObject) {
+
+    return true;
+}
+
+bool CollapseLimit::inputFromJSON(const QJsonObject & inputObject) {
+
+    return true;
+}
+
+void CollapseLimit::delete_CL_data() {
+    delete CL_data;
 }

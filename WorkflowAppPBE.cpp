@@ -223,7 +223,7 @@ WorkflowAppPBE::~WorkflowAppPBE()
 {  
    // hack to get around a sometimes occuring seg fault
    // as some classes in destructur remove RV from the RVCOntainer
-   // which may already have been destructed .. so removing so no destructor calles
+   // which may already have been destructed .. so removing so no destructor calls
    //QWidget *newUQ = new QWidget();
    //theComponentSelection->swapComponent("RV",newUQ);
 }

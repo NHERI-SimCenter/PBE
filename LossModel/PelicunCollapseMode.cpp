@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,10 +26,10 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QJsonObject>
 
-#include "P58CollapseMode.h"
+#include "PelicunCollapseMode.h"
 
 CollapseMode::CollapseMode(QWidget *parent)
   : SimCenterWidget(parent) {
@@ -104,7 +104,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     collapseModeInjuries = new QLineEdit();
     collapseModeInjuries->setToolTip(tr("Proportion of the inhabitants in the affected area getting injured\n"
                                         "when this mode of collapse happens. Provide a list of numbers when\n"
-                                        "multiple levels of injury severity are considered. (2 for FEMA P58)"));
+                                        "multiple levels of injury severity are considered. (2 for FEMA Pelicun)"));
     collapseModeInjuries->setMaximumWidth(150);
     collapseModeInjuries->setMinimumWidth(150);
     injuriesLayout->addWidget(collapseModeInjuriesLabel);
@@ -123,7 +123,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     mainLayout->addLayout(probabilityLayout);
     mainLayout->addLayout(affectedAreaLayout);
     mainLayout->addLayout(injuriesLayout);
-    mainLayout->addStretch();    
+    mainLayout->addStretch();
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
 
@@ -139,7 +139,7 @@ bool CollapseMode::outputToJSON(QJsonObject &outputObject) {
         outputObject["name"] = collapseModeName->text();
         outputObject["weight"] = collapseModeProbability->text();
         outputObject["affected_area"] = collapseModeAffectedArea->text();
-        outputObject["injuries"] = collapseModeInjuries->text();        
+        outputObject["injuries"] = collapseModeInjuries->text();
         return true;
     } else {
         errorMessage("ERROR: Component - cannot output as no \"name\" entry!");

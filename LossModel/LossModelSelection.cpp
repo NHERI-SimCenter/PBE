@@ -36,10 +36,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include "P58LossModel.h"
-#include "HazusLossModel.h"
-#include "LossMethod.h"
-
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
@@ -48,57 +44,71 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QStackedWidget>
 #include <QComboBox>
+#include <QScrollArea>
 
 #include "LossModelSelection.h"
 
 LossModelSelection::LossModelSelection(
-    RandomVariablesContainer *theRV_IW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandVariableIW(theRV_IW)
+    RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
-    layout = new QVBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
 
-    QVBoxLayout *methodSelectLayoutV= new QVBoxLayout;
+    QHBoxLayout *theSelectionLayout = new QHBoxLayout();
 
-    // add combo with loss method selection at the top
-    QHBoxLayout *methodSelectLayout = new QHBoxLayout();
+    // set up the selection part
 
-    SectionTitle *textDL=new SectionTitle();
-    textDL->setText(tr("Damage and Loss Assessment"));
-    textDL->setMinimumWidth(250);
-    QSpacerItem *spacer = new QSpacerItem(50,10);
+    SectionTitle *label=new SectionTitle();
+    label->setMinimumWidth(250);
+    label->setText(QString("Damage and Loss Assessment"));
 
     dlSelection = new QComboBox();
-    dlSelection->setMaximumWidth(200);
-    dlSelection->setMinimumWidth(200);
+    dlSelection->setObjectName("DLMethodCombox");
 
-    dlSelection->addItem(tr("HAZUS MH"));
-    dlSelection->addItem(tr("FEMA P58"));    
+    dlSelection->addItem(tr("Pelicun"));
+    dlSelection->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    dlSelection->setItemData(1, "Use the Pelicun integrated performance assessment framework.", Qt::ToolTipRole);
 
-    methodSelectLayout->addWidget(textDL);
-    methodSelectLayout->addItem(spacer);
-    methodSelectLayout->addWidget(dlSelection);
-    methodSelectLayout->addStretch();
-    methodSelectLayout->setSpacing(0);
-    methodSelectLayout->setMargin(0);
+    theSelectionLayout->addWidget(label);
+    QSpacerItem *spacer = new QSpacerItem(50,10);
+    theSelectionLayout->addItem(spacer);
+    theSelectionLayout->addWidget(dlSelection);
+    theSelectionLayout->addStretch();
+    layout->addLayout(theSelectionLayout);
 
-    methodSelectLayoutV->addLayout(methodSelectLayout);
+    // create stacked widget
 
-    methodSelectLayoutV->setSpacing(10);
-    methodSelectLayoutV->setMargin(0);
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
 
-    connect(dlSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(dlSelectionChanged(QString)));
+    theStackedWidget = new QStackedWidget();
 
-    layout->addLayout(methodSelectLayoutV);
-    layout->addStretch();
+    sa->setWidget(theStackedWidget);
 
-    lossMethod = new LossMethod();
+    // create individual DL widgets and add them to the stacked widget
 
-    this->setLayout(layout);
+    // Adding Pelicun DL widget
+    thePelicunWidget = new PelicunLossModel();
+    theStackedWidget->addWidget(thePelicunWidget);
 
-    // set HAZUS as the default
-    dlSelection->setCurrentText("HAZUS MH");
-    this->dlSelectionChanged(QString("HAZUS MH"));
+    // add the stacked widget to the main layout
+
+    layout->addWidget(sa);
     layout->setMargin(0);
+    this->setLayout(layout);
+    theCurrentMethod=thePelicunWidget;
+
+    // connect signal and slots
+
+    connect(dlSelection, SIGNAL(currentIndexChanged(QString)), this,
+            SLOT(dlSelectionChanged(QString)));
+
+    // set pelicun as the default
+    //dlSelection->setCurrentText("HAZUS MH");
+    //this->dlSelectionChanged(QString("HAZUS MH"));
+    //layout->setMargin(0);
 }
 
 LossModelSelection::~LossModelSelection()
@@ -116,9 +126,9 @@ LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    result = lossMethod -> outputToJSON(jsonObject);
-    
-    return true;
+    result = theCurrentMethod -> outputToJSON(jsonObject);
+
+    return result;
 }
 
 bool
@@ -126,26 +136,27 @@ LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
+    /*
     this->clear();
 
-    //qDebug() << "DLMethod";
     if (jsonObject.contains("_method")) {
         QString method_str_raw = jsonObject["_method"].toString();
 
         QString method_str = method_str_raw;
 
-        if (method_str_raw == "HAZUS MH EQ"){
-            method_str = "HAZUS MH";
-        }
-
         dlSelection->setCurrentText(method_str);
+
     } else {
-        dlSelection->setCurrentText("FEMA P58");
+
+        dlSelection->setCurrentText("Pelicun");
+    }
+    */
+
+    if (theCurrentMethod != 0) {
+        result = theCurrentMethod->inputFromJSON(jsonObject);
     }
 
-    result = lossMethod->inputFromJSON(jsonObject);
-
-    return true;
+    return result;
 }
 
 bool
@@ -156,7 +167,12 @@ LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lo
     // and all data to be used in ApplicationDate
     //
 
-    jsonObject["Application"] = "pelicun";
+    bool result = true;
+
+    jsonObject["Application"] = "pelicun3";
+
+    // I don't think this is needed
+    /*
     QJsonObject dataObj;
     if (lossModelObject.contains("ResponseModel")) {
         QJsonObject responseModel = lossModelObject["ResponseModel"] .toObject();
@@ -168,57 +184,86 @@ LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lo
         }
     }
     jsonObject["ApplicationData"] = dataObj;
-    return true;
+    */
+
+    if (theCurrentMethod != 0) {
+        result = theCurrentMethod->outputAppDataToJSON(jsonObject);
+    }
+
+    return result;
 }
 
 bool
 LossModelSelection::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
+
+    bool result = true;
+
+    if (jsonObject.contains("Application")) {
+        QJsonValue theDLAppName = jsonObject["Application"].toString();
+
+        if (theDLAppName == QString("Pelicun3")) {
+            dlSelection->setCurrentText("Pelicun");
+
+        } else {
+            // show a warning that the application is not recognized
+            // TODO
+
+            // default
+
+            // this might seem silly, but it sets the template for future expansion
+            dlSelection->setCurrentText("Pelicun");
+        }
+
+        // invoke inputAppDataFromJSON on new DL method
+        if (theCurrentMethod != 0 && !jsonObject.isEmpty()) {
+            result = theCurrentMethod->inputAppDataFromJSON(jsonObject);
+        }
+
+    }
+
+    return result;
 }
 
 void LossModelSelection::dlSelectionChanged(const QString &arg1)
 {
-    selectionChangeOK = true;
 
-    if (lossMethod != nullptr) {
-        layout->removeWidget(lossMethod);
-    }
+    //
+    // switch stacked widgets depending on text
+    // note type output in json and name in pull down are not the same and hence the ||
+    //
 
-    if (arg1 == QString("FEMA P58")) {
-        delete lossMethod;
-        lossMethod = new P58LossModel();
+    if (arg1 == QString("Pelicun")) {
 
-    } else if (arg1 == QString("HAZUS MH")) {
-        delete lossMethod;
-        lossMethod = new HazusLossModel();
+        theStackedWidget->setCurrentIndex(0);
+        theCurrentMethod = thePelicunWidget;
 
-    } else {
-        selectionChangeOK = false;
+    }else {
         errorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
-    }
-
-    if (lossMethod != nullptr) {
-
-        this->dlWidgetChanged();
-        layout->insertWidget(-1, lossMethod,1);
-        // connect(lossMethod,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+        qDebug() << "ERROR: Loss Input - no valid Method provided .. keeping old" << arg1;
     }
 
     return;
 }
 
 bool
-LossModelSelection::copyFiles(QString &dirName) {
-    return true;
+LossModelSelection::copyFiles(QString &destDir) {
+
+    bool result = true;
+
+    if (theCurrentMethod != 0) {
+        return  theCurrentMethod->copyFiles(destDir);
+    }
+
+    return result;
 }
 
 
 QString
 LossModelSelection::getFragilityFolder(){
-    return lossMethod->getFragilityFolder();
+    return theCurrentMethod->getFragilityFolder();
 }
 
 QString
 LossModelSelection::getPopulationFile(){
-    return lossMethod->getPopulationFile();
+    return theCurrentMethod->getPopulationFile();
 }

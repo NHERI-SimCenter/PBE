@@ -60,17 +60,23 @@ SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
     ResultsPelicun.cpp \
-    LossModel/P58LossModel.cpp \
-    LossModel/P58GeneralSettingsContainer.cpp \
-    LossModel/P58ComponentContainer.cpp \
-    LossModel/P58CollapseModeContainer.cpp \
-    LossModel/P58DependenciesContainer.cpp \
-    LossModel/P58CollapseMode.cpp \
+    LossModel/PelicunLossModel.cpp \
+    LossModel/PelicunPreferencesContainer.cpp \
+    LossModel/PelicunComponentContainer.cpp \
+    LossModel/PelicunDemandContainer.cpp \
+    LossModel/PelicunDamageContainer.cpp \
+    LossModel/PelicunLossContainer.cpp \
+    LossModel/PelicunCollapseModeContainer.cpp \
+    LossModel/PelicunCollapseLimit.cpp \
+    LossModel/PelicunOutputsContainer.cpp \
+    LossModel/PelicunCollapseMode.cpp \
+    LossModel/PelicunComponentGroup.cpp \
+    LossModel/PelicunPopulationGroup.cpp \
     LossModel/LossModelSelection.cpp \
     LossModel/HazusGeneralSettingsContainer.cpp \
     LossModel/HazusLossModel.cpp \
-    LossModel/LossMethod.cpp \
-    LossModel/P58ComponentGroup.cpp
+    LossModel/LossMethod.cpp
+
 
 
 HEADERS  += \
@@ -78,21 +84,25 @@ HEADERS  += \
     WorkflowAppPBE.h \
     RunWidget.h \
     ResultsPelicun.h \
-    LossModel/P58LossModel.h \
-    LossModel/P58GeneralSettingsContainer.h \
-    LossModel/P58ComponentContainer.h \
-    LossModel/P58CollapseModeContainer.h \
-    LossModel/P58DependenciesContainer.h \
-    LossModel/P58CollapseMode.h \
+    LossModel/PelicunLossModel.h \
+    LossModel/PelicunPreferencesContainer.h \
+    LossModel/PelicunComponentContainer.h \
+    LossModel/PelicunDemandContainer.h \
+    LossModel/PelicunDamageContainer.h \
+    LossModel/PelicunLossContainer.h \
+    LossModel/PelicunCollapseModeContainer.h \
+    LossModel/PelicunCollapseLimit.h \
+    LossModel/PelicunOutputsContainer.h \
+    LossModel/PelicunCollapseMode.h \
+    LossModel/PelicunComponentGroup.h \
+    LossModel/PelicunPopulationGroup.h \
     LossModel/LossModelSelection.h \
     LossModel/HazusLossModel.h \
     LossModel/HazusGeneralSettingsContainer.h \
-    LossModel/LossMethod.h \
-    LossModel/P58ComponentGroup.h
-
+    LossModel/LossMethod.h
 
 RESOURCES += \
-    images.qrc 
+    images.qrc
 
 OTHER_FILES += conanfile.py
 
