@@ -80,6 +80,7 @@ PelicunLossModel::PelicunLossModel(QWidget *parent)
     contLoss = new PelicunLossContainer();
     theTab->addTab(contLoss, "Losses");
 
+    /*
     // outputs
     contOutputs = new PelicunOutputsContainer();
     theTab->addTab(contOutputs,"Outputs");
@@ -91,6 +92,7 @@ PelicunLossModel::PelicunLossModel(QWidget *parent)
     // collapse modes
     contCollapseModes = new PelicunCollapseModeContainer();
     theTab->addTab(contCollapseModes,"Collapse Modes");
+    */
 
     layout->addWidget(theTab);
     this->setLayout(layout);

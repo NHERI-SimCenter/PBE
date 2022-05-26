@@ -571,7 +571,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     gridLayout->addWidget(DemandModelGB, 1, 0);
     gridLayout->addWidget(DemandSampleGB, 0, 1);
     gridLayout->addWidget(ResidualDriftGB, 1, 1);
-    gridLayout->setRowStretch(2, 1);
+    gridLayout->setRowStretch(1, 1);
 
     this->setLayout(gridLayout);
 }

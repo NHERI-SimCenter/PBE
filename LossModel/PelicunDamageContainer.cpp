@@ -51,135 +51,327 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <sectiontitle.h>
 
+#include "SimCenterPreferences.h"
 #include "PelicunDamageContainer.h"
 
 PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
-    int maxWidth = 300;
+    this->setMaximumWidth(400);
 
-    mainLayout = new QVBoxLayout();
-    QHBoxLayout *mainHLayout = new QHBoxLayout();
-    QVBoxLayout *mainVLayout = new QVBoxLayout();
+    int maxWidth = 400;
 
-    // damage model -----------------------------------------------------------
-    QGroupBox * damageGroupBox = new QGroupBox("Damage Model");
-    damageGroupBox->setMaximumWidth(maxWidth);
-    QFormLayout * damageFormLayout = new QFormLayout(damageGroupBox);
+    gridLayout = new QGridLayout();
 
-    // irreparable residual drift
-    QLabel *irrepResDriftLabel = new QLabel();
-    irrepResDriftLabel->setText(tr("Irreparable Residual Drift:"));
-    damageFormLayout->addRow(irrepResDriftLabel);
+    // Global Vulnerability ---------------------------------------------------
 
-    // yield drift
-    yieldDriftValue = new QLineEdit();
-    yieldDriftValue->setToolTip(tr("Interstory drift ratio corresponding to significant yielding in the structure \n"
-                                   "(i.e. when the forces in the main components of the lateral load resisting \n"
-                                   "system reach the plastic capacity of the components) in the structure."));
-    yieldDriftValue->setText("0.01");
-    yieldDriftValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Yield Drift Ratio"), yieldDriftValue);
+    QGroupBox *GlobalVulGB = new QGroupBox("Global Vulnerabilities");
+    GlobalVulGB->setMaximumWidth(maxWidth);
 
-    irrepResDriftMedian = new QLineEdit();
-    irrepResDriftMedian->setToolTip(tr("Median of the residual drift distribution conditioned on irreparable \n"
-                                       "damage in the building.\n"
-                                       "If left empty, all non-collapse results are considered repairable."));
-    irrepResDriftMedian->setText("");
-    irrepResDriftMedian->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Median"), irrepResDriftMedian);
+    QVBoxLayout *loGV = new QVBoxLayout(GlobalVulGB);
 
-    irrepResDriftStd = new QLineEdit();
-    irrepResDriftStd->setToolTip(tr("Logarithmic standard deviation of the residual drift distribution \n"
-                                    "conditioned on irreparable damage in the building."));
-    irrepResDriftStd->setText("");
-    irrepResDriftStd->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Log Standard Dev"), irrepResDriftStd);
+    // Excessive RID
 
-    QSpacerItem *spacerGroups4 = new QSpacerItem(10,10);
-    damageFormLayout->addItem(spacerGroups4);
+    QHBoxLayout *residualDriftLayout = new QHBoxLayout();
 
-    // collapse
-    QLabel *collapseLabel = new QLabel();
-    collapseLabel->setText(tr("Collapse Probability:"));
-    damageFormLayout->addRow(collapseLabel);
+    excessiveRID = new QCheckBox();
+    excessiveRID->setText("");
+    excessiveRID->setToolTip("Consider damage from excessive residual interstory drift.");
+    excessiveRID->setChecked(false);
+    residualDriftLayout->addWidget(excessiveRID);
 
-    // approach
-    collProbApproach = new QComboBox();
-    collProbApproach->setToolTip(tr("Specifies how to define the probability of collapse:\n"
-                                    "estimated - use sampled EDPs and the collapse limits below\n"
-                                    "prescribed - use a prescribed (user-defined) value"));
-    collProbApproach->addItem("estimated",0);
-    collProbApproach->addItem("prescribed",1);
+    QLabel *lblExcessiveRID = new QLabel();
+    lblExcessiveRID->setText("Irreparable Damage");
+    residualDriftLayout->addWidget(lblExcessiveRID);
 
-    collProbApproach->setCurrentIndex(0);
-    damageFormLayout->addRow(tr("    Approach:"), collProbApproach);
+    residualDriftLayout->addStretch();
+    residualDriftLayout->setSpacing(10);
 
-    // prescribed value
-    colProbValue = new QLineEdit();
-    colProbValue->setToolTip(tr("User-defined probability of collapse\n"
-                                "Only used when Approach is set to prescribed above"));
-    colProbValue->setText("");
-    colProbValue->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Prescribed value:"), colProbValue);
+    loGV->addLayout(residualDriftLayout);
 
-    colBasis = new QComboBox();
-    colBasis ->setToolTip(tr("Basis of collapse probability estimation:\n"
-                             "sampled EDP - re-sampled EDP values\n"
-                             "raw EDP - empirical (input) EDP values"));
-    colBasis ->addItem("sampled EDP",0);
-    colBasis ->addItem("raw EDP",1);
+    // - - - -
 
-    colBasis ->setCurrentIndex(0);
-    damageFormLayout->addRow(tr("    Basis:"), colBasis );
+    QHBoxLayout *loExcRIDHeader = new QHBoxLayout();
 
-    QSpacerItem *spacerGroups6 = new QSpacerItem(10,10);
-    damageFormLayout->addItem(spacerGroups6);
+    QLabel *lblPlaceHolder = new QLabel();
+    lblPlaceHolder->setText("");
+    lblPlaceHolder->setMaximumWidth(100);
+    lblPlaceHolder->setMinimumWidth(100);
+    loExcRIDHeader->addWidget(lblPlaceHolder);
 
-    // collapse limits
-    QLabel *colLimLabel = new QLabel();
-    colLimLabel->setText(tr("Collapse Limits:"));
-    damageFormLayout->addRow(colLimLabel);
+    QLabel *lblRIDMedian = new QLabel();
+    lblRIDMedian->setText("Median");
+    lblRIDMedian->setMaximumWidth(75);
+    lblRIDMedian->setMinimumWidth(75);
+    loExcRIDHeader->addWidget(lblRIDMedian);
 
-    driftColLim = new QLineEdit();
-    driftColLim->setToolTip(tr("Peak interstory drift ratio that corresponds to \n"
-                               "the collapse of the building."));
-    driftColLim->setText("0.15");
-    driftColLim->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Interstory Drift"), driftColLim);
+    QLabel *lblRIDStd = new QLabel();
+    lblRIDStd->setText("Log Std");
+    lblRIDStd->setMaximumWidth(75);
+    lblRIDStd->setMinimumWidth(75);
+    loExcRIDHeader->addWidget(lblRIDStd);
 
-    accColLim = new QLineEdit();
-    accColLim->setToolTip(tr("Peak floor acceleration that corresponds to \n"
-                             "the collapse of the building."));
-    accColLim->setText("");
-    accColLim->setAlignment(Qt::AlignRight);
-    damageFormLayout->addRow(tr("    Floor Acceleration"), accColLim);
+    loExcRIDHeader->addStretch();
+    loExcRIDHeader->setSpacing(10);
 
-    QSpacerItem *spacerGroups5 = new QSpacerItem(10,10);
-    damageFormLayout->addItem(spacerGroups5);
+    loGV->addLayout(loExcRIDHeader);
 
-    // set style
-    damageFormLayout->setAlignment(Qt::AlignLeft);
-    damageFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    damageFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+    // - - - -
 
-    // assemble the widgets-----------------------------------------------------
+    QHBoxLayout *loExcRIDValues = new QHBoxLayout();
 
-    mainVLayout->addWidget(damageGroupBox);
-    mainHLayout->addStretch(1);
-    mainHLayout->setSpacing(10);
-    mainHLayout->setMargin(0);
+    QLabel *lblRIDCapacity = new QLabel();
+    lblRIDCapacity->setText("Drift Capacity: ");
+    lblRIDCapacity->setMaximumWidth(100);
+    lblRIDCapacity->setMinimumWidth(100);
+    loExcRIDValues->addWidget(lblRIDCapacity);
 
-    mainLayout->addLayout(mainVLayout, 0);
-    mainLayout->addStretch();
-    mainLayout->setSpacing(10);
+    rdMedian = new QLineEdit();
+    rdMedian->setToolTip(
+        tr("Median of the residual drift distribution conditioned on irreparable \n"
+           "damage in the building."));
+    rdMedian->setMaximumWidth(75);
+    rdMedian->setMinimumWidth(75);
+    rdMedian->setText("");
+    rdMedian->setAlignment(Qt::AlignRight);
+    loExcRIDValues->addWidget(rdMedian);
 
-    this->setLayout(mainLayout);
+    rdStd = new QLineEdit();
+    rdStd->setToolTip(
+        tr("Logarithmic standard deviation of the residual drift distribution \n"
+           "conditioned on irreparable damage in the building."));
+    rdStd->setMaximumWidth(75);
+    rdStd->setMinimumWidth(75);
+    rdStd->setText("");
+    rdStd->setAlignment(Qt::AlignRight);
+    loExcRIDValues->addWidget(rdStd);
+
+    loExcRIDValues->addStretch();
+    loExcRIDValues->setSpacing(10);
+
+    loGV->addLayout(loExcRIDValues);
+
+    // add line
+    QFrame *lineGV = new QFrame();
+    lineGV->setFrameShape(QFrame::HLine);
+    lineGV->setFrameShadow(QFrame::Sunken);
+    loGV->addWidget(lineGV);
+
+    // Collapse
+
+    QHBoxLayout *collapseLayout = new QHBoxLayout();
+
+    collapseCheck = new QCheckBox();
+    collapseCheck->setText("");
+    collapseCheck->setToolTip("Consider collapse as a possible outcome.");
+    collapseCheck->setChecked(false);
+    collapseLayout->addWidget(collapseCheck);
+
+    QLabel *lblCollapse = new QLabel();
+    lblCollapse->setText("Collapse");
+    collapseLayout->addWidget(lblCollapse);
+
+    collapseLayout->addStretch();
+    collapseLayout->setSpacing(10);
+
+    loGV->addLayout(collapseLayout);
+
+    // - - - -
+
+    QHBoxLayout *loCollapseHeader = new QHBoxLayout();
+
+    QLabel *lblCollapseDemand = new QLabel();
+    lblCollapseDemand->setText("Demand");
+    lblCollapseDemand->setMaximumWidth(75);
+    lblCollapseDemand->setMinimumWidth(75);
+    loCollapseHeader->addWidget(lblCollapseDemand);
+
+    QLabel *lblCollapseCapacity = new QLabel();
+    lblCollapseCapacity->setText("Capacity");
+    lblCollapseCapacity->setMaximumWidth(75);
+    lblCollapseCapacity->setMinimumWidth(75);
+    loCollapseHeader->addWidget(lblCollapseCapacity);
+
+    QLabel *lblCollapseDistribution = new QLabel();
+    lblCollapseDistribution->setText("Distribution");
+    lblCollapseDistribution->setMaximumWidth(100);
+    lblCollapseDistribution->setMinimumWidth(100);
+    loCollapseHeader->addWidget(lblCollapseDistribution);
+
+    QLabel *lblCollapseTheta1 = new QLabel();
+    lblCollapseTheta1->setText("<p>&theta;<sub>1</sub></p>");
+    lblCollapseTheta1->setMaximumWidth(50);
+    lblCollapseTheta1->setMinimumWidth(50);
+    loCollapseHeader->addWidget(lblCollapseTheta1);
+
+    loCollapseHeader->addStretch();
+    loCollapseHeader->setSpacing(10);
+
+    loGV->addLayout(loCollapseHeader);
+
+    // - - - -
+
+    QHBoxLayout *loCollapseValues = new QHBoxLayout();
+
+    colDemand = new QLineEdit();
+    colDemand->setToolTip(
+        tr("The demand type that controls collapse evaluation. The\n"
+           "acronyms used here shall match those in the demand data.\n"
+           "If you want to represent a collapse fragility function,\n"
+           "specify the independent variable of that function here.\n"
+           "If you want to represent an EDP threshold that triggers\n"
+           "collapse, specify the EDP type here.\n"
+           "Make sure the corresponding demands are available in \n"
+           "the input demand data and that Pelicun can parse the \n"
+           "specified demand type."));
+    colDemand->setMaximumWidth(75);
+    colDemand->setMinimumWidth(75);
+    colDemand->setText("");
+    colDemand->setAlignment(Qt::AlignRight);
+    loCollapseValues->addWidget(colDemand);
+
+    colMedian = new QLineEdit();
+    colMedian->setToolTip(
+        tr("Median of the specified demand distribution conditioned on collapse.\n"
+           "For collapse fragility curves, this is the median of the curve.\n"
+           "For deterministic EDP thresholds, this is the EDP limit.\n"
+           "For probabilistic EDP thresholds, this is the median of the random EDP limit."));
+    colMedian->setMaximumWidth(75);
+    colMedian->setMinimumWidth(75);
+    colMedian->setText("");
+    colMedian->setAlignment(Qt::AlignRight);
+    loCollapseValues->addWidget(colMedian);
+
+    colDistribution = new QComboBox();
+    colDistribution->setToolTip(
+        tr("Distribution family assigned to the collapse capacity.\n"
+            "The N/A setting corresponds to a deterministic capacity."));
+    colDistribution->addItem(tr("N/A"));
+    colDistribution->addItem(tr("normal"));
+    colDistribution->addItem(tr("lognormal"));
+    colDistribution->setMaximumWidth(100);
+    colDistribution->setMinimumWidth(100);
+    colDistribution->setCurrentText(tr("N/A"));
+    loCollapseValues->addWidget(colDistribution);
+
+    colTheta2 = new QLineEdit();
+    colTheta2->setToolTip(
+        tr("<p>The second parameter of the assigned distribution function.<br>"
+           "For a normal distribution, it is the <b>coefficient of variation</b><br>"
+           "For a lognormal distribution, it is the logarithmic standard deviation.<br>"
+           "Leave this field blank for deterministic capacities.</p>"));
+    colTheta2->setMaximumWidth(50);
+    colTheta2->setMinimumWidth(50);
+    colTheta2->setText("");
+    colTheta2->setAlignment(Qt::AlignRight);
+    loCollapseValues->addWidget(colTheta2);
+
+    loCollapseValues->addStretch();
+    loCollapseValues->setSpacing(10);
+
+    loGV->addLayout(loCollapseValues);
+
+    loGV->addStretch();
+
+    // Data Source ------------------------------------------------------------
+
+    QGroupBox *DamageProcessGB = new QGroupBox("Damage Process");
+    DamageProcessGB->setMaximumWidth(maxWidth);
+
+    QVBoxLayout *loDP = new QVBoxLayout(DamageProcessGB);
+
+    QHBoxLayout *selectDPLayout = new QHBoxLayout();
+
+    QLabel *lblDPApproach = new QLabel();
+    lblDPApproach->setText("Approach:");
+    lblDPApproach->setMaximumWidth(100);
+    lblDPApproach->setMinimumWidth(100);
+    selectDPLayout->addWidget(lblDPApproach);
+
+    // approach selection
+    dpApproach = new QComboBox();
+    dpApproach->setToolTip(tr("The Damage Process defines the dependencies between component and global damages"));
+    dpApproach->addItem("FEMA P-58",0);
+    dpApproach->addItem("Hazus Earthquake",1);
+    dpApproach->addItem("User Defined",2);
+
+    dpApproach->setItemData(0, "<p>Collapse and irreparable damage, if applicable, is evaluated first; component damages are only returned for non-collapse cases.</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(1, "<p>Collapse is triggered by the second mutually exclusive damage state in the highest limit state of structural components. When collapse is triggered, all components have their highest limit state assigned.</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(2, "<p>Custom damage process provided in a JSON file</p>", Qt::ToolTipRole);
+
+    selectDPLayout->addWidget(dpApproach, 1);
+
+    loDP->addLayout(selectDPLayout);
+
+    // damage process path
+    QHBoxLayout *customSourceLayout = new QHBoxLayout();
+
+    btnChooseDP = new QPushButton();
+    btnChooseDP->setMinimumWidth(100);
+    btnChooseDP->setMaximumWidth(100);
+    btnChooseDP->setText(tr("Choose"));
+    connect(btnChooseDP, SIGNAL(clicked()),this,SLOT(chooseDPData()));
+    customSourceLayout->addWidget(btnChooseDP);
+    btnChooseDP->setVisible(false);
+
+    dpDataPath = new QLineEdit;
+    dpDataPath->setToolTip(tr("Location of the user-defined damage process data."));
+    customSourceLayout->addWidget(dpDataPath, 1);
+    dpDataPath->setVisible(false);
+    dpDataPath->setEnabled(false);
+
+    connect(dpApproach, SIGNAL(currentIndexChanged(QString)), this,
+                SLOT(DPApproachSelectionChanged(QString)));
+
+    loDP->addLayout(customSourceLayout);
+
+    loDP->addStretch();
+
+    // assemble the widgets ---------------------------------------------------
+
+    gridLayout->addWidget(GlobalVulGB,0,0);
+    gridLayout->addWidget(DamageProcessGB,1,0);
+    gridLayout->setRowStretch(1, 1);
+
+    this->setLayout(gridLayout);
 }
 
 PelicunDamageContainer::~PelicunDamageContainer()
 {}
+
+void
+PelicunDamageContainer::chooseDPData(void) {
+
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+
+    QString dpDataPath;
+    dpDataPath =
+        QFileDialog::getOpenFileName(this,
+            tr("Select Damage Process JSON File"), appDir);
+
+    this->setDPData(dpDataPath);
+
+}
+
+int
+PelicunDamageContainer::setDPData(QString dpPath){
+
+    dpDataPath->setText(dpPath);
+    return 0;
+}
+
+void
+PelicunDamageContainer::DPApproachSelectionChanged(const QString &arg1)
+{
+    if (arg1 == QString("User Defined")) {
+        dpDataPath->setVisible(true);
+        btnChooseDP->setVisible(true);
+    } else {
+        dpDataPath->setVisible(false);
+        btnChooseDP->setVisible(false);
+    }
+}
 
 bool PelicunDamageContainer::outputToJSON(QJsonObject &outputObject) {
 

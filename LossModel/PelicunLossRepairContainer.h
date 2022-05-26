@@ -1,5 +1,5 @@
-#ifndef PelicunDAMAGE_CONTAINER_H
-#define PelicunDAMAGE_CONTAINER_H
+#ifndef PelicunLOSS_REPAIR_CONTAINER_H
+#define PelicunLOSS_REPAIR_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2022, The Regents of the University of California (Regents).
@@ -49,15 +49,13 @@ class QLineEdit;
 class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
-class QGridLayout;
 class QRadioButton;
-class QPushButton;
-
+class QGridLayout;
 
 /*!
  * Widget for general loss assessment settings in PBE tool
  */
-class PelicunDamageContainer : public SimCenterAppWidget
+class PelicunLossRepairContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
@@ -66,12 +64,12 @@ public:
      * @contructor Constructor taking pointer to parent widget
      * @param[in] parent Parent widget of PelicunGeneralSettingsContainer
      */
-    explicit PelicunDamageContainer(QWidget *parent = 0);
+    explicit PelicunLossRepairContainer(QWidget *parent = 0);
 
     /*!
      * @destructor Virtual destructor
      */
-    virtual ~PelicunDamageContainer();
+    virtual ~PelicunLossRepairContainer();
 
     /*!
      * Writes general settings contents to JSON
@@ -91,50 +89,28 @@ public:
      * Get the name of the general settings
      * @return Returns the name of the general settings as a QString
      */
-    QString getPelicunDamageContainerName() const;
-
-    int setDPData(QString dpPath);
+    QString getPelicunLossRepairContainerName() const;
 
 signals:
 
 public slots:
 
-    void DPApproachSelectionChanged(const QString &arg1);
-
-    void chooseDPData(void);
-
 private:
 
-    QLineEdit * yieldDriftValue; /*!<  */
-    QLineEdit * irrepResDriftMedian;
-    QLineEdit * irrepResDriftStd;
-    QLineEdit * driftColLim;
-    QLineEdit * accColLim;
-    QLineEdit * colProbValue;
+    QLineEdit * repCostUnit;
+    QLineEdit * repCostMedian;
+    QLineEdit * repCostTheta1;
+    QLineEdit * repTimeUnit;
+    QLineEdit * repTimeMedian;
+    QLineEdit * repTimeTheta1;
 
-    QComboBox * collProbApproach;
-    QComboBox * colBasis;
+    QComboBox * repCostDistribution;
+    QComboBox * repTimeDistribution;
 
-    QVBoxLayout *mainLayout;
+    QCheckBox *replacementCheck;
 
+    QGridLayout *gridLayout;
 
-
-    QLineEdit * rdMedian;
-    QLineEdit * rdStd;
-    QLineEdit * colDemand;
-    QLineEdit * colMedian;
-    QLineEdit * colTheta2;
-    QLineEdit * dpDataPath;
-
-    QComboBox * colDistribution;
-    QComboBox * dpApproach;
-
-    QCheckBox *excessiveRID;
-    QCheckBox *collapseCheck;
-
-    QPushButton * btnChooseDP;
-
-    QGridLayout *gridLayout; /*!< Main layout for general settings */
 };
 
-#endif // PelicunDAMAGE_CONTAINER_H
+#endif // PelicunLOSS_REPAIR_CONTAINER_H

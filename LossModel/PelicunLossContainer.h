@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 
 #include "SimCenterAppWidget.h"
+#include "PelicunLossRepairContainer.h"
 
 class QCheckBox;
 class QComboBox;
@@ -96,19 +97,7 @@ public slots:
 
 private:
 
-    QLineEdit * peakPopulation;
-    QLineEdit * replacementCostValue;
-    QLineEdit * replacementTimeValue;
-    QLineEdit * populationFilePath;
-
-    QComboBox * occupancyType;
-
-    QCheckBox * needRecCost;
-    QCheckBox * needRecTime;
-    QCheckBox * needInjuries;
-    QCheckBox * needRedTag;
-
-    QVBoxLayout *mainLayout; /*!< Main layout for general settings */
+    PelicunLossRepairContainer *contRepair;
 };
 
 #endif // PelicunLOSS_CONTAINER_H
