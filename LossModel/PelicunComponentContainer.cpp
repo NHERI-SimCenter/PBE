@@ -1272,7 +1272,7 @@ PelicunComponentContainer::exportFragilityDataBase(void) {
                                           appDir);
     QDir destDir(destinationFolder);
 
-    qDebug() << QString("Exporting damage and loss database...");
+    qDebug() << QString("Exporting component vulnerability database...");
 
     // copy the db file(s) to the desired location
     QFileInfo fi = fragilityDataBasePath->text();

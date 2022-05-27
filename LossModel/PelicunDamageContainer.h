@@ -99,25 +99,17 @@ signals:
 
 public slots:
 
+    void irreparableCheckChanged(int newState);
+    void collapseCheckChanged(int newState);
+
     void DPApproachSelectionChanged(const QString &arg1);
 
     void chooseDPData(void);
 
 private:
 
-    QLineEdit * yieldDriftValue; /*!<  */
-    QLineEdit * irrepResDriftMedian;
-    QLineEdit * irrepResDriftStd;
-    QLineEdit * driftColLim;
-    QLineEdit * accColLim;
-    QLineEdit * colProbValue;
-
-    QComboBox * collProbApproach;
-    QComboBox * colBasis;
-
-    QVBoxLayout *mainLayout;
-
-
+    QWidget * irreparableSettings;
+    QWidget * collapseSettings;
 
     QLineEdit * rdMedian;
     QLineEdit * rdStd;

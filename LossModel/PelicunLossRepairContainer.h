@@ -51,6 +51,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QRadioButton;
 class QGridLayout;
+class QPushButton;
 
 /*!
  * Widget for general loss assessment settings in PBE tool
@@ -95,7 +96,20 @@ signals:
 
 public slots:
 
+    void replacementCheckChanged(int newState);
+
+    void chooseConsequenceDataBase(void);
+    void exportConsequenceDB(void);
+
+    void DBSelectionChanged(const QString &arg1);
+
+    void MAPApproachSelectionChanged(const QString &arg1);
+
+    void chooseMAP(void);
+
 private:
+
+    QWidget * replacementSettings;
 
     QLineEdit * repCostUnit;
     QLineEdit * repCostMedian;
@@ -103,9 +117,16 @@ private:
     QLineEdit * repTimeUnit;
     QLineEdit * repTimeMedian;
     QLineEdit * repTimeTheta1;
+    QLineEdit * consequenceDataBasePath;
+    QLineEdit * mapPath;
 
     QComboBox * repCostDistribution;
     QComboBox * repTimeDistribution;
+    QComboBox * databaseConseq;
+    QComboBox * mapApproach;
+
+    QPushButton * btnChooseConsequence;
+    QPushButton * btnChooseMAP;
 
     QCheckBox *replacementCheck;
 

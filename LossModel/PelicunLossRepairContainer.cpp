@@ -51,6 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <sectiontitle.h>
 
+#include "SimCenterPreferences.h"
 #include "PelicunLossRepairContainer.h"
 
 PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
@@ -63,9 +64,9 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     gridLayout = new QGridLayout();
 
-    // Global Losses ---------------------------------------------------
+    // Global Consequences ---------------------------------------------
 
-    QGroupBox *GlobalCsqGB = new QGroupBox("Global Losses");
+    QGroupBox *GlobalCsqGB = new QGroupBox("Global Consequences");
     GlobalCsqGB->setMaximumWidth(maxWidth);
 
     QVBoxLayout *loGC = new QVBoxLayout(GlobalCsqGB);
@@ -76,6 +77,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     replacementCheck = new QCheckBox();
     replacementCheck->setText("");
+    replacementCheck->setTristate(false);
     replacementCheck->setToolTip(
         tr("<p>Consider replacement as a possible consequence. If automatic loss mapping is used, this consequence is linked to global vulnerabilities, such as irreparable damage and collapse.</p>"));
     replacementCheck->setChecked(false);
@@ -90,9 +92,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     loGC->addLayout(replacementLayout);
 
-    // - - - -
+    replacementSettings = new QWidget();
+    QVBoxLayout * loRepSetV = new QVBoxLayout(replacementSettings);
 
-    QHBoxLayout *loReplacementHeader = new QHBoxLayout();
+    // - - - -
+    QHBoxLayout * loReplacementHeader = new QHBoxLayout();
 
     QLabel *lblPlaceholder = new QLabel();
     lblPlaceholder->setText("");
@@ -127,11 +131,15 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     loReplacementHeader->addStretch();
     loReplacementHeader->setSpacing(10);
 
-    loGC->addLayout(loReplacementHeader);
+    //loGC->addLayout(loReplacementHeader);
+    loRepSetV->addLayout(loReplacementHeader);
+
+    connect(replacementCheck, SIGNAL(stateChanged(int)), this,
+                SLOT(replacementCheckChanged(int)));
 
     // - - - -
 
-    QHBoxLayout *loReplacementCostValues = new QHBoxLayout();
+    QHBoxLayout * loReplacementCostValues = new QHBoxLayout();
 
     QLabel *lblCost = new QLabel();
     lblCost->setText("Cost: ");
@@ -187,11 +195,12 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     loReplacementCostValues->addStretch();
     loReplacementCostValues->setSpacing(10);
 
-    loGC->addLayout(loReplacementCostValues);
+    //loGC->addLayout(loReplacementCostValues);
+    loRepSetV->addLayout(loReplacementCostValues);
 
     // - - - -
 
-    QHBoxLayout *loReplacementTimeValues = new QHBoxLayout();
+    QHBoxLayout * loReplacementTimeValues = new QHBoxLayout();
 
     QLabel *lblTime = new QLabel();
     lblTime->setText("Time: ");
@@ -247,19 +256,126 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     loReplacementTimeValues->addStretch();
     loReplacementTimeValues->setSpacing(10);
 
-    loGC->addLayout(loReplacementTimeValues);
+    //loGC->addLayout(loReplacementTimeValues);
+    loRepSetV->addLayout(loReplacementTimeValues);
 
-    loGC->addStretch();
+    loGC->addWidget(replacementSettings);
+
+    connect(replacementCheck, SIGNAL(stateChanged(int)), this,
+                SLOT(replacementCheckChanged(int)));
+    this->replacementCheckChanged(replacementCheck->checkState());
 
     // Loss Database ---------------------------------------------------
 
-    QGroupBox *LossDataGB = new QGroupBox("Loss Database");
+    QGroupBox *LossDataGB = new QGroupBox("Database");
     LossDataGB->setMaximumWidth(maxWidth);
+
+    QVBoxLayout *loLDB = new QVBoxLayout(LossDataGB);
+
+    // component data folder
+    QHBoxLayout *selectDBLayout = new QHBoxLayout();
+
+    QLabel *lblCDB = new QLabel();
+    lblCDB->setText("Consequence Data:");
+    lblCDB->setMaximumWidth(150);
+    lblCDB->setMinimumWidth(150);
+    selectDBLayout->addWidget(lblCDB);
+
+    // database selection
+    databaseConseq = new QComboBox();
+    databaseConseq->setToolTip(tr("This database defines the consequence functions available for the analysis."));
+    databaseConseq->addItem("FEMA P58",0);
+    databaseConseq->addItem("Hazus Earthquake",1);
+    databaseConseq->addItem("User Defined",2);
+
+    databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P58", Qt::ToolTipRole);
+    databaseConseq->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
+    databaseConseq->setItemData(2, "Custom database provided by the user", Qt::ToolTipRole);
+
+    selectDBLayout->addWidget(databaseConseq, 0);
+
+    QPushButton *btnExportDataBase = new QPushButton();
+    btnExportDataBase->setMinimumWidth(100);
+    btnExportDataBase->setMaximumWidth(100);
+    btnExportDataBase->setText(tr("Export DB"));
+    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportConsequenceDB()));
+    selectDBLayout->addWidget(btnExportDataBase);
+
+    loLDB->addLayout(selectDBLayout);
+
+    // database path
+    QHBoxLayout *customFolderLayout = new QHBoxLayout();
+
+    consequenceDataBasePath = new QLineEdit;
+    consequenceDataBasePath->setToolTip(tr("Location of the user-defined consequence data."));
+    customFolderLayout->addWidget(consequenceDataBasePath, 1);
+    consequenceDataBasePath->setVisible(false);
+    consequenceDataBasePath->setEnabled(false);
+
+    btnChooseConsequence = new QPushButton();
+    btnChooseConsequence->setMinimumWidth(100);
+    btnChooseConsequence->setMaximumWidth(100);
+    btnChooseConsequence->setText(tr("Choose"));
+    connect(btnChooseConsequence, SIGNAL(clicked()),this,SLOT(chooseConsequenceDataBase()));
+    customFolderLayout->addWidget(btnChooseConsequence);
+    btnChooseConsequence->setVisible(false);
+
+    connect(databaseConseq, SIGNAL(currentIndexChanged(QString)), this,
+                SLOT(DBSelectionChanged(QString)));
+
+    loLDB->addLayout(customFolderLayout);
 
     // Loss Mapping ---------------------------------------------------
 
-    QGroupBox *LossMappingGB = new QGroupBox("Loss Mapping");
+    QGroupBox *LossMappingGB = new QGroupBox("Mapping");
     LossMappingGB->setMaximumWidth(maxWidth);
+
+    QVBoxLayout *loMAP = new QVBoxLayout(LossMappingGB);
+
+    QHBoxLayout *selectMAPLayout = new QHBoxLayout();
+
+    QLabel *lblMAPApproach = new QLabel();
+    lblMAPApproach->setText("Approach:");
+    lblMAPApproach->setMaximumWidth(100);
+    lblMAPApproach->setMinimumWidth(100);
+    selectMAPLayout->addWidget(lblMAPApproach);
+
+    // approach selection
+    mapApproach = new QComboBox();
+    mapApproach->setToolTip(tr("Mapping links component and global damages to consequences."));
+    mapApproach->addItem("Automatic",0);
+    mapApproach->addItem("User Defined",1);
+
+    mapApproach->setItemData(0, "<p>Automatically prepare mapping based on the selected Component Vulnerability database. Only applicable for built-in databases, such as FEMA P-58 and Hazus data.</p>", Qt::ToolTipRole);
+    mapApproach->setItemData(1, "<p>Custom mapping provided in a CSV file.</p>", Qt::ToolTipRole);
+
+    selectMAPLayout->addWidget(mapApproach, 0);
+
+    loMAP->addLayout(selectMAPLayout);
+
+    // damage process path
+    QHBoxLayout *customMapLayout = new QHBoxLayout();
+
+    btnChooseMAP = new QPushButton();
+    btnChooseMAP->setMinimumWidth(100);
+    btnChooseMAP->setMaximumWidth(100);
+    btnChooseMAP->setText(tr("Choose"));
+    connect(btnChooseMAP, SIGNAL(clicked()),this,SLOT(chooseMAP()));
+    customMapLayout->addWidget(btnChooseMAP);
+    btnChooseMAP->setVisible(false);
+
+    mapPath = new QLineEdit;
+    mapPath->setToolTip(tr("Location of the user-defined loss mapping data."));
+    customMapLayout->addWidget(mapPath, 1);
+    mapPath->setVisible(false);
+    mapPath->setEnabled(false);
+
+    connect(mapApproach, SIGNAL(currentIndexChanged(QString)), this,
+                SLOT(MAPApproachSelectionChanged(QString)));
+
+    loMAP->addLayout(customMapLayout);
+
+    loMAP->addStretch();
 
     // assemble the widgets ---------------------------------------------------
 
@@ -273,6 +389,116 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
 PelicunLossRepairContainer::~PelicunLossRepairContainer()
 {}
+
+void
+PelicunLossRepairContainer::DBSelectionChanged(const QString &arg1)
+{
+    if (arg1 == QString("User Defined")) {
+        consequenceDataBasePath->setVisible(true);
+        btnChooseConsequence->setVisible(true);
+    } else {
+        consequenceDataBasePath->setVisible(false);
+        btnChooseConsequence->setVisible(false);
+    }
+}
+
+void
+PelicunLossRepairContainer::chooseConsequenceDataBase(void) {
+
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+
+    QString consequenceDataBase;
+    consequenceDataBase =
+        QFileDialog::getOpenFileName(this, tr("Select Database CSV File"), appDir);
+
+    consequenceDataBasePath->setText(consequenceDataBase);
+}
+
+void
+PelicunLossRepairContainer::exportConsequenceDB(void) {
+
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+
+    QString destinationFolder;
+    destinationFolder =
+        QFileDialog::getExistingDirectory(this,
+            tr("Select Destination Folder"), appDir);
+    QDir destDir(destinationFolder);
+
+    qDebug() << QString("Exporting consequence database...");
+
+    // copy the db file(s) to the desired location
+    QFileInfo fi = consequenceDataBasePath->text();
+
+    // get the filenames
+    QString csvFileName = fi.fileName();
+    QString jsonFileName = fi.fileName();
+    jsonFileName.replace(".csv", ".json");
+
+    // get the source file paths
+    QDir DBDir(fi.absolutePath());
+    QString csvFile = DBDir.absoluteFilePath(csvFileName);
+    QString jsonFile = DBDir.absoluteFilePath(jsonFileName);
+
+    // get the destination file paths
+    QString csvFile_dest = destDir.absoluteFilePath(csvFileName);
+    QString jsonFile_dest = destDir.absoluteFilePath(jsonFileName);
+
+    // check if the destination csv file exists and remove it if needed
+    if (QFile::exists(csvFile_dest)){
+        QFile::remove(csvFile_dest);
+    }
+    // copy the csv file
+    QFile::copy(csvFile, csvFile_dest);
+
+    // check if the destination json file exists and remove it if needed
+    if (QFile::exists(jsonFile_dest)){
+        QFile::remove(jsonFile_dest);
+    }
+    // check if the source json file exists
+    if (QFile::exists(jsonFile)){
+        // and copy it
+        QFile::copy(jsonFile, jsonFile_dest);
+    }
+
+    qDebug() << QString("Successfully exported default consequence database...");
+}
+
+void
+PelicunLossRepairContainer::MAPApproachSelectionChanged(const QString &arg1)
+{
+    if (arg1 == QString("User Defined")) {
+        mapPath->setVisible(true);
+        btnChooseMAP->setVisible(true);
+    } else {
+        mapPath->setVisible(false);
+        btnChooseMAP->setVisible(false);
+    }
+}
+
+void
+PelicunLossRepairContainer::replacementCheckChanged(int newState)
+{
+    if (newState == 2) {
+        replacementSettings->show();
+    } else {
+        replacementSettings->hide();
+    }
+}
+
+void
+PelicunLossRepairContainer::chooseMAP(void) {
+
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+
+    QString mapFilePath;
+    mapFilePath =
+        QFileDialog::getOpenFileName(this,
+            tr("Select Loss Mapping CSV File"), appDir);
+
+    mapPath->setText(mapFilePath);
+
+}
 
 bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
 

@@ -61,9 +61,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
-    this->setMaximumWidth(600);
+    this->setMaximumWidth(700);
 
-    int maxWidth = 300;
+    int maxWidth = 350;
 
     collConfig = new QVector<QMap<QString, QString>* >;
     truncConfig = new QVector<QMap<QString, QString>* >;
@@ -130,6 +130,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     DemandModelGB->setMaximumWidth(maxWidth);
 
     QVBoxLayout *loDM = new QVBoxLayout(DemandModelGB);
+    loDM->setAlignment(Qt::AlignTop);
 
     // distribution to fit
 
@@ -161,146 +162,11 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     lineCollapse->setFrameShadow(QFrame::Sunken);
     loDM->addWidget(lineCollapse);
 
-    // remove collapses?
-
-    QHBoxLayout *collapseLayout = new QHBoxLayout();
-
-    removeCollapse = new QCheckBox();
-    removeCollapse->setText("");
-    removeCollapse->setToolTip("Remove collapsed cases from raw demands");
-    removeCollapse->setChecked(true);
-    collapseLayout->addWidget(removeCollapse);
-
-    QLabel *lblCollapseCheck = new QLabel();
-    lblCollapseCheck->setText("Remove collapses");
-    collapseLayout->addWidget(lblCollapseCheck,1);
-
-    loDM->addLayout(collapseLayout);
-
-    // Collapse Limit header
-    QHBoxLayout *loCLimit_header = new QHBoxLayout();
-
-    QPushButton *addCLimit = new QPushButton();
-    addCLimit->setMinimumWidth(20);
-    addCLimit->setMaximumWidth(20);
-    addCLimit->setMaximumHeight(20);
-    addCLimit->setText(tr("+"));
-    loCLimit_header->addWidget(addCLimit);
-    connect(addCLimit, SIGNAL(pressed()), this, SLOT(addCollapseLimit()));
-
-    QLabel *lblDEM_type = new QLabel();
-    lblDEM_type->setText("Demand");
-    lblDEM_type->setMaximumWidth(75);
-    lblDEM_type->setMinimumWidth(75);
-    loCLimit_header->addWidget(lblDEM_type);
-
-    QLabel *lblDEM_limit = new QLabel();
-    lblDEM_limit->setText("Collapse Lim");
-    lblDEM_limit->setMaximumWidth(75);
-    lblDEM_limit->setMinimumWidth(75);
-    loCLimit_header->addWidget(lblDEM_limit);
-
-    loCLimit_header->addStretch();
-    loCLimit_header->setSpacing(10);
-    loCLimit_header->setMargin(0);
-
-    loDM->addLayout(loCLimit_header);
-
-    // Collapse Limit list
-    QHBoxLayout *loCLimitLayout = new QHBoxLayout();
-
-    loCollLimRemove = new QVBoxLayout();
-
-    loCollLimRemove->addStretch();
-
-    smRemoveCL = new QSignalMapper(this);
-    connect(smRemoveCL, SIGNAL(mapped(QWidget*)), this,
-            SLOT(removeCollapseLimit(QWidget*)));
-
-    loCLimitLayout->addLayout(loCollLimRemove);
-
-    QScrollArea *saCollapseLims = new QScrollArea;
-    saCollapseLims->setWidgetResizable(true);
-    saCollapseLims->setLineWidth(0);
-    saCollapseLims->setFrameShape(QFrame::NoFrame);
-
-    QWidget *CLWidget = new QWidget;
-    loCLList = new QVBoxLayout();
-    loCLList->addStretch();
-    loCLList->setMargin(0);
-    CLWidget->setLayout(loCLList);
-    saCollapseLims->setWidget(CLWidget);
-
-    loCLimitLayout->addWidget(saCollapseLims);
-    loDM->addLayout(loCLimitLayout, 1);
-
-    // add line
-    lineBeta = new QFrame();
-    lineBeta->setFrameShape(QFrame::HLine);
-    lineBeta->setFrameShadow(QFrame::Sunken);
-    loDM->addWidget(lineBeta);
-
-    // additional uncertainty
-
-    QHBoxLayout *betaLayout = new QHBoxLayout();
-
-    addBeta = new QCheckBox();
-    addBeta->setText("");
-    addBeta->setToolTip("Increase the logarithmic standard deviation of demands \n"
-                        "to consider additional sources of uncertainty.");
-    addBeta->setChecked(true);
-    betaLayout->addWidget(addBeta);
-
-    QLabel *lblBetaCheck = new QLabel();
-    lblBetaCheck->setText("Add Uncertainty");
-    betaLayout->addWidget(lblBetaCheck,1);
-
-    loDM->addLayout(betaLayout);
-
-    // additional uncertainty values
-
-    QHBoxLayout *betaGMLayout = new QHBoxLayout();
-
-    QLabel *lblbetaGM = new QLabel();
-    lblbetaGM->setText("Ground Motion");
-    lblbetaGM->setMaximumWidth(100);
-    lblbetaGM->setMinimumWidth(100);
-    betaGMLayout->addWidget(lblbetaGM);
-
-    addedUncertaintyGM = new QLineEdit();
-    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum \n"
-                                      "for intensity- and scenario-based assessment."));
-    addedUncertaintyGM->setText("");
-    addedUncertaintyGM->setAlignment(Qt::AlignRight);
-    betaGMLayout->addWidget(addedUncertaintyGM, 1);
-
-    loDM->addLayout(betaGMLayout);
-
-
-    QHBoxLayout *betaMLayout = new QHBoxLayout();
-
-    QLabel *lblbetaM = new QLabel();
-    lblbetaM->setText("Model");
-    lblbetaM->setMaximumWidth(100);
-    lblbetaM->setMinimumWidth(100);
-    betaMLayout->addWidget(lblbetaM);
-
-    addedUncertaintyModel = new QLineEdit();
-    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling,\n"
-                                         "damping and mass assumptions."));
-    addedUncertaintyModel->setText("");
-    addedUncertaintyModel->setAlignment(Qt::AlignRight);
-    betaMLayout->addWidget(addedUncertaintyModel, 1);
-
-    loDM->addLayout(betaMLayout);
-
-    // add line
-    lineTL = new QFrame();
-    lineTL->setFrameShape(QFrame::HLine);
-    lineTL->setFrameShadow(QFrame::Sunken);
-    loDM->addWidget(lineTL);
-
     //truncation limits label
+
+    truncationSettings = new QWidget();
+    QVBoxLayout * loTRV = new QVBoxLayout(truncationSettings);
+
     QHBoxLayout *truncationLimitsLayout = new QHBoxLayout();
 
     QLabel *lblTruncLimits = new QLabel();
@@ -312,9 +178,10 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     truncationLimitsLayout->addStretch();
 
-    loDM->addLayout(truncationLimitsLayout);
+    loTRV->addLayout(truncationLimitsLayout);
 
     // Truncation Limit header
+
     QHBoxLayout *loTLimit_header = new QHBoxLayout();
 
     QPushButton *addTLimit = new QPushButton();
@@ -347,7 +214,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loTLimit_header->setSpacing(10);
     loTLimit_header->setMargin(0);
 
-    loDM->addLayout(loTLimit_header);
+    loTRV->addLayout(loTLimit_header);
 
     // Truncation Limit list
     QHBoxLayout *loTLimitLayout = new QHBoxLayout();
@@ -377,7 +244,174 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     saTruncLimits->setWidget(TLWidget);
 
     loTLimitLayout->addWidget(saTruncLimits);
-    loDM->addLayout(loTLimitLayout, 1);
+    loTRV->addLayout(loTLimitLayout);
+
+    loDM->addWidget(truncationSettings);
+
+    connect(demandDistribution,
+            SIGNAL(currentIndexChanged(QString)), this,
+            SLOT(DistributionSelectionChanged(QString)));
+    this->DistributionSelectionChanged(demandDistribution->currentText());
+
+    // additional uncertainty
+
+    QHBoxLayout *betaLayout = new QHBoxLayout();
+
+    addBeta = new QCheckBox();
+    addBeta->setText("");
+    addBeta->setToolTip("Increase the logarithmic standard deviation of demands \n"
+                        "to consider additional sources of uncertainty.");
+    addBeta->setChecked(false);
+    addBeta->setTristate(false);
+    betaLayout->addWidget(addBeta);
+
+    QLabel *lblBetaCheck = new QLabel();
+    lblBetaCheck->setText("Add Uncertainty");
+    betaLayout->addWidget(lblBetaCheck,1);
+
+    loDM->addLayout(betaLayout);
+
+    uncertaintySettings = new QWidget();
+    QVBoxLayout * loUQV = new QVBoxLayout(uncertaintySettings);
+
+    // additional uncertainty values
+
+    QHBoxLayout *betaGMLayout = new QHBoxLayout();
+
+    QLabel *lblbetaGM = new QLabel();
+    lblbetaGM->setText("Ground Motion");
+    lblbetaGM->setMaximumWidth(100);
+    lblbetaGM->setMinimumWidth(100);
+    betaGMLayout->addWidget(lblbetaGM);
+
+    addedUncertaintyGM = new QLineEdit();
+    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum \n"
+                                      "for intensity- and scenario-based assessment."));
+    addedUncertaintyGM->setText("");
+    addedUncertaintyGM->setAlignment(Qt::AlignRight);
+    betaGMLayout->addWidget(addedUncertaintyGM, 1);
+
+    loUQV->addLayout(betaGMLayout);
+
+
+    QHBoxLayout *betaMLayout = new QHBoxLayout();
+
+    QLabel *lblbetaM = new QLabel();
+    lblbetaM->setText("Model");
+    lblbetaM->setMaximumWidth(100);
+    lblbetaM->setMinimumWidth(100);
+    betaMLayout->addWidget(lblbetaM);
+
+    addedUncertaintyModel = new QLineEdit();
+    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling,\n"
+                                         "damping and mass assumptions."));
+    addedUncertaintyModel->setText("");
+    addedUncertaintyModel->setAlignment(Qt::AlignRight);
+    betaMLayout->addWidget(addedUncertaintyModel, 1);
+
+    loUQV->addLayout(betaMLayout);
+
+    loDM->addWidget(uncertaintySettings);
+
+    connect(addBeta, SIGNAL(stateChanged(int)), this,
+                SLOT(uncertaintyCheckChanged(int)));
+    this->uncertaintyCheckChanged(addBeta->checkState());
+
+    // add line
+    lineTL = new QFrame();
+    lineTL->setFrameShape(QFrame::HLine);
+    lineTL->setFrameShadow(QFrame::Sunken);
+    loDM->addWidget(lineTL);
+
+    // remove collapses?
+
+    QHBoxLayout *collapseLayout = new QHBoxLayout();
+
+    removeCollapse = new QCheckBox();
+    removeCollapse->setText("");
+    removeCollapse->setToolTip("Remove collapsed cases from raw demands");
+    removeCollapse->setTristate(false);
+    removeCollapse->setChecked(false);
+    collapseLayout->addWidget(removeCollapse);
+
+    QLabel *lblCollapseCheck = new QLabel();
+    lblCollapseCheck->setText("Remove collapses");
+    collapseLayout->addWidget(lblCollapseCheck,1);
+
+    loDM->addLayout(collapseLayout);
+
+    collapseSettings = new QWidget();
+    QVBoxLayout * loCollV = new QVBoxLayout(collapseSettings);
+
+    // Collapse Limit header
+    QHBoxLayout *loCLimit_header = new QHBoxLayout();
+
+    QPushButton *addCLimit = new QPushButton();
+    addCLimit->setMinimumWidth(20);
+    addCLimit->setMaximumWidth(20);
+    addCLimit->setMaximumHeight(20);
+    addCLimit->setText(tr("+"));
+    loCLimit_header->addWidget(addCLimit);
+    connect(addCLimit, SIGNAL(pressed()), this, SLOT(addCollapseLimit()));
+
+    QLabel *lblDEM_type = new QLabel();
+    lblDEM_type->setText("Demand");
+    lblDEM_type->setMaximumWidth(75);
+    lblDEM_type->setMinimumWidth(75);
+    loCLimit_header->addWidget(lblDEM_type);
+
+    QLabel *lblDEM_limit = new QLabel();
+    lblDEM_limit->setText("Collapse Lim");
+    lblDEM_limit->setMaximumWidth(75);
+    lblDEM_limit->setMinimumWidth(75);
+    loCLimit_header->addWidget(lblDEM_limit);
+
+    loCLimit_header->addStretch();
+    loCLimit_header->setSpacing(10);
+    loCLimit_header->setMargin(0);
+
+    loCollV->addLayout(loCLimit_header);
+
+    // Collapse Limit list
+    QHBoxLayout *loCLimitLayout = new QHBoxLayout();
+
+    loCollLimRemove = new QVBoxLayout();
+    loCollLimRemove->setAlignment(Qt::AlignTop);
+
+    //loCollLimRemove->addStretch();
+
+    smRemoveCL = new QSignalMapper(this);
+    connect(smRemoveCL, SIGNAL(mapped(QWidget*)), this,
+            SLOT(removeCollapseLimit(QWidget*)));
+
+    loCLimitLayout->addLayout(loCollLimRemove);
+
+    QScrollArea *saCollapseLims = new QScrollArea;
+    saCollapseLims->setWidgetResizable(true);
+    saCollapseLims->setLineWidth(0);
+    saCollapseLims->setFrameShape(QFrame::NoFrame);
+
+    QWidget *CLWidget = new QWidget;
+    loCLList = new QVBoxLayout();
+    loCLList->addStretch();
+    loCLList->setMargin(0);
+    CLWidget->setLayout(loCLList);
+    saCollapseLims->setWidget(CLWidget);
+
+    loCLimitLayout->addWidget(saCollapseLims);
+    loCollV->addLayout(loCLimitLayout, 1);
+
+    // add line
+    lineBeta = new QFrame();
+    lineBeta->setFrameShape(QFrame::HLine);
+    lineBeta->setFrameShadow(QFrame::Sunken);
+    loCollV->addWidget(lineBeta);
+
+    loDM->addWidget(collapseSettings);
+
+    connect(removeCollapse, SIGNAL(stateChanged(int)), this,
+                SLOT(collapseCheckChanged(int)));
+    this->collapseCheckChanged(removeCollapse->checkState());
 
     // Demand Sample -------
 
@@ -410,7 +444,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     needCoupled->setText("");
     needCoupled->setToolTip("Use raw data directly without re-sampling.\n"
                             "(If the sample size is larger than the raw data size, we re-use the data starting from the beginning.)");
-    needCoupled->setChecked(true);
+    needCoupled->setChecked(false);
     coupledLayout->addWidget(needCoupled);
 
     QLabel *lblCoupled = new QLabel();
@@ -427,6 +461,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     ResidualDriftGB->setMaximumWidth(maxWidth);
 
     QVBoxLayout *loResidual = new QVBoxLayout(ResidualDriftGB);
+    loResidual->setAlignment(Qt::AlignTop);
 
     // inference method
 
@@ -449,6 +484,9 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     lineYDR->setFrameShape(QFrame::HLine);
     lineYDR->setFrameShadow(QFrame::Sunken);
     loResidual->addWidget(lineYDR);
+
+    residualDSettings = new QWidget();
+    QVBoxLayout * loRDV = new QVBoxLayout(residualDSettings);
 
     //yield drift ratio label
     QHBoxLayout *loRParam_header = new QHBoxLayout();
@@ -481,7 +519,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loRParam_header->setSpacing(10);
     loRParam_header->setMargin(0);
 
-    loResidual->addLayout(loRParam_header);
+    loRDV->addLayout(loRParam_header);
 
     // residual param list
     QHBoxLayout *loRParamLayout = new QHBoxLayout();
@@ -511,59 +549,14 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     saYieldDrift->setWidget(YDWidget);
 
     loRParamLayout->addWidget(saYieldDrift);
-    loResidual->addLayout(loRParamLayout, 1);
+    loRDV->addLayout(loRParamLayout, 1);
 
-    /*
+    loResidual->addWidget(residualDSettings);
 
-    QHBoxLayout *mainHLayout = new QHBoxLayout();
-    QVBoxLayout *mainVLayout = new QVBoxLayout();
-
-    // response model ----------------------------------------------------------
-    QGroupBox * responseGroupBox = new QGroupBox("Demand Model");
-    responseGroupBox->setMaximumWidth(maxWidth);
-    QFormLayout * responseFormLayout = new QFormLayout();
-
-    QLabel *describeEDPLabel = new QLabel();
-    describeEDPLabel->setText(tr("response description:"));
-    responseFormLayout->addRow(describeEDPLabel);
-
-    // EDP data
-    QHBoxLayout *EDP_dataLayout = new QHBoxLayout();
-    EDPFilePath = new QLineEdit;
-    QPushButton *chooseEDP_data = new QPushButton();
-    chooseEDP_data->setText(tr("Choose"));
-    connect(chooseEDP_data, SIGNAL(clicked()),this,SLOT(chooseEDPFile()));
-    EDP_dataLayout->addWidget(EDPFilePath);
-    EDP_dataLayout->addWidget(chooseEDP_data);
-    EDP_dataLayout->setSpacing(1);
-    EDP_dataLayout->setMargin(0);
-    responseFormLayout->addRow(tr("    EDP data: "), EDP_dataLayout);
-
-    // EDP distribution
-
-    responseFormLayout->addRow(tr("    EDP distribution:"), demandDistribution);
-
-    // basis of EDP fitting
-    EDP_Fitting = new QComboBox();
-    EDP_Fitting ->setToolTip(tr("Basis of EDP fitting (only used when the EDP distribution is not empirical)\n"
-                                "all results - use all samples\n"
-                                "non-collapse results - use only the samples that have all EDP values below the corresponding collapse limits"));
-    EDP_Fitting ->addItem("all results",0);
-    EDP_Fitting ->addItem("non-collapse results",1);
-
-    EDP_Fitting ->setCurrentIndex(0);
-    responseFormLayout->addRow(tr("    Basis:"), EDP_Fitting );
-
-    QSpacerItem *spacerGroups7 = new QSpacerItem(10,10);
-    responseFormLayout->addItem(spacerGroups7);
-
-    // set style
-    responseFormLayout->setAlignment(Qt::AlignLeft);
-    responseFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    responseFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-
-    responseGroupBox->setLayout(responseFormLayout);
-    */
+    connect(inferenceCombo,
+            SIGNAL(currentIndexChanged(QString)), this,
+            SLOT(ResidualDSelectionChanged(QString)));
+    this->ResidualDSelectionChanged(inferenceCombo->currentText());
 
     // assemble the widgets-----------------------------------------------------
 
@@ -821,6 +814,46 @@ void PelicunDemandContainer::removeResidualParam(QWidget *theResidualParam)
               delete theRemoveButton;
           }
         }
+    }
+}
+
+void
+PelicunDemandContainer::collapseCheckChanged(int newState)
+{
+    if (newState == 2) {
+        collapseSettings->show();
+    } else {
+        collapseSettings->hide();
+    }
+}
+
+void
+PelicunDemandContainer::uncertaintyCheckChanged(int newState)
+{
+    if (newState == 2) {
+        uncertaintySettings->show();
+    } else {
+        uncertaintySettings->hide();
+    }
+}
+
+void
+PelicunDemandContainer::DistributionSelectionChanged(const QString &arg1)
+{
+    if (arg1 == QString("fit truncated lognormal")) {
+        truncationSettings->show();
+    } else {
+        truncationSettings->hide();
+    }
+}
+
+void
+PelicunDemandContainer::ResidualDSelectionChanged(const QString &arg1)
+{
+    if (arg1 == QString("infer as per FEMA P58")) {
+        residualDSettings->show();
+    } else {
+        residualDSettings->hide();
     }
 }
 

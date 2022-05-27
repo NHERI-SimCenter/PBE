@@ -104,6 +104,11 @@ signals:
 
 public slots:
 
+    void collapseCheckChanged(int newState);
+    void uncertaintyCheckChanged(int newState);
+    void DistributionSelectionChanged(const QString &arg1);
+    void ResidualDSelectionChanged(const QString &arg1);
+
     void addCollapseLimit(QMap<QString, QString> *CL_data_in=nullptr);
     void removeCollapseLimit(QWidget *theCollapseLimit);
 
@@ -118,6 +123,11 @@ public slots:
     void chooseDemandData(void);
 
 private:
+
+    QWidget *collapseSettings;
+    QWidget *uncertaintySettings;
+    QWidget *truncationSettings;
+    QWidget *residualDSettings;
 
     QSignalMapper *smRemoveCL;
     QSignalMapper *smRemoveTL;

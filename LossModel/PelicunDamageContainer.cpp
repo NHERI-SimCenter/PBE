@@ -77,6 +77,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
 
     excessiveRID = new QCheckBox();
     excessiveRID->setText("");
+    excessiveRID->setTristate(false);
     excessiveRID->setToolTip("Consider damage from excessive residual interstory drift.");
     excessiveRID->setChecked(false);
     residualDriftLayout->addWidget(excessiveRID);
@@ -89,6 +90,9 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     residualDriftLayout->setSpacing(10);
 
     loGV->addLayout(residualDriftLayout);
+
+    irreparableSettings = new QWidget();
+    QVBoxLayout * loIrrepV = new QVBoxLayout(irreparableSettings);
 
     // - - - -
 
@@ -115,7 +119,8 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     loExcRIDHeader->addStretch();
     loExcRIDHeader->setSpacing(10);
 
-    loGV->addLayout(loExcRIDHeader);
+    //loGV->addLayout(loExcRIDHeader);
+    loIrrepV->addLayout(loExcRIDHeader);
 
     // - - - -
 
@@ -150,7 +155,14 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     loExcRIDValues->addStretch();
     loExcRIDValues->setSpacing(10);
 
-    loGV->addLayout(loExcRIDValues);
+    //loGV->addLayout(loExcRIDValues);
+    loIrrepV->addLayout(loExcRIDValues);
+
+    loGV->addWidget(irreparableSettings);
+
+    connect(excessiveRID, SIGNAL(stateChanged(int)), this,
+                SLOT(irreparableCheckChanged(int)));
+    this->irreparableCheckChanged(excessiveRID->checkState());
 
     // add line
     QFrame *lineGV = new QFrame();
@@ -164,6 +176,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
 
     collapseCheck = new QCheckBox();
     collapseCheck->setText("");
+    collapseCheck->setTristate(false);
     collapseCheck->setToolTip("Consider collapse as a possible outcome.");
     collapseCheck->setChecked(false);
     collapseLayout->addWidget(collapseCheck);
@@ -176,6 +189,9 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     collapseLayout->setSpacing(10);
 
     loGV->addLayout(collapseLayout);
+
+    collapseSettings = new QWidget();
+    QVBoxLayout * loColSetV = new QVBoxLayout(collapseSettings);
 
     // - - - -
 
@@ -208,7 +224,8 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     loCollapseHeader->addStretch();
     loCollapseHeader->setSpacing(10);
 
-    loGV->addLayout(loCollapseHeader);
+    //loGV->addLayout(loCollapseHeader);
+    loColSetV->addLayout(loCollapseHeader);
 
     // - - - -
 
@@ -270,7 +287,14 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     loCollapseValues->addStretch();
     loCollapseValues->setSpacing(10);
 
-    loGV->addLayout(loCollapseValues);
+    //loGV->addLayout(loCollapseValues);
+    loColSetV->addLayout(loCollapseValues);
+
+    loGV->addWidget(collapseSettings);
+
+    connect(collapseCheck, SIGNAL(stateChanged(int)), this,
+                SLOT(collapseCheckChanged(int)));
+    this->collapseCheckChanged(collapseCheck->checkState());
 
     loGV->addStretch();
 
@@ -370,6 +394,26 @@ PelicunDamageContainer::DPApproachSelectionChanged(const QString &arg1)
     } else {
         dpDataPath->setVisible(false);
         btnChooseDP->setVisible(false);
+    }
+}
+
+void
+PelicunDamageContainer::irreparableCheckChanged(int newState)
+{
+    if (newState == 2) {
+        irreparableSettings->show();
+    } else {
+        irreparableSettings->hide();
+    }
+}
+
+void
+PelicunDamageContainer::collapseCheckChanged(int newState)
+{
+    if (newState == 2) {
+        collapseSettings->show();
+    } else {
+        collapseSettings->hide();
     }
 }
 
