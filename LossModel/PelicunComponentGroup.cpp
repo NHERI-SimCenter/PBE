@@ -51,13 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_in)
   : SimCenterWidget(parent) {
 
-    qDebug() << "Creating component group...";
-
     CG_data = CG_data_in;
-
-    qDebug() << CG_data->value("unit", tr("")) ;
-
-    qDebug() << "CG data stored.";
 
     mainLayout = new QHBoxLayout();
 
@@ -72,15 +66,9 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgUnit->setMinimumWidth(45);
     cgUnit->setText(CG_data->value("unit", tr("")));
 
-    qDebug() << "CG unit test retrieved.";
-
     this->storeCGUnit();
 
-    qDebug() << "CG unit info stored.";
-
     connect(cgUnit, SIGNAL(editingFinished()), this, SLOT(storeCGUnit()));
-
-    qDebug() << "CG unit added.";
 
     cgLocation = new QLineEdit();
     cgLocation->setToolTip(tr("In buildings, locations are typically stories.\n"
@@ -140,7 +128,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgDistribution->addItem(tr("lognormal"));
     cgDistribution->setMaximumWidth(100);
     cgDistribution->setMinimumWidth(100);
-    cgDistribution->setCurrentText(CG_data->value("distribution", tr("N/A")));
+    cgDistribution->setCurrentText(CG_data->value("family", tr("N/A")));
     this->storeCGDistribution();
     connect(cgDistribution, SIGNAL(currentIndexChanged(int)), this, SLOT(storeCGDistribution()));
 
@@ -161,8 +149,6 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgComment->setText(CG_data->value("comment", tr("")));
     this->storeCGComment();
     connect(cgComment, SIGNAL(editingFinished()), this, SLOT(storeCGComment()));
-
-    qDebug() << "Widgets created";
 
     //button = new QRadioButton();
 
@@ -216,7 +202,7 @@ ComponentGroup::storeCGUnit(){
 
 void
 ComponentGroup::storeCGDistribution(){
-    CG_data -> insert("distribution", cgDistribution->currentText());
+    CG_data -> insert("family", cgDistribution->currentText());
 }
 
 void

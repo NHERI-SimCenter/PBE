@@ -1358,11 +1358,12 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
     bool in_commented_block = false;
     bool save_element = false;
     int c_0 = 0;
+
     for (int c=0; c<line.length(); c++) {
         if (line[c] == "\"") {
             if (in_commented_block) {
                 save_element = true;
-                in_commented_block = false;
+                in_commented_block = false;                
             } else {
                 in_commented_block = true;
                 c_0 = c+1;
@@ -1379,11 +1380,23 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
             c++;
         }
 
-        if (save_element) {
+        if (save_element) {            
             QString element = line.mid(c_0, c-c_0);
+
             c_0 = c+1;
             line_list.append(element);
             save_element = false;
+
+            if (c_0 < line.length()-1) {
+                if (line[c_0-1] == "\"") {
+                    if (line[c_0] != ",") {
+                        qDebug() << "Error while parsing CSV file at the following line: " << line;
+                    } else {
+                        c_0 ++;
+                        c++;
+                    }
+                }
+            }
         }
     }
 }
@@ -1437,6 +1450,8 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
 
         QTextStream stream(&file);
 
+        bool hasComment = false;
+
         int counter = 0;
         while (!stream.atEnd()) {
             counter ++;
@@ -1448,6 +1463,11 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
 
             QString compName = line_list[0];
             if (compName == "ID") {
+
+                if (line_list[line_list.count()-1] == "Comment") {
+                    hasComment = true;
+                }
+
                 continue;
             }
 
@@ -1464,20 +1484,23 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
 
             // create a new CG_data dict and add it to the vector
             QMap<QString, QString> *CG_data = new QMap<QString, QString>;
-            vCG_data->append(CG_data);
+            vCG_data->append(CG_data);            
 
-            if (line_list.count() >= 6) {
+            if (line_list.count() >= (6 + int(hasComment))) {
                 // fill the CG_data dict with the info from the given row in the file
-                CG_data -> insert("location",     line_list[1]);
-                CG_data -> insert("direction",    line_list[2]);
-                CG_data -> insert("median",       line_list[3]);
-                CG_data -> insert("unit",         line_list[4]);
-                CG_data -> insert("distribution", line_list[5]);
-                if (line_list.count() >= 7) {
-                    CG_data -> insert("cov",      line_list[6]);
+                CG_data -> insert("unit",         line_list[1]);
+                CG_data -> insert("location",     line_list[2]);
+                CG_data -> insert("direction",    line_list[3]);
+                CG_data -> insert("median",       line_list[4]);
+                CG_data -> insert("blocks",       line_list[5]);
+                if (line_list.count() >= (8 + int(hasComment))) {
+                    CG_data -> insert("family",   line_list[6]);
+                    CG_data -> insert("cov",      line_list[7]);
                 } else {
+                    CG_data -> insert("family",      "");
                     CG_data -> insert("cov",      "");
                 }
+                CG_data -> insert("comment", line_list[line_list.count()-1]);
             } else {
                 qDebug() << "Error while parsing line " << counter << " in the config file";
             }
@@ -1512,12 +1535,14 @@ PelicunComponentContainer::onSaveConfigClicked(void) {
 
         //create the header
         stream << "\"ID\"" << ",";
-        stream << "\"Location(s)\"" << ",";
-        stream << "\"Direction(s)\"" << ",";
-        stream << "\"Median Quantity\"" << ",";
-        stream << "\"Unit\"" << ",";
-        stream << "\"Distribution\"" << ",";
-        stream << "\"COV\"";
+        stream << "\"Units\"" << ",";
+        stream << "\"Location\"" << ",";
+        stream << "\"Direction\"" << ",";
+        stream << "\"Theta_0\"" << ",";
+        stream << "\"Blocks\"" << ",";
+        stream << "\"Family\"" << ",";
+        stream << "\"Theta_1\"" << ",";
+        stream << "\"Comment\"";
         stream << "\n";
 
         // save the component characteristics
@@ -1534,12 +1559,14 @@ PelicunComponentContainer::onSaveConfigClicked(void) {
                     QMap<QString, QString> *CG_data = vCG_data->at(i);
 
                     stream << "\"" << compName << "\",";
+                    stream << "\"" << CG_data -> value("unit", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("location", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("direction", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("median", tr("")) << "\",";
-                    stream << "\"" << CG_data -> value("unit", tr("")) << "\",";
-                    stream << "\"" << CG_data -> value("distribution", tr("")) << "\",";
-                    stream << "\"" << CG_data -> value("cov", tr("")) << "\"";
+                    stream << "\"" << CG_data -> value("blocks", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("family", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("cov", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("comment", tr("")) << "\"";
                     stream << "\n";
                 }
             }
@@ -1780,7 +1807,7 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    // first, save the DL data folder
+    // first, save the DL database path
     QString pathString;
     pathString = fragilityDataBasePath->text();
     if (pathString != ""){
@@ -1844,7 +1871,8 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
     if (jsonObject.contains("Components"))
       compData = jsonObject["Components"].toObject();
 
-    foreach (const QString& compID, compData.keys()) {
+    foreach (const QString& compID, compData.keys()) {        
+
         // first make sure that the comp ID is in the compConfig dict
         // and a corresponding CG_data vector is also stored there
         QVector<QMap<QString, QString>* > *vCG_data;
