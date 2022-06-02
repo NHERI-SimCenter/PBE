@@ -247,7 +247,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     theSIM->outputAppDataToJSON(appsSIM);
     apps["Modeling"]=appsSIM;
 
-    // FMK - note to self, random varaibales need to be changed
+    // FMK - note to self, random variables need to be changed
     //QJsonObject jsonObjectRVs;
     //theRVs->outputToJSON(jsonObjectRVs);
     //jsonObjectTop["RandomVariables"] = jsonObjectRVs;

@@ -419,6 +419,42 @@ PelicunDamageContainer::collapseCheckChanged(int newState)
 
 bool PelicunDamageContainer::outputToJSON(QJsonObject &outputObject) {
 
+    QJsonObject damageData;
+
+    if (excessiveRID->isChecked()) {
+
+        QJsonObject irrepData;
+
+        irrepData["DriftCapacityMedian"] = rdMedian->text();
+        irrepData["DriftCapacityLogStd"] = rdStd->text();
+
+        damageData["IrreparableDamage"] = irrepData;
+
+    }
+
+    if (collapseCheck->isChecked()) {
+
+        QJsonObject collData;
+
+        collData["DemandType"] = colDemand->text();
+        collData["CapacityMedian"] = colMedian->text();
+        collData["CapacityDistribution"] = colDistribution->currentText();
+
+        if (colDistribution->currentText() != "N/A") {
+            collData["Theta_1"] = colTheta2->text();
+        }
+
+        damageData["CollapseFragility"] = collData;
+    }
+
+    damageData["DamageProcess"] = dpApproach->currentText();
+
+    if (dpApproach->currentText() == "User Defined") {
+        damageData["DamageProcessFilePath"] = dpDataPath->text();
+    }
+
+    outputObject["Damage"] = damageData;
+
     return 0;
 }
 

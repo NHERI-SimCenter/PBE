@@ -148,7 +148,7 @@ PelicunLossModel::outputAppDataToJSON(QJsonObject &jsonObject) {
     // and all data to be used in ApplicationDate
     //
 
-    jsonObject["ComponentClassification"]="Earthquake";
+    //jsonObject["ComponentClassification"]="Earthquake";
     jsonObject["Application"] = "Pelicun3";
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;

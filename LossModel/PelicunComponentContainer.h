@@ -73,6 +73,8 @@ public:
     int setFragilityDataBase(QString fragilityDataBase);
     QString getFragilityDataBase();
 
+    int saveComponentAssignment(QString fileName);
+
     void addCompToOverview(QString compName, QVBoxLayout *compAreaVBox);
 
     void addComponent();

@@ -136,22 +136,6 @@ LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    /*
-    this->clear();
-
-    if (jsonObject.contains("_method")) {
-        QString method_str_raw = jsonObject["_method"].toString();
-
-        QString method_str = method_str_raw;
-
-        dlSelection->setCurrentText(method_str);
-
-    } else {
-
-        dlSelection->setCurrentText("Pelicun");
-    }
-    */
-
     if (theCurrentMethod != 0) {
         result = theCurrentMethod->inputFromJSON(jsonObject);
     }
@@ -168,23 +152,6 @@ LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lo
     //
 
     bool result = true;
-
-    jsonObject["Application"] = "pelicun3";
-
-    // I don't think this is needed
-    /*
-    QJsonObject dataObj;
-    if (lossModelObject.contains("ResponseModel")) {
-        QJsonObject responseModel = lossModelObject["ResponseModel"] .toObject();
-        if (responseModel.contains("ResponseDescription")) {
-            QJsonObject responseDescription = responseModel["ResponseDescription"].toObject();
-            if (responseDescription.contains("EDPDataFile")) {
-                dataObj["filenameEDP"] = responseDescription["EDPDataFile"].toString();
-            }
-        }
-    }
-    jsonObject["ApplicationData"] = dataObj;
-    */
 
     if (theCurrentMethod != 0) {
         result = theCurrentMethod->outputAppDataToJSON(jsonObject);

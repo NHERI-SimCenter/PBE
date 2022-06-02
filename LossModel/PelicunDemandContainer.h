@@ -83,14 +83,14 @@ public:
      * @param[in, out] outputObject Write contents of general settings to this object
      * @return Returns true if successful, false otherwise
      */
-    virtual bool outputToJSON(QJsonObject &outputObject);
+    virtual bool outputToJSON(QJsonObject &jsonObject);
 
     /*!
      * Reads general settings contents from JSON
      * @param[in] inputObject Read general settings contents from this object
      * @return Returns true if successfull, false otherwise
      */
-    virtual bool inputFromJSON(QJsonObject &inputObject);
+    virtual bool inputFromJSON(QJsonObject &jsonObject);
 
     /*!
      * Get the name of the general settings
@@ -134,8 +134,7 @@ private:
     QSignalMapper *smRemoveRP;
 
     QLineEdit *demandDataPath;
-    QLineEdit *addedUncertaintyGM;
-    QLineEdit *addedUncertaintyModel;
+    QLineEdit *addedUncertainty;
     QLineEdit *sampleSize;
 
     QComboBox *databaseCombo;

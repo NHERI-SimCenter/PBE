@@ -123,7 +123,15 @@ TruncationLimit::storeTLUpperLimit(){
 
 bool TruncationLimit::outputToJSON(QJsonObject &outputObject) {
 
-    return true;
+    QJsonObject calibData;
+
+    calibData["DistributionFamily"] = "lognormal";
+    calibData["TruncateLower"] = tlLowerLimit->text();
+    calibData["TruncateUpper"] = tlUpperLimit->text();
+
+    outputObject[tlDemandType->text()] = calibData;
+
+    return false;
 }
 
 bool TruncationLimit::inputFromJSON(const QJsonObject & inputObject) {

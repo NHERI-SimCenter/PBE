@@ -502,6 +502,49 @@ PelicunLossRepairContainer::chooseMAP(void) {
 
 bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
 
+    QJsonObject lossData;
+
+    if (replacementCheck->isChecked()) {
+
+        QJsonObject costData;
+
+        costData["Unit"] = repCostUnit->text();
+        costData["Median"] = repCostMedian->text();
+        costData["Distribution"] = repCostDistribution->currentText();
+
+        if (repCostDistribution->currentText() != "N/A") {
+            costData["Theta_1"] = repCostTheta1->text();
+        }
+
+        lossData["ReplacementCost"] = costData;
+
+        QJsonObject timeData;
+
+        timeData["Unit"] = repTimeUnit->text();
+        timeData["Median"] = repTimeMedian->text();
+        timeData["Distribution"] = repTimeDistribution->currentText();
+
+        if (repTimeDistribution->currentText() != "N/A") {
+            timeData["Theta_1"] = repTimeTheta1->text();
+        }
+
+        lossData["ReplacementTime"] = timeData;
+    }
+
+    lossData["ConsequenceDatabase"] = databaseConseq->currentText();
+
+    if (databaseConseq->currentText() == "User Defined") {
+        lossData["ConsequenceDatabasePath"] = consequenceDataBasePath->text();
+    }
+
+    lossData["MapApproach"] = mapApproach->currentText();
+
+    if (mapApproach->currentText() == "User Defined") {
+        lossData["MapFilePath"] = mapPath->text();
+    }
+
+    outputObject["BldgRepair"] = lossData;
+
     return 0;
 }
 

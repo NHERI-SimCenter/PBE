@@ -73,7 +73,16 @@ PelicunLossContainer::~PelicunLossContainer()
 
 bool PelicunLossContainer::outputToJSON(QJsonObject &outputObject) {
 
-    return 0;
+    bool result = true;
+
+    QJsonObject lossData;
+
+    // need to save data from all widgets
+    result = contRepair->outputToJSON(lossData);
+
+    outputObject["Losses"] = lossData;
+
+    return result;
 }
 
 bool PelicunLossContainer::inputFromJSON(QJsonObject & inputObject) {

@@ -276,40 +276,21 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     // additional uncertainty values
 
-    QHBoxLayout *betaGMLayout = new QHBoxLayout();
+    QHBoxLayout *betaHLayout = new QHBoxLayout();
 
-    QLabel *lblbetaGM = new QLabel();
-    lblbetaGM->setText("Ground Motion");
-    lblbetaGM->setMaximumWidth(100);
-    lblbetaGM->setMinimumWidth(100);
-    betaGMLayout->addWidget(lblbetaGM);
+    QLabel *lblbeta = new QLabel();
+    lblbeta->setText("Log Std Increase:");
+    lblbeta->setMaximumWidth(100);
+    lblbeta->setMinimumWidth(100);
+    betaHLayout->addWidget(lblbeta);
 
-    addedUncertaintyGM = new QLineEdit();
-    addedUncertaintyGM->setToolTip(tr("Uncertainty in the shape and amplitude of the target spectrum \n"
-                                      "for intensity- and scenario-based assessment."));
-    addedUncertaintyGM->setText("");
-    addedUncertaintyGM->setAlignment(Qt::AlignRight);
-    betaGMLayout->addWidget(addedUncertaintyGM, 1);
+    addedUncertainty = new QLineEdit();
+    addedUncertainty->setToolTip(tr(""));
+    addedUncertainty->setText("");
+    addedUncertainty->setAlignment(Qt::AlignRight);
+    betaHLayout->addWidget(addedUncertainty, 1);
 
-    loUQV->addLayout(betaGMLayout);
-
-
-    QHBoxLayout *betaMLayout = new QHBoxLayout();
-
-    QLabel *lblbetaM = new QLabel();
-    lblbetaM->setText("Model");
-    lblbetaM->setMaximumWidth(100);
-    lblbetaM->setMinimumWidth(100);
-    betaMLayout->addWidget(lblbetaM);
-
-    addedUncertaintyModel = new QLineEdit();
-    addedUncertaintyModel->setToolTip(tr("Uncertainty resulting from inaccuracies in component modeling,\n"
-                                         "damping and mass assumptions."));
-    addedUncertaintyModel->setText("");
-    addedUncertaintyModel->setAlignment(Qt::AlignRight);
-    betaMLayout->addWidget(addedUncertaintyModel, 1);
-
-    loUQV->addLayout(betaMLayout);
+    loUQV->addLayout(betaHLayout);
 
     loDM->addWidget(uncertaintySettings);
 
@@ -857,12 +838,109 @@ PelicunDemandContainer::ResidualDSelectionChanged(const QString &arg1)
     }
 }
 
-bool PelicunDemandContainer::outputToJSON(QJsonObject &outputObject) {
+bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
 
-    return 0;
+    bool result = true;
+
+    QJsonObject demandData;
+
+    QString workDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
+
+    if (databaseCombo->currentText() == "from File") {
+        demandData["DemandFilePath"] = demandDataPath->text();
+    } else {
+        demandData["DemandFilePath"] = workDir + QString("/tmp.SimCenter/response.csv");
+    }
+
+    if (demandDistribution->currentText() != "use empirical") {
+
+        QJsonObject calibrationData;
+        QJsonObject allParams;
+
+        allParams["DistributionFamily"] = "lognormal";
+
+        calibrationData["ALL"] = allParams;
+
+        if (demandDistribution->currentText() == "fit truncated lognormal") {
+
+            if (truncConfig != nullptr) {
+
+                int TLcount = vTruncationLimits.size();
+
+                for (int i = 0; i<TLcount; i++) {
+
+                    TruncationLimit *theTruncationLimit_i = vTruncationLimits.at(i);
+
+                    theTruncationLimit_i -> outputToJSON(calibrationData);
+
+                }
+
+            }
+        }
+
+        if (addBeta->isChecked()) {
+
+            foreach (const QString& demandID, calibrationData.keys()) {
+
+                QJsonObject cData = calibrationData[demandID].toObject();
+                cData["AddUncertainty"] = addedUncertainty->text();
+                calibrationData[demandID] = cData;
+            }
+        }
+
+        demandData["Calibration"] = calibrationData;
+
+    }
+
+    if (removeCollapse->isChecked()) {
+
+        if (collConfig != nullptr) {
+
+            QJsonObject collapseRemoveSettings;
+
+            int CLcount = vCollapseLimits.size();
+
+            for (int i = 0; i < CLcount; i++) {
+
+                CollapseLimit *theCollapseLimit_i = vCollapseLimits.at(i);
+                theCollapseLimit_i -> outputToJSON(collapseRemoveSettings);
+            }
+
+            demandData["CollapseLimits"] = collapseRemoveSettings;
+        }
+    }
+
+    demandData["SampleSize"] = sampleSize->text();
+    if (needCoupled->isChecked()) {
+        demandData["CoupledDemands"] = needCoupled->isChecked();
+    }
+
+    if (inferenceCombo->currentText() == "infer as per FEMA P58"){
+
+        if (residualConfig != nullptr) {
+
+            QJsonObject residualData;
+
+            int rCount = vResidualParams.size();
+
+            for (int i = 0; i < rCount; i++) {
+
+                ResidualParam *theResidualParam_i = vResidualParams.at(i);
+                theResidualParam_i -> outputToJSON(residualData);
+            }
+
+            demandData["InferResidualDrift"] = residualData;
+        }
+    }
+
+    jsonObject["Demands"] = demandData;
+
+    result = false;
+
+    return result;
 }
 
-bool PelicunDemandContainer::inputFromJSON(QJsonObject & inputObject) {
+bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
 
     return 0;
 }

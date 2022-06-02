@@ -109,7 +109,9 @@ ResidualParam::storeRPYieldDrift(){
 
 bool ResidualParam::outputToJSON(QJsonObject &outputObject) {
 
-    return true;
+    outputObject[rpDirection->text()] = rpYieldDrift->text();
+
+    return false;
 }
 
 bool ResidualParam::inputFromJSON(const QJsonObject & inputObject) {

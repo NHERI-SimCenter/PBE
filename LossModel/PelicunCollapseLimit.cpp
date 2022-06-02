@@ -102,9 +102,11 @@ CollapseLimit::storeCLDemandLimit(){
     CL_data -> insert("limit", clDemandLimit->text());
 }
 
-bool CollapseLimit::outputToJSON(QJsonObject &outputObject) {
+bool CollapseLimit::outputToJSON(QJsonObject &outputObject) {   
 
-    return true;
+    outputObject[clDemandType->text()] = clDemandLimit->text();
+
+    return false;
 }
 
 bool CollapseLimit::inputFromJSON(const QJsonObject & inputObject) {

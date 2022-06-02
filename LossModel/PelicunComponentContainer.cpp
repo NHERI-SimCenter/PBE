@@ -1521,12 +1521,10 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
     }
 }
 
-void
-PelicunComponentContainer::onSaveConfigClicked(void) {
+int
+PelicunComponentContainer::saveComponentAssignment(QString fileName) {
 
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Configuration"), "",
-                                                    tr("All Files (*)"));
+    int result = 1;
 
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly))
@@ -1571,6 +1569,23 @@ PelicunComponentContainer::onSaveConfigClicked(void) {
                 }
             }
         }
+
+        result = 0;
+    }
+
+    return result;
+}
+
+void
+PelicunComponentContainer::onSaveConfigClicked(void) {
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Configuration"), "",
+                                                    tr("All Files (*)"));
+
+    if (this->saveComponentAssignment(fileName) != 0) {
+
+        qDebug() << "ERROR while saving component assignment to CSV file";
     }
 }
 
@@ -1807,45 +1822,27 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    // first, save the DL database path
-    QString pathString;
-    pathString = fragilityDataBasePath->text();
-    if (pathString != ""){
-        jsonObject["ComponentDataFolder"] = pathString;
+    QJsonObject assetData;
+
+    assetData["NumberOfStories"] = storiesValue->text();
+    assetData["PlanArea"] = planAreaValue->text();
+    assetData["OccupancyType"] = occupancyType->currentText();
+
+    assetData["ComponentDatabase"] = databaseCombo->currentText();
+
+    if (databaseCombo->currentText() == "User Defined") {
+        assetData["ComponentDatabasePath"] = fragilityDataBasePath->text();
     }
 
-    // then, for each component save the component information
-    QJsonObject compData;
-    if (jsonObject.contains("Components"))
-        compData = jsonObject["Components"].toObject();
+    QString workDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
+    QString cmpFilePath = workDir + QString("/CMP_QNT.csv");
+    saveComponentAssignment(cmpFilePath);
 
-    const QStringList compList = selectedCBModel-> stringList();
-    foreach (const QString compID, compList){
+    assetData["ComponentAssignmentFile"] = cmpFilePath;
 
-        // get the vector of CG data from the compConfig dict
-        QVector<QMap<QString, QString>* > *vCG_data =
-                compConfig->value(compID, nullptr);
+    jsonObject["Asset"] = assetData;
 
-        if (vCG_data != nullptr) {
-            QJsonArray compArray;
-            for (int i=0; i<vCG_data->count(); i++){
-                QMap<QString, QString> *CG_data = vCG_data->at(i);
-                QJsonObject CGObj;
-
-                CGObj["location"] = CG_data -> value("location", tr(""));
-                CGObj["direction"] = CG_data -> value("direction", tr(""));
-                CGObj["median_quantity"] = CG_data -> value("median", tr(""));
-                CGObj["unit"] = CG_data -> value("unit", tr(""));
-                CGObj["distribution"] = CG_data -> value("distribution", tr(""));
-                CGObj["cov"] = CG_data -> value("cov", tr(""));
-
-                compArray.append(CGObj);
-            }
-
-            compData[compID] = compArray;
-        }
-    }
-    jsonObject["Components"]=compData;
+    result = false;
 
     return result;
 }
