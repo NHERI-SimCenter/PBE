@@ -124,6 +124,18 @@ public slots:
 
 private:
 
+    void clearTruncationLimitWidget();
+    void retrieveTruncationLimits();
+    void deleteTruncConfig();
+
+    void clearCollapseLimitWidget();
+    void retrieveCollapseLimits();
+    void deleteCollConfig();
+
+    void clearResidualParamWidget();
+    void retrieveResidualParams();
+    void deleteResidualConfig();
+
     QWidget *collapseSettings;
     QWidget *uncertaintySettings;
     QWidget *truncationSettings;

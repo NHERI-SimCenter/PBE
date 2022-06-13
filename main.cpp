@@ -114,13 +114,11 @@ int main(int argc, char *argv[])
   //
   // create the main window
   //
-  WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
+  //WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
+  WorkflowAppWidget *theInputApp = WorkflowAppPBE::getInstance(theRemoteService);
   MainWindowWorkflowApp mainWindow(
     QString("PBE - Performance Based Engineering Application"),
     theInputApp, theRemoteService);
-
-
-
 
 // connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *mainWindow, SLOT(errorM))
 

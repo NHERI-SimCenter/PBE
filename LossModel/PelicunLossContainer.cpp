@@ -82,11 +82,24 @@ bool PelicunLossContainer::outputToJSON(QJsonObject &outputObject) {
 
     outputObject["Losses"] = lossData;
 
+    result = false;
+
     return result;
 }
 
 bool PelicunLossContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    return 0;
+    bool result = true;
+
+    if (inputObject.contains("Losses")) {
+        QJsonObject lossData = inputObject["Losses"].toObject();
+
+        contRepair->inputFromJSON(lossData);
+
+    }
+
+    result = false;
+
+    return result;
 }
 

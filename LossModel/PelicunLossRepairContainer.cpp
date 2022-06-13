@@ -550,6 +550,71 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
 
 bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
 
+    replacementCheck->setChecked(false);
+
+    if (inputObject.contains("BldgRepair")) {
+        QJsonObject lossData = inputObject["BldgRepair"].toObject();
+
+        if ((lossData.contains("ReplacementCost")) ||
+            (lossData.contains("ReplacementTime"))) {
+
+            replacementCheck->setChecked(true);
+
+            if (lossData.contains("ReplacementCost")) {
+
+                QJsonObject costData = lossData["ReplacementCost"].toObject();
+
+                if (costData.contains("Unit")) {
+                    repCostUnit->setText(costData["Unit"].toString());
+                }
+                if (costData.contains("Median")) {
+                    repCostMedian->setText(costData["Median"].toString());
+                }
+                if (costData.contains("Distribution")) {
+                    repCostDistribution->setCurrentText(costData["Distribution"].toString());
+                }
+                if (costData.contains("Theta_1")) {
+                    repCostTheta1->setText(costData["Theta_1"].toString());
+                }
+            }
+
+            if (lossData.contains("ReplacementTime")) {
+
+                QJsonObject timeData = lossData["ReplacementTime"].toObject();
+
+                if (timeData.contains("Unit")) {
+                    repTimeUnit->setText(timeData["Unit"].toString());
+                }
+                if (timeData.contains("Median")) {
+                    repTimeMedian->setText(timeData["Median"].toString());
+                }
+                if (timeData.contains("Distribution")) {
+                    repTimeDistribution->setCurrentText(timeData["Distribution"].toString());
+                }
+                if (timeData.contains("Theta_1")) {
+                    repTimeTheta1->setText(timeData["Theta_1"].toString());
+                }
+            }
+        }
+
+        if (lossData.contains("ConsequenceDatabase")) {
+            databaseConseq->setCurrentText(lossData["ConsequenceDatabase"].toString());
+
+            if (databaseConseq->currentText() == "User Defined"){
+                consequenceDataBasePath->setText(lossData["ConsequenceDatabasePath"].toString());
+            }
+        }
+
+        if (lossData.contains("MapApproach")) {
+            mapApproach->setCurrentText(lossData["MapApproach"].toString());
+
+            if (mapApproach->currentText() == "User Defined"){
+                mapPath->setText(lossData["ConsequenceDatabasePath"].toString());
+            }
+        }
+    }
+
+
     return 0;
 }
 

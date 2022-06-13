@@ -37,6 +37,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "WorkflowAppPBE.h"
+#include "MainWindowWorkflowApp.h"
+#include "Utils/RelativePathResolver.h"
 
 // Qt Widgets
 #include <QPushButton>
@@ -80,6 +82,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <Utils/PythonProgressDialog.h>
 
 #include <GoogleAnalytics.h>
+
+WorkflowAppPBE *
+WorkflowAppPBE::getInstance(RemoteService *theService, QWidget *parent) {
+  if (theInstance == 0)
+    theInstance = new WorkflowAppPBE(theService, parent);
+
+  return theInstance;
+}
+
+WorkflowAppPBE *WorkflowAppPBE::theInstance = 0;
 
 // static pointer for global procedure set in constructor
 static WorkflowAppPBE *theApp = nullptr;
@@ -233,6 +245,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     //
     // get each of the main widgets to output themselves
     //
+
+    this->outputFilePath = this->getTheMainWindow()->outputFilePath;
 
     QJsonObject apps;
 
@@ -541,6 +555,10 @@ WorkflowAppPBE::loadFile(const QString fileName){
 
     // close file
     file.close();
+
+    // resolve file paths
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
     //
     // clear current and input from new JSON

@@ -460,6 +460,65 @@ bool PelicunDamageContainer::outputToJSON(QJsonObject &outputObject) {
 
 bool PelicunDamageContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    return 0;
+    bool result = true;
+
+    QJsonObject damageData = inputObject["Damage"].toObject();
+
+    if (damageData.contains("IrreparableDamage")) {
+
+        excessiveRID->setChecked(true);
+
+        QJsonObject irrepData = damageData["IrreparableDamage"].toObject();
+
+        if (irrepData.contains("DriftCapacityMedian")) {
+            rdMedian->setText(irrepData["DriftCapacityMedian"].toString());
+        }
+        if (irrepData.contains("DriftCapacityLogStd")) {
+            rdStd->setText(irrepData["DriftCapacityLogStd"].toString());
+        }
+
+    } else {
+
+        excessiveRID->setChecked(false);
+    }
+
+    if (damageData.contains("CollapseFragility")) {
+
+        collapseCheck->setChecked(true);
+
+        QJsonObject collData = damageData["CollapseFragility"].toObject();
+
+        if (collData.contains("DemandType")) {
+            colDemand->setText(collData["DemandType"].toString());
+        }
+        if (collData.contains("CapacityMedian")) {
+            colMedian->setText(collData["CapacityMedian"].toString());
+        }
+        if (collData.contains("CapacityDistribution")) {
+            colDistribution->setCurrentText(collData["CapacityDistribution"].toString());
+        }
+        if (collData.contains("Theta_1")) {
+            colTheta2->setText(collData["Theta_1"].toString());
+        }
+
+    } else {
+
+        collapseCheck->setChecked(false);
+    }
+
+    if (damageData.contains("DamageProcess")) {
+        dpApproach->setCurrentText(damageData["DamageProcess"].toString());
+
+        if (dpApproach->currentText() == "User Defined"){
+            dpDataPath->setText(damageData["DamageProcessFilePath"].toString());
+        }
+
+    } else {
+        dpApproach->setCurrentText("FEMA P-58");
+    }
+
+    result = false;
+
+    return result;
 }
 

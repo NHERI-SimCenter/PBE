@@ -36,6 +36,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
+#include "WorkflowAppPBE.h"
+
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -451,10 +453,10 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     inferenceCombo = new QComboBox();
     inferenceCombo->setToolTip(tr("Select the method to use to infer residual drift values."));
     inferenceCombo->addItem("do not infer",0);
-    inferenceCombo->addItem("infer as per FEMA P58",1);
+    inferenceCombo->addItem("infer as per FEMA P-58",1);
 
     inferenceCombo->setItemData(0, "No inference; residual drifts are either provided by the user or irreparable damage is not part of the assessment.", Qt::ToolTipRole);
-    inferenceCombo->setItemData(1, "Residual drifts inferred from peak drifts using the method described in FEMA P58.", Qt::ToolTipRole);
+    inferenceCombo->setItemData(1, "Residual drifts inferred from peak drifts using the method described in FEMA P-58.", Qt::ToolTipRole);
 
     inferenceLayout->addWidget(inferenceCombo);
 
@@ -596,10 +598,11 @@ void PelicunDemandContainer::addCollapseLimit(QMap<QString, QString> *CL_data_in
         // create a new CL_data dict and add it to the vector
         CL_data = new QMap<QString, QString>;
 
+        collConfig->append(CL_data);
+
     } else {
        CL_data = CL_data_in;
     }
-    collConfig->append(CL_data);
 
     // create the new UI object and assign CL_data to it
     CollapseLimit *theCollapseLimit = new CollapseLimit(nullptr, CL_data);
@@ -657,6 +660,59 @@ void PelicunDemandContainer::removeCollapseLimit(QWidget *theCollapseLimit)
     }
 }
 
+void PelicunDemandContainer::clearCollapseLimitWidget()
+{
+    int CLcount = vCollapseLimits.size();
+    for (int i = CLcount-1; i >= 0; i--) {
+
+        CollapseLimit *theCollapseLimit = vCollapseLimits.at(i);
+        //remove the widget from the UI
+        theCollapseLimit->close();
+        loCLList->removeWidget(theCollapseLimit);
+        //remove the TL from the UI vector
+        vCollapseLimits.remove(i);
+        //delete the TL UI object
+        theCollapseLimit->setParent(nullptr);
+        delete theCollapseLimit;
+
+        // get the corresponding remove button
+        QPushButton *theRemoveButton = vRemoveCLButtons.at(i);
+        // remove the button from the UI
+        theRemoveButton->close();
+        loCollLimRemove->removeWidget(theRemoveButton);
+        // remove the button from the UI vector
+        vRemoveCLButtons.remove(i);
+        // delete the button object
+        theRemoveButton->setParent(nullptr);
+        delete theRemoveButton;
+
+    }
+}
+
+void PelicunDemandContainer::retrieveCollapseLimits()
+{
+    if (collConfig != nullptr) {
+        // create the CL UI elements for the existing data
+        for (int i=0; i<collConfig->count(); i++){
+
+            addCollapseLimit(collConfig->at(i));
+        }
+    }
+}
+
+void PelicunDemandContainer::deleteCollConfig()
+{
+    // get an iterator for the main map
+    QVector<QMap<QString, QString>* >::iterator m;
+    for (m=collConfig->begin(); m!=collConfig->end(); ++m){
+
+        delete *m;
+    }
+    collConfig->clear();
+
+    delete collConfig;
+}
+
 void PelicunDemandContainer::addTruncationLimit(QMap<QString, QString> *TL_data_in)
 {
     // add a new TL_data dict in the vector
@@ -666,10 +722,11 @@ void PelicunDemandContainer::addTruncationLimit(QMap<QString, QString> *TL_data_
         // create a new TL_data dict and add it to the vector
         TL_data = new QMap<QString, QString>;
 
+        truncConfig->append(TL_data);
+
     } else {
        TL_data = TL_data_in;
     }
-    truncConfig->append(TL_data);
 
     // create the new UI object and assign TL_data to it
     TruncationLimit *theTruncationLimit = new TruncationLimit(nullptr, TL_data);
@@ -727,6 +784,59 @@ void PelicunDemandContainer::removeTruncationLimit(QWidget *theTruncationLimit)
     }
 }
 
+void PelicunDemandContainer::clearTruncationLimitWidget()
+{
+    int TLcount = vTruncationLimits.size();
+    for (int i = TLcount-1; i >= 0; i--) {
+
+        TruncationLimit *theTruncationLimit = vTruncationLimits.at(i);
+        //remove the widget from the UI
+        theTruncationLimit->close();
+        loTLList->removeWidget(theTruncationLimit);
+        //remove the TL from the UI vector
+        vTruncationLimits.remove(i);
+        //delete the TL UI object
+        theTruncationLimit->setParent(nullptr);
+        delete theTruncationLimit;
+
+        // get the corresponding remove button
+        QPushButton *theRemoveButton = vRemoveTLButtons.at(i);
+        // remove the button from the UI
+        theRemoveButton->close();
+        loTruncLimRemove->removeWidget(theRemoveButton);
+        // remove the button from the UI vector
+        vRemoveTLButtons.remove(i);
+        // delete the button object
+        theRemoveButton->setParent(nullptr);
+        delete theRemoveButton;
+
+    }
+}
+
+void PelicunDemandContainer::retrieveTruncationLimits()
+{
+    if (truncConfig != nullptr) {
+        // create the TL UI elements for the existing data
+        for (int i=0; i<truncConfig->count(); i++){
+
+            addTruncationLimit(truncConfig->at(i));
+        }
+    }
+}
+
+void PelicunDemandContainer::deleteTruncConfig()
+{
+    // get an iterator for the main map
+    QVector<QMap<QString, QString>* >::iterator m;
+    for (m=truncConfig->begin(); m!=truncConfig->end(); ++m){
+
+        delete *m;
+    }
+    truncConfig->clear();
+
+    delete truncConfig;
+}
+
 void PelicunDemandContainer::addResidualParam(QMap<QString, QString> *RP_data_in)
 {
     // add a new RP_data dict in the vector
@@ -736,11 +846,11 @@ void PelicunDemandContainer::addResidualParam(QMap<QString, QString> *RP_data_in
         // create a new RP_data dict and add it to the vector
         RP_data = new QMap<QString, QString>;
 
+        residualConfig->append(RP_data);
+
     } else {
        RP_data = RP_data_in;
-    }
-
-    residualConfig->append(RP_data);
+    }    
 
     // create the new UI object and assign RP_data to it
     ResidualParam *theResidualParam = new ResidualParam(nullptr, RP_data);
@@ -798,6 +908,59 @@ void PelicunDemandContainer::removeResidualParam(QWidget *theResidualParam)
     }
 }
 
+void PelicunDemandContainer::clearResidualParamWidget()
+{
+    int RLcount = vResidualParams.size();
+    for (int i = RLcount-1; i >= 0; i--) {
+
+        ResidualParam *theResidualParam = vResidualParams.at(i);
+        //remove the widget from the UI
+        theResidualParam->close();
+        loRPList->removeWidget(theResidualParam);
+        //remove the RP from the UI vector
+        vResidualParams.remove(i);
+        //delete the RP UI object
+        theResidualParam->setParent(nullptr);
+        delete theResidualParam;
+
+        // get the corresponding remove button
+        QPushButton *theRemoveButton = vRemoveRPButtons.at(i);
+        // remove the button from the UI
+        theRemoveButton->close();
+        loResidualPRemove->removeWidget(theRemoveButton);
+        // remove the button from the UI vector
+        vRemoveRPButtons.remove(i);
+        // delete the button object
+        theRemoveButton->setParent(nullptr);
+        delete theRemoveButton;
+
+    }
+}
+
+void PelicunDemandContainer::retrieveResidualParams()
+{
+    if (residualConfig != nullptr) {
+        // create the RP UI elements for the existing data
+        for (int i=0; i<residualConfig->count(); i++){
+
+            addResidualParam(residualConfig->at(i));
+        }
+    }
+}
+
+void PelicunDemandContainer::deleteResidualConfig()
+{
+    // get an iterator for the main map
+    QVector<QMap<QString, QString>* >::iterator m;
+    for (m=residualConfig->begin(); m!=residualConfig->end(); ++m){
+
+        delete *m;
+    }
+    residualConfig->clear();
+
+    delete residualConfig;
+}
+
 void
 PelicunDemandContainer::collapseCheckChanged(int newState)
 {
@@ -826,12 +989,16 @@ PelicunDemandContainer::DistributionSelectionChanged(const QString &arg1)
     } else {
         truncationSettings->hide();
     }
+
+    if (arg1 == QString("use empirical")) {
+        addBeta -> setChecked(false);
+    }
 }
 
 void
 PelicunDemandContainer::ResidualDSelectionChanged(const QString &arg1)
 {
-    if (arg1 == QString("infer as per FEMA P58")) {
+    if (arg1 == QString("infer as per FEMA P-58")) {
         residualDSettings->show();
     } else {
         residualDSettings->hide();
@@ -848,8 +1015,6 @@ bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
 
     if (databaseCombo->currentText() == "from File") {
         demandData["DemandFilePath"] = demandDataPath->text();
-    } else {
-        demandData["DemandFilePath"] = workDir + QString("/tmp.SimCenter/response.csv");
     }
 
     if (demandDistribution->currentText() != "use empirical") {
@@ -915,11 +1080,13 @@ bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
         demandData["CoupledDemands"] = needCoupled->isChecked();
     }
 
-    if (inferenceCombo->currentText() == "infer as per FEMA P58"){
+    if (inferenceCombo->currentText() == "infer as per FEMA P-58"){
 
         if (residualConfig != nullptr) {
 
             QJsonObject residualData;
+
+            residualData["method"] = QString("FEMA P-58");
 
             int rCount = vResidualParams.size();
 
@@ -942,6 +1109,156 @@ bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
 
 bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
 
-    return 0;
+    bool result = 1;
+
+    QJsonObject demandData = jsonObject["Demands"].toObject();
+
+    if (demandData.contains("DemandFilePath")) {
+        databaseCombo->setCurrentText("from File");
+        demandDataPath->setText(demandData["DemandFilePath"].toString());
+    } else {
+        databaseCombo->setCurrentText("from Workflow");
+    }
+
+    this->clearTruncationLimitWidget();
+    this->deleteTruncConfig();
+    truncConfig = new QVector<QMap<QString, QString>* >;
+    addBeta->setChecked(false);
+
+    if (demandData.contains("Calibration")) {
+
+        QJsonObject calibrationData = demandData["Calibration"].toObject();
+
+        if (calibrationData.contains("ALL")) {
+            QJsonObject allParams = calibrationData["ALL"].toObject();
+
+            if (allParams["DistributionFamily"] == "lognormal") {
+                demandDistribution->setCurrentText("fit lognormal");
+            } else {
+                qDebug() << "ERROR Unknown demand distribution: " << allParams["DistributionFamily"];
+            }
+
+            if (allParams.contains("AddUncertainty")) {
+
+                addBeta->setChecked(true);
+
+                addedUncertainty->setText(allParams["AddUncertainty"].toString());
+            }
+
+        }
+
+        for (auto demandType: calibrationData.keys()) {
+
+            if (demandType != "ALL") {
+
+                QJsonObject demParams = calibrationData[demandType].toObject();
+
+                QString trLower = "";
+                QString trUpper = "";
+
+                if (demParams.contains("TruncateLower")) {
+                    trLower = demParams["TruncateLower"].toString();
+                }
+                if (demParams.contains("TruncateUpper")) {
+                    trUpper = demParams["TruncateUpper"].toString();
+                }
+
+                if ((trLower != "") || (trUpper != "")) {
+
+                    if (demandDistribution->currentText() != "fit truncated lognormal"){
+                        demandDistribution->setCurrentText("fit truncated lognormal");
+                    }
+
+                    QMap<QString, QString> *TL_data = new QMap<QString, QString>;
+
+                    TL_data->insert("type", demandType);
+                    TL_data->insert("lower", trLower);
+                    TL_data->insert("upper", trUpper);
+
+                    truncConfig->append(TL_data);
+                }
+
+            }
+
+        }
+        this->retrieveTruncationLimits();
+
+    } else {
+
+        demandDistribution->setCurrentText("use empirical");
+
+    }
+
+    this->clearCollapseLimitWidget();
+    this->deleteCollConfig();
+    collConfig = new QVector<QMap<QString, QString>* >;
+
+    if (demandData.contains("CollapseLimits")){
+
+        removeCollapse->setChecked(true);
+
+        QJsonObject collapseData = demandData["CollapseLimits"].toObject();
+
+        for (auto demandType: collapseData.keys()) {
+
+            QMap<QString, QString> *CL_data = new QMap<QString, QString>;
+
+            CL_data->insert("type", demandType);
+            CL_data->insert("limit", collapseData[demandType].toString());
+
+            collConfig->append(CL_data);
+
+        }
+        this->retrieveCollapseLimits();
+
+    } else {
+
+        removeCollapse->setChecked(false);
+    }
+
+    if (demandData.contains("SampleSize")) {
+        sampleSize->setText(demandData["SampleSize"].toString());
+    }
+
+    if (demandData.contains("CoupledDemands")) {
+        needCoupled->setChecked(demandData["CoupledDemands"].toBool());
+    }
+
+    this->clearResidualParamWidget();
+    this->deleteResidualConfig();
+    residualConfig = new QVector<QMap<QString, QString>* >;
+
+    if (demandData.contains("InferResidualDrift")){
+
+        QJsonObject inferData = demandData["InferResidualDrift"].toObject();
+
+        if (inferData["method"] == "FEMA P-58") {
+
+            inferenceCombo->setCurrentText("infer as per FEMA P-58");
+
+            for (auto directionLabel: inferData.keys()) {
+
+                if (directionLabel != "method") {
+
+                    QMap<QString, QString> *RP_data = new QMap<QString, QString>;
+
+                    RP_data->insert("dir", directionLabel);
+                    RP_data->insert("delta_yield", inferData[directionLabel].toString());
+
+                    residualConfig->append(RP_data);
+                }
+            }
+        }
+
+        this->retrieveResidualParams();
+
+    } else {
+
+        inferenceCombo->setCurrentText("do not infer");
+    }
+
+    result = 0;
+
+    return result;
 }
 

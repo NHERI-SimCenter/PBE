@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "PelicunComponentGroup.h"
 #include "PelicunPopulationGroup.h"
 #include "SimCenterPreferences.h"
+#include "WorkflowAppPBE.h"
 
 #include <QProcess>
 #include <QPushButton>
@@ -1363,7 +1364,7 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
         if (line[c] == "\"") {
             if (in_commented_block) {
                 save_element = true;
-                in_commented_block = false;                
+                in_commented_block = false;
             } else {
                 in_commented_block = true;
                 c_0 = c+1;
@@ -1380,7 +1381,7 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
             c++;
         }
 
-        if (save_element) {            
+        if (save_element) {
             QString element = line.mid(c_0, c-c_0);
 
             c_0 = c+1;
@@ -1433,11 +1434,32 @@ PelicunComponentContainer::deleteCompConfig(){
 
 void
 PelicunComponentContainer::onLoadConfigClicked(void) {
+
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     tr("Load Configuration"), "",
                                                     tr("All Files (*)"));
 
-    QFile file(fileName);
+    if (this->loadComponentAssignment(fileName) != 0) {
+
+        qDebug() << "ERROR while loading component assignment from CSV file";
+    }
+
+
+}
+
+int
+PelicunComponentContainer::loadComponentAssignment(QString filePath) {
+
+    int result = 1;
+
+    QFile file(filePath);
+
+    if (filePath.endsWith(".csv") == false) {
+
+        qDebug() << "ERROR: non-CSV Component Assignment file: " << filePath;
+
+        return 1;
+    }
 
     if (file.open(QIODevice::ReadOnly))
     {
@@ -1484,7 +1506,7 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
 
             // create a new CG_data dict and add it to the vector
             QMap<QString, QString> *CG_data = new QMap<QString, QString>;
-            vCG_data->append(CG_data);            
+            vCG_data->append(CG_data);
 
             if (line_list.count() >= (6 + int(hasComment))) {
                 // fill the CG_data dict with the info from the given row in the file
@@ -1518,15 +1540,23 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
             }
         }
 
+        result = 0;
+
+    } else {
+
+        qDebug() << "ERROR: Could not open Component Assignment file: " << filePath;
+
     }
+
+    return result;
 }
 
 int
-PelicunComponentContainer::saveComponentAssignment(QString fileName) {
+PelicunComponentContainer::saveComponentAssignment(QString filePath) {
 
     int result = 1;
 
-    QFile file(fileName);
+    QFile file(filePath);
     if (file.open(QIODevice::WriteOnly))
     {
         QTextStream stream(&file);
@@ -1798,8 +1828,8 @@ void PelicunComponentContainer::removePopulationGroup(QWidget *thePopulationGrou
           PopulationGroup *thePopulationGroup_i = vPopulationGroups.at(i);
           if (thePopulationGroup_i == thePopulationGroup){
               //remove the widget from the UI
-              thePopulationGroup_i->close();
               loPGList->removeWidget(thePopulationGroup);
+              thePopulationGroup_i->close();
               //remove the CG_data from the database
               popConfig->remove(i);
               //remove the CG from the UI vector
@@ -1834,8 +1864,14 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
         assetData["ComponentDatabasePath"] = fragilityDataBasePath->text();
     }
 
-    QString workDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
-    QString cmpFilePath = workDir + QString("/CMP_QNT.csv");
+    WorkflowAppPBE *theInputApp = WorkflowAppPBE::getInstance(nullptr);
+
+    qDebug() << "Output file path (for cmp): " << theInputApp->outputFilePath;
+
+    QFileInfo fileInfo(theInputApp->outputFilePath);
+    QString cmpFileName = QString("CMP_QNT.csv");
+    QString cmpFilePath = fileInfo.dir().absoluteFilePath(cmpFileName);
+
     saveComponentAssignment(cmpFilePath);
 
     assetData["ComponentAssignmentFile"] = cmpFilePath;
@@ -1852,6 +1888,31 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
+    QJsonObject assetData = jsonObject["Asset"].toObject();
+
+    if (assetData.contains("NumberOfStories")) {
+        storiesValue->setText(assetData["NumberOfStories"].toString());
+    }
+    if (assetData.contains("PlanArea")) {
+        planAreaValue->setText(assetData["PlanArea"].toString());
+    }
+    if (assetData.contains("OccupancyType")) {
+        occupancyType->setCurrentText(assetData["OccupancyType"].toString());
+    }
+    if (assetData.contains("ComponentDatabase")) {
+        databaseCombo->setCurrentText(assetData["ComponentDatabase"].toString());
+    }
+    if (databaseCombo->currentText() == "User Defined") {
+        fragilityDataBasePath->setText(assetData["ComponentDatabasePath"].toString());
+    }
+
+    if (assetData.contains("ComponentAssignmentFile")) {
+        QString cmpFilePath = assetData["ComponentAssignmentFile"].toString();
+
+        this->loadComponentAssignment(cmpFilePath);
+    }
+
+    /*
     // first, load the DL data folder
     QString pathString;
     pathString = jsonObject["ComponentDataFolder"].toString();
@@ -1868,7 +1929,7 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
     if (jsonObject.contains("Components"))
       compData = jsonObject["Components"].toObject();
 
-    foreach (const QString& compID, compData.keys()) {        
+    foreach (const QString& compID, compData.keys()) {
 
         // first make sure that the comp ID is in the compConfig dict
         // and a corresponding CG_data vector is also stored there
@@ -1909,6 +1970,7 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
             qDebug() << "Component " << compName << "is not in the DL data folder!";
         }
     }
+    */
 
     return result;
 }
