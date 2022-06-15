@@ -39,6 +39,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
+#include "GeneralInformationWidget.h"
+
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
@@ -110,6 +112,10 @@ public slots:
    void chooseFragilityDataBase(void);
    void exportFragilityDataBase(void);
 
+   void storiesOrAreaChanged();
+   void setNumStories(int numStories, double dummy);
+   void setPlanArea(double dummy, double dummy2, double planArea);
+
    /*
    void storeCompQuantity(void);
    void retrieveCompQuantity(void);
@@ -132,6 +138,8 @@ private:
 
     void deleteCompDB();
     void deleteCompConfig();
+
+    GeneralInformationWidget *theGI;
 
     QGridLayout *gridLayout;
 

@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "PelicunPopulationGroup.h"
 #include "SimCenterPreferences.h"
 #include "WorkflowAppPBE.h"
+#include "GeneralInformationWidget.h"
 
 #include <QProcess>
 #include <QPushButton>
@@ -100,6 +101,22 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     planAreaValue->setText("");
     planAreaValue->setAlignment(Qt::AlignRight);
     generalFormLayout->addRow(tr("Plan Area"), planAreaValue);
+
+    // add signal and slot connections with GI
+    theGI = GeneralInformationWidget::getInstance();
+
+    double plan, w, d;
+    theGI->getBuildingDimensions(w, d, plan);
+    planAreaValue->setText(QString::number(plan));
+    storiesValue->setText(QString::number(theGI->getNumFloors()));
+
+    connect(storiesValue, SIGNAL(editingFinished()),this,SLOT(storiesOrAreaChanged()));
+    connect(planAreaValue, SIGNAL(editingFinished()),this,SLOT(storiesOrAreaChanged()));
+
+    connect(theGI,SIGNAL(numStoriesOrHeightChanged(int, double)),
+            this, SLOT(setNumStories(int, double)));
+    connect(theGI,SIGNAL(buildingDimensionsChanged(double,double,double)),
+            this,SLOT(setPlanArea(double,double,double)));
 
     // occupancy
     occupancyType = new QComboBox();
@@ -957,6 +974,31 @@ PelicunComponentContainer::deleteCompDB(){
     qDeleteAll(compDB->begin(), compDB->end());
     compDB->clear();
     delete compDB;
+}
+
+void
+PelicunComponentContainer::storiesOrAreaChanged(){
+    double w, d, area;
+    theGI->getBuildingDimensions(w, d, area);
+
+    double h;
+    h = theGI->getHeight();
+
+    theGI->setNumStoriesAndHeight(storiesValue->text().toInt(), h);
+
+    theGI->setBuildingDimensions(w, d, planAreaValue->text().toDouble());
+}
+
+void
+PelicunComponentContainer::setNumStories(int numStories, double dummy){
+
+    this->storiesValue->setText(QString::number(numStories));
+}
+
+void
+PelicunComponentContainer::setPlanArea(double dummy, double dummy2, double planArea){
+
+    this->planAreaValue->setText(QString::number(planArea));
 }
 
 int PelicunComponentContainer::updateAvailableComponents(){
