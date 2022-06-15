@@ -114,10 +114,10 @@ private:
     // objects that go in sidebar
     GeneralInformationWidget *theGI;
     RandomVariablesContainer *theRVs;
-    SIM_Selection *theSIM;
+    SIM_Selection *theSIM_Selection;
     UQ_EngineSelection *theUQ_Selection;
-    EarthquakeEventSelection *theEvent;
-    FEA_Selection *theAnalysis;
+    EarthquakeEventSelection *theEventSelection;
+    FEA_Selection *theAnalysisSelection;
     LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
     QString loadedFile;

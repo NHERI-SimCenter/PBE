@@ -444,26 +444,19 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
     return 0;
 }
 
-int ResultsPelicun::processResults(QString filenameTab) {
+int ResultsPelicun::processResults(QString &inputFileName,
+				   QString &resultsDirName) {
 
-  // Get the results directory path
-  //    QString resultsDir = filenameTab.remove("dakotaTab.out");
-  QDir rDir(resultsPath);
-
-    // Get the results directory path
-    QString resultsDirName = filenameTab.remove("dakotaTab.out");
-    QDir rDir(resultsDirName);
-
-  // Get the input json data from the dakota.json file
+  QDir rDir(resultsDirName);
   QFile inputFile(inputFileName);
 
   inputFile.open(QFile::ReadOnly | QFile::Text);
   
-    QString val;
-    val=inputFile.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject inputData = doc.object();
-    inputFile.close();
+  QString val;
+  val=inputFile.readAll();
+  QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+  QJsonObject inputData = doc.object();
+  inputFile.close();
 
     // If the runType is HPC, then we need to do additional operations
     QString runType = inputData["runType"].toString();
@@ -517,7 +510,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
         // be properly assessed .. i.e. not always the fault of pelicun.
         //
 
-      QString filenameTab = resultsDir + QDir::separator() + "dakotaTab.out";
+      QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
       
         QFileInfo fileTabInfo(filenameTab);
         QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");

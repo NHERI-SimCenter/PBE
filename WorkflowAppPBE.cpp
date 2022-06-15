@@ -112,9 +112,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     theRVs = RandomVariablesContainer::getInstance();
     theGI = GeneralInformationWidget::getInstance();
-    theSIM = new SIM_Selection();
-    theEvent = new EarthquakeEventSelection(theRVs, theGI);
-    theAnalysis = new FEA_Selection();
+    theSIM_Selection = new SIM_Selection();
+    theEventSelection = new EarthquakeEventSelection(theRVs, theGI);
+    theAnalysisSelection = new FEA_Selection();
     theUQ_Selection = new UQ_EngineSelection(ForwardOnly);
     theDLModelSelection = new LossModelSelection();
     theResults = new ResultsPelicun();
@@ -175,9 +175,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     theComponentSelection->addComponent(QString("UQ"),  theUQ_Selection);
     theComponentSelection->addComponent(QString("GI"),  theGI);
-    theComponentSelection->addComponent(QString("SIM"), theSIM);
-    theComponentSelection->addComponent(QString("EVT"), theEvent);
-    theComponentSelection->addComponent(QString("FEM"), theAnalysis);
+    theComponentSelection->addComponent(QString("SIM"), theSIM_Selection);
+    theComponentSelection->addComponent(QString("EVT"), theEventSelection);
+    theComponentSelection->addComponent(QString("FEM"), theAnalysisSelection);
     theComponentSelection->addComponent(QString("RV"),  theRVs);
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
@@ -218,6 +218,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
     this->outputFilePath = this->getTheMainWindow()->outputFilePath;
 
+    qDebug() << "OUTPUT PATH: " << this->outputFilePath;
+    
     QJsonObject apps;
 
     QJsonObject jsonObjGenInfo;
@@ -242,51 +244,72 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     jsonObjectTop["EDP"] = edpData;
 
     result = theUQ_Selection->outputAppDataToJSON(apps);
-    if (result == false)
+    if (result == false) {
+
+      qDebug() << "WorkflowAppPBE::outputToJSON - UQ_Selection failed appData";
         return result;
+    }
     
     result = theUQ_Selection->outputToJSON(jsonObjectTop);
     if (result == false)
         return result;
 
-    result = theSIM->outputAppDataToJSON(apps);
-    if (result == false)
+    result = theSIM_Selection->outputAppDataToJSON(apps);
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - SIM_Selection failed appData";      
         return result;
+    }
 
-    result = theSIM->outputToJSON(jsonObjectTop);
-    if (result == false)
+    result = theSIM_Selection->outputToJSON(jsonObjectTop);
+    if (result == false){
+      qDebug() << "WorkflowAppPBE::outputToJSON - SIM_Selection";            
         return result;
+    }
     
     result = theAnalysisSelection->outputAppDataToJSON(apps);
-    if (result == false)
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - ANA_Selection failed appData";      
         return result;
+    }
 
     result = theAnalysisSelection->outputToJSON(jsonObjectTop);
-    if (result == false)
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - ANA_Selection failed";
         return result;
+    }
 
    // NOTE: Events treated differently, due to array nature of objects
     result = theEventSelection->outputToJSON(jsonObjectTop);
-    if (result == false)
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - EVENT_Selection failed";      
         return result;
+    }
 
     result = theEventSelection->outputAppDataToJSON(apps);
-    if (result == false)
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - EVENT_Selection failed appData";            
         return result;
+    }
     
     result = theRunWidget->outputToJSON(jsonObjectTop);
-    if (result == false)
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - Run failed";      
         return result;
+    }
     
     QJsonObject jsonLossModel;
-    if (theDLModelSelection->outputToJSON(jsonLossModel) == false)
+    if (theDLModelSelection->outputToJSON(jsonLossModel) == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed";
       return false;
+    }
     
     jsonObjectTop["DamageAndLoss"] = jsonLossModel;
 
     QJsonObject appsDL;
-    if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false)
+    if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
       return false;
+    }
     
     apps["DL"] = appsDL;
 
@@ -329,7 +352,7 @@ void
 WorkflowAppPBE::clear(void)
 {
     theGI->clear();
-    theSIM->clear();
+    theSIM_Selection->clear();
 }
 
 bool
@@ -360,7 +383,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         //qDebug() << "Events";
         if (theApplicationObject.contains("Events")) {
             //  QJsonObject theObject = theApplicationObject["Events"].toObject(); it is null object, actually an array
-            if (theEvent->inputAppDataFromJSON(theApplicationObject) == false) {
+            if (theEventSelection->inputAppDataFromJSON(theApplicationObject) == false) {
                 this->errorMessage(" ERROR: failed to read Event Application");
             }
 
@@ -373,10 +396,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("PBE: failed to read UQ application");
 
-        if (theSIM->inputAppDataFromJSON(theApplicationObject) == false)
+        if (theSIM_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("EE_UQ: failed to read SIM application");
 	
-        if (theAnalysis->inputAppDataFromJSON(theApplicationObject) == false)
+        if (theAnalysisSelection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("EE_UQ: failed to read FEM application");
 
     } else
@@ -386,17 +409,17 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     ** Note to me - RVs and Events treated differently as both use arrays .. rethink API!
     */
 
-    theEvent->inputFromJSON(jsonObject);
+    theEventSelection->inputFromJSON(jsonObject);
     theRVs->inputFromJSON(jsonObject);
     theRunWidget->inputFromJSON(jsonObject);
 
     if (theUQ_Selection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read UQ Method data");
 
-    if (theSIM->inputFromJSON(jsonObject) == false)
+    if (theSIM_Selection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read FEM Method data");    
     
-    if (theAnalysis->inputFromJSON(jsonObject) == false)
+    if (theAnalysisSelection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read FEM Method data");
 
     if (jsonObject.contains("DamageAndLoss")) {
@@ -488,9 +511,9 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
 
     qDebug() << "templateDir: " << templateDirectory;
 
-    theSIM->copyFiles(templateDirectory);
-    theEvent->copyFiles(templateDirectory);
-    theAnalysis->copyFiles(templateDirectory);
+    theSIM_Selection->copyFiles(templateDirectory);
+    theEventSelection->copyFiles(templateDirectory);
+    theAnalysisSelection->copyFiles(templateDirectory);
     theUQ_Selection->copyFiles(templateDirectory);
 
     //
