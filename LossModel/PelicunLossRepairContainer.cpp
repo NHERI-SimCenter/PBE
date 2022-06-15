@@ -284,11 +284,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // database selection
     databaseConseq = new QComboBox();
     databaseConseq->setToolTip(tr("This database defines the consequence functions available for the analysis."));
-    databaseConseq->addItem("FEMA P58",0);
+    databaseConseq->addItem("FEMA P-58",0);
     databaseConseq->addItem("Hazus Earthquake",1);
     databaseConseq->addItem("User Defined",2);
 
-    databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P58", Qt::ToolTipRole);
+    databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseConseq->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
     databaseConseq->setItemData(2, "Custom database provided by the user", Qt::ToolTipRole);
 

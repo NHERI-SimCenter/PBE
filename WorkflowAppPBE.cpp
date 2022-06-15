@@ -215,7 +215,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
 
-    theComponentSelection->displayComponent("UQ");
+    theComponentSelection->displayComponent("DL");
 
     // access a web page which will increment the usage count for this tool
     manager = new QNetworkAccessManager(this);
@@ -507,26 +507,33 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
         //errorMessage();
         return;
     }
+
+    QString outFilePath = tmpDirectory + QDir::separator() + tr("dakota.json");
+    this->getTheMainWindow()->outputFilePath = outFilePath;
+
     QJsonObject json;
     this->outputToJSON(json);
 
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
-    // if the EDPs are loaded for an external file, then there is no need
+    // if the EDPs are loaded from an external file, then there is no need
     // to run the whole simulation
-    QJsonObject DL_app_data;
-    QString runType = QString("run");
-    DL_app_data = ((json["Applications"].toObject())["DL"].toObject())["ApplicationData"].toObject();
-    if (DL_app_data.contains("filenameEDP")) {
+    QJsonObject DL_app_data;    
+    DL_app_data = (json["DamageAndLoss"].toObject())["Demands"].toObject();
+
+    QString runType;
+    if (DL_app_data.contains("DemandFilePath")) {
         runType = QString("loss_only");
+    } else {
+        runType = QString("run");
     }
 
     QJsonDocument doc(json);
     file.write(doc.toJson());
     file.close();
 
-    statusMessage("SetUp Done .. Now starting application");
+    statusMessage("Setup Done. Starting backend application...");
 
     emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }

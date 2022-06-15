@@ -104,7 +104,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     // occupancy
     occupancyType = new QComboBox();
     occupancyType->setToolTip(tr("The type of occupancy defines the function of the building.\n"
-                                 "Occupancy classes from Hazus MH2.1 and FEMA P58 are available."));
+                                 "Occupancy classes from Hazus MH2.1 and FEMA P-58 are available."));
     occupancyType->addItem("RES1",0);
     occupancyType->addItem("RES2",1);
     occupancyType->addItem("RES3",2);
@@ -177,16 +177,16 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     occupancyType->setItemData(26, "Hazus - Education - Grade Schools", Qt::ToolTipRole);
     occupancyType->setItemData(27, "Hazus - Education - Colleges/Universities", Qt::ToolTipRole);
 
-    occupancyType->setItemData(29, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(30, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(31, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(32, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(33, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(34, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(35, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(36, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(37, "FEMA P58", Qt::ToolTipRole);
-    occupancyType->setItemData(38, "FEMA P58", Qt::ToolTipRole);
+    occupancyType->setItemData(29, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(30, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(31, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(32, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(33, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(34, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(35, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(36, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(37, "FEMA P-58", Qt::ToolTipRole);
+    occupancyType->setItemData(38, "FEMA P-58", Qt::ToolTipRole);
 
     occupancyType->setCurrentIndex(0);
     generalFormLayout->addRow(tr("Occupancy Type"), occupancyType);
@@ -213,11 +213,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     // database selection
     databaseCombo = new QComboBox();
     databaseCombo->setToolTip(tr("This database defines the components available for the analysis."));
-    databaseCombo->addItem("FEMA P58",0);
+    databaseCombo->addItem("FEMA P-58",0);
     databaseCombo->addItem("Hazus Earthquake",1);
     databaseCombo->addItem("User Defined",2);
 
-    databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P58", Qt::ToolTipRole);
+    databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseCombo->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
     databaseCombo->setItemData(2, "Custom database provided by the user", Qt::ToolTipRole);
 
@@ -279,11 +279,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     // database selection
     databasePOPCombo = new QComboBox();
     databasePOPCombo->setToolTip(tr("This database defines the variation in population over time (e.g., time of day, day of week, month of year) as a function of occupancy type."));
-    databasePOPCombo->addItem("FEMA P58",0);
+    databasePOPCombo->addItem("FEMA P-58",0);
     databasePOPCombo->addItem("User Defined",1);
     databasePOPCombo->addItem("None",2);
 
-    databasePOPCombo->setItemData(0, "Based on the 2nd edition of FEMA P58", Qt::ToolTipRole);
+    databasePOPCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databasePOPCombo->setItemData(1, "Custom database provided by the user", Qt::ToolTipRole);
     databasePOPCombo->setItemData(2, "No variation. The peak population is used for all realizations", Qt::ToolTipRole);
 
@@ -1207,15 +1207,15 @@ PelicunComponentContainer::getFragilityDataBase(){
     QString fragilityDataBase;
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    if (databaseCombo->currentText() == "FEMA P58") {
+    if (databaseCombo->currentText() == "FEMA P-58") {
 
         fragilityDataBase = appDir +
-        "/applications/performDL/pelicun3/pelicunPBE/resources/fragility_DB_FEMA_P58_2nd.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake") {
 
         fragilityDataBase = appDir +
-        "/applications/performDL/pelicun3/pelicunPBE/resources/fragility_DB_HAZUS_EQ.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_HAZUS_EQ.csv";
 
     } else {
 
@@ -1232,12 +1232,12 @@ PelicunComponentContainer::getFragilityDataBase(){
 // This does not seem to be necessary any longer
 //#ifdef Q_OS_WIN
 //        fragilityDataBase = appDir +
-//        "/applications/performDL/pelicun3/pelicunPBE/resources/fragility_DB_FEMA_P58_2nd.csv";
+//        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
 //#else
 //        fragilityDataBase = appDir +
-//        "/applications/performDL/pelicun3/pelicunPBE/resources/fragility_DB_FEMA_P58_2nd.csv";
+//        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
 //#endif
-//        //"/applications/performDL/pelicun/pelicunPBE/resources/DL json/";
+//        //"/applications/performDL/pelicun/pelicun/resources/DL json/";
 }
 
 int
@@ -1314,7 +1314,7 @@ PelicunComponentContainer::exportFragilityDataBase(void) {
     scriptDir.cd("performDL");
     scriptDir.cd("pelicun");
     QString exportScript = scriptDir.absoluteFilePath("export_DB.py");
-    scriptDir.cd("pelicunPBE");
+    scriptDir.cd("pelicun");
     scriptDir.cd("resources");
     QString dbFile = scriptDir.absoluteFilePath("FEMA_P58_2nd_ed.hdf");
 
