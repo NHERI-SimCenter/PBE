@@ -1,5 +1,5 @@
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2022, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,60 +36,70 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QDebug>
+#include <QFileDialog>
+#include <QJsonObject>
+#include <sectiontitle.h>
 
-#include "LossMethod.h"
+#include "PelicunLossContainer.h"
+#include "PelicunLossRepairContainer.h"
 
-LossMethod::LossMethod(QWidget *parent)
+PelicunLossContainer::PelicunLossContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
+    QVBoxLayout *layout = new QVBoxLayout();
+    QTabWidget *theTab = new QTabWidget();
 
+    // repairs
+    contRepair = new PelicunLossRepairContainer();
+    theTab->addTab(contRepair,"Repairs");
+
+    layout->addWidget(theTab);
+    this->setLayout(layout);
 }
 
-LossMethod::~LossMethod()
-{
+PelicunLossContainer::~PelicunLossContainer()
+{}
 
+bool PelicunLossContainer::outputToJSON(QJsonObject &outputObject) {
+
+    bool result = true;
+
+    QJsonObject lossData;
+
+    // need to save data from all widgets
+    result = contRepair->outputToJSON(lossData);
+
+    outputObject["Losses"] = lossData;
+
+    result = false;
+
+    return result;
 }
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
+bool PelicunLossContainer::inputFromJSON(QJsonObject & inputObject) {
+
+    bool result = true;
+
+    if (inputObject.contains("Losses")) {
+        QJsonObject lossData = inputObject["Losses"].toObject();
+
+        contRepair->inputFromJSON(lossData);
+
+    }
+
+    result = false;
+
+    return result;
 }
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
-
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
-
-    return true;
-}
-
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
-
-
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
-
-void
-LossMethod::errorMessage(QString message){
-}
-
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
-
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}

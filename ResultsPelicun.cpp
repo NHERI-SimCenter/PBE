@@ -377,13 +377,82 @@ static int mergesort(double *input, int size)
     }
 }
 
-int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath) {
+int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
+                                       QString &runDirName,
+                                       QString &appDirName){
+
+    // create the workdir and copy the two result files there
+    if (!QDir(runDirName).exists()) {
+        QDir().mkdir(runDirName);
+    }
+    QDir runDir(runDirName);
+    QDir resultsDir(resultsDirName);
+
+    QFile::copy(resultsDir.absoluteFilePath("dakotaTab.out"),
+                runDir.absoluteFilePath("dakotaTab.out"));
+
+    QString tmpDirName = runDir.absoluteFilePath("templatedir");
+    if (!QDir(tmpDirName).exists()) {
+        QDir().mkdir(tmpDirName);
+    }
+    QDir tmpDir(tmpDirName);
+
+    QFile::copy(resultsDir.absoluteFilePath("dakota.json"),
+                tmpDir.absoluteFilePath("dakota.json"));
+
+    // run the loss assessment
+    QDir scriptDir(appDirName);
+    scriptDir.cd("applications");
+    scriptDir.cd("Workflow");
+    QString pySCRIPT = scriptDir.absoluteFilePath("sWHALE.py");
+    QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
+    QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
+
+    QProcess *proc = new QProcess();
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    QString python = preferences->getPython();
+
+    QFileInfo pythonFile(python);
+    if (pythonFile.exists()) {
+      QString pythonPath = pythonFile.absolutePath();
+    } else {
+      errorMessage("No python found, see the manual");
+      return 0;
+    }
+
+    errorMessage("Now Running Pelicun to deremine losses");
+
+#ifdef Q_OS_WIN
+    python = QString("\"") + python + QString("\"");
+    QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
+    proc->execute(python, args);
+
+#else
+    // note the above not working under linux because basrc not being called so no env variables!!
+
+    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
+        pySCRIPT + QString("\"loss_only\"") + inputFileName + QString(" ") +
+        registryFile;
+
+    qDebug() << "PYTHON COMMAND: " << command;
+    proc->execute("bash", QStringList() << "-c" <<  command);
+
+#endif
+
+    proc->waitForStarted();
+
+    return 0;
+}
+
+int ResultsPelicun::processResults(QString filenameTab) {
 
   // Get the results directory path
   //    QString resultsDir = filenameTab.remove("dakotaTab.out");
   QDir rDir(resultsPath);
 
-  QString resultsDir = resultsPath;
+    // Get the results directory path
+    QString resultsDirName = filenameTab.remove("dakotaTab.out");
+    QDir rDir(resultsDirName);
 
   // Get the input json data from the dakota.json file
   QFile inputFile(inputFileName);
@@ -399,75 +468,21 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     // If the runType is HPC, then we need to do additional operations
     QString runType = inputData["runType"].toString();
     if (runType == "HPC"){
-      
-        // create the workdir and copy the two result files there
+
+        qDebug() << "Loaded response data from HPC, running performance assessment locally.";
+
         QString runDirName = inputData["runDir"].toString();
-        if (!QDir(runDirName).exists()) {
-            QDir().mkdir(runDirName);
-        }
-        QDir runDir(runDirName);
+        QString appDirName = inputData["localAppDir"].toString();
 
-        QFile::copy(rDir.absoluteFilePath("dakotaTab.out"),
-                    runDir.absoluteFilePath("dakotaTab.out"));
-
-        QString tmpDirName = runDir.absoluteFilePath("templatedir");
-        if (!QDir(tmpDirName).exists()) {
-            QDir().mkdir(tmpDirName);
-        }
-        QDir tmpDir(tmpDirName);
-
-        QFile::copy(rDir.absoluteFilePath("dakota.json"),
-                    tmpDir.absoluteFilePath("dakota.json"));
-
-        // run the loss assessment
-        QDir scriptDir(inputData["localAppDir"].toString());
-        scriptDir.cd("applications");
-        scriptDir.cd("Workflow");
-        QString pySCRIPT = scriptDir.absoluteFilePath("sWHALE.py");
-        QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
-        QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
-
-
-        QProcess *proc = new QProcess();
-	SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
-	QString python = preferences->getPython();
-
-	QFileInfo pythonFile(python);
-	if (pythonFile.exists()) {
-	  QString pythonPath = pythonFile.absolutePath();
-	} else {
-	  errorMessage("No python found, see the manual");
-	  return 0;
-	}
-
-	statusMessage("Now Running Pelicun to determine losses");
-
-#ifdef Q_OS_WIN
-        python = QString("\"") + python + QString("\"");
-        QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
-        proc->execute(python, args);
-
-#else
-        // note the above not working under linux because basrc not being called so no env variables!!
-
-        QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
-            pySCRIPT + QString("\"loss_only\"") + inputFileName + QString(" ") +
-            registryFile;
-
-        qDebug() << "PYTHON COMMAND: " << command;
-        proc->execute("bash", QStringList() << "-c" <<  command);
-
-#endif
-
-        proc->waitForStarted();
+        this->runPelicunAfterHPC(resultsDirName, runDirName, appDirName);
 
         // move the resultsDir to the runDir
-        resultsDir = runDirName;
-	
+        resultsDirName = runDirName;
+
+        qDebug() << "Performance assessment finished successfully.";
     }
 
-
-    statusMessage("Loading Loss Results");
+    qDebug() << "Loading performance assessment results";
 
     this->clear();
     mLeft = true;
@@ -483,7 +498,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     summaryWidget->setLayout(summaryLayout);
 
     //
-    // into a QTextEdit we will place contents of Dakota more detailed output
+    // place contents of Dakota more detailed output into a QTextEdit
     //
 
     dakotaText = new QTextEdit();
@@ -491,7 +506,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     dakotaText->setText("\n");
 
     // check if the main DL result file is available
-    QString resultsStatsFile = resultsDir + "/DL_summary_stats.csv";
+    QString resultsStatsFile = resultsDirName + "/DL_summary_stats.csv";
     std::ifstream fileResultsStats(resultsStatsFile.toStdString().c_str());
     if (!fileResultsStats.is_open()) {
 
@@ -546,25 +561,34 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     // first 4 lines contain summary data
     //
 
-    std::string summaryName, summaryMean, summaryStdDev, summaryDummy;
+    std::string summaryDummy;
+    std::string summaryName, summaryMean, summaryStdDev, summaryLogStdDev;
     std::string summaryMin, summary10, summary50, summary90, summaryMax;
 
-    std::string tokenName, tokenMean, tokenStd;
+    std::string tokenName, tokenMean, tokenStd, tokenLogStd;
     std::string tokenMin, token10, token50, token90, tokenMax;
 
     std::getline(fileResultsStats, summaryName);
     std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summaryMean);
     std::getline(fileResultsStats, summaryStdDev);
+    std::getline(fileResultsStats, summaryLogStdDev);
     std::getline(fileResultsStats, summaryMin);
+    std::getline(fileResultsStats, summaryDummy);
+    std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summary10);
+    std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summary50);
+    std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summary90);
+    std::getline(fileResultsStats, summaryDummy);
+    std::getline(fileResultsStats, summaryDummy);
     std::getline(fileResultsStats, summaryMax);
 
     std::istringstream ssName(summaryName);
     std::istringstream ssMean(summaryMean);
     std::istringstream ssStd(summaryStdDev);
+    std::istringstream ssLogStd(summaryLogStdDev);
     std::istringstream ssMin(summaryMin);
     std::istringstream ss10(summary10);
     std::istringstream ss50(summary50);
@@ -574,6 +598,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     std::getline(ssName, tokenName, ',');
     std::getline(ssMean, tokenMean, ',');
     std::getline(ssStd, tokenStd, ',');
+    std::getline(ssLogStd, tokenLogStd, ',');
     std::getline(ssMin, tokenMin, ',');
     std::getline(ss10, token10, ',');
     std::getline(ss50, token50, ',');
@@ -597,28 +622,30 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
     summaryLayout->addWidget(sepLine);
 
     resultsToShow.clear();
-    resultsToShow.insert("inhabitants/","inhabitants");
-    resultsToShow.insert("collapses/collapsed","collapsed?");
-    resultsToShow.insert("red_tagged/","red tagged?");
-    resultsToShow.insert("reconstruction/irreparable","irreparable?");
-    resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
-    resultsToShow.insert("reconstruction/cost","repair cost");
-    resultsToShow.insert("reconstruction/time","repair time");
-    resultsToShow.insert("reconstruction/time_impractical","excessive repair time?");
-    resultsToShow.insert("reconstruction/time-sequential","repair time - sequential");
-    resultsToShow.insert("reconstruction/time-parallel","repair time - parallel");
-    resultsToShow.insert("injuries/sev1","injuries-1");
-    resultsToShow.insert("injuries/sev2","injuries-2");
-    resultsToShow.insert("injuries/sev3","injuries-3");
-    resultsToShow.insert("injuries/sev4","injuries-4");
-    resultsToShow.insert("highest_damage_state/S","top DS S");
-    resultsToShow.insert("highest_damage_state/NSA","top DS NSA");
-    resultsToShow.insert("highest_damage_state/NSD","top DS NSD");
+    //resultsToShow.insert("inhabitants/","inhabitants");
+    resultsToShow.insert("collapse","collapsed?");
+    //resultsToShow.insert("red_tagged/","red tagged?");
+    //resultsToShow.insert("reconstruction/irreparable","irreparable?");
+    //resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
+    resultsToShow.insert("repair_cost-","repair cost");
+    resultsToShow.insert("repair_time","repair time");
+    //resultsToShow.insert("reconstruction/time_impractical","excessive repair time?");
+    resultsToShow.insert("repair_time-sequential","repair time - sequential");
+    resultsToShow.insert("repair_time-parallel","repair time - parallel");
+    //resultsToShow.insert("injuries/sev1","injuries-1");
+    //resultsToShow.insert("injuries/sev2","injuries-2");
+    //resultsToShow.insert("injuries/sev3","injuries-3");
+    //resultsToShow.insert("injuries/sev4","injuries-4");
+    //resultsToShow.insert("highest_damage_state/S","top DS S");
+    //resultsToShow.insert("highest_damage_state/NSA","top DS NSA");
+    //resultsToShow.insert("highest_damage_state/NSD","top DS NSD");
 
+    // go along the column names in the header
     while(std::getline(ssName, tokenName, ',')) {
 
         std::getline(ssMean, tokenMean, ',');
         std::getline(ssStd, tokenStd, ',');
+        std::getline(ssLogStd, tokenLogStd, ',');
         std::getline(ssMin, tokenMin, ',');
         std::getline(ss10, token10, ',');
         std::getline(ss50, token50, ',');
@@ -627,8 +654,10 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
 
         QString DV_name(tokenName.c_str());
         std::string::size_type sz;
+
         double DV_mean = std::stod(tokenMean.c_str(), &sz);
         double DV_stdDev = std::stod(tokenStd.c_str(), &sz);
+        double DV_logStdDev = std::stod(tokenStd.c_str(), &sz);
         double DV_min = std::stod(tokenMin.c_str(), &sz);
         double DV_10 = std::stod(token10.c_str(), &sz);
         double DV_50 = std::stod(token50.c_str(), &sz);
@@ -642,7 +671,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
             QString DV_DisplayName = resultsToShow.value(DV_name);
 
             QWidget *theWidget = this->createSummaryItem2(DV_DisplayName,
-                DV_mean, DV_stdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
+                DV_mean, DV_stdDev, DV_logStdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
             summaryLayout->addWidget(theWidget);
 
             // add a separator line after the row
@@ -669,8 +698,10 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
 
     tabWidget->addTab(summary,"Summary");
 
+    qDebug() << "Summary statistics successfully loaded.";
+
     //
-    // now parse the rest of the file
+    // now parse the file with all realizations
     //
 
     spreadsheet = new MyTableWidget();
@@ -679,11 +710,13 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
    // std::getline(fileResults, inputLine);
    // std::istringstream iss(inputLine);
 
-    resultsToShow.insert("Realization","#");
-    resultsToShow.insert("event_time/month","month");
-    resultsToShow.insert("event_time/weekday?","weekday?");
-    resultsToShow.insert("event_time/hour","hour");
-    resultsToShow.insert("collapses/mode","collapse mode");
+
+    resultsToShow.insert("#","#");
+    //resultsToShow.insert("Realization","#");
+    //resultsToShow.insert("event_time/month","month");
+    //resultsToShow.insert("event_time/weekday?","weekday?");
+    //resultsToShow.insert("event_time/hour","hour");
+    //resultsToShow.insert("collapses/mode","collapse mode");
 
     QStringList modHeadings = QStringList();
 
@@ -697,7 +730,7 @@ int ResultsPelicun::processResults(QString &inputFileName, QString &resultsPath)
 
     // now read the file with the detailed results
     //DL_Summary
-    QString resultsFile = resultsDir + "/DL_summary.csv";
+    QString resultsFile = resultsDirName + "/DL_summary.csv";
     std::ifstream fileResults(resultsFile.toStdString().c_str());
     if (!fileResults.is_open()) {
         errorMessage(
@@ -1118,6 +1151,12 @@ ResultsPelicun::createSummaryHeader() {
     stdLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(stdLabel);
 
+    QLabel *logStdLabel = new QLabel();
+    stdLabel->setText(tr("<b>Log Standard Dev.</b>"));
+    stdLabel->setAlignment(Qt::AlignRight);
+    stdLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(logStdLabel);
+
     QLabel *minLabel = new QLabel();
     minLabel->setText(tr("<b>Minimum</b>"));
     minLabel->setAlignment(Qt::AlignRight);
@@ -1154,7 +1193,7 @@ ResultsPelicun::createSummaryHeader() {
 }
 
 QWidget *
-ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
+ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, double logStdDev,
     double min, double p10, double p50, double p90, double max) {
 
     QStringList probOnly = (QStringList() << "collapsed?" << "red tagged?" <<
@@ -1206,6 +1245,16 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev,
     stdLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(stdLabel);
     theStdDevs.append(stdDev);
+
+    QLabel *logStdLabel = new QLabel();
+    if (probOnly.contains(name)) {
+        logStdLabel->setText("-");
+    } else {
+        logStdLabel->setText(QString::number(logStdDev));
+    }
+    logStdLabel->setAlignment(Qt::AlignRight);
+    logStdLabel->setFixedWidth(columnWidth);
+    itemLayout->addWidget(logStdLabel);
 
     QLabel *minLabel = new QLabel();
     if (probOnly.contains(name)) {

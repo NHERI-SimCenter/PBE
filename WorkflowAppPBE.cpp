@@ -37,6 +37,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "WorkflowAppPBE.h"
+#include "MainWindowWorkflowApp.h"
+#include "Utils/RelativePathResolver.h"
 
 // Qt Widgets
 #include <QPushButton>
@@ -79,6 +81,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <Utils/PythonProgressDialog.h>
 
 #include <GoogleAnalytics.h>
+
+WorkflowAppPBE *
+WorkflowAppPBE::getInstance(RemoteService *theService, QWidget *parent) {
+  if (theInstance == 0)
+    theInstance = new WorkflowAppPBE(theService, parent);
+
+  return theInstance;
+}
+
+WorkflowAppPBE *WorkflowAppPBE::theInstance = 0;
 
 // static pointer for global procedure set in constructor
 static WorkflowAppPBE *theApp = nullptr;
@@ -170,7 +182,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
 
-    theComponentSelection->displayComponent("UQ");
+    theComponentSelection->displayComponent("DL");
 
     // access a web page which will increment the usage count for this tool
     manager = new QNetworkAccessManager(this);
@@ -190,7 +202,7 @@ WorkflowAppPBE::~WorkflowAppPBE()
 {  
    // hack to get around a sometimes occuring seg fault
    // as some classes in destructur remove RV from the RVCOntainer
-   // which may already have been destructed .. so removing so no destructor calles
+   // which may already have been destructed .. so removing so no destructor calls
    //QWidget *newUQ = new QWidget();
    //theComponentSelection->swapComponent("RV",newUQ);
 }
@@ -203,6 +215,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     //
     // get each of the main widgets to output themselves
     //
+
+    this->outputFilePath = this->getTheMainWindow()->outputFilePath;
 
     QJsonObject apps;
 
@@ -226,40 +240,44 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     
     QJsonObject edpData;
     jsonObjectTop["EDP"] = edpData;
-    
-    if (theSIM->outputAppDataToJSON(apps) == false)
-        return result;
 
-    if (theSIM->outputToJSON(jsonObjectTop) == false)
-      return false;;
-    
     result = theUQ_Selection->outputAppDataToJSON(apps);
     if (result == false)
         return result;
     
     result = theUQ_Selection->outputToJSON(jsonObjectTop);
     if (result == false)
-        return result;    
+        return result;
 
-    result = theAnalysis->outputAppDataToJSON(apps);
+    result = theSIM->outputAppDataToJSON(apps);
     if (result == false)
         return result;
 
-    result = theAnalysis->outputToJSON(jsonObjectTop);
+    result = theSIM->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;
+    
+    result = theAnalysisSelection->outputAppDataToJSON(apps);
+    if (result == false)
+        return result;
+
+    result = theAnalysisSelection->outputToJSON(jsonObjectTop);
     if (result == false)
         return result;
 
    // NOTE: Events treated differently, due to array nature of objects
-    result = theEvent->outputToJSON(jsonObjectTop);
+    result = theEventSelection->outputToJSON(jsonObjectTop);
     if (result == false)
         return result;
 
-    result = theEvent->outputAppDataToJSON(apps);
+    result = theEventSelection->outputAppDataToJSON(apps);
     if (result == false)
         return result;
-
-    theRunWidget->outputToJSON(jsonObjectTop);
-
+    
+    result = theRunWidget->outputToJSON(jsonObjectTop);
+    if (result == false)
+        return result;
+    
     QJsonObject jsonLossModel;
     if (theDLModelSelection->outputToJSON(jsonLossModel) == false)
       return false;
@@ -487,6 +505,10 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
         //errorMessage();
         return;
     }
+
+    QString outFilePath = tmpDirectory + QDir::separator() + tr("dakota.json");
+    this->getTheMainWindow()->outputFilePath = outFilePath;
+
     QJsonObject json;
     if (this->outputToJSON(json) == false) {
         this->errorMessage("WorkflowApp - failed in outputToJson");
@@ -496,20 +518,23 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
-    // if the EDPs are loaded for an external file, then there is no need
+    // if the EDPs are loaded from an external file, then there is no need
     // to run the whole simulation
-    QJsonObject DL_app_data;
-    QString runType = QString("run");
-    DL_app_data = ((json["Applications"].toObject())["DL"].toObject())["ApplicationData"].toObject();
-    if (DL_app_data.contains("filenameEDP")) {
+    QJsonObject DL_app_data;    
+    DL_app_data = (json["DamageAndLoss"].toObject())["Demands"].toObject();
+
+    QString runType;
+    if (DL_app_data.contains("DemandFilePath")) {
         runType = QString("loss_only");
+    } else {
+        runType = QString("run");
     }
 
     QJsonDocument doc(json);
     file.write(doc.toJson());
     file.close();
 
-    statusMessage("SetUp Done .. Now starting application");
+    statusMessage("Setup Done. Starting backend application...");
 
     emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }
@@ -538,6 +563,10 @@ WorkflowAppPBE::loadFile(QString &fileName){
 
     // close file
     file.close();
+
+    // resolve file paths
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
     //
     // clear current and input from new JSON

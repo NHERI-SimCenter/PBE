@@ -74,10 +74,14 @@ class DakotaResults;
 class WorkflowAppPBE : public WorkflowAppWidget
 {
     Q_OBJECT
-public:
+
+private:
     explicit WorkflowAppPBE(RemoteService *theService, QWidget *parent = 0);
     ~WorkflowAppPBE();
+    static WorkflowAppPBE *theInstance;
 
+public:
+    static WorkflowAppPBE *getInstance(RemoteService *theService, QWidget *parent = 0);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
@@ -88,6 +92,8 @@ public:
     void onRemoteGetButtonClicked();
     void onExitButtonClicked();
     int getMaxNumParallelTasks();
+
+    QString outputFilePath;
     
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,

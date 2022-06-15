@@ -1,3 +1,6 @@
+#ifndef COLLAPSE_MODE_CONTAINER_H
+#define COLLAPSE_MODE_CONTAINER_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,60 +39,34 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include <QVBoxLayout>
+#include <SimCenterWidget.h>
+#include <SimCenterAppWidget.h>
 
-#include "LossMethod.h"
+class QVBoxLayout;
+class CollapseMode;
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+class PelicunCollapseModeContainer : public SimCenterAppWidget
 {
+    Q_OBJECT
+public:
+    explicit PelicunCollapseModeContainer(QWidget *parent = 0);
 
-}
+    ~PelicunCollapseModeContainer();
 
-LossMethod::~LossMethod()
-{
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
 
-}
+public slots:
+   void addCollapseMode(void);
+   void removeCollapseModes(void);
+   void clear(void);
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
+private:
+    QVBoxLayout *verticalLayout;
+    QVBoxLayout *eventLayout;
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
+    QVector<CollapseMode *>theCollapseModes;
+};
 
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
-
-    return true;
-}
-
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
-
-
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
-
-void
-LossMethod::errorMessage(QString message){
-}
-
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
-
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}
+#endif // COLLAPSE_MODE_CONTAINER_H

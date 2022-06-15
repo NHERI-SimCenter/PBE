@@ -1,11 +1,11 @@
-#ifndef P58LOSS_MODEL_H
-#define P58LOSS_MODEL_H
+#ifndef COLLAPSELIMIT_H
+#define COLLAPSELIMIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,54 +29,78 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: adamzs
 
-#include <SimCenterAppWidget.h>
-#include "LossMethod.h"
+#include <QCheckBox>
 
-#include <QGroupBox>
+#include "SimCenterWidget.h"
 
+class QCheckBox;
 class QComboBox;
-class QStackedWidget;
-class QVBoxLayout;
+class QLineEdit;
+class QLabel;
+class QHBoxLayout;
+class QRadioButton;
 
-class P58GeneralSettingsContainer;
-class P58ComponentContainer;
-class P58CollapseModeContainer;
-class P58DependenciesContainer;
-
-class P58LossModel : public LossMethod
+/*!
+ * Widget for collapse limits in PBE tool
+ */
+class CollapseLimit : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit P58LossModel(QWidget *parent = 0);
 
-    QString getFragilityFolder();
-    QString getPopulationFile();
+    /*!
+     * @contructor Constructor taking pointer to parent widget
+     * @param[in] parent Parent widget of Component
+     */
+    explicit CollapseLimit(QWidget *parent = nullptr,
+                             QMap<QString, QString> *CL_data_in = nullptr);
 
-    ~P58LossModel();
+    /*!
+     * @destructor Virtual destructor
+     */
+    virtual ~CollapseLimit();
 
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    /*!
+     * Writes collapse limit data to JSON
+     * @param[in, out] outputObject Write collapse limit data to this object
+     * @return Returns true if successful, false otherwise
+     */
+    virtual bool outputToJSON(QJsonObject &outputObject);
+
+    /*!
+     * Reads collapse limit data from JSON
+     * @param[in] inputObject Read collapse limit data from this object
+     * @return Returns true if successfull, false otherwise
+     */
+    virtual bool inputFromJSON(const QJsonObject & inputObject);
+
+    void delete_CL_data();
+
+signals:
 
 public slots:
 
-private:   
-    P58GeneralSettingsContainer *contGeneralSettings;
-    P58ComponentContainer *contComponents;
-    P58CollapseModeContainer *contCollapseModes;
-    P58DependenciesContainer *contDependencies;
+    void storeCLDemandType(void);
+    void storeCLDemandLimit(void);
+
+private:
+
+    QMap<QString, QString> *CL_data;
+
+    QLineEdit *clDemandType;
+    QLineEdit *clDemandLimit;
+
+    QHBoxLayout *mainLayout; /*!< Main layout for collapse limit*/
 };
 
-#endif // P58LOSS_MODEL_H
+#endif // COLLAPSELIMIT_H

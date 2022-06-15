@@ -1,3 +1,6 @@
+#ifndef PelicunLOSS_MODEL_H
+#define PelicunLOSS_MODEL_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,60 +39,50 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include <QVBoxLayout>
-
+#include <SimCenterAppWidget.h>
 #include "LossMethod.h"
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+#include <QGroupBox>
+
+class QComboBox;
+class QStackedWidget;
+class QVBoxLayout;
+
+class PelicunPreferencesContainer;
+class PelicunComponentContainer;
+class PelicunDemandContainer;
+class PelicunDamageContainer;
+class PelicunLossContainer;
+class PelicunCollapseModeContainer;
+class PelicunOutputsContainer;
+
+class PelicunLossModel : public LossMethod
 {
+    Q_OBJECT
+public:
+    explicit PelicunLossModel(QWidget *parent = 0);
 
-}
+    QString getFragilityFolder();
+    QString getPopulationFile();
 
-LossMethod::~LossMethod()
-{
+    ~PelicunLossModel();
 
-}
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
+public slots:
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
+private:
+    PelicunPreferencesContainer *contPreferences;
+    PelicunComponentContainer *contAsset;
+    PelicunDemandContainer *contDemand;
+    PelicunDamageContainer *contDamage;
+    PelicunLossContainer *contLoss;
+    PelicunCollapseModeContainer *contCollapseModes;
+    PelicunOutputsContainer *contOutputs;
+};
 
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
-
-    return true;
-}
-
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
-
-
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
-
-void
-LossMethod::errorMessage(QString message){
-}
-
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
-
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}
+#endif // PelicunLOSS_MODEL_H
