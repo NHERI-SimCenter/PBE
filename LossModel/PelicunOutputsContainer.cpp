@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,10 +26,10 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
@@ -51,26 +51,26 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <sectiontitle.h>
 
-#include "P58DependenciesContainer.h"
+#include "PelicunOutputsContainer.h"
 
-P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
+PelicunOutputsContainer::PelicunOutputsContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
     mainLayout = new QVBoxLayout();
-    QHBoxLayout *mainHLayout = new QHBoxLayout();    
+    QHBoxLayout *mainHLayout = new QHBoxLayout();
     QVBoxLayout *mainVLayout = new QVBoxLayout();
 
     // title -------------------------------------------------------------------
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *title = new SectionTitle();
-    title->setText(tr("Model Dependencies"));
+    title->setText(tr("Model Outputs"));
     title->setMinimumWidth(250);
 
     titleLayout->addWidget(title);
     titleLayout->addStretch();
 
-    // dependencies -------------------------------------------------
+    // outputs -------------------------------------------------
     QGroupBox * dependencyGroupBox = new QGroupBox("Perfect Correlation in ...");
     dependencyGroupBox->setToolTip(tr("Specify at which organizational level shall the following random variables be correlated. If no correlation is desired, choose Independent."));
     QFormLayout * dependencyFormLayout = new QFormLayout(dependencyGroupBox);
@@ -82,7 +82,7 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     quantityDep->addItem("btw. Fragility Groups",0);
     quantityDep->addItem("btw. Performance Groups",1);
     quantityDep->addItem("btw. Floors",2);
-    quantityDep->addItem("btw. Directions",3);    
+    quantityDep->addItem("btw. Directions",3);
     quantityDep->addItem("Independent",4);
     quantityDep->setCurrentIndex(4);
     dependencyFormLayout->addRow(tr("Component Quantities"), quantityDep);
@@ -187,7 +187,7 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     dependencyFormLayout->addRow(tr("Red Tag Probabilities"), redTagDep);
 
      QSpacerItem *spacerGroups13 = new QSpacerItem(10,10);
-    dependencyFormLayout->addItem(spacerGroups13);   
+    dependencyFormLayout->addItem(spacerGroups13);
 
     // assemble the widgets-----------------------------------------------------
 
@@ -211,41 +211,41 @@ P58DependenciesContainer::P58DependenciesContainer(QWidget *parent)
     this->setLayout(mainLayout);
 }
 
-P58DependenciesContainer::~P58DependenciesContainer()
+PelicunOutputsContainer::~PelicunOutputsContainer()
 {}
 
-bool P58DependenciesContainer::outputToJSON(QJsonObject &outputObject) {
+bool PelicunOutputsContainer::outputToJSON(QJsonObject &outputObject) {
 
-    QJsonObject dependenciesObj;
+    QJsonObject outputsObj;
 
-    // Dependencies -----------------------------------------------------------
-    dependenciesObj["Quantities"] = quantityDep->currentText();
-    dependenciesObj["Fragilities"] = fragilityDep->currentText();
-    dependenciesObj["ReconstructionCosts"] = costDep->currentText();
-    dependenciesObj["ReconstructionTimes"] = timeDep->currentText();
-    dependenciesObj["CostAndTime"] = costAndTimeDep->isChecked();
-    dependenciesObj["Injuries"] = injuryDep->currentText();
-    dependenciesObj["InjurySeverities"] = injSeverityDep->isChecked();
-    dependenciesObj["RedTagProbabilities"] = redTagDep->currentText();
+    // Outputs -----------------------------------------------------------
+    outputsObj["Quantities"] = quantityDep->currentText();
+    outputsObj["Fragilities"] = fragilityDep->currentText();
+    outputsObj["ReconstructionCosts"] = costDep->currentText();
+    outputsObj["ReconstructionTimes"] = timeDep->currentText();
+    outputsObj["CostAndTime"] = costAndTimeDep->isChecked();
+    outputsObj["Injuries"] = injuryDep->currentText();
+    outputsObj["InjurySeverities"] = injSeverityDep->isChecked();
+    outputsObj["RedTagProbabilities"] = redTagDep->currentText();
 
-    outputObject["Dependencies"] = dependenciesObj;
+    outputObject["Outputs"] = outputsObj;
 
     return 0;
 }
 
-bool P58DependenciesContainer::inputFromJSON(QJsonObject & inputObject) {
+bool PelicunOutputsContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    QJsonObject dependenciesObj = inputObject["Dependencies"].toObject();
+    QJsonObject outputsObj = inputObject["Outputs"].toObject();
 
-    // Dependencies -----------------------------------------------------------
-    quantityDep->setCurrentText(dependenciesObj["Quantities"].toString());
-    fragilityDep->setCurrentText(dependenciesObj["Fragilities"].toString());
-    costDep->setCurrentText(dependenciesObj["ReconstructionCosts"].toString());
-    timeDep->setCurrentText(dependenciesObj["ReconstructionTimes"].toString());
-    costAndTimeDep->setChecked(dependenciesObj["CostAndTime"].toBool());
-    injuryDep->setCurrentText(dependenciesObj["Injuries"].toString());
-    injSeverityDep->setChecked(dependenciesObj["InjurySeverities"].toBool());
-    redTagDep->setCurrentText(dependenciesObj["RedTagProbabilities"].toString());
+    // Outputs -----------------------------------------------------------
+    quantityDep->setCurrentText(outputsObj["Quantities"].toString());
+    fragilityDep->setCurrentText(outputsObj["Fragilities"].toString());
+    costDep->setCurrentText(outputsObj["ReconstructionCosts"].toString());
+    timeDep->setCurrentText(outputsObj["ReconstructionTimes"].toString());
+    costAndTimeDep->setChecked(outputsObj["CostAndTime"].toBool());
+    injuryDep->setCurrentText(outputsObj["Injuries"].toString());
+    injSeverityDep->setChecked(outputsObj["InjurySeverities"].toBool());
+    redTagDep->setCurrentText(outputsObj["RedTagProbabilities"].toString());
 
     return 0;
 }

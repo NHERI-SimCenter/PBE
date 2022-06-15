@@ -1,5 +1,8 @@
+#ifndef PelicunLOSS_CONTAINER_H
+#define PelicunLOSS_CONTAINER_H
+
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2022, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,60 +39,65 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include <QVBoxLayout>
+#include <QCheckBox>
 
-#include "LossMethod.h"
+#include "SimCenterAppWidget.h"
+#include "PelicunLossRepairContainer.h"
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+class QCheckBox;
+class QComboBox;
+class QLineEdit;
+class QLabel;
+class QVBoxLayout;
+class QHBoxLayout;
+class QRadioButton;
+
+/*!
+ * Widget for general loss assessment settings in PBE tool
+ */
+class PelicunLossContainer : public SimCenterAppWidget
 {
+    Q_OBJECT
+public:
 
-}
+    /*!
+     * @contructor Constructor taking pointer to parent widget
+     * @param[in] parent Parent widget of PelicunGeneralSettingsContainer
+     */
+    explicit PelicunLossContainer(QWidget *parent = 0);
 
-LossMethod::~LossMethod()
-{
+    /*!
+     * @destructor Virtual destructor
+     */
+    virtual ~PelicunLossContainer();
 
-}
+    /*!
+     * Writes general settings contents to JSON
+     * @param[in, out] outputObject Write contents of general settings to this object
+     * @return Returns true if successful, false otherwise
+     */
+    virtual bool outputToJSON(QJsonObject &outputObject);
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
+    /*!
+     * Reads general settings contents from JSON
+     * @param[in] inputObject Read general settings contents from this object
+     * @return Returns true if successfull, false otherwise
+     */
+    virtual bool inputFromJSON(QJsonObject &inputObject);
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
+    /*!
+     * Get the name of the general settings
+     * @return Returns the name of the general settings as a QString
+     */
+    QString getPelicunLossContainerName() const;
 
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
+signals:
 
-    return true;
-}
+public slots:
 
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
+private:
 
+    PelicunLossRepairContainer *contRepair;
+};
 
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
-
-void
-LossMethod::errorMessage(QString message){
-}
-
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
-
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}
+#endif // PelicunLOSS_CONTAINER_H

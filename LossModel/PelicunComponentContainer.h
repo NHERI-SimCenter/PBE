@@ -5,7 +5,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,15 +29,17 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna, adamzs
+
+#include "GeneralInformationWidget.h"
 
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
@@ -45,22 +47,26 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <HDF5Handler.h>
 
 class ComponentGroup;
+class PopulationGroup;
 
+class QGridLayout;
 class QVBoxLayout;
 class QLineEdit;
 class QLabel;
 class Component;
 class QComboBox;
 class QGroupBox;
+class QPushButton;
 class QStringListModel;
+class QSignalMapper;
 
-class P58ComponentContainer : public SimCenterAppWidget
+class PelicunComponentContainer : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit P58ComponentContainer(QWidget *parent = 0);
+    explicit PelicunComponentContainer(QWidget *parent = 0);
 
-    ~P58ComponentContainer();
+    ~PelicunComponentContainer();
 
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputToJSON(QJsonObject &jsonObject);
@@ -69,6 +75,9 @@ public:
     int setFragilityDataBase(QString fragilityDataBase);
     QString getFragilityDataBase();
 
+    int saveComponentAssignment(QString filePath);
+    int loadComponentAssignment(QString filePath);
+
     void addCompToOverview(QString compName, QVBoxLayout *compAreaVBox);
 
     void addComponent();
@@ -76,6 +85,8 @@ public:
 
     void clearCompGroupWidget();
     void retrieveCompGroups();
+
+    void parseCSVLine(QString &line, QStringList &line_list);
 
 public slots:
    int updateAvailableComponents();
@@ -86,14 +97,24 @@ public slots:
    void removeAllComponents(void);
    void showSelectedComponent(void);
 
+   void DBSelectionChanged(const QString &arg1);
+   void POPDBSelectionChanged(const QString &arg1);
+
+   void addPopulationGroup(QMap<QString, QString> *PG_data_in=nullptr);
+   void removePopulationGroup(QWidget *thePopulationGroup);
+
    void addComponentGroup(QMap<QString, QString> *CG_data_in=nullptr);
-   void removeComponentGroup();
+   void removeComponentGroup(QWidget *theComponentGroup);
 
    void onLoadConfigClicked(void);
    void onSaveConfigClicked(void);
 
    void chooseFragilityDataBase(void);
    void exportFragilityDataBase(void);
+
+   void storiesOrAreaChanged();
+   void setNumStories(int numStories, double dummy);
+   void setPlanArea(double dummy, double dummy2, double planArea);
 
    /*
    void storeCompQuantity(void);
@@ -118,11 +139,30 @@ private:
     void deleteCompDB();
     void deleteCompConfig();
 
-    QVBoxLayout *verticalLayout;
+    GeneralInformationWidget *theGI;
+
+    QGridLayout *gridLayout;
+
+    QSignalMapper *smRemoveCG;
+    QSignalMapper *smRemovePG;
+
+    QLineEdit *storiesValue;
+    QLineEdit *planAreaValue;
+    QLineEdit *fragilityDataBasePath;
+    QLineEdit *populationDataBasePath;
+
+    QComboBox *occupancyType;
+    QComboBox *databaseCombo;
+    QComboBox *databasePOPCombo;
+
+    QPushButton *btnChooseFragility;
+    QPushButton *btnChoosePOPDB;
+
     QVBoxLayout *eventLayout;
     QVBoxLayout *loCGList;
-
-    QLineEdit * fragilityDataBasePath;
+    QVBoxLayout *loPGList;
+    QVBoxLayout *loCQuantityRemove;
+    QVBoxLayout *loPQuantityRemove;
 
     QComboBox *availableCompCombo;
     QStringListModel *availableCBModel;
@@ -153,6 +193,7 @@ private:
 
     // component properties
     QMap<QString, QVector<QMap<QString, QString>* >* > *compConfig;
+    QVector<QMap<QString, QString>* > *popConfig;
 
     QString dbType = "N/A";
 
@@ -167,6 +208,9 @@ private:
 
     QVector<Component *>theComponents;
     QVector<ComponentGroup *>vComponentGroups;
+    QVector<PopulationGroup *>vPopulationGroups;
+    QVector<QPushButton *>vRemoveButtons;
+    QVector<QPushButton *>vRemovePopButtons;
 
 };
 
