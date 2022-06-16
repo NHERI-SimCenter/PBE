@@ -54,8 +54,8 @@ class LossModelSelection : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit LossModelSelection(
-        RandomVariablesContainer *theRV_IW, QWidget *parent = 0);
+
+    explicit LossModelSelection(QWidget *parent = 0);
 
     ~LossModelSelection();
 

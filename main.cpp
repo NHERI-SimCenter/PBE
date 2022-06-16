@@ -16,6 +16,7 @@
 #include <GoogleAnalytics.h>
 #include <QDir>
 #include <QStandardPaths>
+#include <QProcessEnvironment>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.0");
+    QCoreApplication::setApplicationVersion("3.0.0");
+
     //    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
@@ -73,6 +75,12 @@ int main(int argc, char *argv[])
     logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
       + QDir::separator() + QCoreApplication::applicationName();
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      logFilePath = workDir;
+    }    
+    
     // make sure tool dir exists in Documentss folder
     QDir dirWork(logFilePath);
     if (!dirWork.exists())
@@ -128,9 +136,10 @@ int main(int argc, char *argv[])
   mainWindow.setAbout(aboutTitle, aboutSource);
 
   QString version("Version 3.0.0");
+
   mainWindow.setVersion(version);
 
-  QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");
+  QString citeText("1)Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145 \n\n2) Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matt J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
   mainWindow.setCite(citeText);
 
   QString manualURL("https://nheri-simcenter.github.io/PBE-Documentation/");
