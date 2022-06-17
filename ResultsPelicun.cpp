@@ -618,7 +618,7 @@ int ResultsPelicun::processResults(QString &inputFileName,
     //resultsToShow.insert("inhabitants/","inhabitants");
     resultsToShow.insert("collapse","collapsed?");
     //resultsToShow.insert("red_tagged/","red tagged?");
-    //resultsToShow.insert("reconstruction/irreparable","irreparable?");
+    resultsToShow.insert("irreparable","irreparable?");
     //resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
     resultsToShow.insert("repair_cost-","repair cost");
     resultsToShow.insert("repair_time","repair time");
@@ -1196,7 +1196,7 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, do
     double min, double p10, double p50, double p90, double max) {
 
     QStringList probOnly = (QStringList() << "collapsed?" << "red tagged?" <<
-                            "not repairable?" << "excessive repair cost?" <<
+                            "irreparable?" << "excessive repair cost?" <<
                             "excessive repair time?");
 
     QWidget *item = new QWidget;
