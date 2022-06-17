@@ -650,7 +650,13 @@ int ResultsPelicun::processResults(QString &inputFileName,
 
         double DV_mean = std::stod(tokenMean.c_str(), &sz);
         double DV_stdDev = std::stod(tokenStd.c_str(), &sz);
-        double DV_logStdDev = std::stod(tokenStd.c_str(), &sz);
+        double DV_logStdDev;
+        try{
+            DV_logStdDev = std::stod(tokenLogStd.c_str(), &sz);
+        }
+        catch(...){
+            DV_logStdDev = -1;
+        }
         double DV_min = std::stod(tokenMin.c_str(), &sz);
         double DV_10 = std::stod(token10.c_str(), &sz);
         double DV_50 = std::stod(token50.c_str(), &sz);
@@ -1145,9 +1151,9 @@ ResultsPelicun::createSummaryHeader() {
     itemLayout->addWidget(stdLabel);
 
     QLabel *logStdLabel = new QLabel();
-    stdLabel->setText(tr("<b>Log Standard Dev.</b>"));
-    stdLabel->setAlignment(Qt::AlignRight);
-    stdLabel->setFixedWidth(columnWidth);
+    logStdLabel->setText(tr("<b>Log Standard Dev.</b>"));
+    logStdLabel->setAlignment(Qt::AlignRight);
+    logStdLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(logStdLabel);
 
     QLabel *minLabel = new QLabel();
@@ -1243,7 +1249,11 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, do
     if (probOnly.contains(name)) {
         logStdLabel->setText("-");
     } else {
-        logStdLabel->setText(QString::number(logStdDev));
+        if (logStdDev == -1){
+            logStdLabel->setText("N/A");
+        } else {
+            logStdLabel->setText(QString::number(logStdDev));
+        }
     }
     logStdLabel->setAlignment(Qt::AlignRight);
     logStdLabel->setFixedWidth(columnWidth);
