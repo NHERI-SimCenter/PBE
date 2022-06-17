@@ -529,8 +529,8 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
         return;
     }
 
-    QString outFilePath = tmpDirectory + QDir::separator() + tr("dakota.json");
-    this->getTheMainWindow()->outputFilePath = outFilePath;
+    //QString outFilePath = tmpDirectory + QDir::separator() + tr("dakota.json");
+    this->getTheMainWindow()->outputFilePath = inputFile;
 
     QJsonObject json;
     if (this->outputToJSON(json) == false) {
