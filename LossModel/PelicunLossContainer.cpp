@@ -89,7 +89,7 @@ bool PelicunLossContainer::outputToJSON(QJsonObject &outputObject) {
 
 bool PelicunLossContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    bool result = true;
+    bool result = false;
 
     if (inputObject.contains("Losses")) {
         QJsonObject lossData = inputObject["Losses"].toObject();
@@ -98,7 +98,7 @@ bool PelicunLossContainer::inputFromJSON(QJsonObject & inputObject) {
 
     }
 
-    result = false;
+    result = true;
 
     return result;
 }

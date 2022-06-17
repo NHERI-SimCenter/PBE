@@ -135,7 +135,7 @@ LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 bool
 LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-    bool result = true;
+    bool result = false;
 
     if (theCurrentMethod != 0) {
         result = theCurrentMethod->inputFromJSON(jsonObject);

@@ -460,7 +460,7 @@ bool PelicunDamageContainer::outputToJSON(QJsonObject &outputObject) {
 
 bool PelicunDamageContainer::inputFromJSON(QJsonObject & inputObject) {
 
-    bool result = true;
+    bool result = false;
 
     QJsonObject damageData = inputObject["Damage"].toObject();
 
@@ -517,7 +517,7 @@ bool PelicunDamageContainer::inputFromJSON(QJsonObject & inputObject) {
         dpApproach->setCurrentText("FEMA P-58");
     }
 
-    result = false;
+    result = true;
 
     return result;
 }

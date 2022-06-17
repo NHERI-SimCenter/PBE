@@ -1932,7 +1932,7 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
 bool
 PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-    bool result = true;
+    bool result = false;
 
     QJsonObject assetData = jsonObject["Asset"].toObject();
 
@@ -2017,6 +2017,8 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
         }
     }
     */
+
+    result = true;
 
     return result;
 }

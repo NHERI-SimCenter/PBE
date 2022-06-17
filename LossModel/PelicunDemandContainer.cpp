@@ -1109,7 +1109,7 @@ bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
 
 bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
 
-    bool result = 1;
+    bool result = false;
 
     QJsonObject demandData = jsonObject["Demands"].toObject();
 
@@ -1257,7 +1257,7 @@ bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
         inferenceCombo->setCurrentText("do not infer");
     }
 
-    result = 0;
+    result = true;
 
     return result;
 }

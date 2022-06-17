@@ -143,7 +143,7 @@ bool
 PelicunLossModel::inputFromJSON(QJsonObject &jsonObject)
 {
 
-    bool result = true;
+    bool result = false;
 
     // need to load data to all widgets
     result = contAsset->inputFromJSON(jsonObject);
