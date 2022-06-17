@@ -800,7 +800,7 @@ int ResultsPelicun::processResults(QString &inputFileName,
     tabWidget->addTab(widget, tr("Data Values"));
 
     tabWidget->adjustSize();
-    tabWidget->setCurrentIndex(1);
+    tabWidget->setCurrentIndex(0);
 
     fileResultsStats.close();
     fileResults.close();
