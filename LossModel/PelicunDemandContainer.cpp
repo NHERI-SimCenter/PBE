@@ -702,12 +702,6 @@ void PelicunDemandContainer::retrieveCollapseLimits()
 
 void PelicunDemandContainer::deleteCollConfig()
 {
-    // get an iterator for the main map
-    QVector<QMap<QString, QString>* >::iterator m;
-    for (m=collConfig->begin(); m!=collConfig->end(); ++m){
-
-        delete *m;
-    }
     collConfig->clear();
 
     delete collConfig;
@@ -826,12 +820,6 @@ void PelicunDemandContainer::retrieveTruncationLimits()
 
 void PelicunDemandContainer::deleteTruncConfig()
 {
-    // get an iterator for the main map
-    QVector<QMap<QString, QString>* >::iterator m;
-    for (m=truncConfig->begin(); m!=truncConfig->end(); ++m){
-
-        delete *m;
-    }
     truncConfig->clear();
 
     delete truncConfig;
@@ -950,12 +938,6 @@ void PelicunDemandContainer::retrieveResidualParams()
 
 void PelicunDemandContainer::deleteResidualConfig()
 {
-    // get an iterator for the main map
-    QVector<QMap<QString, QString>* >::iterator m;
-    for (m=residualConfig->begin(); m!=residualConfig->end(); ++m){
-
-        delete *m;
-    }
     residualConfig->clear();
 
     delete residualConfig;
@@ -1109,7 +1091,7 @@ bool PelicunDemandContainer::outputToJSON(QJsonObject &jsonObject) {
 
 bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
 
-    bool result = 1;
+    bool result = false;
 
     QJsonObject demandData = jsonObject["Demands"].toObject();
 
@@ -1257,7 +1239,7 @@ bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
         inferenceCombo->setCurrentText("do not infer");
     }
 
-    result = 0;
+    result = true;
 
     return result;
 }

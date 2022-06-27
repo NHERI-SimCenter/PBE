@@ -444,21 +444,19 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
     return 0;
 }
 
-int ResultsPelicun::processResults(QString filenameTab) {
+int ResultsPelicun::processResults(QString &inputFileName,
+				   QString &resultsDirName) {
 
+  QDir rDir(resultsDirName);
+  QFile inputFile(inputFileName);
 
-    // Get the results directory path
-    QString resultsDirName = filenameTab.remove("dakotaTab.out");
-    QDir rDir(resultsDirName);
-
-    // Get the input json data from the dakota.json file
-    QFile inputFile(rDir.absoluteFilePath("dakota.json"));
-    inputFile.open(QFile::ReadOnly | QFile::Text);
-    QString val;
-    val=inputFile.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject inputData = doc.object();
-    inputFile.close();
+  inputFile.open(QFile::ReadOnly | QFile::Text);
+  
+  QString val;
+  val=inputFile.readAll();
+  QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+  QJsonObject inputData = doc.object();
+  inputFile.close();
 
     // If the runType is HPC, then we need to do additional operations
     QString runType = inputData["runType"].toString();
@@ -512,6 +510,8 @@ int ResultsPelicun::processResults(QString filenameTab) {
         // be properly assessed .. i.e. not always the fault of pelicun.
         //
 
+      QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
+      
         QFileInfo fileTabInfo(filenameTab);
         QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
@@ -618,7 +618,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     //resultsToShow.insert("inhabitants/","inhabitants");
     resultsToShow.insert("collapse","collapsed?");
     //resultsToShow.insert("red_tagged/","red tagged?");
-    //resultsToShow.insert("reconstruction/irreparable","irreparable?");
+    resultsToShow.insert("irreparable","irreparable?");
     //resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
     resultsToShow.insert("repair_cost-","repair cost");
     resultsToShow.insert("repair_time","repair time");
@@ -650,7 +650,13 @@ int ResultsPelicun::processResults(QString filenameTab) {
 
         double DV_mean = std::stod(tokenMean.c_str(), &sz);
         double DV_stdDev = std::stod(tokenStd.c_str(), &sz);
-        double DV_logStdDev = std::stod(tokenStd.c_str(), &sz);
+        double DV_logStdDev;
+        try{
+            DV_logStdDev = std::stod(tokenLogStd.c_str(), &sz);
+        }
+        catch(...){
+            DV_logStdDev = -1;
+        }
         double DV_min = std::stod(tokenMin.c_str(), &sz);
         double DV_10 = std::stod(token10.c_str(), &sz);
         double DV_50 = std::stod(token50.c_str(), &sz);
@@ -794,7 +800,7 @@ int ResultsPelicun::processResults(QString filenameTab) {
     tabWidget->addTab(widget, tr("Data Values"));
 
     tabWidget->adjustSize();
-    tabWidget->setCurrentIndex(1);
+    tabWidget->setCurrentIndex(0);
 
     fileResultsStats.close();
     fileResults.close();
@@ -1145,9 +1151,9 @@ ResultsPelicun::createSummaryHeader() {
     itemLayout->addWidget(stdLabel);
 
     QLabel *logStdLabel = new QLabel();
-    stdLabel->setText(tr("<b>Log Standard Dev.</b>"));
-    stdLabel->setAlignment(Qt::AlignRight);
-    stdLabel->setFixedWidth(columnWidth);
+    logStdLabel->setText(tr("<b>Log Standard Dev.</b>"));
+    logStdLabel->setAlignment(Qt::AlignRight);
+    logStdLabel->setFixedWidth(columnWidth);
     itemLayout->addWidget(logStdLabel);
 
     QLabel *minLabel = new QLabel();
@@ -1190,7 +1196,7 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, do
     double min, double p10, double p50, double p90, double max) {
 
     QStringList probOnly = (QStringList() << "collapsed?" << "red tagged?" <<
-                            "not repairable?" << "excessive repair cost?" <<
+                            "irreparable?" << "excessive repair cost?" <<
                             "excessive repair time?");
 
     QWidget *item = new QWidget;
@@ -1243,7 +1249,11 @@ ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, do
     if (probOnly.contains(name)) {
         logStdLabel->setText("-");
     } else {
-        logStdLabel->setText(QString::number(logStdDev));
+        if (logStdDev == -1){
+            logStdLabel->setText("N/A");
+        } else {
+            logStdLabel->setText(QString::number(logStdDev));
+        }
     }
     logStdLabel->setAlignment(Qt::AlignRight);
     logStdLabel->setFixedWidth(columnWidth);

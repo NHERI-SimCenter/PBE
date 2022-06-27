@@ -106,18 +106,36 @@ PelicunLossModel::~PelicunLossModel()
 bool
 PelicunLossModel::outputToJSON(QJsonObject &jsonObject)
 {
-
+  qDebug() << "PelicunLossModel::outputToJSON() - start\n";
     bool result = true;
 
     // need to save data from all widgets
     result = contAsset->outputToJSON(jsonObject);
+    if (result == false) {
+      qDebug() << "PelicunLossModel::outputToJSON() - contAsset failed\n";
+      return false;      
+    }
 
     result += contDemand->outputToJSON(jsonObject);
+    if (result == false) {
+      qDebug() << "PelicunLossModel::outputToJSON() - contDemand failed\n";
+      return false;      
+    }    
 
     result += contDamage->outputToJSON(jsonObject);
+    if (result == false) {
+      qDebug() << "PelicunLossModel::outputToJSON() - contDamage failed\n";
+      return false;      
+    }        
 
     result += contLoss->outputToJSON(jsonObject);
+    if (result == false) {
+      qDebug() << "PelicunLossModel::outputToJSON() - contLoss failed\n";
+      return false;
+    }            
 
+    qDebug() << "PelicunLossModel::outputToJSON() - end, result = " << result;
+    
     return result;
 }
 
@@ -125,7 +143,7 @@ bool
 PelicunLossModel::inputFromJSON(QJsonObject &jsonObject)
 {
 
-    bool result = true;
+    bool result = false;
 
     // need to load data to all widgets
     result = contAsset->inputFromJSON(jsonObject);
@@ -153,13 +171,13 @@ PelicunLossModel::outputAppDataToJSON(QJsonObject &jsonObject) {
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;
 
-    return 0;
+    return true;
 }
 
 bool
 PelicunLossModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
-    return 0;
+    return true;
 }
 
 

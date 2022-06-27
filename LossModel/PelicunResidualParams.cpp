@@ -120,5 +120,5 @@ bool ResidualParam::inputFromJSON(const QJsonObject & inputObject) {
 }
 
 void ResidualParam::delete_RP_data() {
-    delete RP_data;
+    //delete RP_data;
 }

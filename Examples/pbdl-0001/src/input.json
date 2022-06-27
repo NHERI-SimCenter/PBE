@@ -1,7 +1,7 @@
 {
     "Applications": {
         "DL": {
-            "Application": "pelicun",
+            "Application": "Pelicun3",
             "ApplicationData": {
             }
         },
@@ -31,75 +31,92 @@
             }
         },
         "UQ": {
-            "Application": "Dakota-UQ1",
+            "Application": "Dakota-UQ",
             "ApplicationData": {
             }
         }
     },
     "DamageAndLoss": {
-        "Components": {
-            "NSA-MC-COM1": [
-                {
-                    "direction": "1",
-                    "distribution": "N/A",
-                    "location": "roof",
-                    "median_quantity": "1.0",
-                    "unit": "ea"
-                }
-            ],
-            "NSD-COM1": [
-                {
-                    "direction": "1",
-                    "distribution": "N/A",
-                    "location": "1",
-                    "median_quantity": "1.0",
-                    "unit": "ea"
-                }
-            ],
-            "S-S1M-MC-COM1": [
-                {
-                    "direction": "1",
-                    "distribution": "N/A",
-                    "location": "1",
-                    "median_quantity": "1.0",
-                    "unit": "ea"
-                }
-            ]
+        "Asset": {
+            "ComponentAssignmentFile": "{Current_Dir}/CMP_QNT.csv",
+            "ComponentDatabase": "FEMA P-58",
+            "NumberOfStories": "4",
+            "OccupancyType": "COM1",
+            "PlanArea": "15000"
         },
-        "DamageModel": {
-            "DesignLevel": "Moderate-Code",
-            "StructureType": "S1M"
-        },
-        "LossModel": {
-            "DecisionVariables": {
-                "Injuries": true,
-                "ReconstructionCost": true,
-                "ReconstructionTime": true
+        "Damage": {
+            "CollapseFragility": {
+                "CapacityDistribution": "lognormal",
+                "CapacityMedian": "521.219",
+                "DemandType": "SA_1.13",
+                "Theta_1": "0.5"
             },
-            "Inhabitants": {
-                "OccupancyType": "COM1",
-                "PeakPopulation": "1"
-            },
-            "ReplacementCost": "1",
-            "ReplacementTime": "1"
-        },
-        "ResponseModel": {
-            "AdditionalUncertainty": {
-                "GroundMotion": "",
-                "Modeling": ""
-            },
-            "DetectionLimits": {
-                "PFA": "",
-                "PID": ""
-            },
-            "ResponseDescription": {
-                "BasisOfEDP_Distribution": "all results",
-                "CoupledAssessment": false,
-                "EDP_Distribution": "lognormal",
-                "Realizations": "2000"
+            "DamageProcess": "FEMA P-58",
+            "IrreparableDamage": {
+                "DriftCapacityLogStd": "0.3",
+                "DriftCapacityMedian": "0.015"
             }
         },
-        "_method": "HAZUS MH EQ"
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "lognormal"
+                },
+                "PID": {
+                    "DistributionFamily": "lognormal",
+                    "TruncateLower": "",
+                    "TruncateUpper": "0.06"
+                }
+            },
+            "CollapseLimits": {
+                "PID": "0.06"
+            },
+            "DemandFilePath": "{Current_Dir}/demands_s4.csv",
+            "InferResidualDrift": {
+                "1": "0.0075",
+                "2": "0.0075",
+                "method": "FEMA P-58"
+            },
+            "SampleSize": "500"
+        },
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "FEMA P-58",
+                "MapApproach": "Automatic",
+                "ReplacementCost": {
+                    "Distribution": "normal",
+                    "Median": "12500000",
+                    "Theta_1": "0.3",
+                    "Unit": "USD_2011"
+                },
+                "ReplacementTime": {
+                    "Distribution": "lognormal",
+                    "Median": "15000",
+                    "Theta_1": "0.4",
+                    "Unit": "worker_day"
+                }
+            }
+        }
+    },
+    "DefaultValues": {
+        "driverFile": "driver",
+        "edpFiles": [
+            "EDP.json"
+        ],
+        "filenameBIM": "BIM.json",
+        "filenameDL": "BIM.json",
+        "filenameEDP": "EDP.json",
+        "filenameEVENT": "EVENT.json",
+        "filenameSAM": "SAM.json",
+        "filenameSIM": "SIM.json",
+        "rvFiles": [
+            "BIM.json",
+            "SAM.json",
+            "EVENT.json",
+            "SIM.json"
+        ],
+        "workflowInput": "scInput.json",
+        "workflowOutput": "EDP.json"
     },
     "EDP": {
     },
@@ -111,11 +128,11 @@
             "ruptureDist": 40,
             "seed": 500,
             "type": "StochasticMotion",
-            "vs30": "RV.vs"
+            "vs30": 500
         }
     ],
     "GeneralInformation": {
-        "NumberOfStories": 3,
+        "NumberOfStories": 1,
         "PlanArea": 129600,
         "depth": 360,
         "height": 144,
@@ -123,9 +140,9 @@
             "latitude": 37.426,
             "longitude": -122.171
         },
-        "name": "Test",
+        "name": "",
         "planArea": 129600,
-        "stories": 3,
+        "stories": 1,
         "units": {
             "force": "kips",
             "length": "in",
@@ -133,6 +150,38 @@
             "time": "sec"
         },
         "width": 360
+    },
+    "Modeling": {
+        "Bx": 0.1,
+        "By": 0.1,
+        "Fyx": 1000000,
+        "Fyy": 1000000,
+        "Krz": 10000000000,
+        "Kx": 100,
+        "Ky": 100,
+        "ModelData": [
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 144,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            }
+        ],
+        "height": 144,
+        "massX": 0,
+        "massY": 0,
+        "numStories": 1,
+        "randomVar": [
+        ],
+        "responseX": 0,
+        "responseY": 0,
+        "type": "MDOF_BuildingModel",
+        "weight": 144
     },
     "Simulation": {
         "Application": "OpenSees-Simulation",
@@ -150,84 +199,20 @@
         "secondMode": 0,
         "solver": "Umfpack"
     },
-    "StructuralInformation": {
-        "Bx": 0.1,
-        "By": 0.1,
-        "Fyx": 1000000,
-        "Fyy": 1000000,
-        "Krz": 10000000000,
-        "Kx": 100,
-        "Ky": 100,
-        "ModelData": [
-            {
-                "Fyx": 1000000,
-                "Fyy": 1000000,
-                "Ktheta": 10000000000,
-                "bx": 0.1,
-                "by": 0.1,
-                "height": 48,
-                "kx": 100,
-                "ky": 100,
-                "weight": 144
-            },
-            {
-                "Fyx": 1000000,
-                "Fyy": 1000000,
-                "Ktheta": 10000000000,
-                "bx": 0.1,
-                "by": 0.1,
-                "height": 48,
-                "kx": 100,
-                "ky": 100,
-                "weight": 144
-            },
-            {
-                "Fyx": 1000000,
-                "Fyy": 1000000,
-                "Ktheta": 10000000000,
-                "bx": 0.1,
-                "by": 0.1,
-                "height": 48,
-                "kx": 100,
-                "ky": 100,
-                "weight": 144
-            }
-        ],
-        "height": 48,
-        "massX": 0,
-        "massY": 0,
-        "numStories": 3,
-        "randomVar": [
-        ],
-        "responseX": 0,
-        "responseY": 0,
-        "type": "MDOF_BuildingModel",
-        "weight": 144
-    },
     "UQ_Method": {
+        "parallelExecution": true,
         "samplingMethodData": {
-            "keepSamples": false,
             "method": "LHS",
-            "samples": 40,
-            "seed": 867
+            "samples": 20,
+            "seed": 946
         },
         "uqEngine": "Dakota",
         "uqType": "Forward Propagation"
     },
-    "localAppDir": "C:/SimCenter",
+    "localAppDir": "C:/SimCenter/",
     "randomVariables": [
-        {
-            "distribution": "Normal",
-            "inputType": "Parameters",
-            "mean": 400,
-            "name": "vs",
-            "refCount": 1,
-            "stdDev": 100,
-            "value": "RV.vs",
-            "variableClass": "Uncertain"
-        }
     ],
-    "remoteAppDir": "C:/SimCenter",
+    "remoteAppDir": "C:/SimCenter/",
     "runType": "runningLocal",
     "workingDir": "C:/Workdir/PBE"
 }

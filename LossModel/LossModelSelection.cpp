@@ -49,7 +49,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "LossModelSelection.h"
 
 LossModelSelection::LossModelSelection(
-    RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
+
+    QWidget *parent)
     : SimCenterAppWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -126,7 +127,7 @@ LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    result = theCurrentMethod -> outputToJSON(jsonObject);
+    result = theCurrentMethod->outputToJSON(jsonObject);
 
     return result;
 }
@@ -134,7 +135,7 @@ LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 bool
 LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-    bool result = true;
+    bool result = false;
 
     if (theCurrentMethod != 0) {
         result = theCurrentMethod->inputFromJSON(jsonObject);

@@ -140,5 +140,5 @@ bool TruncationLimit::inputFromJSON(const QJsonObject & inputObject) {
 }
 
 void TruncationLimit::delete_TL_data() {
-    delete TL_data;
+    //delete TL_data;
 }

@@ -1578,6 +1578,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
             if (availableCompCombo->findText(compName) != -1) {
                 selectedCompCombo->addItem(compName);
             } else {
+	      
                 qDebug() << "Component " << compName << "is not in the DL data folder!";
             }
         }
@@ -1899,7 +1900,6 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
     assetData["NumberOfStories"] = storiesValue->text();
     assetData["PlanArea"] = planAreaValue->text();
     assetData["OccupancyType"] = occupancyType->currentText();
-
     assetData["ComponentDatabase"] = databaseCombo->currentText();
 
     if (databaseCombo->currentText() == "User Defined") {
@@ -1920,15 +1920,19 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["Asset"] = assetData;
 
-    result = false;
+    // result = false;
 
+    if (result == false) {
+      qDebug() << "PelicunComponentContainer::outputToJSON failed\n";
+    }
+    
     return result;
 }
 
 bool
 PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 {
-    bool result = true;
+    bool result = false;
 
     QJsonObject assetData = jsonObject["Asset"].toObject();
 
@@ -2013,6 +2017,8 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
         }
     }
     */
+
+    result = true;
 
     return result;
 }
