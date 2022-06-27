@@ -115,5 +115,5 @@ bool CollapseLimit::inputFromJSON(const QJsonObject & inputObject) {
 }
 
 void CollapseLimit::delete_CL_data() {
-    delete CL_data;
+    //delete CL_data;
 }
