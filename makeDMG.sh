@@ -23,6 +23,7 @@ source userID.sh
 # 
 
 rm -fr ./build/PBE.app
+rm -fr ./build/*.dmg
 
 ./makeEXE.sh
 
@@ -119,15 +120,18 @@ fi
 echo "codesign --deep --force --verbose --options=runtime  --sign "$appleCredential" $appFile"
 codesign --deep --force --verbose --options=runtime  --sign "$appleCredential" $appFile
 
+
+echo "Issue the following: "
+
 # create dmg
 echo "hdiutil create $dmgFile -fs HFS+ -srcfolder ./$appFile -format UDZO -volname $appName"
-hdiutil create $dmgFile -fs HFS+ -srcfolder ./$appFile -format UDZO -volname $appName
+# hdiutil create $dmgFile -fs HFS+ -srcfolder ./$appFile -format UDZO -volname $appName
 
 #codesign dmg
 echo "codesign --force --sign "$appleCredential" $dmgFile"
-codesign --force --sign "$appleCredential" $dmgFile
+# codesign --force --sign "$appleCredential" $dmgFile
 
-echo "Issue the following: " 
+
 echo "xcrun altool --notarize-app -u $appleID -p $appleAppPassword -f ./$dmgFile --primary-bundle-id altool --verbose"
 echo ""
 echo "returns id: ID .. wait for email indicating success"

@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   QString aboutSource = ":/resources/docs/textAboutPBE.html";  // this is an HTML file stored under resources
   mainWindow.setAbout(aboutTitle, aboutSource);
 
-  QString version("Version 3.0.0");
+  QString version = QString("Version ") + QCoreApplication::applicationVersion();
 
   mainWindow.setVersion(version);
 
