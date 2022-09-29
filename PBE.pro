@@ -20,7 +20,7 @@ CONFIG += c++17
 TARGET = PBE
 TEMPLATE = app
 
-VERSION=2.2.3
+VERSION=3.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 include($$PWD/ConanHelper.pri)

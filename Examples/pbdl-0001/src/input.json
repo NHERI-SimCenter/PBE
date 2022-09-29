@@ -36,7 +36,7 @@
             }
         }
     },
-    "DamageAndLoss": {
+    "DL": {
         "Asset": {
             "ComponentAssignmentFile": "{Current_Dir}/CMP_QNT.csv",
             "ComponentDatabase": "FEMA P-58",
