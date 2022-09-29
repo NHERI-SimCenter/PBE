@@ -51,7 +51,7 @@ class UQ_EngineSelection;
 class SIM_Selection;
 
 class EarthquakeLoadingInput;
-class FEM_Selection;
+class FEA_Selection;
 class UQOptions;
 class ResultsPelicun;
 class GeneralInformationWidget;
@@ -74,10 +74,14 @@ class DakotaResults;
 class WorkflowAppPBE : public WorkflowAppWidget
 {
     Q_OBJECT
-public:
+
+private:
     explicit WorkflowAppPBE(RemoteService *theService, QWidget *parent = 0);
     ~WorkflowAppPBE();
+    static WorkflowAppPBE *theInstance;
 
+public:
+    static WorkflowAppPBE *getInstance(RemoteService *theService, QWidget *parent = 0);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
@@ -88,6 +92,8 @@ public:
     void onRemoteGetButtonClicked();
     void onExitButtonClicked();
     int getMaxNumParallelTasks();
+
+    QString outputFilePath;
     
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
@@ -97,9 +103,8 @@ signals:
 
 public slots:  
     void setUpForApplicationRun(QString &, QString &);
-    void processResults(QString dakotaOut, QString dakotaTab, QString inputFile);
-
-    int loadFile(QString filename);
+    void processResults(QString &dirPath);
+    int loadFile(QString &filename);
 
 private:
 
@@ -109,13 +114,14 @@ private:
     // objects that go in sidebar
     GeneralInformationWidget *theGI;
     RandomVariablesContainer *theRVs;
-    SIM_Selection *theSIM;
+    SIM_Selection *theSIM_Selection;
     UQ_EngineSelection *theUQ_Selection;
-    EarthquakeEventSelection *theEvent;
-    FEM_Selection *theAnalysis;
+    EarthquakeEventSelection *theEventSelection;
+    FEA_Selection *theAnalysisSelection;
     LossModelSelection *theDLModelSelection;
     ResultsPelicun *theResults;
-
+    QString loadedFile;
+  
     // objects for running the workflow and obtaining results
     RunWidget *theRunWidget;
     Application *localApp;

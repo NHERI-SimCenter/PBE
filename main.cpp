@@ -16,6 +16,7 @@
 #include <GoogleAnalytics.h>
 #include <QDir>
 #include <QStandardPaths>
+#include <QProcessEnvironment>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("2.2.4");
+    QCoreApplication::setApplicationVersion("3.0.0");
+
     //    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
@@ -73,6 +75,12 @@ int main(int argc, char *argv[])
     logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
       + QDir::separator() + QCoreApplication::applicationName();
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      logFilePath = workDir;
+    }    
+    
     // make sure tool dir exists in Documentss folder
     QDir dirWork(logFilePath);
     if (!dirWork.exists())
@@ -114,30 +122,31 @@ int main(int argc, char *argv[])
   //
   // create the main window
   //
-  WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
-  MainWindowWorkflowApp w(QString("PBE - Performance Based Engineering Application"),theInputApp, theRemoteService);
+  //WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
+  WorkflowAppWidget *theInputApp = WorkflowAppPBE::getInstance(theRemoteService);
+  MainWindowWorkflowApp mainWindow(
+    QString("PBE - Performance Based Engineering Application"),
+    theInputApp, theRemoteService);
 
-
-  
-
-// connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *w, SLOT(errorM))
+// connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *mainWindow, SLOT(errorM))
 
 
   QString aboutTitle = "About the SimCenter PBE Application"; // this is the title displayed in the on About dialog
   QString aboutSource = ":/resources/docs/textAboutPBE.html";  // this is an HTML file stored under resources
-  w.setAbout(aboutTitle, aboutSource);
+  mainWindow.setAbout(aboutTitle, aboutSource);
 
-  QString version("Version 2.2.4");
-  w.setVersion(version);
+  QString version = QString("Version ") + QCoreApplication::applicationVersion();
 
-  QString citeText("Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145");
-  w.setCite(citeText);
+  mainWindow.setVersion(version);
+
+  QString citeText("1)Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2019, October 15). NHERI-SimCenter/PBE: Release v2.0.0 (Version v2.0.00). Zenodo. http://doi.org/10.5281/zenodo.3491145 \n\n2) Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matt J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
+  mainWindow.setCite(citeText);
 
   QString manualURL("https://nheri-simcenter.github.io/PBE-Documentation/");
-  w.setDocumentationURL(manualURL);
+  mainWindow.setDocumentationURL(manualURL);
 
   QString messageBoardURL("https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0");
-  w.setFeedbackURL(messageBoardURL);
+  mainWindow.setFeedbackURL(messageBoardURL);
 
   //
   // move remote interface to a thread
@@ -155,7 +164,7 @@ int main(int argc, char *argv[])
   // show the main window & start the event loop
   //
 
-  w.show();
+  mainWindow.show();
 
   /*
   QFile file(":/styleCommon/common_experimental.qss");
@@ -178,14 +187,12 @@ int main(int argc, char *argv[])
 #endif
 
 
-    if(file.open(QFile::ReadOnly)) {
-        a.setStyleSheet(file.readAll());
-        file.close();
-    } else {
-        qDebug() << "could not open stylesheet";
-    }
-
-
+  if(file.open(QFile::ReadOnly)) {
+      a.setStyleSheet(file.readAll());
+      file.close();
+  } else {
+      qDebug() << "could not open stylesheet";
+  }
 
   int res = a.exec();
 

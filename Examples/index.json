@@ -2,87 +2,35 @@
   "items": {
     "pbdl-0001": {
       "id": "pbdl-0001",
-      "title": "Basic Test",
+      "title": "FEMA P-58 assessment using external demand data",
       "base": "pbdl-0001",
       "doc": [
         "pbdl-0001/README.rst"
       ],
       "entry_point": "pbdl-0001/./input.json",
-      "summary": "",
+      "summary": "This example conducts a FEMA P-58 assessment of a 4-story office building.",
       "logo": "None",
-      "published": "2020-12-17T21:26:53.946381-08:00",
+      "published": "2022-06-30T00:00:00-08:00",
       "categories": {
-        "Difficulty": "0"
+        "Difficulty": "1"
       },
       "tags": [
-        "UV.1.1",
-        "UM.1.1.1",
-        "UM.1.1"
       ]
     },
     "pbdl-0002": {
       "id": "pbdl-0002",
-      "title": "Shear Building: HAZUS Assessment",
+      "title": "Seismic performance assessment workflow of a shear building using Hazus",
       "base": "pbdl-0002",
       "doc": [
-        "pbdl-0002/figures/SIM.png",
-        "pbdl-0002/figures/EVT.png",
-        "pbdl-0002/figures/model3.png",
-        "pbdl-0002/figures/GI-ex.png",
-        "pbdl-0002/figures/RV-ex.png",
-        "pbdl-0002/figures/RES-HAZUS-1.png",
-        "pbdl-0002/README.rst",
-        "pbdl-0002/figures/FEM.png",
-        "pbdl-0002/figures/RES-HAZUS-2.png",
-        "pbdl-0002/figures/shearSIM-OpenSees.png",
-        "pbdl-0002/figures/UQ.png",
-        "pbdl-0002/figures/DL.png",
-        "pbdl-0002/figures/EVT-1.png"
+        "pbdl-0002/README.rst"
       ],
       "entry_point": "pbdl-0002/./input.json",
-      "summary": "This study conducts a HAZUS style assessment of a 3-story shear building.",
-      "logo": "figures/model3.png",
-      "published": "2021-03-17T21:26:53.946381-08:00",
+      "summary": "This example conducts a Hazus assessment of a 3-story office building.",
+      "published": "2022-06-30T00:00:00-08:00",
       "categories": {
         "Difficulty": "0"
       },
       "tags": [
-        "UV.1.1",
-        "UV.1.2",
-        "UM.1.1.1",
-        "UM.1.1"
-      ]
-    },
-    "pbdl-0003": {
-      "id": "pbdl-0003",
-      "title": "Shear Building: FEMA P58 Assessments",
-      "base": "pbdl-0003",
-      "doc": [
-        "pbdl-0003/figures/GI-ex.png",
-        "pbdl-0003/figures/shearSIM-OpenSees.png",
-        "pbdl-0003/figures/SIM.png",
-        "pbdl-0003/figures/DL-P58.png",
-        "pbdl-0003/figures/EVT.png",
-        "pbdl-0003/figures/EVT-1.png",
-        "pbdl-0003/README.rst",
-        "pbdl-0003/figures/RES-P58-1.png",
-        "pbdl-0003/figures/UQ.png",
-        "pbdl-0003/figures/FEM.png",
-        "pbdl-0003/figures/RV-ex.png",
-        "pbdl-0003/figures/model3.png"
-      ],
-      "entry_point": "pbdl-0003/./input.json",
-      "summary": "This study employs the FEMA P-58 methodology for assessing damage and losses in a simple frame subjected to earthquake loading",
-      "logo": "figures/model3.png",
-      "published": "2021-03-17T21:26:53.946381-08:00",
-      "categories": {
-        "Difficulty": "0"
-      },
-      "tags": [
-        "UV.1.1",
-        "UV.1.2",
-        "UM.1.1.1",
-        "UM.1.1"
       ]
     }
   },

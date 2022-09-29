@@ -1,3 +1,6 @@
+#ifndef TRUNCATIONLIMIT_H
+#define TRUNCATIONLIMIT_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,62 +37,72 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna, adamzs
+// Written: adamzs
 
-#include <QVBoxLayout>
+#include <QCheckBox>
 
-#include "LossMethod.h"
+#include "SimCenterWidget.h"
 
-LossMethod::LossMethod(QWidget *parent)
-    : SimCenterAppWidget(parent)
+class QCheckBox;
+class QComboBox;
+class QLineEdit;
+class QLabel;
+class QHBoxLayout;
+class QRadioButton;
+
+/*!
+ * Widget for collapse limits in PBE tool
+ */
+class TruncationLimit : public SimCenterWidget
 {
+    Q_OBJECT
+public:
 
-}
+    /*!
+     * @contructor Constructor taking pointer to parent widget
+     * @param[in] parent Parent widget of Component
+     */
+    explicit TruncationLimit(QWidget *parent = nullptr,
+                             QMap<QString, QString> *TL_data_in = nullptr);
 
-LossMethod::~LossMethod()
-{
+    /*!
+     * @destructor Virtual destructor
+     */
+    virtual ~TruncationLimit();
 
-}
+    /*!
+     * Writes collapse limit data to JSON
+     * @param[in, out] outputObject Write collapse limit data to this object
+     * @return Returns true if successful, false otherwise
+     */
+    virtual bool outputToJSON(QJsonObject &outputObject);
 
-bool
-LossMethod::outputToJSON(QJsonObject &jsonObject)
-{
-    return true;
-}
+    /*!
+     * Reads collapse limit data from JSON
+     * @param[in] inputObject Read collapse limit data from this object
+     * @return Returns true if successfull, false otherwise
+     */
+    virtual bool inputFromJSON(const QJsonObject & inputObject);
 
-bool
-LossMethod::inputFromJSON(QJsonObject &jsonObject)
-{
-    return 0;
-}
+    void delete_TL_data();
 
-bool
-LossMethod::outputAppDataToJSON(QJsonObject &jsonObject) {
+signals:
 
-    return true;
-}
+public slots:
 
-bool
-LossMethod::inputAppDataFromJSON(QJsonObject &jsonObject) {
-    return true;
-}
+    void storeTLDemandType(void);
+    void storeTLLowerLimit(void);
+    void storeTLUpperLimit(void);
 
+private:
 
-bool
-LossMethod::copyFiles(QString &dirName) {
-    return true;
-}
+    QMap<QString, QString> *TL_data;
 
-void
-LossMethod::errorMessage(QString message){
-}
+    QLineEdit *tlDemandType;
+    QLineEdit *tlLowerLimit;
+    QLineEdit *tlUpperLimit;
 
-QString
-LossMethod::getFragilityFolder(){
-    return QString("");
-}
+    QHBoxLayout *mainLayout; /*!< Main layout for truncation limit */
+};
 
-QString
-LossMethod::getPopulationFile(){
-    return QString("");
-}
+#endif // TRUNCATIONLIMIT_H

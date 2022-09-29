@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 #include "LossMethod.h"
+#include "PelicunLossModel.h"
 #include <QGroupBox>
 
 class QComboBox;
@@ -53,7 +54,8 @@ class LossModelSelection : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit LossModelSelection(RandomVariablesContainer *theRV_IW, QWidget *parent = 0);
+
+    explicit LossModelSelection(QWidget *parent = 0);
 
     ~LossModelSelection();
 
@@ -64,7 +66,7 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool outputAppDataToJSON(QJsonObject &rvObject, QJsonObject &lossModelObject);
     bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    bool copyFiles(QString &destDir);
 
 public slots:
     void clear(void);
@@ -74,12 +76,13 @@ signals:
     void dlWidgetChanged(void);
 
 private:
-    QVBoxLayout *layout;
+    QStackedWidget *theStackedWidget;
     QComboBox   *dlSelection;
 
     RandomVariablesContainer *theRandVariableIW;
 
-    LossMethod *lossMethod;
+    LossMethod *theCurrentMethod;
+    PelicunLossModel *thePelicunWidget;
 
     bool selectionChangeOK;
 };

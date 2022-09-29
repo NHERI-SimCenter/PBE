@@ -1,13 +1,13 @@
 {
   "Examples": [
     {
-      "name": "E1: Shear Building: FEMA P58 Assessments",
-      "description": "",
-      "inputFile": "pbdl-0003/src/input.json"
+      "name": "E1: FEMA P-58 assessment using external demand data",
+      "description": "This example conducts a FEMA P-58 assessment of a 4-story office building.",
+      "inputFile": "pbdl-0001/src/input.json"
     },
     {
-      "name": "E2: Shear Building: HAZUS Assessments",
-      "description": "This study conducts a HAZUS style assessment of a 3-story shear building.",
+      "name": "E2: Shear building simulation and Hazus assessment",
+      "description": "This example conducts a Hazus assessment of a 3-story office building.",
       "inputFile": "pbdl-0002/src/input.json"
     }
   ]
