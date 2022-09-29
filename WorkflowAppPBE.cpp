@@ -317,16 +317,16 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
     QJsonObject defaultValues;
     defaultValues["workflowInput"]=QString("scInput.json");    
-    defaultValues["filenameBIM"]=QString("BIM.json");
+    defaultValues["filenameAIM"]=QString("AIM.json");
     defaultValues["filenameEVENT"] = QString("EVENT.json");
     defaultValues["filenameSAM"]= QString("SAM.json");
     defaultValues["filenameEDP"]= QString("EDP.json");
     defaultValues["filenameSIM"]= QString("SIM.json");
     defaultValues["driverFile"]= QString("driver");
-    defaultValues["filenameDL"]= QString("BIM.json");
+    defaultValues["filenameDL"]= QString("AIM.json");
     defaultValues["workflowOutput"]= QString("EDP.json");
     QJsonArray rvFiles, edpFiles;
-    rvFiles.append(QString("BIM.json"));
+    rvFiles.append(QString("AIM.json"));
     rvFiles.append(QString("SAM.json"));
     rvFiles.append(QString("EVENT.json"));
     rvFiles.append(QString("SIM.json"));
