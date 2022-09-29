@@ -303,7 +303,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
       return false;
     }
     
-    jsonObjectTop["DamageAndLoss"] = jsonLossModel;
+    jsonObjectTop["DL"] = jsonLossModel;
 
     QJsonObject appsDL;
     if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false) {
@@ -422,8 +422,8 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     if (theAnalysisSelection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read FEM Method data");
 
-    if (jsonObject.contains("DamageAndLoss")) {
-        QJsonObject jsonObjLossModel = jsonObject["DamageAndLoss"].toObject();
+    if (jsonObject.contains("DL")) {
+        QJsonObject jsonObjLossModel = jsonObject["DL"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
             this->errorMessage(" ERROR: failed to find Damage and Loss Model");
     } else {
@@ -544,7 +544,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     // if the EDPs are loaded from an external file, then there is no need
     // to run the whole simulation
     QJsonObject DL_app_data;    
-    DL_app_data = (json["DamageAndLoss"].toObject())["Demands"].toObject();
+    DL_app_data = (json["DL"].toObject())["Demands"].toObject();
 
     QString runType;
     if (DL_app_data.contains("DemandFilePath")) {
