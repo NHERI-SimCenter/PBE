@@ -199,7 +199,7 @@
         "secondMode": 0,
         "solver": "Umfpack"
     },
-    "UQ_Method": {
+    "UQ": {
         "parallelExecution": true,
         "samplingMethodData": {
             "method": "LHS",

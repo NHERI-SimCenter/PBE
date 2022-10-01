@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QScrollArea>
 
 #include "LossModelSelection.h"
+#include <GoogleAnalytics.h>
 
 LossModelSelection::LossModelSelection(
 
@@ -205,7 +206,7 @@ void LossModelSelection::dlSelectionChanged(const QString &arg1)
         theStackedWidget->setCurrentIndex(0);
         theCurrentMethod = thePelicunWidget;
 
-    }else {
+    } else {
         errorMessage("ERROR: Loss Input - no valid Method provided .. keeping old");
         qDebug() << "ERROR: Loss Input - no valid Method provided .. keeping old" << arg1;
     }
@@ -219,7 +220,8 @@ LossModelSelection::copyFiles(QString &destDir) {
     bool result = true;
 
     if (theCurrentMethod != 0) {
-        return  theCurrentMethod->copyFiles(destDir);
+       GoogleAnalytics::ReportAppUsage("DL-Pelicun");
+       return  theCurrentMethod->copyFiles(destDir);
     }
 
     return result;
