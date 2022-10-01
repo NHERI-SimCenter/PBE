@@ -132,16 +132,16 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     this->storeCGDistribution();
     connect(cgDistribution, SIGNAL(currentIndexChanged(int)), this, SLOT(storeCGDistribution()));
 
-    cgCOV = new QLineEdit();
-    cgCOV->setToolTip(tr("Coefficient of variation for the random distribution of \n"
-                         "component quantities.\n"
+    cgDispersion = new QLineEdit();
+    cgDispersion->setToolTip(tr("Dispersion for the random distribution of component quantities\n"
+                         "(cov for Normal, log std for Lognormal distribution)\n"
                          "If the distribution is set to N/A, this field will not \n"
                          "be considered and it can be left blank."));
-    cgCOV->setMaximumWidth(45);
-    cgCOV->setMinimumWidth(45);
-    cgCOV->setText(CG_data->value("cov", tr("")));
-    this->storeCGCOV();
-    connect(cgCOV, SIGNAL(editingFinished()), this, SLOT(storeCGCOV()));
+    cgDispersion->setMaximumWidth(45);
+    cgDispersion->setMinimumWidth(45);
+    cgDispersion->setText(CG_data->value("dispersion", tr("")));
+    this->storeCGDispersion();
+    connect(cgDispersion, SIGNAL(editingFinished()), this, SLOT(storeCGDispersion()));
 
     cgComment = new QLineEdit();
     cgComment->setToolTip(tr("Notes or comments about this entry.\n"
@@ -162,7 +162,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     mainLayout->addWidget(cgMedianQNT);
     mainLayout->addWidget(cgBlocks);
     mainLayout->addWidget(cgDistribution);
-    mainLayout->addWidget(cgCOV);
+    mainLayout->addWidget(cgDispersion);
     mainLayout->addWidget(cgComment, 1);
     //mainLayout->addWidget(button);
     mainLayout->addStretch();
@@ -206,8 +206,8 @@ ComponentGroup::storeCGDistribution(){
 }
 
 void
-ComponentGroup::storeCGCOV(){
-    CG_data -> insert("cov", cgCOV->text());
+ComponentGroup::storeCGDispersion(){
+    CG_data -> insert("dispersion", cgDispersion->text());
 }
 
 void

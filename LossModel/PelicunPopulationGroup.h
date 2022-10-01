@@ -105,7 +105,7 @@ public slots:
     void storePGLocation(void);
     void storePGMedian(void);
     void storePGDistribution(void);
-    void storePGCOV(void);
+    void storePGDispersion(void);
     void storePGComment(void);
 
 private:
@@ -115,7 +115,7 @@ private:
     QLineEdit *pgLocation;
     QLineEdit *pgMedianQNT;
     QComboBox *pgDistribution;
-    QLineEdit *pgCOV;
+    QLineEdit *pgDispersion;
     QLineEdit *pgComment;
 
     QHBoxLayout *mainLayout; /*!< Main layout for population */

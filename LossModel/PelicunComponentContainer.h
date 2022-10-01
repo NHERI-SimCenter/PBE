@@ -180,7 +180,7 @@ private:
     QLabel *compUnitType;
 
     QComboBox *compQFamily;
-    QLineEdit *compQcov;
+    QLineEdit *compQDispersion;
 
     QLineEdit *dir1Weights;
     QLineEdit *dir2Weights;
