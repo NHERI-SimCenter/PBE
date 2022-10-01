@@ -408,11 +408,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     lblPOP_dist->setMinimumWidth(100);
     loPGroup_header->addWidget(lblPOP_dist);
 
-    QLabel *lblPOP_cov = new QLabel();
-    lblPOP_cov->setText(" COV");
-    lblPOP_cov->setMaximumWidth(45);
-    lblPOP_cov->setMinimumWidth(45);
-    loPGroup_header->addWidget(lblPOP_cov);
+    QLabel *lblPOP_disp = new QLabel();
+    lblPOP_disp->setText(" Dispersion");
+    lblPOP_disp->setMaximumWidth(45);
+    lblPOP_disp->setMinimumWidth(45);
+    loPGroup_header->addWidget(lblPOP_disp);
 
     QLabel *lblPOP_note = new QLabel();
     lblPOP_note->setText(" Comment");
@@ -726,11 +726,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     lblQNT_dist->setMinimumWidth(100);
     loCGroup_header->addWidget(lblQNT_dist);
 
-    QLabel *lblQNT_cov = new QLabel();
-    lblQNT_cov->setText(" COV");
-    lblQNT_cov->setMaximumWidth(45);
-    lblQNT_cov->setMinimumWidth(45);
-    loCGroup_header->addWidget(lblQNT_cov);
+    QLabel *lblQNT_disp = new QLabel();
+    lblQNT_disp->setText(" Disp.");
+    lblQNT_disp->setMaximumWidth(45);
+    lblQNT_disp->setMinimumWidth(45);
+    loCGroup_header->addWidget(lblQNT_disp);
 
     QLabel *lblQNT_note = new QLabel();
     lblQNT_note->setText(" Comment");
@@ -1559,10 +1559,10 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
                 CG_data -> insert("blocks",       line_list[5]);
                 if (line_list.count() >= (8 + int(hasComment))) {
                     CG_data -> insert("family",   line_list[6]);
-                    CG_data -> insert("cov",      line_list[7]);
+                    CG_data -> insert("dispersion",      line_list[7]);
                 } else {
                     CG_data -> insert("family",      "");
-                    CG_data -> insert("cov",      "");
+                    CG_data -> insert("dispersion",      "");
                 }
                 CG_data -> insert("comment", line_list[line_list.count()-1]);
             } else {
@@ -1636,7 +1636,7 @@ PelicunComponentContainer::saveComponentAssignment(QString filePath) {
                     stream << "\"" << CG_data -> value("median", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("blocks", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("family", tr("")) << "\",";
-                    stream << "\"" << CG_data -> value("cov", tr("")) << "\",";
+                    stream << "\"" << CG_data -> value("dispersion", tr("")) << "\",";
                     stream << "\"" << CG_data -> value("comment", tr("")) << "\"";
                     stream << "\n";
                 }
@@ -2001,10 +2001,10 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
             CG_data -> insert("median",       compInfo["median_quantity"].toString());
             CG_data -> insert("unit",         compInfo["unit"].toString());
             CG_data -> insert("distribution", compInfo["distribution"].toString());
-            if (compInfo.contains("cov"))
-                CG_data -> insert("cov",          compInfo["cov"].toString());
+            if (compInfo.contains("dispersion"))
+                CG_data -> insert("dispersion",          compInfo["dispersion"].toString());
             else
-                CG_data -> insert("cov", tr(""));
+                CG_data -> insert("dispersion", tr(""));
         }
     }
 

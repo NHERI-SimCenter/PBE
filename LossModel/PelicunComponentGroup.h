@@ -106,7 +106,7 @@ public slots:
     void storeCGBlocks(void);
     void storeCGUnit(void);
     void storeCGDistribution(void);
-    void storeCGCOV(void);
+    void storeCGDispersion(void);
     void storeCGComment(void);
 
 private:
@@ -119,7 +119,7 @@ private:
     QLineEdit *cgBlocks;
     QLineEdit *cgUnit;
     QComboBox *cgDistribution;
-    QLineEdit *cgCOV;
+    QLineEdit *cgDispersion;
     QLineEdit *cgComment;
 
     QRadioButton *button; /*!< Button for selecting component */

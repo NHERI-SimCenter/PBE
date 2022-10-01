@@ -95,16 +95,16 @@ PopulationGroup::PopulationGroup(QWidget *parent, QMap<QString, QString> *PG_dat
     this->storePGDistribution();
     connect(pgDistribution, SIGNAL(currentIndexChanged(int)), this, SLOT(storePGDistribution()));
 
-    pgCOV = new QLineEdit();
-    pgCOV->setToolTip(tr("Coefficient of variation for the random distribution of \n"
+    pgDispersion = new QLineEdit();
+    pgDispersion->setToolTip(tr("Coefficient of variation for the random distribution of \n"
                          "component quantities.\n"
                          "If the distribution is set to N/A, this field will not \n"
                          "be considered and it can be left blank."));
-    pgCOV->setMaximumWidth(45);
-    pgCOV->setMinimumWidth(45);
-    pgCOV->setText(PG_data->value("cov", tr("")));
-    this->storePGCOV();
-    connect(pgCOV, SIGNAL(editingFinished()), this, SLOT(storePGCOV()));
+    pgDispersion->setMaximumWidth(45);
+    pgDispersion->setMinimumWidth(45);
+    pgDispersion->setText(PG_data->value("dispersion", tr("")));
+    this->storePGDispersion();
+    connect(pgDispersion, SIGNAL(editingFinished()), this, SLOT(storePGDispersion()));
 
     pgComment = new QLineEdit();
     pgComment->setToolTip(tr("Notes or comments about this entry.\n"
@@ -120,7 +120,7 @@ PopulationGroup::PopulationGroup(QWidget *parent, QMap<QString, QString> *PG_dat
     mainLayout->addWidget(pgLocation);
     mainLayout->addWidget(pgMedianQNT);
     mainLayout->addWidget(pgDistribution);
-    mainLayout->addWidget(pgCOV);
+    mainLayout->addWidget(pgDispersion);
     mainLayout->addWidget(pgComment, 1);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
@@ -150,8 +150,8 @@ PopulationGroup::storePGDistribution(){
 }
 
 void
-PopulationGroup::storePGCOV(){
-    PG_data -> insert("cov", pgCOV->text());
+PopulationGroup::storePGDispersion(){
+    PG_data -> insert("dispersion", pgDispersion->text());
 }
 
 void
