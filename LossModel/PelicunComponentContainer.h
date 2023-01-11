@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
 
-#include <HDF5Handler.h>
+//#include <HDF5Handler.h>
 
 class ComponentGroup;
 class PopulationGroup;

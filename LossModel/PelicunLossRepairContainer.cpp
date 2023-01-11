@@ -506,29 +506,35 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
 
     if (replacementCheck->isChecked()) {
 
-        QJsonObject costData;
+        if (repCostMedian->text() != QString("")) {
 
-        costData["Unit"] = repCostUnit->text();
-        costData["Median"] = repCostMedian->text();
-        costData["Distribution"] = repCostDistribution->currentText();
+            QJsonObject costData;
 
-        if (repCostDistribution->currentText() != "N/A") {
-            costData["Theta_1"] = repCostTheta1->text();
+            costData["Unit"] = repCostUnit->text();
+            costData["Median"] = repCostMedian->text();
+            costData["Distribution"] = repCostDistribution->currentText();
+
+            if (repCostDistribution->currentText() != "N/A") {
+                costData["Theta_1"] = repCostTheta1->text();
+            }
+
+            lossData["ReplacementCost"] = costData;        
         }
 
-        lossData["ReplacementCost"] = costData;
+        if (repTimeMedian->text() != QString("")) {
 
-        QJsonObject timeData;
+            QJsonObject timeData;
 
-        timeData["Unit"] = repTimeUnit->text();
-        timeData["Median"] = repTimeMedian->text();
-        timeData["Distribution"] = repTimeDistribution->currentText();
+            timeData["Unit"] = repTimeUnit->text();
+            timeData["Median"] = repTimeMedian->text();
+            timeData["Distribution"] = repTimeDistribution->currentText();
 
-        if (repTimeDistribution->currentText() != "N/A") {
-            timeData["Theta_1"] = repTimeTheta1->text();
+            if (repTimeDistribution->currentText() != "N/A") {
+                timeData["Theta_1"] = repTimeTheta1->text();
+            }
+
+            lossData["ReplacementTime"] = timeData;
         }
-
-        lossData["ReplacementTime"] = timeData;
     }
 
     lossData["ConsequenceDatabase"] = databaseConseq->currentText();
