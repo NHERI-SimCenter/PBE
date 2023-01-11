@@ -56,7 +56,6 @@ include(../QS3hark/QS3hark.pri)
 INCLUDEPATH += "./Component"
 
 SOURCES += main.cpp \
-    HDF5Handler.cpp \
     WorkflowAppPBE.cpp \
     RunWidget.cpp \
     ResultsPelicun.cpp \
@@ -83,7 +82,6 @@ SOURCES += main.cpp \
 
 
 HEADERS  += \
-    HDF5Handler.h \
     WorkflowAppPBE.h \
     RunWidget.h \
     ResultsPelicun.h \

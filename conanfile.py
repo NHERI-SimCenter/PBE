@@ -9,10 +9,11 @@ class PBE(ConanFile):
     description = "NHERI SimCenter Performance-Based Engineering Tool"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake"
-    requires = "jansson/2.13.1", \
-               "libcurl/7.72.0", \
-               "zlib/1.2.11", \
-               "hdf5/1.12.0"
+    requires = ["jansson/2.13.1",
+               "libcurl/7.72.0",
+               "zlib/1.2.11",
+               #"hdf5/1.12.0"
+               ]
 
     build_policy = "missing"
 
