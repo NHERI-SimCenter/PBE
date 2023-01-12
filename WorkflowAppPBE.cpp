@@ -341,7 +341,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 void
 WorkflowAppPBE::processResults(QString &dirPath) {
-  
+
+  statusMessage("Backend Done. Processing Results ...");  
   theResults->processResults(loadedFile, dirPath);
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
@@ -557,7 +558,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     file.write(doc.toJson());
     file.close();
 
-    statusMessage("Setup Done. Starting backend application...");
+    statusMessage("Setup Done. Starting backend application ...");
 
     emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }
