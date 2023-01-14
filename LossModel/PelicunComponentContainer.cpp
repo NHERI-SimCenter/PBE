@@ -1949,7 +1949,8 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
         databaseCombo->setCurrentText(assetData["ComponentDatabase"].toString());
     }
     if (databaseCombo->currentText() == "User Defined") {
-        fragilityDataBasePath->setText(assetData["ComponentDatabasePath"].toString());
+        this->setFragilityDataBase(assetData["ComponentDatabasePath"].toString());
+        this->updateAvailableComponents();
     }
 
     if (assetData.contains("ComponentAssignmentFile")) {
