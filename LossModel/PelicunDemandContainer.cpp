@@ -1204,6 +1204,8 @@ bool PelicunDemandContainer::inputFromJSON(QJsonObject & jsonObject) {
 
     if (demandData.contains("CoupledDemands")) {
         needCoupled->setChecked(demandData["CoupledDemands"].toBool());
+    } else {
+        needCoupled->setChecked(false);
     }
 
     this->clearResidualParamWidget();
