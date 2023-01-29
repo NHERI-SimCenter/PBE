@@ -78,7 +78,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <ResultsPelicun.h>
-#include <Utils/PythonProgressDialog.h>
+#include <Utils/ProgramOutputDialog.h>
 
 #include <GoogleAnalytics.h>
 
@@ -138,27 +138,43 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     connect(localApp,SIGNAL(setupForRun(QString &,QString &)),
             this, SLOT(setUpForApplicationRun(QString &,QString &)));
+    connect(localApp,SIGNAL(sendErrorMessage(QString)),
+	    this,SLOT(errorMessage(QString)));
+    connect(localApp,SIGNAL(sendStatusMessage(QString)),
+	    this,SLOT(statusMessage(QString)));
+    connect(localApp,SIGNAL(sendFatalMessage(QString)),
+	    this,SLOT(fatalMessage(QString)));
+    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));        
+    connect(localApp, SIGNAL(processResults(QString &)),
+            this, SLOT(processResults(QString &)));
+    
     connect(remoteApp,SIGNAL(setupForRun(QString &,QString &)),
             this, SLOT(setUpForApplicationRun(QString &,QString &)));
-
+    connect(remoteApp,SIGNAL(successfullJobStart()),
+	    this, SLOT(runComplete()));
+    connect(remoteApp,SIGNAL(sendErrorMessage(QString)),
+	    this,SLOT(errorMessage(QString)));
+    connect(remoteApp,SIGNAL(sendStatusMessage(QString)),
+	    this,SLOT(statusMessage(QString)));
+    connect(remoteApp,SIGNAL(sendFatalMessage(QString)),
+	    this,SLOT(fatalMessage(QString)));    
+    
     connect(this, SIGNAL(setUpForApplicationRunDone(QString&, QString &)), 
             theRunWidget, SLOT(setupForRunApplicationDone(QString&, QString &)));
 
-    connect(localApp, SIGNAL(processResults(QString &)),
-            this, SLOT(processResults(QString &)));
-
-    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));
-    connect(remoteApp,SIGNAL(successfullJobStart()), this, SLOT(runComplete()));
     connect(theService, SIGNAL(closeDialog()), this, SLOT(runComplete()));
-    connect(theJobManager, SIGNAL(closeDialog()), this, SLOT(runComplete()));
-    connect(localApp,SIGNAL(runComplete()), this, SLOT(runComplete()));    
     
+    connect(theJobManager, SIGNAL(closeDialog()), this, SLOT(runComplete()));
     connect(theJobManager,
             SIGNAL(processResults(QString &)),
             this,
             SLOT(processResults(QString &)));
+    
     connect(theJobManager,SIGNAL(loadFile(QString&)), this, SLOT(loadFile(QString&)));
 
+    //connect(theJobManager,SIGNAL(sendErrorMessage(QString)), this,SLOT(errorMessage(QString)));
+    // connect(theJobManager,SIGNAL(sendStatusMessage(QString)), this,SLOT(statusMessage(QString)));    
+    
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
 
     //
@@ -193,7 +209,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
 
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
-    PythonProgressDialog *theDialog=PythonProgressDialog::getInstance();
+    ProgramOutputDialog *theDialog=ProgramOutputDialog::getInstance();
     theDialog->appendInfoMessage("Welcome to PBE");
     //    theDialog->hideAfterElapsedTime(1);
 }
@@ -341,7 +357,8 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 void
 WorkflowAppPBE::processResults(QString &dirPath) {
-  
+
+  statusMessage("Backend Done. Processing Results ...");  
   theResults->processResults(loadedFile, dirPath);
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
@@ -516,6 +533,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     theAnalysisSelection->copyFiles(templateDirectory);
     theUQ_Selection->copyFiles(templateDirectory);
 
+
     //
     // in new templatedir dir save the UI data into scInput.json file (same result as using saveAs)
     // NOTE: we append object workingDir to this which points to template dir
@@ -553,12 +571,13 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
         runType = QString("run");
     }
 
+
+
     QJsonDocument doc(json);
     file.write(doc.toJson());
     file.close();
 
-    statusMessage("Setup Done. Starting backend application...");
-
+    
     emit setUpForApplicationRunDone(tmpDirectory, inputFile);
 }
 
