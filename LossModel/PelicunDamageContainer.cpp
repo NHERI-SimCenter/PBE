@@ -438,9 +438,9 @@ bool PelicunDamageContainer::outputToJSON(QJsonObject &outputObject) {
 
         collData["DemandType"] = colDemand->text();
         collData["CapacityMedian"] = colMedian->text();
-        collData["CapacityDistribution"] = colDistribution->currentText();
 
-        if (colDistribution->currentText() != "N/A") {
+        if (colDistribution->currentText() != QString("N/A")) {
+            collData["CapacityDistribution"] = colDistribution->currentText();
             collData["Theta_1"] = colTheta2->text();
         }
 
@@ -496,6 +496,8 @@ bool PelicunDamageContainer::inputFromJSON(QJsonObject & inputObject) {
         }
         if (collData.contains("CapacityDistribution")) {
             colDistribution->setCurrentText(collData["CapacityDistribution"].toString());
+        } else {
+            colDistribution->setCurrentText(QString("N/A"));
         }
         if (collData.contains("Theta_1")) {
             colTheta2->setText(collData["Theta_1"].toString());

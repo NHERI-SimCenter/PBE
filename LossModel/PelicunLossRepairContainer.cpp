@@ -511,11 +511,11 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
             QJsonObject costData;
 
             costData["Unit"] = repCostUnit->text();
-            costData["Median"] = repCostMedian->text();
-            costData["Distribution"] = repCostDistribution->currentText();
+            costData["Median"] = repCostMedian->text();            
 
-            if (repCostDistribution->currentText() != "N/A") {
-                costData["Theta_1"] = repCostTheta1->text();
+            if (repCostDistribution->currentText() != QString("N/A")) {
+                costData["Distribution"] = repCostDistribution->currentText();
+                costData["Theta_1"] = repCostTheta1->text();                
             }
 
             lossData["ReplacementCost"] = costData;        
@@ -526,10 +526,10 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
             QJsonObject timeData;
 
             timeData["Unit"] = repTimeUnit->text();
-            timeData["Median"] = repTimeMedian->text();
-            timeData["Distribution"] = repTimeDistribution->currentText();
+            timeData["Median"] = repTimeMedian->text();        
 
-            if (repTimeDistribution->currentText() != "N/A") {
+            if (repTimeDistribution->currentText() != QString("N/A")) {
+                timeData["Distribution"] = repTimeDistribution->currentText();
                 timeData["Theta_1"] = repTimeTheta1->text();
             }
 
@@ -578,6 +578,8 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
                 }
                 if (costData.contains("Distribution")) {
                     repCostDistribution->setCurrentText(costData["Distribution"].toString());
+                } else {
+                    repCostDistribution->setCurrentText(QString("N/A"));
                 }
                 if (costData.contains("Theta_1")) {
                     repCostTheta1->setText(costData["Theta_1"].toString());
@@ -596,6 +598,8 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
                 }
                 if (timeData.contains("Distribution")) {
                     repTimeDistribution->setCurrentText(timeData["Distribution"].toString());
+                } else {
+                    repTimeDistribution->setCurrentText(QString("N/A"));
                 }
                 if (timeData.contains("Theta_1")) {
                     repTimeTheta1->setText(timeData["Theta_1"].toString());
