@@ -746,8 +746,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QHBoxLayout *loCQuantityLayout = new QHBoxLayout();
 
     loCQuantityRemove = new QVBoxLayout();
+    loCQuantityRemove->setAlignment(Qt::AlignTop);
 
-    loCQuantityRemove->addStretch();
+    loCQuantityRemove->addSpacing(2);
+    loCQuantityRemove->setSpacing(5);
+    loCQuantityRemove->setMargin(0);
 
     smRemoveCG = new QSignalMapper(this);
     connect(smRemoveCG, SIGNAL(mapped(QWidget*)), this,
@@ -762,7 +765,8 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     QWidget *CGWidget = new QWidget;
     loCGList = new QVBoxLayout();
-    loCGList->addStretch();
+    loCGList->setAlignment(Qt::AlignTop);
+    loCGList->setSpacing(5);    
     loCGList->setMargin(0);
     CGWidget->setLayout(loCGList);
     saQuantityList->setWidget(CGWidget);
@@ -1839,8 +1843,8 @@ void PelicunComponentContainer::addPopulationGroup(QMap<QString, QString> *PG_da
     // add the PopulationGroup to the vector of PGs
     vPopulationGroups.append(thePopulationGroup);
 
-    thePopulationGroup->setMinimumHeight(20);
-    thePopulationGroup->setMaximumHeight(20);
+    //thePopulationGroup->setMinimumHeight(20);
+    //thePopulationGroup->setMaximumHeight(20);
 
     // add the PopulationGroup to the UI
     loPGList->insertWidget(loPGList->count()-1, thePopulationGroup);

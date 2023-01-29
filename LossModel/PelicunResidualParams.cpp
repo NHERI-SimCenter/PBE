@@ -63,6 +63,7 @@ ResidualParam::ResidualParam(QWidget *parent, QMap<QString, QString> *RP_data_in
          "same parameters for every direction, use \"all\" for this field."));
     rpDirection->setMaximumWidth(75);
     rpDirection->setMinimumWidth(75);
+    rpDirection->setMinimumHeight(20);
     rpDirection->setText(RP_data->value("dir", tr("")));
     this->storeRPDirection();
     connect(rpDirection, SIGNAL(editingFinished()), this,
@@ -77,6 +78,7 @@ ResidualParam::ResidualParam(QWidget *parent, QMap<QString, QString> *RP_data_in
          "components)"));
     rpYieldDrift->setMaximumWidth(100);
     rpYieldDrift->setMinimumWidth(100);
+    rpYieldDrift->setMinimumHeight(20);
     rpYieldDrift->setText(RP_data->value("delta_yield", tr("")));
     this->storeRPYieldDrift();
     connect(rpYieldDrift, SIGNAL(editingFinished()), this, SLOT(storeRPYieldDrift()));

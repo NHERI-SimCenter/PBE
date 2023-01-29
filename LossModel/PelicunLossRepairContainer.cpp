@@ -58,9 +58,9 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
-    this->setMaximumWidth(450);
-
     int maxWidth = 450;
+
+    this->setMaximumWidth(450);
 
     gridLayout = new QGridLayout();
 
@@ -74,6 +74,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // Replacement
 
     QHBoxLayout *replacementLayout = new QHBoxLayout();
+    replacementLayout->setMargin(0);
 
     replacementCheck = new QCheckBox();
     replacementCheck->setText("");
@@ -94,9 +95,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     replacementSettings = new QWidget();
     QVBoxLayout * loRepSetV = new QVBoxLayout(replacementSettings);
+    loRepSetV->setMargin(0);
 
     // - - - -
     QHBoxLayout * loReplacementHeader = new QHBoxLayout();
+    loReplacementHeader->setMargin(0);
 
     QLabel *lblPlaceholder = new QLabel();
     lblPlaceholder->setText("");
@@ -140,6 +143,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout * loReplacementCostValues = new QHBoxLayout();
+    loReplacementCostValues->setMargin(0);
 
     QLabel *lblCost = new QLabel();
     lblCost->setText("Cost: ");
@@ -201,6 +205,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout * loReplacementTimeValues = new QHBoxLayout();
+    loReplacementTimeValues->setMargin(0);
 
     QLabel *lblTime = new QLabel();
     lblTime->setText("Time: ");
