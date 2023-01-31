@@ -64,6 +64,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
                           "such as 'ft2' for square foot."));
     cgUnit->setMaximumWidth(45);
     cgUnit->setMinimumWidth(45);
+    cgUnit->setMinimumHeight(20);
     cgUnit->setText(CG_data->value("unit", tr("")));
 
     this->storeCGUnit();
@@ -80,6 +81,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
                               "combine these and use '3-roof', for example."));
     cgLocation->setMaximumWidth(75);
     cgLocation->setMinimumWidth(75);
+    cgLocation->setMinimumHeight(20);
     cgLocation->setText(CG_data->value("location", tr("")));
     this->storeCGLocation();
     connect(cgLocation, SIGNAL(editingFinished()), this, SLOT(storeCGLocation()));
@@ -94,6 +96,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
                                "1 as direction."));
     cgDirection->setMaximumWidth(75);
     cgDirection->setMinimumWidth(75);
+    cgDirection->setMinimumHeight(20);
     cgDirection->setText(CG_data->value("direction", tr("")));
     this->storeCGDirection();
     connect(cgDirection, SIGNAL(editingFinished()), this, SLOT(storeCGDirection()));
@@ -108,6 +111,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
                                "defined for each Performance Group below."));
     cgMedianQNT->setMaximumWidth(75);
     cgMedianQNT->setMinimumWidth(75);
+    cgMedianQNT->setMinimumHeight(20);
     cgMedianQNT->setText(CG_data->value("median", tr("")));
     this->storeCGMedian();
     connect(cgMedianQNT, SIGNAL(editingFinished()), this, SLOT(storeCGMedian()));
@@ -116,6 +120,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgBlocks->setToolTip(tr("The number of blocks per Performance Group."));
     cgBlocks->setMaximumWidth(75);
     cgBlocks->setMinimumWidth(75);
+    cgBlocks->setMinimumHeight(20);
     cgBlocks->setText(CG_data->value("blocks", tr("")));
     this->storeCGBlocks();
     connect(cgBlocks, SIGNAL(editingFinished()), this, SLOT(storeCGBlocks()));
@@ -128,6 +133,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     cgDistribution->addItem(tr("lognormal"));
     cgDistribution->setMaximumWidth(100);
     cgDistribution->setMinimumWidth(100);
+    cgDistribution->setMinimumHeight(20);
     cgDistribution->setCurrentText(CG_data->value("family", tr("N/A")));
     this->storeCGDistribution();
     connect(cgDistribution, SIGNAL(currentIndexChanged(int)), this, SLOT(storeCGDistribution()));
@@ -139,11 +145,13 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
                          "be considered and it can be left blank."));
     cgDispersion->setMaximumWidth(45);
     cgDispersion->setMinimumWidth(45);
+    cgDispersion->setMinimumHeight(20);
     cgDispersion->setText(CG_data->value("dispersion", tr("")));
     this->storeCGDispersion();
     connect(cgDispersion, SIGNAL(editingFinished()), this, SLOT(storeCGDispersion()));
 
     cgComment = new QLineEdit();
+    cgComment->setMinimumHeight(20);
     cgComment->setToolTip(tr("Notes or comments about this entry.\n"
                              "Only used to provide information here, not used in the calculation."));
     cgComment->setText(CG_data->value("comment", tr("")));

@@ -63,6 +63,7 @@ CollapseLimit::CollapseLimit(QWidget *parent, QMap<QString, QString> *CL_data_in
          "and directions are checked against the specified limit."));
     clDemandType->setMaximumWidth(75);
     clDemandType->setMinimumWidth(75);
+    clDemandType->setMinimumHeight(20);
     clDemandType->setText(CL_data->value("type", tr("")));
     this->storeCLDemandType();
     connect(clDemandType, SIGNAL(editingFinished()), this, SLOT(storeCLDemandType()));
@@ -73,6 +74,7 @@ CollapseLimit::CollapseLimit(QWidget *parent, QMap<QString, QString> *CL_data_in
       tr("The magnitude of the given demand type that triggers collapse."));
     clDemandLimit->setMaximumWidth(75);
     clDemandLimit->setMinimumWidth(75);
+    clDemandLimit->setMinimumHeight(20);
     clDemandLimit->setText(CL_data->value("limit", tr("")));
     this->storeCLDemandLimit();
     connect(clDemandLimit, SIGNAL(editingFinished()), this, SLOT(storeCLDemandLimit()));
