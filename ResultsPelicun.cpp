@@ -264,6 +264,7 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
     // into a spreadsheet place all the data returned
     //
 
+    
     spreadsheet = new MyTableWidget();
     QJsonObject spreadsheetData = jsonObject["spreadsheet"].toObject();
     int numRow = spreadsheetData["numRow"].toInt();
@@ -314,8 +315,15 @@ ResultsPelicun::inputFromJSON(QJsonObject &jsonObject)
     QWidget *widget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout(widget);
     layout->addWidget(chartView, 1);
-    layout->addWidget(spreadsheet, 1);
+    //    layout->addWidget(spreadsheet, 1);
 
+    QScrollArea *tableScroll = new QScrollArea;
+    tableScroll->setWidgetResizable(true);
+    tableScroll->setLineWidth(0);
+    tableScroll->setFrameShape(QFrame::NoFrame);
+    tableScroll->setWidget(spreadsheet);
+    layout->addWidget(tableScroll);
+    
     //
     // add 3 Widgets to TabWidget
     //
