@@ -58,9 +58,9 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
-    this->setMaximumWidth(450);
-
     int maxWidth = 450;
+
+    this->setMaximumWidth(450);
 
     gridLayout = new QGridLayout();
 
@@ -74,6 +74,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // Replacement
 
     QHBoxLayout *replacementLayout = new QHBoxLayout();
+    replacementLayout->setMargin(0);
 
     replacementCheck = new QCheckBox();
     replacementCheck->setText("");
@@ -94,9 +95,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     replacementSettings = new QWidget();
     QVBoxLayout * loRepSetV = new QVBoxLayout(replacementSettings);
+    loRepSetV->setMargin(0);
 
     // - - - -
     QHBoxLayout * loReplacementHeader = new QHBoxLayout();
+    loReplacementHeader->setMargin(0);
 
     QLabel *lblPlaceholder = new QLabel();
     lblPlaceholder->setText("");
@@ -140,6 +143,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout * loReplacementCostValues = new QHBoxLayout();
+    loReplacementCostValues->setMargin(0);
 
     QLabel *lblCost = new QLabel();
     lblCost->setText("Cost: ");
@@ -201,6 +205,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout * loReplacementTimeValues = new QHBoxLayout();
+    loReplacementTimeValues->setMargin(0);
 
     QLabel *lblTime = new QLabel();
     lblTime->setText("Time: ");
@@ -511,11 +516,11 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
             QJsonObject costData;
 
             costData["Unit"] = repCostUnit->text();
-            costData["Median"] = repCostMedian->text();
-            costData["Distribution"] = repCostDistribution->currentText();
+            costData["Median"] = repCostMedian->text();            
 
-            if (repCostDistribution->currentText() != "N/A") {
-                costData["Theta_1"] = repCostTheta1->text();
+            if (repCostDistribution->currentText() != QString("N/A")) {
+                costData["Distribution"] = repCostDistribution->currentText();
+                costData["Theta_1"] = repCostTheta1->text();                
             }
 
             lossData["ReplacementCost"] = costData;        
@@ -526,10 +531,10 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
             QJsonObject timeData;
 
             timeData["Unit"] = repTimeUnit->text();
-            timeData["Median"] = repTimeMedian->text();
-            timeData["Distribution"] = repTimeDistribution->currentText();
+            timeData["Median"] = repTimeMedian->text();        
 
-            if (repTimeDistribution->currentText() != "N/A") {
+            if (repTimeDistribution->currentText() != QString("N/A")) {
+                timeData["Distribution"] = repTimeDistribution->currentText();
                 timeData["Theta_1"] = repTimeTheta1->text();
             }
 
@@ -578,6 +583,8 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
                 }
                 if (costData.contains("Distribution")) {
                     repCostDistribution->setCurrentText(costData["Distribution"].toString());
+                } else {
+                    repCostDistribution->setCurrentText(QString("N/A"));
                 }
                 if (costData.contains("Theta_1")) {
                     repCostTheta1->setText(costData["Theta_1"].toString());
@@ -596,6 +603,8 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
                 }
                 if (timeData.contains("Distribution")) {
                     repTimeDistribution->setCurrentText(timeData["Distribution"].toString());
+                } else {
+                    repTimeDistribution->setCurrentText(QString("N/A"));
                 }
                 if (timeData.contains("Theta_1")) {
                     repTimeTheta1->setText(timeData["Theta_1"].toString());

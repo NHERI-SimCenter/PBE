@@ -222,8 +222,11 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     QHBoxLayout *loTLimitLayout = new QHBoxLayout();
 
     loTruncLimRemove = new QVBoxLayout();
+    loTruncLimRemove->setAlignment(Qt::AlignTop);
 
-    loTruncLimRemove->addStretch();
+    loTruncLimRemove->addSpacing(2);
+    loTruncLimRemove->setSpacing(5);
+    loTruncLimRemove->setMargin(0);
 
     smRemoveTL = new QSignalMapper(this);
     connect(smRemoveTL, SIGNAL(mapped(QWidget*)), this,
@@ -240,7 +243,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     QWidget *TLWidget = new QWidget;
     loTLList = new QVBoxLayout();
-    loTLList->addStretch();
+    loTLList->setAlignment(Qt::AlignTop);
+    loTLList->setSpacing(5);
     loTLList->setMargin(0);
     TLWidget->setLayout(loTLList);
     saTruncLimits->setWidget(TLWidget);
@@ -361,7 +365,9 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loCollLimRemove = new QVBoxLayout();
     loCollLimRemove->setAlignment(Qt::AlignTop);
 
-    //loCollLimRemove->addStretch();
+    loCollLimRemove->addSpacing(2);
+    loCollLimRemove->setSpacing(5);
+    loCollLimRemove->setMargin(0);
 
     smRemoveCL = new QSignalMapper(this);
     connect(smRemoveCL, SIGNAL(mapped(QWidget*)), this,
@@ -376,8 +382,9 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     QWidget *CLWidget = new QWidget;
     loCLList = new QVBoxLayout();
-    loCLList->addStretch();
+    loCLList->setAlignment(Qt::AlignTop);
     loCLList->setMargin(0);
+    loCLList->setSpacing(5);
     CLWidget->setLayout(loCLList);
     saCollapseLims->setWidget(CLWidget);
 
@@ -508,8 +515,11 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     QHBoxLayout *loRParamLayout = new QHBoxLayout();
 
     loResidualPRemove = new QVBoxLayout();
+    loResidualPRemove->setAlignment(Qt::AlignTop);
 
-    loResidualPRemove->addStretch();
+    loResidualPRemove->addSpacing(2);
+    loResidualPRemove->setSpacing(5);
+    loResidualPRemove->setMargin(0);
 
     smRemoveRP = new QSignalMapper(this);
     connect(smRemoveRP, SIGNAL(mapped(QWidget*)), this,
@@ -526,7 +536,8 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     QWidget *YDWidget = new QWidget;
     loRPList = new QVBoxLayout();
-    loRPList->addStretch();
+    loRPList->setAlignment(Qt::AlignTop);
+    loRPList->setSpacing(5);
     loRPList->setMargin(0);
     YDWidget->setLayout(loRPList);
     saYieldDrift->setWidget(YDWidget);
