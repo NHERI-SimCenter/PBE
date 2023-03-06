@@ -103,6 +103,7 @@ done
 
 find ./$appFile -name __pycache__ -exec rm -rf {} +;
 
+
 #
 # load my credential file
 #
@@ -115,6 +116,8 @@ if [ -z "$appleID" ]; then
     echo "No password & credential file to continue with codesig and App store verification"
     exit
 fi
+
+
 
 #codesign
 echo "codesign --deep --force --verbose --options=runtime  --sign "$appleCredential" $appFile"

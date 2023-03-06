@@ -56,9 +56,9 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.0.3");
+    QCoreApplication::setApplicationVersion("3.0.4");
 
-    // GoogleAnalytics::SetTrackingId("UA-126256136-1");
+    GoogleAnalytics::SetTrackingId("UA-126256136-1");
     GoogleAnalytics::StartSession();
     GoogleAnalytics::ReportStart();
 
