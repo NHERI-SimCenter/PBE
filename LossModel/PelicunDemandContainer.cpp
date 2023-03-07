@@ -128,7 +128,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     // Demand Model ------------------------------------------------------------
 
-    QGroupBox *DemandModelGB = new QGroupBox("Stochastic Model");
+    QGroupBox *DemandModelGB = new QGroupBox("Probabilistic Model");
     DemandModelGB->setMaximumWidth(maxWidth);
 
     QVBoxLayout *loDM = new QVBoxLayout(DemandModelGB);

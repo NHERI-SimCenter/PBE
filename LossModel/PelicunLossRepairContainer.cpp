@@ -624,7 +624,7 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
             mapApproach->setCurrentText(lossData["MapApproach"].toString());
 
             if (mapApproach->currentText() == "User Defined"){
-                mapPath->setText(lossData["ConsequenceDatabasePath"].toString());
+                mapPath->setText(lossData["MapFilePath"].toString());
             }
         }
     }
