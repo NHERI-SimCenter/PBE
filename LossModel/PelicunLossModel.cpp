@@ -80,11 +80,11 @@ PelicunLossModel::PelicunLossModel(QWidget *parent)
     contLoss = new PelicunLossContainer();
     theTab->addTab(contLoss, "Losses");
 
-    /*
     // outputs
     contOutputs = new PelicunOutputsContainer();
     theTab->addTab(contOutputs,"Outputs");
 
+    /*
     // preferences
     contPreferences = new PelicunPreferencesContainer();
     theTab->addTab(contPreferences,"Preferences");
@@ -132,7 +132,13 @@ PelicunLossModel::outputToJSON(QJsonObject &jsonObject)
     if (result == false) {
       qDebug() << "PelicunLossModel::outputToJSON() - contLoss failed\n";
       return false;
-    }            
+    }  
+
+    result += contOutputs->outputToJSON(jsonObject);
+    if (result == false) {
+      qDebug() << "PelicunLossModel::outputToJSON() - contOutputs failed\n";
+      return false;
+    }           
 
     qDebug() << "PelicunLossModel::outputToJSON() - end, result = " << result;
     
@@ -153,6 +159,8 @@ PelicunLossModel::inputFromJSON(QJsonObject &jsonObject)
     result += contDamage->inputFromJSON(jsonObject);
 
     result += contLoss->inputFromJSON(jsonObject);
+
+    result += contOutputs->inputFromJSON(jsonObject);
 
     return result;
 

@@ -1261,7 +1261,7 @@ PelicunComponentContainer::getFragilityDataBase(){
     } else if (databaseCombo->currentText() == "Hazus Earthquake") {
 
         fragilityDataBase = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_HAZUS_EQ.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
 
     } else {
 

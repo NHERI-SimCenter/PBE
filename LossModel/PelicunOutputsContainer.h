@@ -49,6 +49,7 @@ class QLineEdit;
 class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
+class QGridLayout;
 class QRadioButton;
 
 /*!
@@ -96,50 +97,28 @@ public slots:
 
 private:
 
-    /*
-    QLineEdit * yieldDriftValue;
-    QLineEdit * driftDetLim;
-    QLineEdit * accDetLim;
-    QLineEdit * irrepResDriftMedian;
-    QLineEdit * irrepResDriftStd;
-    QLineEdit * driftColLim;
-    QLineEdit * accColLim;
-    QLineEdit * realizationsValue;
-    QLineEdit * addedUncertaintyGM;
-    QLineEdit * addedUncertaintyModel;
-    QLineEdit * peakPopulation;
-    QLineEdit * replacementCostValue;
-    QLineEdit * replacementTimeValue;
-    //QLineEdit * fragilityFolderPath;
-    QLineEdit * populationFilePath;
-    QLineEdit * colProbValue;
-    */
+    QCheckBox * outputCSV;
+    QCheckBox * outputJSON;
+    
+    QCheckBox * assetOutSample;
+    QCheckBox * assetOutStats;
 
-    QComboBox * quantityDep;
-    QComboBox * fragilityDep;
-    QComboBox * costDep;
-    QComboBox * timeDep;
-    QComboBox * injuryDep;
-    QComboBox * redTagDep;
-    /*
-    QComboBox * occupancyType;
-    QComboBox * collProbApproach;
-    QComboBox * EDP_Distribution;
-    QComboBox * EDP_Fitting;
-    QComboBox * colBasis;
-    */
+    QCheckBox * demandOutSample;
+    QCheckBox * demandOutStats;
 
-    QCheckBox * costAndTimeDep;
-    QCheckBox * injSeverityDep;
+    QCheckBox * damageOutSample;
+    QCheckBox * damageOutStats;
+    QCheckBox * damageOutGrpSample;
+    QCheckBox * damageOutGrpStats;
 
-    /*
-    QCheckBox * needRecCost;
-    QCheckBox * needRecTime;
-    QCheckBox * needInjuries;
-    QCheckBox * needRedTag;
-    */
+    QCheckBox * repairOutSample;
+    QCheckBox * repairOutStats;
+    QCheckBox * repairOutGrpSample;
+    QCheckBox * repairOutGrpStats;
+    QCheckBox * repairOutAggSample;
+    QCheckBox * repairOutAggStats;
 
-    QVBoxLayout *mainLayout; /*!< Main layout for general settings */
+    QGridLayout *gridLayout; /*!< Main layout for general settings */
 };
 
 #endif // PelicunOUTPUTS_CONTAINER_H
