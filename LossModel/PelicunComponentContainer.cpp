@@ -1754,7 +1754,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
        theComponentGroup->setMaximumHeight(20);
 
        // add the ComponentGroup to the UI
-       loCGList->insertWidget(loCGList->count()-1, theComponentGroup);
+       loCGList->insertWidget(-1, theComponentGroup);
 
        // add a remove button to the UI
        QPushButton *removeCGroup = new QPushButton();
@@ -1762,8 +1762,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
        removeCGroup->setMaximumWidth(20);
        removeCGroup->setMaximumHeight(20);
        removeCGroup->setText(tr("-"));
-       loCQuantityRemove->insertWidget(loCQuantityRemove->count()-1,
-                                       removeCGroup);
+       loCQuantityRemove->insertWidget(-1, removeCGroup);
 
        smRemoveCG->setMapping(removeCGroup, theComponentGroup);
        connect(removeCGroup, SIGNAL(clicked()), smRemoveCG, SLOT(map()));
@@ -1847,7 +1846,7 @@ void PelicunComponentContainer::addPopulationGroup(QMap<QString, QString> *PG_da
     //thePopulationGroup->setMaximumHeight(20);
 
     // add the PopulationGroup to the UI
-    loPGList->insertWidget(loPGList->count()-1, thePopulationGroup);
+    loPGList->insertWidget(-1, thePopulationGroup);
 
     // add a remove button to the UI
     QPushButton *removePGroup = new QPushButton();
@@ -1855,8 +1854,7 @@ void PelicunComponentContainer::addPopulationGroup(QMap<QString, QString> *PG_da
     removePGroup->setMaximumWidth(20);
     removePGroup->setMaximumHeight(20);
     removePGroup->setText(tr("-"));
-    loPQuantityRemove->insertWidget(loPQuantityRemove->count()-1,
-                                   removePGroup);
+    loPQuantityRemove->insertWidget(-1, removePGroup);
 
     smRemovePG->setMapping(removePGroup, thePopulationGroup);
     connect(removePGroup, SIGNAL(clicked()), smRemovePG, SLOT(map()));
