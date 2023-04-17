@@ -49,7 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QJsonObject>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 
 #include "PelicunPreferencesContainer.h"
 
