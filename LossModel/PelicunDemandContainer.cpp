@@ -52,7 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QJsonObject>
 #include <QScrollArea>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 #include <QSignalMapper>
 
 #include "SimCenterPreferences.h"

@@ -50,7 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 #include <QProcess>
 #include <QCoreApplication>
 #include <QSettings>

@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 
 #include <QVBoxLayout>
 #include <QStackedWidget>
