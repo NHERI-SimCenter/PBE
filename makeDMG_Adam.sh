@@ -6,6 +6,8 @@ dmgFile="PBE_Mac_Download.dmg"
 
 QTDIR="/Users/adamzs/Qt/5.15.2/clang_64/"
 
+pathToQuaZip="/Users/adamzs/Repos/PBE/quazip/install/lib/"
+
 pathToBackendApps="/Users/adamzs/SimCenter"
 pathToOpenSees="/Users/adamzs/SimCenter/applications/OpenSees/OpenSees3.3.0/bin"
 pathToDakota="/Users/adamzs/SimCenter/applications/Dakota/bin"
@@ -63,6 +65,10 @@ echo "cp -R $QTDIR/plugins/renderplugins/libscene2d.dylib ./$appFile/Contents/pl
 mkdir -p ./$appFile/Contents/plugins/renderplugins/
 cp -R $QTDIR/plugins/renderplugins/libscene2d.dylib ./$appFile/Contents/plugins/renderplugins/
 
+# copy quazip libraries
+cp $pathToQuaZip/libquazip1-qt5.1.4.0.dylib ./$appFile/Contents/Frameworks/
+cp $pathToQuaZip/libquazip1-qt5.1.4.dylib ./$appFile/Contents/Frameworks/
+cp $pathToQuaZip/libquazip1-qt5.dylib ./$appFile/Contents/Frameworks/
 
 # copy applications folderm opensees and dakota
 echo "cp -fR $pathToBackendApps/applications ./$appFile/Contents/MacOS"
@@ -72,6 +78,8 @@ mkdir  ./$appFile/Contents/MacOS/applications/dakota
 echo "cp -fr $pathToOpenSees/* $pathApp/Contents/MacOS/applications/opensees"
 cp -fr $pathToOpenSees/* ./$appFile/Contents/MacOS/applications/opensees
 cp -fr $pathToDakota/*  ./$appFile/Contents/MacOS/applications/dakota
+
+
 
 # clean up
 declare -a notWantedApp=("createBIM" 

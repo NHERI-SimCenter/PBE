@@ -40,16 +40,23 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna, adamzs
 
 #include "GeneralInformationWidget.h"
+#include <Utils/ProgramOutputDialog.h>
 
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
+#include <QWebEngineView>
+
+#include <quazip.h>
+#include <quazipfile.h>
 
 //#include <HDF5Handler.h>
 
 class ComponentGroup;
 class PopulationGroup;
 
+class QCheckBox;
 class QGridLayout;
+class QHBoxLayout;
 class QVBoxLayout;
 class QLineEdit;
 class QLabel;
@@ -72,8 +79,7 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool copyFiles(QString &dirName);
 
-    int setFragilityDataBase(QString fragilityDataBase);
-    QString getFragilityDataBase();
+    int setAdditionalComponentDB(QString additionalComponentDB);
 
     int saveComponentAssignment(QString filePath);
     int loadComponentAssignment(QString filePath);
@@ -97,7 +103,8 @@ public slots:
    void removeAllComponents(void);
    void showSelectedComponent(void);
 
-   void DBSelectionChanged(const QString &arg1);
+   //void DBSelectionChanged(const QString &arg1);
+   void addComponentCheckChanged(int newState);
    void POPDBSelectionChanged(const QString &arg1);
 
    void addPopulationGroup(QMap<QString, QString> *PG_data_in=nullptr);
@@ -109,12 +116,14 @@ public slots:
    void onLoadConfigClicked(void);
    void onSaveConfigClicked(void);
 
-   void chooseFragilityDataBase(void);
-   void exportFragilityDataBase(void);
+   void chooseAdditionalComponentDB(void);
+   void updateComponentVulnerabilityDB();
+   void exportComponentVulnerabilityDB(void);
 
    void storiesOrAreaChanged();
    void setNumStories(int numStories, double dummy);
    void setPlanArea(double dummy, double dummy2, double planArea);
+   void setPlanAreaUnit(QString unitName);
 
    /*
    void storeCompQuantity(void);
@@ -138,8 +147,16 @@ private:
 
     void deleteCompDB();
     void deleteCompConfig();
+    QString generateFragilityInfo(QString comp_DB_path);
+
+    QString   cmpVulnerabilityDB;
+    QString   additionalComponentDB;
+    QString   cmpVulnerabilityDB_viz;
+    QString   additionalComponentDB_viz;
 
     GeneralInformationWidget *theGI;
+
+    ProgramOutputDialog *outputDialog;
 
     QGridLayout *gridLayout;
 
@@ -148,14 +165,17 @@ private:
 
     QLineEdit *storiesValue;
     QLineEdit *planAreaValue;
-    QLineEdit *fragilityDataBasePath;
+    QLabel    *lblUnitSquared;
+    QLineEdit *leAdditionalComponentDB;
     QLineEdit *populationDataBasePath;
 
     QComboBox *occupancyType;
     QComboBox *databaseCombo;
     QComboBox *databasePOPCombo;
 
-    QPushButton *btnChooseFragility;
+    QCheckBox *addComp;
+
+    QPushButton *btnChooseAdditionalComponentDB;
     QPushButton *btnChoosePOPDB;
 
     QVBoxLayout *eventLayout;
@@ -211,6 +231,10 @@ private:
     QVector<PopulationGroup *>vPopulationGroups;
     QVector<QPushButton *>vRemoveButtons;
     QVector<QPushButton *>vRemovePopButtons;
+
+    // Display fragility information
+    QWebEngineView *fragilityViz; 
+    //QuaZip fragilityZip;
 
 };
 

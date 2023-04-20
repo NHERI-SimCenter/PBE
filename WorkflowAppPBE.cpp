@@ -106,6 +106,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
 
     theApp = this;
 
+    ProgramOutputDialog *theDialog=ProgramOutputDialog::getInstance();
+    theDialog->appendInfoMessage("Initializing application...<br>");
+
     //
     // create the various widgets
     //
@@ -209,9 +212,9 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     manager->get(QNetworkRequest(QUrl("http://opensees.berkeley.edu/OpenSees/developer/eeuq/use.php")));
 
     theGI->setDefaultProperties(1,144,360,360,37.426,-122.171);
-    ProgramOutputDialog *theDialog=ProgramOutputDialog::getInstance();
-    theDialog->appendInfoMessage("Welcome to PBE");
     theGI->setLengthUnit(QString("ft")); // set default length unit to ft
+    theDialog->appendBlankLine();
+    theDialog->appendInfoMessage("Welcome to PBE<br>");
     //    theDialog->hideAfterElapsedTime(1);
 }
 
