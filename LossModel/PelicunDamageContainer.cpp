@@ -327,10 +327,12 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     dpApproach->addItem("FEMA P-58",0);
     dpApproach->addItem("Hazus Earthquake",1);
     dpApproach->addItem("User Defined",2);
+    dpApproach->addItem("None",3);
 
     dpApproach->setItemData(0, "<p>Collapse and irreparable damage, if applicable, is evaluated first; component damages are only returned for non-collapse cases.</p>", Qt::ToolTipRole);
     dpApproach->setItemData(1, "<p>Collapse is triggered by the second mutually exclusive damage state in the highest limit state of structural components. When collapse is triggered, all components have their highest limit state assigned.</p>", Qt::ToolTipRole);
     dpApproach->setItemData(2, "<p>Custom damage process provided in a JSON file</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(3, "<p>No damage process applied; i.e., no relationship modeled between component damages.</p>", Qt::ToolTipRole);
 
     selectDPLayout->addWidget(dpApproach, 1);
 
