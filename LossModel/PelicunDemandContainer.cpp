@@ -625,7 +625,7 @@ void PelicunDemandContainer::addCollapseLimit(QMap<QString, QString> *CL_data_in
     theCollapseLimit->setMaximumHeight(20);
 
     // add the CollapseLimit to the UI
-    loCLList->insertWidget(loCLList->count()-1, theCollapseLimit);
+    loCLList->insertWidget(-1, theCollapseLimit);
 
     // add a remove button to the UI
     QPushButton *removeCLimit = new QPushButton();
@@ -633,8 +633,7 @@ void PelicunDemandContainer::addCollapseLimit(QMap<QString, QString> *CL_data_in
     removeCLimit->setMaximumWidth(20);
     removeCLimit->setMaximumHeight(20);
     removeCLimit->setText(tr("-"));
-    loCollLimRemove->insertWidget(loCollLimRemove->count()-1,
-                                  removeCLimit);
+    loCollLimRemove->insertWidget(-1, removeCLimit);
 
     smRemoveCL->setMapping(removeCLimit, theCollapseLimit);
     connect(removeCLimit, SIGNAL(clicked()), smRemoveCL, SLOT(map()));
@@ -743,7 +742,7 @@ void PelicunDemandContainer::addTruncationLimit(QMap<QString, QString> *TL_data_
     theTruncationLimit->setMaximumHeight(20);
 
     // add the TruncationLimit to the UI
-    loTLList->insertWidget(loTLList->count()-1, theTruncationLimit);
+    loTLList->insertWidget(-1, theTruncationLimit);
 
     // add a remove button to the UI
     QPushButton *removeTLimit = new QPushButton();
@@ -751,8 +750,7 @@ void PelicunDemandContainer::addTruncationLimit(QMap<QString, QString> *TL_data_
     removeTLimit->setMaximumWidth(20);
     removeTLimit->setMaximumHeight(20);
     removeTLimit->setText(tr("-"));
-    loTruncLimRemove->insertWidget(loTruncLimRemove->count()-1,
-                                  removeTLimit);
+    loTruncLimRemove->insertWidget(-1, removeTLimit);
 
     smRemoveTL->setMapping(removeTLimit, theTruncationLimit);
     connect(removeTLimit, SIGNAL(clicked()), smRemoveTL, SLOT(map()));
@@ -861,7 +859,7 @@ void PelicunDemandContainer::addResidualParam(QMap<QString, QString> *RP_data_in
     theResidualParam->setMaximumHeight(20);
 
     // add the ResidualParam to the UI
-    loRPList->insertWidget(loRPList->count()-1, theResidualParam);
+    loRPList->insertWidget(-1, theResidualParam);
 
     // add a remove button to the UI
     QPushButton *removeRParam = new QPushButton();
@@ -869,8 +867,7 @@ void PelicunDemandContainer::addResidualParam(QMap<QString, QString> *RP_data_in
     removeRParam->setMaximumWidth(20);
     removeRParam->setMaximumHeight(20);
     removeRParam->setText(tr("-"));
-    loResidualPRemove->insertWidget(loResidualPRemove->count()-1,
-                                  removeRParam);
+    loResidualPRemove->insertWidget(-1, removeRParam);
 
     smRemoveRP->setMapping(removeRParam, theResidualParam);
     connect(removeRParam, SIGNAL(clicked()), smRemoveRP, SLOT(map()));

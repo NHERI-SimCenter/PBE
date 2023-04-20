@@ -52,6 +52,7 @@ include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../EE-UQ/EarthquakeEvents.pri)
 include(../QS3hark/QS3hark.pri)
+include(../quazip/quazip.pri)
 
 INCLUDEPATH += "./Component"
 

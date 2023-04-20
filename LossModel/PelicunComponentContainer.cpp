@@ -66,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QSettings>
 #include <QSignalMapper>
+#include <QWebEngineView>
 
 PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -73,38 +74,85 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     int maxWidth = 800;
     this->setMaximumWidth(maxWidth);
 
+    theGI = GeneralInformationWidget::getInstance();
+
     // initialize the compDB Map
     compDB = new QMap<QString, QMap<QString, QString>* >;
 
     // initialize component property containers
     compConfig = new QMap<QString, QVector<QMap<QString, QString>* >* >;
 
+    // initialize the location of component vulnerability data
+    cmpVulnerabilityDB = "";
+    cmpVulnerabilityDB_viz = "";
+    additionalComponentDB = "";
+    additionalComponentDB_viz = "";
+
+
     gridLayout = new QGridLayout();
 
     // general information ----------------------------------------------------
     QGroupBox *generalGroupBox = new QGroupBox("General Information");
-    generalGroupBox->setMaximumWidth(300);
+    generalGroupBox->setMaximumWidth(320);
 
-    QFormLayout *generalFormLayout = new QFormLayout();
+    QVBoxLayout *generalFormLayout = new QVBoxLayout(generalGroupBox);
+    //QFormLayout *generalFormLayout = new QFormLayout();
 
     // stories
+    QHBoxLayout *storyLayout = new QHBoxLayout();
+
+    QLabel *lblNumStories = new QLabel();
+    lblNumStories->setText("Number of Stories");
+    lblNumStories->setMaximumWidth(110);
+    lblNumStories->setMinimumWidth(110);
+    lblNumStories->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    storyLayout->addWidget(lblNumStories);
+
     storiesValue = new QLineEdit();
     storiesValue->setToolTip(tr("Number of stories above ground."));
     storiesValue->setText("");
-    storiesValue->setAlignment(Qt::AlignRight);
-    generalFormLayout->addRow(tr("Number of Stories"), storiesValue);
+    storiesValue->setMaximumWidth(80);
+    storiesValue->setMinimumWidth(80);
+    storiesValue->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    //generalFormLayout->addRow(tr("Number of Stories"), storiesValue);
+    storyLayout->addWidget(storiesValue);
+
+    storyLayout->addStretch();
+
+    generalFormLayout->addLayout(storyLayout);
 
     // plan area
+    QHBoxLayout *areaLayout = new QHBoxLayout();
+
+    QLabel *lblPlanArea = new QLabel();
+    lblPlanArea->setText("Plan Area");
+    lblPlanArea->setMaximumWidth(110);
+    lblPlanArea->setMinimumWidth(110);
+    lblPlanArea->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    areaLayout->addWidget(lblPlanArea);
+
     planAreaValue = new QLineEdit();
     planAreaValue->setToolTip(tr("Plan area of the building. \n"
                                  "Unit is based on length unit defined on General Information (GI) panel."));
     planAreaValue->setText("");
-    planAreaValue->setAlignment(Qt::AlignRight);
-    generalFormLayout->addRow(tr("Plan Area"), planAreaValue);
+    planAreaValue->setMaximumWidth(80);
+    planAreaValue->setMinimumWidth(80);
+    planAreaValue->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    //generalFormLayout->addRow(tr("Plan Area"), planAreaValue, tr(theGI->getLengthUnit()+"²"));
+    areaLayout->addWidget(planAreaValue);
+
+    lblUnitSquared = new QLabel();
+    lblUnitSquared->setText(QString(theGI->getLengthUnit())+QString("²"));
+    lblUnitSquared->setMaximumWidth(40);
+    lblUnitSquared->setMinimumWidth(40);
+    lblUnitSquared->setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    areaLayout->addWidget(lblUnitSquared);
+
+    areaLayout->addStretch();
+
+    generalFormLayout->addLayout(areaLayout);
 
     // add signal and slot connections with GI
-    theGI = GeneralInformationWidget::getInstance();
-
     double plan, w, d;
     theGI->getBuildingDimensions(w, d, plan);
     planAreaValue->setText(QString::number(plan));
@@ -117,8 +165,19 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
             this, SLOT(setNumStories(int, double)));
     connect(theGI,SIGNAL(buildingDimensionsChanged(double,double,double)),
             this,SLOT(setPlanArea(double,double,double)));
+    connect(theGI,SIGNAL(unitLengthChanged(QString)),
+            this,SLOT(setPlanAreaUnit(QString)));
 
     // occupancy
+    QHBoxLayout *occupancyLayout = new QHBoxLayout();
+
+    QLabel *lblOccupancy = new QLabel();
+    lblOccupancy->setText("Occupancy Type");
+    lblOccupancy->setMaximumWidth(110);
+    lblOccupancy->setMinimumWidth(110);
+    lblOccupancy->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    occupancyLayout->addWidget(lblOccupancy);
+
     occupancyType = new QComboBox();
     occupancyType->setToolTip(tr("The type of occupancy defines the function of the building.\n"
                                  "Occupancy classes from Hazus MH2.1 and FEMA P-58 are available."));
@@ -206,13 +265,20 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     occupancyType->setItemData(38, "FEMA P-58", Qt::ToolTipRole);
 
     occupancyType->setCurrentIndex(0);
-    generalFormLayout->addRow(tr("Occupancy Type"), occupancyType);
+    //generalFormLayout->addRow(tr("Occupancy Type"), occupancyType);
+    occupancyLayout->addWidget(occupancyType);
+
+    occupancyLayout->addStretch();
+
+    generalFormLayout->addLayout(occupancyLayout);
+
+    generalFormLayout->addStretch();
 
     generalGroupBox->setLayout(generalFormLayout);
 
     // Databases ----------------------------------------------------
 
-    QGroupBox *DataBasesGroupBox = new QGroupBox("Databases");
+    QGroupBox *DataBasesGroupBox = new QGroupBox("Component Vulnerability");
     //DataBasesGroupBox->setMaximumWidth(maxWidth);
     //QFormLayout *compListFormLayout = new QFormLayout(DataBasesGroupBox);
 
@@ -222,23 +288,24 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QHBoxLayout *selectDBLayout = new QHBoxLayout();
 
     QLabel *lblDBcomp = new QLabel();
-    lblDBcomp->setText("Component Vulnerability:");
-    lblDBcomp->setMaximumWidth(150);
-    lblDBcomp->setMinimumWidth(150);
+    lblDBcomp->setText("Database:");
+    //lblDBcomp->setMaximumWidth(100);
+    //lblDBcomp->setMinimumWidth(100);
+    lblDBcomp->setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     selectDBLayout->addWidget(lblDBcomp);
 
     // database selection
     databaseCombo = new QComboBox();
-    databaseCombo->setToolTip(tr("This database defines the components available for the analysis."));
+    databaseCombo->setToolTip(tr("This database provides parameters for component vulnerability models to simulate damages."));
     databaseCombo->addItem("FEMA P-58",0);
     databaseCombo->addItem("Hazus Earthquake",1);
-    databaseCombo->addItem("User Defined",2);
+    databaseCombo->addItem("None",2);
 
     databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseCombo->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
-    databaseCombo->setItemData(2, "Custom database provided by the user", Qt::ToolTipRole);
+    databaseCombo->setItemData(2, "None of the built-in databases will be used", Qt::ToolTipRole);
 
-    connect(databaseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(updateAvailableComponents()));
+    connect(databaseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentVulnerabilityDB()));
 
     selectDBLayout->addWidget(databaseCombo, 1);
 
@@ -246,7 +313,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     btnExportDataBase->setMinimumWidth(100);
     btnExportDataBase->setMaximumWidth(100);
     btnExportDataBase->setText(tr("Export DB"));
-    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportFragilityDataBase()));
+    connect(btnExportDataBase, SIGNAL(clicked()),this,SLOT(exportComponentVulnerabilityDB()));
     selectDBLayout->addWidget(btnExportDataBase);
 
     loCEns->addLayout(selectDBLayout);
@@ -254,34 +321,59 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     //QSpacerItem *spacerGroups1 = new QSpacerItem(5,10);
     //loCEns->addItem(spacerGroups1);
 
+    // additional component checkbox
+
+    QHBoxLayout *addCompLayout = new QHBoxLayout();
+
+    addComp = new QCheckBox();
+    addComp->setText("");
+    QString addCompTT = QString("Complement or replace parts of the database with additional components.");
+    addComp->setToolTip(addCompTT);
+    addComp->setChecked(false);
+    addComp->setTristate(false);
+    addCompLayout->addWidget(addComp);
+
+    QLabel *lblCompCheck = new QLabel();
+    lblCompCheck->setText("Use Additional Components");
+    lblCompCheck->setToolTip(addCompTT);
+    addCompLayout->addWidget(lblCompCheck);
+
+    addCompLayout->addStretch();
+
+    loCEns->addLayout(addCompLayout);
+
     // database path
     QHBoxLayout *customFolderLayout = new QHBoxLayout();
 
-    fragilityDataBasePath = new QLineEdit;
-    fragilityDataBasePath->setToolTip(tr("Location of the user-defined component vulnerability data."));
-    customFolderLayout->addWidget(fragilityDataBasePath, 1);
-    fragilityDataBasePath->setVisible(false);
-    fragilityDataBasePath->setEnabled(false);
+    leAdditionalComponentDB = new QLineEdit;
+    leAdditionalComponentDB->setToolTip(tr("Location of the user-defined component vulnerability data."));
+    customFolderLayout->addWidget(leAdditionalComponentDB, 1);
+    leAdditionalComponentDB->setVisible(false);
+    leAdditionalComponentDB->setReadOnly(true);
 
-    btnChooseFragility = new QPushButton();
-    btnChooseFragility->setMinimumWidth(100);
-    btnChooseFragility->setMaximumWidth(100);
-    btnChooseFragility->setText(tr("Choose"));
-    connect(btnChooseFragility, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
-    //connect(fragilityDataBasePath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
-    customFolderLayout->addWidget(btnChooseFragility);
-    btnChooseFragility->setVisible(false);
+    btnChooseAdditionalComponentDB = new QPushButton();
+    btnChooseAdditionalComponentDB->setMinimumWidth(100);
+    btnChooseAdditionalComponentDB->setMaximumWidth(100);
+    btnChooseAdditionalComponentDB->setText(tr("Choose"));
+    connect(btnChooseAdditionalComponentDB, SIGNAL(clicked()),this,SLOT(chooseAdditionalComponentDB()));
+    //connect(leAdditionalComponentDB, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
+    customFolderLayout->addWidget(btnChooseAdditionalComponentDB);
+    btnChooseAdditionalComponentDB->setVisible(false);
 
-    connect(databaseCombo, SIGNAL(currentIndexChanged(QString)), this,
-                SLOT(DBSelectionChanged(QString)));
+    connect(addComp, SIGNAL(stateChanged(int)), this, SLOT(addComponentCheckChanged(int)));
+    //this->addComponentCheckChanged(addComp->checkState());
+
+    //connect(databaseCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(DBSelectionChanged(QString)));
 
     loCEns->addLayout(customFolderLayout);
 
     // add line
+    /*
     QFrame *lineDS = new QFrame();
     lineDS->setFrameShape(QFrame::HLine);
     lineDS->setFrameShadow(QFrame::Sunken);
     loCEns->addWidget(lineDS);
+    */
 
     /*
     // population variation data folder
@@ -312,7 +404,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     btnExportPOPDataBase->setMinimumWidth(100);
     btnExportPOPDataBase->setMaximumWidth(100);
     btnExportPOPDataBase->setText(tr("Export DB"));
-    //connect(btnExportPOPDataBase, SIGNAL(clicked()),this,SLOT(exportFragilityDataBase()));
+    //connect(btnExportPOPDataBase, SIGNAL(clicked()),this,SLOT(exportComponentVulnerabilityDB()));
     selectDB_POPLayout->addWidget(btnExportPOPDataBase);
 
     loCEns->addLayout(selectDB_POPLayout);
@@ -330,7 +422,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     btnChoosePOPDB->setMinimumWidth(100);
     btnChoosePOPDB->setMaximumWidth(100);
     btnChoosePOPDB->setText(tr("Choose"));
-    //connect(btnChoosePOPDB, SIGNAL(clicked()),this,SLOT(chooseFragilityDataBase()));
+    //connect(btnChoosePOPDB, SIGNAL(clicked()),this,SLOT(chooseAdditionalComponentDB()));
     //connect(populationDataBasePath, SIGNAL(textChanged(QString)),this,SLOT(updateAvailableComponents()));
     customPOPFolderLayout->addWidget(btnChoosePOPDB);
     btnChoosePOPDB->setVisible(false);
@@ -507,8 +599,6 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     availableCompCombo->setToolTip(tr("List of available components. \n"
                                       "Click on the buttons to add the component to the ensemble."));
 
-    this-> updateAvailableComponents();
-
     availableCLayout->addWidget(availableCompCombo);
 
     QPushButton *addComponent = new QPushButton();
@@ -592,6 +682,19 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     loCDetails->addLayout(loCDName);
     //compDetailsFormLayout->addRow(tr("Name: "), compName);
     */
+
+    // fragility info (temporary location)
+
+    fragilityViz = new QWebEngineView();
+    fragilityViz->setMinimumHeight(240);
+    fragilityViz->setMaximumHeight(240);
+    fragilityViz->page()->setBackgroundColor(Qt::transparent);
+    //fragilityViz->page()->setBackgroundColor(Qt::red);
+    fragilityViz->setHtml("");
+    fragilityViz->setVisible(false);
+    // sy - **NOTE** QWebEngineView display is VERY SLOW when the app is built in debug mode 
+    // Max size of figure is limited to 2MB
+    loCDetails->addWidget(fragilityViz, 0);
 
     // description
     QHBoxLayout *loCDDesc = new QHBoxLayout();
@@ -784,18 +887,64 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     gridLayout->setRowStretch(2, 1);
 
     this->setLayout(gridLayout);
+
+    this-> updateComponentVulnerabilityDB();
 }
 
+QString
+PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
+{
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    QString python = preferences->getPython();
+    QString workDir = preferences->getLocalWorkDir();
+    QString appDir = preferences->getAppDir();
+
+    QString output_path = workDir + "/resources/fragility_viz/";
+
+    this->statusMessage(python);
+    this->statusMessage(workDir);
+    this->statusMessage(output_path);
+
+    QProcess proc;
+    QStringList params;
+
+    params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "fragility" << comp_DB_path << "--output_path" << output_path;
+
+    proc.start(python, params);
+    proc.waitForFinished(-1);
+
+    this->statusMessage(proc.readAllStandardOutput());
+    this->errorMessage(proc.readAllStandardError());
+
+    return output_path;
+}
+
+/*
 void
 PelicunComponentContainer::DBSelectionChanged(const QString &arg1)
 {
     if (arg1 == QString("User Defined")) {
-        fragilityDataBasePath->setVisible(true);
-        btnChooseFragility->setVisible(true);
+        leAdditionalComponentDB->setVisible(true);
+        btnChooseAdditionalComponentDB->setVisible(true);
     } else {
-        fragilityDataBasePath->setVisible(false);
-        btnChooseFragility->setVisible(false);
+        leAdditionalComponentDB->setVisible(false);
+        btnChooseAdditionalComponentDB->setVisible(false);
     }
+}
+*/
+
+void
+PelicunComponentContainer::addComponentCheckChanged(int newState)
+{
+    if (newState == 2) {
+        leAdditionalComponentDB->setVisible(true);
+        btnChooseAdditionalComponentDB->setVisible(true);
+    } else {
+        leAdditionalComponentDB->setVisible(false);
+        btnChooseAdditionalComponentDB->setVisible(false);
+    }
+
+    updateComponentVulnerabilityDB();
 }
 
 void
@@ -861,115 +1010,140 @@ PelicunComponentContainer::retrieveCompGroups(){
 void
 PelicunComponentContainer::showSelectedComponent(){
 
-    if (selectedCompCombo->count() > 0) {
+    if ((selectedCompCombo->count() > 0) && 
+        (selectedCompCombo->currentText() != "") && 
+        (compDB->contains(selectedCompCombo->currentText()))){
 
-        if (selectedCompCombo->currentText() != "") {
+        // Start with the metadata
 
-            QString compID = selectedCompCombo->currentText();
-            QMap<QString, QString>* C_info = compDB->value(compID);
+        QString compID = selectedCompCombo->currentText();
 
-            //compName->setText(C_info->value("ID"));
-            compDescription->setText(C_info->value("Description"));
-            compEDP->setText(C_info->value("Demand-Type"));
-            compUnit->setText(C_info->value("BlockSize"));
+        QMap<QString, QString>* C_info = compDB->value(compID);
 
-            QString infoString = "";
-            if (C_info->value("Demand-Directional") == "1") {
-                infoString += "Directional";
-            } else {
-                infoString += "Non-directional";
-            }
+        //compName->setText(C_info->value("ID"));
+        compDescription->setText(C_info->value("Description"));
+        compEDP->setText(C_info->value("Demand-Type"));
+        compUnit->setText(C_info->value("BlockSize"));
 
-            if (C_info->value("RoundToInt") == "True") {
-                infoString += "; round up quantities to integers";
-            }
-
-            if (C_info->value("Incomplete") == "1") {
-                infoString += ";\t INCOMPLETE DATA!";
-            }
-
-            compInfo->setText(infoString);
-
-            /*
-            if (dbType == "JSON") {
-
-                QString compFileName = selectedCompCombo->currentText() + ".json";
-                QDir fragDir(this->getFragilityDataBase());
-                QFile compFile(fragDir.absoluteFilePath(compFileName));
-                compFile.open(QFile::ReadOnly | QFile::Text);
-
-                QString val;
-                val = compFile.readAll();
-                QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-                QJsonObject compData = doc.object();
-                compFile.close();
-
-                compName->setText(compData["Name"].toString());
-
-                QJsonObject compGI = compData["GeneralInformation"].toObject();
-                compDescription->setText(compGI["Description"].toString());
-
-                QJsonObject compEDPVar = compData["EDP"].toObject();
-                compEDP->setText(compEDPVar["Type"].toString());
-
-                QJsonArray compQData = compData["QuantityUnit"].toArray();
-                //compUnit->setText(QString("%1").arg(compQData[0].toDouble()));
-                compUnit->setText(QString("%1").arg(compQData[0].toDouble())+QString(" ")+
-                                  compQData[1].toString());
-
-                QString infoString = "";
-                if (compData["Directional"] == true) {
-                    infoString += "Directional, ";
-                } else {
-                    infoString += "Non-directional, ";
-                }
-                if (compData["Correlated"] == true) {
-                    infoString += "identical behavior among Component Groups.";
-                } else {
-                    infoString += "independent behavior among Component Groups.";
-                }
-
-                if (compGI["Incomplete"] == true) infoString += "  INCOMPLETE DATA!";
-                compInfo->setText(infoString);
-            }
-            else if (dbType == "HDF5") {
-
-                QString compID = selectedCompCombo->currentText();
-                QMap<QString, QString>* C_info = compDB->value(compID);
-
-                compName->setText(C_info->value("Name"));
-                compDescription->setText(C_info->value("Description"));
-                compEDP->setText(C_info->value("EDPType"));
-                compUnit->setText(C_info->value("QuantityUnit"));
-
-                QString infoString = "";
-                if (C_info->value("Directional") == "1") {
-                    infoString += "Directional, ";
-                } else {
-                    infoString += "Non-directional, ";
-                }
-                if (C_info->value("Correlated") == "1") {
-                    infoString += "identical behavior among Component Groups.";
-                } else {
-                    infoString += "independent behavior among Component Groups.";
-                }
-
-                if (C_info->value("Incomplete") == "1") infoString += "  INCOMPLETE DATA!";
-                compInfo->setText(infoString);
-            }
-            */
-
-            this->clearCompGroupWidget();
-            this->retrieveCompGroups();
+        QString infoString = "";
+        if (C_info->value("Demand-Directional") == "1") {
+            infoString += "Directional";
+        } else {
+            infoString += "Non-directional";
         }
+
+        if (C_info->value("RoundToInt") == "True") {
+            infoString += "; round up quantities to integers";
+        }
+
+        if (C_info->value("Incomplete") == "1") {
+            infoString += ";\t INCOMPLETE DATA!";
+        }
+
+        compInfo->setText(infoString);
+
+        this->clearCompGroupWidget();
+        this->retrieveCompGroups();
+        
+        fragilityViz->hide();
+        fragilityViz->setVisible(false); // don't worry, we'll set it to true later, if needed
+
+        // Then load the vulnerability model visualization
+
+        QString vizDatabase;
+        for (int db_i=1; db_i>=0; db_i--)
+        {
+            if (db_i==0){
+                vizDatabase = cmpVulnerabilityDB_viz;
+            } else if (db_i==1) {
+                vizDatabase = additionalComponentDB_viz;
+            }
+
+            if (vizDatabase==""){
+                continue;
+            }
+
+            //this->statusMessage("Loading figure from "+vizDatabase);
+
+            QString htmlString;
+            if (vizDatabase.endsWith("zip")) {
+
+                QuaZip componentDBZip(vizDatabase);        
+            
+                if (!componentDBZip.open(QuaZip::mdUnzip)) {
+                    this->errorMessage(QString(
+                        "Error while trying to open figure zip file"));
+                }
+
+                if (!componentDBZip.setCurrentFile(selectedCompCombo->currentText()+".html")) {
+                    this->statusMessage(QString("Cannot find figure for component ") + 
+                        selectedCompCombo->currentText() + " in " + vizDatabase);
+                    continue; // hoping that the component is in the other DB
+                }
+
+                QuaZipFile inFile(&componentDBZip);
+                if (!inFile.open(QIODevice::ReadOnly)) {
+                    this->errorMessage(QString(
+                        "Error while trying to open figure for component " + 
+                        selectedCompCombo->currentText()));
+                } else {
+                    QTextStream ts(&inFile);
+                    htmlString = ts.readAll();
+                    inFile.close();
+                }
+                
+                componentDBZip.close();
+
+            } else {
+
+                // we assume that in every other case the viz DB points to a directory
+
+                QFile inFile(vizDatabase + selectedCompCombo->currentText() + ".html");
+
+                if (!inFile.exists()){
+                    continue;
+                }
+
+                if (!inFile.open(QIODevice::ReadOnly)) {
+                    this->errorMessage(QString(
+                        "Error while trying to open figure for component " + 
+                        selectedCompCombo->currentText()));
+                } else {
+                    QTextStream ts(&inFile);
+                    htmlString = ts.readAll();
+                    inFile.close();
+                }
+            }
+
+            fragilityViz->setHtml(htmlString,
+                QUrl::fromUserInput("/Users/"));                    
+            // Zoom factor has a bug in Qt, below is a workaround
+            QObject::connect(
+                fragilityViz, &QWebEngineView::loadFinished,
+                [=](bool arg) {
+                    fragilityViz->setZoomFactor(0.75);
+                    fragilityViz->show();
+                    fragilityViz->setVisible(true);
+                });
+
+            break; // so that we do not check the following databases for the same component
+        }
+
     } else {
+
+        // Initialize the description fields and hide them if the combo is empty.
         //compName->setText("");
         compDescription->setText("");
         compEDP->setText("");
         compUnit->setText("");
         compInfo->setText("");
         this->clearCompGroupWidget();
+
+        fragilityViz->hide();
+        fragilityViz->setVisible(false);
     }
+
+    
 }
 
 void
@@ -1005,311 +1179,273 @@ PelicunComponentContainer::setPlanArea(double dummy, double dummy2, double planA
     this->planAreaValue->setText(QString::number(planArea));
 }
 
+void
+PelicunComponentContainer::setPlanAreaUnit(QString unitName){
+    lblUnitSquared->setText(unitName+QString("²"));
+    lblUnitSquared->update();
+}
+
 int PelicunComponentContainer::updateAvailableComponents(){
+
+    this->statusMessage("Updating list of available components...");
 
     availableCompCombo->clear();
 
-    QString fragilityDataBase = this->getFragilityDataBase();
+    QString componentDataBase;
 
     QStringList compIDs;
 
     QVector<QString> qvComp;
 
-    if (fragilityDataBase.endsWith("csv")) {
+    //initialize the component map
+    deleteCompDB();
+    compDB = new QMap<QString, QMap<QString, QString>* >;
 
-        qDebug() << "CSV fragility data file recognized.";
+    for (int db_i=0; db_i<2; db_i++)
+    {
+        if (db_i==0){
+            componentDataBase = cmpVulnerabilityDB;
+        } else if (db_i==1) {
+            componentDataBase = additionalComponentDB;
+        }
 
-        QFile csvFile(fragilityDataBase);
+        if (componentDataBase==""){
+            continue;
+        }
 
-        fragilityDataBase.chop(4);
-        QFile jsonFile(fragilityDataBase+QString(".json"));
+        //QString componentDataBase = this->updateComponentVulnerabilityDB();
+        //QString componentDataBase = cmpVulnerabilityDB;
 
-        if (csvFile.open(QIODevice::ReadOnly))
-        {
+        if (componentDataBase.endsWith("csv")) {
 
-            //initialize the component map
-            deleteCompDB();
-            compDB = new QMap<QString, QMap<QString, QString>* >;
-            QStringList header;
+            //this->statusMessage("Parsing component vulnerability data file...");
 
-            // open the JSON file to get the metadata
-            QJsonObject metaData;
-            bool hasMeta = false;
-            if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
-                QString val = jsonFile.readAll();
-                QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-                metaData = doc.object();
-                jsonFile.close();
-                hasMeta = true;
-            }
+            QFile csvFile(componentDataBase);
 
-            // start the CSV stream
-            QTextStream stream(&csvFile);
+            componentDataBase.chop(4);
+            QFile jsonFile(componentDataBase+QString(".json"));
 
-            int counter = 0;
-            while (!stream.atEnd()) {
-                counter ++;
+            if (csvFile.open(QIODevice::ReadOnly))
+            {                
+                
+                QStringList header;
 
-                QString line = stream.readLine();
-                QStringList line_list;
-
-                this->parseCSVLine(line, line_list);
-
-                QString compName = line_list[0];
-
-                if (compName == "ID") {
-                    this->parseCSVLine(line, header);
-                    continue;
-                } else {
-                    compIDs << compName;
+                // open the JSON file to get the metadata
+                QJsonObject metaData;
+                bool hasMeta = false;
+                if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
+                    QString val = jsonFile.readAll();
+                    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+                    metaData = doc.object();
+                    jsonFile.close();
+                    hasMeta = true;
                 }
 
-                // Create a new C_info dict and add it to the compDB dict
+                // start the CSV stream
+                QTextStream stream(&csvFile);
 
-                QMap<QString, QString> *C_info = new QMap<QString, QString>;
-                compDB->insert(compName, C_info);
+                int counter = 0;
+                while (!stream.atEnd()) {
+                    counter ++;
 
-                // Then fill it with the info from the DL DB
-                for (int i=0; i<line_list.size(); i++){
-                    if (i<header.size()) {
-                        C_info -> insert(header[i], line_list[i]);
+                    QString line = stream.readLine();
+                    QStringList line_list;
+
+                    this->parseCSVLine(line, line_list);
+
+                    QString compName = line_list[0];
+
+                    if (compName == "ID") {
+                        this->parseCSVLine(line, header);
+                        continue;
+                    } 
+
+                    QMap<QString, QString>* C_info;
+                    if (compIDs.contains(compName)){
+                        // Get the existing C_info dict from the compDB
+                        C_info = compDB->value(compName);
                     }
-                }
+                    else {
+                        compIDs << compName;
+                        // Create a new C_info dict and add it to the compDB dict
+                        C_info = new QMap<QString, QString>;
+                        compDB->insert(compName, C_info);
+                    }
 
-                // and add info from metaData
-                if (hasMeta){
-                    if (metaData.contains(compName)) {
-                        QJsonObject compMetaData = metaData[compName].toObject();
+                    // Then fill the C_info with the info from the DL DB
+                    for (int i=0; i<line_list.size(); i++){
+                        if (i<header.size()) {
+                            C_info -> insert(header[i], line_list[i]);
+                        }
+                    }
 
-                        // Description
-                        if (compMetaData.contains("Description")){
+                    // and add info from metaData
+                    if (hasMeta){
+                        if (metaData.contains(compName)) {
+                            QJsonObject compMetaData = metaData[compName].toObject();
 
-                            QString description = compMetaData["Description"].toString();
+                            // Description
+                            if (compMetaData.contains("Description")){
 
-                            if (compMetaData.contains("Comments")){
-                                description += "\n" + compMetaData["Comments"].toString();
+                                QString description = compMetaData["Description"].toString();
+
+                                if (compMetaData.contains("Comments")){
+                                    description += "\n" + compMetaData["Comments"].toString();
+                                }
+
+                                C_info -> insert("Description", description);
+                            } else {
+                                C_info -> insert("Description", "");
                             }
 
-                            C_info -> insert("Description", description);
-                        } else {
-                            C_info -> insert("Description", "");
-                        }
+                            // Block size
+                            if (compMetaData.contains("SuggestedComponentBlockSize")){
+                                QString blockSize = compMetaData["SuggestedComponentBlockSize"].toString();
+                                C_info -> insert("BlockSize", blockSize);
+                            } else {
+                                C_info -> insert("BlockSize", QString("N/A"));
+                            }
 
-                        // Block size
-                        if (compMetaData.contains("SuggestedComponentBlockSize")){
-                            QString blockSize = compMetaData["SuggestedComponentBlockSize"].toString();
-                            C_info -> insert("BlockSize", blockSize);
-                        } else {
-                            C_info -> insert("BlockSize", QString("N/A"));
-                        }
-
-                        // Round to Integer
-                        if (compMetaData.contains("RoundUpToIntegerQuantity")){
-                            QString roundToInt = compMetaData["RoundUpToIntegerQuantity"].toString();
-                            C_info -> insert("RoundToInt", roundToInt);
-                        } else {
-                            C_info -> insert("RoundToInt", QString("N/A"));
+                            // Round to Integer
+                            if (compMetaData.contains("RoundUpToIntegerQuantity")){
+                                QString roundToInt = compMetaData["RoundUpToIntegerQuantity"].toString();
+                                C_info -> insert("RoundToInt", roundToInt);
+                            } else {
+                                C_info -> insert("RoundToInt", QString("N/A"));
+                            }
                         }
                     }
-                }
 
+                }                
 
+                csvFile.close();
 
-                //C_info -> insert("Name",         qvName[i]);
-                //C_info -> insert("Description",  qvDescription[i]);
-                //C_info -> insert("EDPType",      qvEDPType[i]);
-                //C_info -> insert("QuantityUnit",
-                //    QString("%1").arg(qvQuantityCount[i])+QString(" ")+qvQuantityUnit[i]);
-                //C_info -> insert("Directional",  QString::number(qvDirectional[i]));
-                //C_info -> insert("Correlated",   QString::number(qvCorrelated[i]));
-                //C_info -> insert("Incomplete",   QString::number(qvIncomplete[i]));
+            } else {
+                this->errorMessage("Cannot open CSV file.");
+                return 1;
             }
 
-            availableCompCombo->addItems(compIDs);
-
-            csvFile.close();
+            //this->statusMessage("Successfully parsed CSV file.");
 
         } else {
-            // send a warning message
+            this->errorMessage("Component data file is not in CSV format.");
             return 1;
         }
-
-
-    } else {
-        // send a warning message
-        return 1;
     }
 
-    return 0;
-}
-
-/*
-int
-PelicunComponentContainer::updateAvailableComponents_old(){
-
-    availableCompCombo->clear();
-
-    QString fragilityDataBase = this->getFragilityDataBase();
-
-    QStringList compIDs;
-
-    if (fragilityDataBase.endsWith("hdf")) {
-
-        qDebug() << "HDF file recognized";
-        dbType = "HDF5";
-
-        // we are dealing with an HDF5 file...
-
-        HDF5Data *DLDB = new HDF5Data(fragilityDataBase);
-
-        QVector<QString> qvComp;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("index"), &qvComp);
-
-        // when using an HDF5 file, all component info is loaded at once here
-        QVector<QString> qvName;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("Name"), &qvName);
-
-        QVector<QString> qvDescription;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")),
-                          QString("Description"), &qvDescription);
-
-        QVector<QString> qvEDPType;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/EDP")),
-                          QString("Type"), &qvEDPType);
-
-        QVector<int> qvQuantityCount;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("QuantityUnit#0"), &qvQuantityCount);
-
-        QVector<QString> qvQuantityUnit;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("QuantityUnit#1"), &qvQuantityUnit);
-
-        QVector<int> qvDirectional;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("Directional"), &qvDirectional);
-
-        QVector<int> qvCorrelated;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard")),
-                          QString("Correlated"), &qvCorrelated);
-
-        QVector<int> qvIncomplete;
-        DLDB->getDFEntry(DLDB->getMember(QString("/data_standard/GeneralInformation")),
-                          QString("Incomplete"), &qvIncomplete);
-
-        //initialize the component map
-        deleteCompDB();
-        compDB = new QMap<QString, QMap<QString, QString>* >;
-
-        for (int i =0; i < qvComp.size(); i++){
-
-            QString compName = qvComp[i];
-            compIDs << compName;
-
-            // Create a new C_info dict and add it to the compDB dict
-
-            QMap<QString, QString> *C_info = new QMap<QString, QString>;
-            compDB->insert(compName, C_info);
-
-            // Then fill it with the info from the DL DB
-
-            C_info -> insert("Name",         qvName[i]);
-            C_info -> insert("Description",  qvDescription[i]);
-            C_info -> insert("EDPType",      qvEDPType[i]);
-            C_info -> insert("QuantityUnit",
-                QString("%1").arg(qvQuantityCount[i])+QString(" ")+qvQuantityUnit[i]);
-            C_info -> insert("Directional",  QString::number(qvDirectional[i]));
-            C_info -> insert("Correlated",   QString::number(qvCorrelated[i]));
-            C_info -> insert("Incomplete",   QString::number(qvIncomplete[i]));
-        }
-
-        delete DLDB;
-
-    } else {
-
-        dbType = "JSON";
-
-        // we are dealing with json files...
-        QDir directory(fragilityDataBase);
-
-        compIDs = directory.entryList(QStringList() << "*.json" << "*.JSON", QDir::Files);
-
-        for (int i=0; i<compIDs.length(); i++){
-            compIDs[i] = compIDs[i].remove(compIDs[i].size()-5, 5);
-        }
-    }
-
+    compIDs.sort();
     availableCompCombo->addItems(compIDs);
 
     return 0;
 }
-*/
 
-QString
-PelicunComponentContainer::getFragilityDataBase(){
+void
+PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
-    QString fragilityDataBase;
+    bool cmpDataChanged = false;
+
+    // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+
+    QString cmpVulnerabilityDB_tmp;
 
     if (databaseCombo->currentText() == "FEMA P-58") {
 
-        fragilityDataBase = appDir +
+        cmpVulnerabilityDB_tmp = appDir +
         "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake") {
 
-        fragilityDataBase = appDir +
+        cmpVulnerabilityDB_tmp = appDir +
         "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
 
     } else {
 
-        fragilityDataBase = fragilityDataBasePath->text();
+        cmpVulnerabilityDB_tmp = "";
+
     }
 
-    qDebug() << "updating frag folder with " << fragilityDataBase;
+    // check if the component vulnerability database has changed
+    if (cmpVulnerabilityDB != cmpVulnerabilityDB_tmp)
+    {
+        cmpDataChanged = true;
+        cmpVulnerabilityDB = cmpVulnerabilityDB_tmp;
 
-    // point to the frag DB in the line edit even if it is the default one
-    fragilityDataBasePath->setText(fragilityDataBase);
+        if (cmpVulnerabilityDB != "")
+        {
+            this->statusMessage("Updating component list with " + 
+                                QString(databaseCombo->currentText()) +
+                                " data from "+ cmpVulnerabilityDB);
 
-    return fragilityDataBase;
+            // load the visualization path too (assume that we have a zip file for every bundled DB)
+            cmpVulnerabilityDB_viz = cmpVulnerabilityDB;
+            cmpVulnerabilityDB_viz.chop(4);
+            cmpVulnerabilityDB_viz = cmpVulnerabilityDB_viz + QString(".zip");
 
-// This does not seem to be necessary any longer
-//#ifdef Q_OS_WIN
-//        fragilityDataBase = appDir +
-//        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
-//#else
-//        fragilityDataBase = appDir +
-//        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
-//#endif
-//        //"/applications/performDL/pelicun/pelicun/resources/DL json/";
+        } else {
+            this->statusMessage("Removing built-in component data from the list.");
+
+            cmpVulnerabilityDB_viz = cmpVulnerabilityDB;
+        }
+    }
+
+    // check if there is additional component data prescribed in the line edit
+    QString additionalComponentDB_tmp;
+    if (addComp->checkState() == 2)
+    {
+        additionalComponentDB_tmp = leAdditionalComponentDB->text();
+    } else {
+        additionalComponentDB_tmp = "";
+    }
+
+    // check if this additional data is new
+    if (additionalComponentDB != additionalComponentDB_tmp)
+    {
+        cmpDataChanged = true;
+        additionalComponentDB = additionalComponentDB_tmp;
+
+        if (additionalComponentDB != "")
+        {
+            this->statusMessage("Updating component list with data from" + additionalComponentDB);    
+            additionalComponentDB_viz = generateFragilityInfo(additionalComponentDB);
+        } else {
+            this->statusMessage("Removing additional component data from the list.");
+            additionalComponentDB_viz = "";
+        } 
+    }
+
+    if (cmpDataChanged == true)
+        this->updateAvailableComponents();
+
+    //return cmpVulnerabilityDB;
 }
 
 int
-PelicunComponentContainer::setFragilityDataBase(QString fragilityDataBase){
+PelicunComponentContainer::setAdditionalComponentDB(QString additionalComponentDB_path){
 
-    fragilityDataBasePath->setText(fragilityDataBase);
+    leAdditionalComponentDB->setText(additionalComponentDB_path);
+    if (addComp->checkState() != 2){
+        addComp->setChecked(true);    
+    }
     return 0;
 }
 
 void
-PelicunComponentContainer::chooseFragilityDataBase(void) {
+PelicunComponentContainer::chooseAdditionalComponentDB(void) {
 
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    QString fragilityDataBase;
-    fragilityDataBase =
+    QString additionalComponentDB_path =
         QFileDialog::getOpenFileName(this, tr("Select Database CSV File"), appDir);
         //QFileDialog::getExistingDirectory(this,tr("Select Database File"), appDir);
 
-    this->setFragilityDataBase(fragilityDataBase);
+    this->setAdditionalComponentDB(additionalComponentDB_path);
 
-    this->updateAvailableComponents();
+    this->updateComponentVulnerabilityDB();
 }
 
 void
-PelicunComponentContainer::exportFragilityDataBase(void) {
+PelicunComponentContainer::exportComponentVulnerabilityDB(void) {
 
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
@@ -1319,10 +1455,12 @@ PelicunComponentContainer::exportFragilityDataBase(void) {
                                           appDir);
     QDir destDir(destinationFolder);
 
-    qDebug() << QString("Exporting component vulnerability database...");
+    this->statusMessage(QString("Exporting component vulnerability database..."));
 
     // copy the db file(s) to the desired location
-    QFileInfo fi = fragilityDataBasePath->text();
+    //QFileInfo fi = leAdditionalComponentDB->text();
+    QFileInfo fi = cmpVulnerabilityDB;
+    //QFileInfo fi = this->updateComponentVulnerabilityDB();
 
     // get the filenames
     QString csvFileName = fi.fileName();
@@ -1395,7 +1533,7 @@ PelicunComponentContainer::exportFragilityDataBase(void) {
     proc->waitForStarted();
     */
 
-    qDebug() << QString("Successfully exported default damage and loss database...");
+    this->statusMessage(QString("Successfully exported damage and loss database..."));
 }
 
 void
@@ -1437,7 +1575,7 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
             if (c_0 < line.length()-1) {
                 if (line[c_0-1] == "\"") {
                     if (line[c_0] != ",") {
-                        qDebug() << "Error while parsing CSV file at the following line: " << line;
+                        this->statusMessage("Error while parsing CSV file at the following line: " + line);
                     } else {
                         c_0 ++;
                         c++;
@@ -1487,7 +1625,7 @@ PelicunComponentContainer::onLoadConfigClicked(void) {
 
     if (this->loadComponentAssignment(fileName) != 0) {
 
-        qDebug() << "ERROR while loading component assignment from CSV file";
+        this->statusMessage("ERROR while loading component assignment from CSV file");
     }
 
 
@@ -1502,7 +1640,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
 
     if (filePath.endsWith(".csv") == false) {
 
-        qDebug() << "ERROR: non-CSV Component Assignment file: " << filePath;
+        this->statusMessage("ERROR: non-CSV Component Assignment file: " + filePath);
 
         return 1;
     }
@@ -1570,7 +1708,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
                 }
                 CG_data -> insert("comment", line_list[line_list.count()-1]);
             } else {
-                qDebug() << "Error while parsing line " << counter << " in the config file";
+                this->statusMessage("Error while parsing line " + QString(counter) + " in the config file");
             }
         }
 
@@ -1583,7 +1721,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
                 selectedCompCombo->addItem(compName);
             } else {
 	      
-                qDebug() << "Component " << compName << "is not in the DL data folder!";
+                this->statusMessage("Component " + QString(compName) + "is not in the DL data folder!");
             }
         }
 
@@ -1591,7 +1729,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
 
     } else {
 
-        qDebug() << "ERROR: Could not open Component Assignment file: " << filePath;
+        this->statusMessage("ERROR: Could not open Component Assignment file: " + QString(filePath));
 
     }
 
@@ -1662,14 +1800,14 @@ PelicunComponentContainer::onSaveConfigClicked(void) {
 
     if (this->saveComponentAssignment(fileName) != 0) {
 
-        qDebug() << "ERROR while saving component assignment to CSV file";
+        this->statusMessage("ERROR while saving component assignment to CSV file");
     }
 }
 
 
 PelicunComponentContainer::~PelicunComponentContainer()
 {
-
+    fragilityViz -> deleteLater();
 }
 
 void PelicunComponentContainer::addOneComponent()
@@ -1754,7 +1892,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
        theComponentGroup->setMaximumHeight(20);
 
        // add the ComponentGroup to the UI
-       loCGList->insertWidget(loCGList->count()-1, theComponentGroup);
+       loCGList->insertWidget(-1, theComponentGroup);
 
        // add a remove button to the UI
        QPushButton *removeCGroup = new QPushButton();
@@ -1762,8 +1900,7 @@ void PelicunComponentContainer::addComponentGroup(QMap<QString, QString> *CG_dat
        removeCGroup->setMaximumWidth(20);
        removeCGroup->setMaximumHeight(20);
        removeCGroup->setText(tr("-"));
-       loCQuantityRemove->insertWidget(loCQuantityRemove->count()-1,
-                                       removeCGroup);
+       loCQuantityRemove->insertWidget(-1, removeCGroup);
 
        smRemoveCG->setMapping(removeCGroup, theComponentGroup);
        connect(removeCGroup, SIGNAL(clicked()), smRemoveCG, SLOT(map()));
@@ -1847,7 +1984,7 @@ void PelicunComponentContainer::addPopulationGroup(QMap<QString, QString> *PG_da
     //thePopulationGroup->setMaximumHeight(20);
 
     // add the PopulationGroup to the UI
-    loPGList->insertWidget(loPGList->count()-1, thePopulationGroup);
+    loPGList->insertWidget(-1, thePopulationGroup);
 
     // add a remove button to the UI
     QPushButton *removePGroup = new QPushButton();
@@ -1855,8 +1992,7 @@ void PelicunComponentContainer::addPopulationGroup(QMap<QString, QString> *PG_da
     removePGroup->setMaximumWidth(20);
     removePGroup->setMaximumHeight(20);
     removePGroup->setText(tr("-"));
-    loPQuantityRemove->insertWidget(loPQuantityRemove->count()-1,
-                                   removePGroup);
+    loPQuantityRemove->insertWidget(-1, removePGroup);
 
     smRemovePG->setMapping(removePGroup, thePopulationGroup);
     connect(removePGroup, SIGNAL(clicked()), smRemovePG, SLOT(map()));
@@ -1906,13 +2042,13 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
     assetData["OccupancyType"] = occupancyType->currentText();
     assetData["ComponentDatabase"] = databaseCombo->currentText();
 
-    if (databaseCombo->currentText() == "User Defined") {
-        assetData["ComponentDatabasePath"] = fragilityDataBasePath->text();
+    if ((addComp->checkState() == 2) && (additionalComponentDB != "")){
+        assetData["ComponentDatabasePath"] = additionalComponentDB;
     }
 
     WorkflowAppPBE *theInputApp = WorkflowAppPBE::getInstance(nullptr);
 
-    qDebug() << "Output file path (for cmp): " << theInputApp->outputFilePath;
+    this->statusMessage("Output file path (for cmp): " + QString(theInputApp->outputFilePath));
 
     QFileInfo fileInfo(theInputApp->outputFilePath);
     QString cmpFileName = QString("CMP_QNT.csv");
@@ -1927,7 +2063,7 @@ PelicunComponentContainer::outputToJSON(QJsonObject &jsonObject)
     // result = false;
 
     if (result == false) {
-      qDebug() << "PelicunComponentContainer::outputToJSON failed\n";
+      this->errorMessage("PelicunComponentContainer::outputToJSON failed\n");
     }
     
     return result;
@@ -1950,12 +2086,24 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
         occupancyType->setCurrentText(assetData["OccupancyType"].toString());
     }
     if (assetData.contains("ComponentDatabase")) {
-        databaseCombo->setCurrentText(assetData["ComponentDatabase"].toString());
+
+        // ---
+        // this is kept for backward compatibility - drop after PBE 4.0
+        QString in_componentDB = assetData["ComponentDatabase"].toString();
+
+        if (in_componentDB == "User Defined") {
+            in_componentDB = "None";
+        }
+        // ---
+
+        databaseCombo->setCurrentText(in_componentDB);
     }
-    if (databaseCombo->currentText() == "User Defined") {
-        this->setFragilityDataBase(assetData["ComponentDatabasePath"].toString());
-        this->updateAvailableComponents();
+    if (assetData.contains("ComponentDatabasePath")){
+        this->setAdditionalComponentDB(assetData["ComponentDatabasePath"].toString());
+    } else {
+        addComp->setChecked(false);
     }
+    this->updateComponentVulnerabilityDB();
 
     if (assetData.contains("ComponentAssignmentFile")) {
         QString cmpFilePath = assetData["ComponentAssignmentFile"].toString();
@@ -1967,7 +2115,7 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
     // first, load the DL data folder
     QString pathString;
     pathString = jsonObject["ComponentDataFolder"].toString();
-    fragilityDataBasePath->setText(pathString);
+    leAdditionalComponentDB->setText(pathString);
 
     // clear the selectedCompCombo
     this->removeAllComponents();
