@@ -1656,7 +1656,8 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
 
         QTextStream stream(&file);
 
-        bool hasComment = false;
+        //bool hasComment = false;
+        bool hasDistribution = false;
 
         int counter = 0;
         while (!stream.atEnd()) {
@@ -1669,9 +1670,15 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
 
             QString compName = line_list[0];
             if (compName == "ID") {
+                qDebug() << line_list;
 
-                if (line_list[line_list.count()-1] == "Comment") {
-                    hasComment = true;
+                //if (line_list[line_list.count()-1] == "Comment") {
+                //    hasComment = true;
+                //}
+
+                if (QString::compare(line_list[6], "Family", 
+                    Qt::CaseInsensitive) == 0){
+                    hasDistribution = true;
                 }
 
                 continue;
@@ -1692,21 +1699,33 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
             QMap<QString, QString> *CG_data = new QMap<QString, QString>;
             vCG_data->append(CG_data);
 
-            if (line_list.count() >= (6 + int(hasComment))) {
+            qDebug() << line_list;
+
+            if (line_list.count() >= 6) {
                 // fill the CG_data dict with the info from the given row in the file
                 CG_data -> insert("unit",         line_list[1]);
                 CG_data -> insert("location",     line_list[2]);
                 CG_data -> insert("direction",    line_list[3]);
                 CG_data -> insert("median",       line_list[4]);
                 CG_data -> insert("blocks",       line_list[5]);
-                if (line_list.count() >= (8 + int(hasComment))) {
-                    CG_data -> insert("family",   line_list[6]);
-                    CG_data -> insert("dispersion",      line_list[7]);
+
+                if (hasDistribution == true) {
+                    if (line_list.count() >= 8) {
+                        CG_data -> insert("family",     line_list[6]);
+                        CG_data -> insert("dispersion", line_list[7]);
+                    } else {
+                        CG_data -> insert("family",     "");
+                        CG_data -> insert("dispersion", "");
+                    }
+
+                    if (line_list.count() >= 9) {
+                        CG_data -> insert("comment", line_list[8]);
+                    }
                 } else {
-                    CG_data -> insert("family",      "");
-                    CG_data -> insert("dispersion",      "");
+                    CG_data -> insert("family",     "");
+                    CG_data -> insert("dispersion", "");
+                    CG_data -> insert("comment", line_list[6]);
                 }
-                CG_data -> insert("comment", line_list[line_list.count()-1]);
             } else {
                 this->statusMessage("Error while parsing line " + QString(counter) + " in the config file");
             }
