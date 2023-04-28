@@ -513,12 +513,15 @@ int ResultsPelicun::processResults(QString &inputFileName,
 
         // Now we know that something is wrong...
 
+        /*
+        // skip all of the dakota messages because they are confusing users
+
         //
         // check dakota actually ran the FE simulations so that blame may
         // be properly assessed .. i.e. not always the fault of pelicun.
         //
 
-      QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
+        QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
       
         QFileInfo fileTabInfo(filenameTab);
         QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
@@ -549,10 +552,12 @@ int ResultsPelicun::processResults(QString &inputFileName,
             errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
             return 0;
         }
+        */
 
         errorMessage(
-            QString("Could not open file: ") + resultsStatsFile +
-            QString(" . Damage and loss results are not available."));
+            QString("Could not open file: ") + resultsStatsFile + 
+            QString(".<br>Damage and loss results are not available. See the "
+                "log (above) for more information on the error."));
         return -1;
     }
 
