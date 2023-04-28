@@ -513,12 +513,15 @@ int ResultsPelicun::processResults(QString &inputFileName,
 
         // Now we know that something is wrong...
 
+        /*
+        // skip all of the dakota messages because they are confusing users
+
         //
         // check dakota actually ran the FE simulations so that blame may
         // be properly assessed .. i.e. not always the fault of pelicun.
         //
 
-      QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
+        QString filenameTab = resultsDirName + QDir::separator() + "dakotaTab.out";
       
         QFileInfo fileTabInfo(filenameTab);
         QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
@@ -549,10 +552,12 @@ int ResultsPelicun::processResults(QString &inputFileName,
             errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
             return 0;
         }
+        */
 
         errorMessage(
-            QString("Could not open file: ") + resultsStatsFile +
-            QString(" . Damage and loss results are not available."));
+            QString("Could not open file: ") + resultsStatsFile + 
+            QString(".<br>Damage and loss results are not available. See the "
+                "log (above) for more information on the error."));
         return -1;
     }
 
@@ -623,16 +628,23 @@ int ResultsPelicun::processResults(QString &inputFileName,
     summaryLayout->addWidget(sepLine);
 
     resultsToShow.clear();
+    
     //resultsToShow.insert("inhabitants/","inhabitants");
-    resultsToShow.insert("collapse","collapsed?");
     //resultsToShow.insert("red_tagged/","red tagged?");
-    resultsToShow.insert("irreparable","irreparable?");
-    //resultsToShow.insert("reconstruction/cost_impractical","excessive repair cost?");
-    resultsToShow.insert("repair_cost-","repair cost");
-    resultsToShow.insert("repair_time","repair time");
-    //resultsToShow.insert("reconstruction/time_impractical","excessive repair time?");
-    resultsToShow.insert("repair_time-sequential","repair time - sequential");
-    resultsToShow.insert("repair_time-parallel","repair time - parallel");
+
+    resultsToShow.insert("collapse","Collapsed?");
+    
+    resultsToShow.insert("irreparable","Irreparable?");
+
+    resultsToShow.insert("repair_cost-","Repair Cost");
+
+    resultsToShow.insert("repair_time","Repair Time");
+    resultsToShow.insert("repair_time-sequential","Repair Time - sequential");
+    resultsToShow.insert("repair_time-parallel","Repair Time - parallel");
+    
+    resultsToShow.insert("repair_carbon-","Embodied Carbon in Repairs");
+    resultsToShow.insert("repair_energy-","Embodied Energy in Repairs");
+
     //resultsToShow.insert("injuries/sev1","injuries-1");
     //resultsToShow.insert("injuries/sev2","injuries-2");
     //resultsToShow.insert("injuries/sev3","injuries-3");

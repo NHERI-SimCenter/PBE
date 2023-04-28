@@ -140,7 +140,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     connect(replacementCheck, SIGNAL(stateChanged(int)), this,
                 SLOT(replacementCheckChanged(int)));
 
-    // - - - -
+    // - - - - Cost
 
     QHBoxLayout * loReplacementCostValues = new QHBoxLayout();
     loReplacementCostValues->setMargin(0);
@@ -156,7 +156,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
         tr("Unit used to measure replacement cost. Make sure the specified unit\n"
            "is consistent with the repair cost unit used in the chosen\n"
            "component loss database.\n"
-           "FEMA P-58 uses USD_2011;\n"));
+           "FEMA P-58 uses \"USD_2011\";\n"));
     repCostUnit->setMaximumWidth(75);
     repCostUnit->setMinimumWidth(75);
     repCostUnit->setText("");
@@ -202,7 +202,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     //loGC->addLayout(loReplacementCostValues);
     loRepSetV->addLayout(loReplacementCostValues);
 
-    // - - - -
+    // - - - - Time
 
     QHBoxLayout * loReplacementTimeValues = new QHBoxLayout();
     loReplacementTimeValues->setMargin(0);
@@ -218,7 +218,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
         tr("Unit used to measure replacement time. Make sure the specified unit\n"
            "is consistent with the repair time unit used in the chosen\n"
            "component loss database.\n"
-           "FEMA P-58 uses worker_days;\n"));
+           "FEMA P-58 uses \"worker_day\";\n"));
     repTimeUnit->setMaximumWidth(75);
     repTimeUnit->setMinimumWidth(75);
     repTimeUnit->setText("");
@@ -263,6 +263,128 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     //loGC->addLayout(loReplacementTimeValues);
     loRepSetV->addLayout(loReplacementTimeValues);
+
+    // - - - - Carbon
+
+    QHBoxLayout * loReplacementCarbonValues = new QHBoxLayout();
+    loReplacementCarbonValues->setMargin(0);
+
+    QLabel *lblCarbon = new QLabel();
+    lblCarbon->setText("Carbon: ");
+    lblCarbon->setMaximumWidth(50);
+    lblCarbon->setMinimumWidth(50);
+    loReplacementCarbonValues->addWidget(lblCarbon);
+
+    repCarbonUnit = new QLineEdit();
+    repCarbonUnit->setToolTip(
+        tr("Unit used to measure carbon emissions replacement.\n" 
+           "Make sure the specified unit is consistent with the one chosen\n"
+           "for repair carbon emissions in the component loss database.\n"
+           "FEMA P-58 uses \"kg\";\n"));
+    repCarbonUnit->setMaximumWidth(75);
+    repCarbonUnit->setMinimumWidth(75);
+    repCarbonUnit->setText("");
+    repCarbonUnit->setAlignment(Qt::AlignRight);
+    loReplacementCarbonValues->addWidget(repCarbonUnit);
+
+    repCarbonMedian = new QLineEdit();
+    repCarbonMedian->setToolTip(
+        tr("Median carbon emissions replacement measured in the specified unit.\n"));
+    repCarbonMedian->setMaximumWidth(75);
+    repCarbonMedian->setMinimumWidth(75);
+    repCarbonMedian->setText("");
+    repCarbonMedian->setAlignment(Qt::AlignRight);
+    loReplacementCarbonValues->addWidget(repCarbonMedian);
+
+    repCarbonDistribution = new QComboBox();
+    repCarbonDistribution->setToolTip(
+        tr("Distribution family assigned to the carbon emissions replacement.\n"
+            "The N/A setting corresponds to a deterministic value."));
+    repCarbonDistribution->addItem(tr("N/A"));
+    repCarbonDistribution->addItem(tr("normal"));
+    repCarbonDistribution->addItem(tr("lognormal"));
+    repCarbonDistribution->setMaximumWidth(100);
+    repCarbonDistribution->setMinimumWidth(100);
+    repCarbonDistribution->setCurrentText(tr("N/A"));
+    loReplacementCarbonValues->addWidget(repCarbonDistribution);
+
+    repCarbonTheta1 = new QLineEdit();
+    repCarbonTheta1->setToolTip(
+        tr("<p>The second parameter of the assigned distribution function.<br>"
+           "For a normal distribution, it is the <b>coefficient of variation</b><br>"
+           "For a lognormal distribution, it is the logarithmic standard deviation.<br>"
+           "Leave this field blank if the assigned time is deterministic.</p>"));
+    repCarbonTheta1->setMaximumWidth(50);
+    repCarbonTheta1->setMinimumWidth(50);
+    repCarbonTheta1->setText("");
+    repCarbonTheta1->setAlignment(Qt::AlignRight);
+    loReplacementCarbonValues->addWidget(repCarbonTheta1);
+
+    loReplacementCarbonValues->addStretch();
+    loReplacementCarbonValues->setSpacing(10);
+
+    loRepSetV->addLayout(loReplacementCarbonValues);
+
+    // - - - - Energy
+
+    QHBoxLayout * loReplacementEnergyValues = new QHBoxLayout();
+    loReplacementEnergyValues->setMargin(0);
+
+    QLabel *lblEnergy = new QLabel();
+    lblEnergy->setText("Energy: ");
+    lblEnergy->setMaximumWidth(50);
+    lblEnergy->setMinimumWidth(50);
+    loReplacementEnergyValues->addWidget(lblEnergy);
+
+    repEnergyUnit = new QLineEdit();
+    repEnergyUnit->setToolTip(
+        tr("Unit used to measure embodied energy replacement.\n" 
+           "Make sure the specified unit is consistent with the one chosen\n"
+           "for repair embodied energy in the component loss database.\n"
+           "FEMA P-58 uses \"MJ\";\n"));
+    repEnergyUnit->setMaximumWidth(75);
+    repEnergyUnit->setMinimumWidth(75);
+    repEnergyUnit->setText("");
+    repEnergyUnit->setAlignment(Qt::AlignRight);
+    loReplacementEnergyValues->addWidget(repEnergyUnit);
+
+    repEnergyMedian = new QLineEdit();
+    repEnergyMedian->setToolTip(
+        tr("Median embodied energy replacement measured in the specified unit.\n"));
+    repEnergyMedian->setMaximumWidth(75);
+    repEnergyMedian->setMinimumWidth(75);
+    repEnergyMedian->setText("");
+    repEnergyMedian->setAlignment(Qt::AlignRight);
+    loReplacementEnergyValues->addWidget(repEnergyMedian);
+
+    repEnergyDistribution = new QComboBox();
+    repEnergyDistribution->setToolTip(
+        tr("Distribution family assigned to the embodied energy replacement.\n"
+            "The N/A setting corresponds to a deterministic value."));
+    repEnergyDistribution->addItem(tr("N/A"));
+    repEnergyDistribution->addItem(tr("normal"));
+    repEnergyDistribution->addItem(tr("lognormal"));
+    repEnergyDistribution->setMaximumWidth(100);
+    repEnergyDistribution->setMinimumWidth(100);
+    repEnergyDistribution->setCurrentText(tr("N/A"));
+    loReplacementEnergyValues->addWidget(repEnergyDistribution);
+
+    repEnergyTheta1 = new QLineEdit();
+    repEnergyTheta1->setToolTip(
+        tr("<p>The second parameter of the assigned distribution function.<br>"
+           "For a normal distribution, it is the <b>coefficient of variation</b><br>"
+           "For a lognormal distribution, it is the logarithmic standard deviation.<br>"
+           "Leave this field blank if the assigned Energy is deterministic.</p>"));
+    repEnergyTheta1->setMaximumWidth(50);
+    repEnergyTheta1->setMinimumWidth(50);
+    repEnergyTheta1->setText("");
+    repEnergyTheta1->setAlignment(Qt::AlignRight);
+    loReplacementEnergyValues->addWidget(repEnergyTheta1);
+
+    loReplacementEnergyValues->addStretch();
+    loReplacementEnergyValues->setSpacing(10);
+
+    loRepSetV->addLayout(loReplacementEnergyValues);
 
     loGC->addWidget(replacementSettings);
 
@@ -540,6 +662,36 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
 
             lossData["ReplacementTime"] = timeData;
         }
+
+        if (repCarbonMedian->text() != QString("")) {
+
+            QJsonObject CarbonData;
+
+            CarbonData["Unit"] = repCarbonUnit->text();
+            CarbonData["Median"] = repCarbonMedian->text();        
+
+            if (repCarbonDistribution->currentText() != QString("N/A")) {
+                CarbonData["Distribution"] = repCarbonDistribution->currentText();
+                CarbonData["Theta_1"] = repCarbonTheta1->text();
+            }
+
+            lossData["ReplacementCarbon"] = CarbonData;
+        }
+
+        if (repEnergyMedian->text() != QString("")) {
+
+            QJsonObject EnergyData;
+
+            EnergyData["Unit"] = repEnergyUnit->text();
+            EnergyData["Median"] = repEnergyMedian->text();        
+
+            if (repEnergyDistribution->currentText() != QString("N/A")) {
+                EnergyData["Distribution"] = repEnergyDistribution->currentText();
+                EnergyData["Theta_1"] = repEnergyTheta1->text();
+            }
+
+            lossData["ReplacementEnergy"] = EnergyData;
+        }
     }
 
     lossData["ConsequenceDatabase"] = databaseConseq->currentText();
@@ -567,49 +719,117 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
         QJsonObject lossData = inputObject["BldgRepair"].toObject();
 
         if ((lossData.contains("ReplacementCost")) ||
-            (lossData.contains("ReplacementTime"))) {
+            (lossData.contains("ReplacementTime")) ||
+            (lossData.contains("ReplacementCarbon")) ||
+            (lossData.contains("ReplacementEnergy"))) {
 
             replacementCheck->setChecked(true);
+        }
 
-            if (lossData.contains("ReplacementCost")) {
+        if (lossData.contains("ReplacementCost")) {
 
-                QJsonObject costData = lossData["ReplacementCost"].toObject();
+            QJsonObject costData = lossData["ReplacementCost"].toObject();
 
-                if (costData.contains("Unit")) {
-                    repCostUnit->setText(costData["Unit"].toString());
-                }
-                if (costData.contains("Median")) {
-                    repCostMedian->setText(costData["Median"].toString());
-                }
-                if (costData.contains("Distribution")) {
-                    repCostDistribution->setCurrentText(costData["Distribution"].toString());
-                } else {
-                    repCostDistribution->setCurrentText(QString("N/A"));
-                }
-                if (costData.contains("Theta_1")) {
-                    repCostTheta1->setText(costData["Theta_1"].toString());
-                }
+            if (costData.contains("Unit")) {
+                repCostUnit->setText(costData["Unit"].toString());
             }
-
-            if (lossData.contains("ReplacementTime")) {
-
-                QJsonObject timeData = lossData["ReplacementTime"].toObject();
-
-                if (timeData.contains("Unit")) {
-                    repTimeUnit->setText(timeData["Unit"].toString());
-                }
-                if (timeData.contains("Median")) {
-                    repTimeMedian->setText(timeData["Median"].toString());
-                }
-                if (timeData.contains("Distribution")) {
-                    repTimeDistribution->setCurrentText(timeData["Distribution"].toString());
-                } else {
-                    repTimeDistribution->setCurrentText(QString("N/A"));
-                }
-                if (timeData.contains("Theta_1")) {
-                    repTimeTheta1->setText(timeData["Theta_1"].toString());
-                }
+            if (costData.contains("Median")) {
+                repCostMedian->setText(costData["Median"].toString());
             }
+            if (costData.contains("Distribution")) {
+                repCostDistribution->setCurrentText(costData["Distribution"].toString());
+            } else {
+                repCostDistribution->setCurrentText(QString("N/A"));
+            }
+            if (costData.contains("Theta_1")) {
+                repCostTheta1->setText(costData["Theta_1"].toString());
+            }
+        } else {
+
+            repCostUnit->setText("");
+            repCostMedian->setText("");
+            repCostDistribution->setCurrentText(QString("N/A"));
+            repCostTheta1->setText("");
+            
+        }
+
+        if (lossData.contains("ReplacementTime")) {
+
+            QJsonObject timeData = lossData["ReplacementTime"].toObject();
+
+            if (timeData.contains("Unit")) {
+                repTimeUnit->setText(timeData["Unit"].toString());
+            }
+            if (timeData.contains("Median")) {
+                repTimeMedian->setText(timeData["Median"].toString());
+            }
+            if (timeData.contains("Distribution")) {
+                repTimeDistribution->setCurrentText(timeData["Distribution"].toString());
+            } else {
+                repTimeDistribution->setCurrentText(QString("N/A"));
+            }
+            if (timeData.contains("Theta_1")) {
+                repTimeTheta1->setText(timeData["Theta_1"].toString());
+            }
+        } else {
+
+            repTimeUnit->setText("");
+            repTimeMedian->setText("");
+            repTimeDistribution->setCurrentText(QString("N/A"));
+            repTimeTheta1->setText("");
+
+        }
+
+        if (lossData.contains("ReplacementCarbon")) {
+
+            QJsonObject carbonData = lossData["ReplacementCarbon"].toObject();
+
+            if (carbonData.contains("Unit")) {
+                repCarbonUnit->setText(carbonData["Unit"].toString());
+            }
+            if (carbonData.contains("Median")) {
+                repCarbonMedian->setText(carbonData["Median"].toString());
+            }
+            if (carbonData.contains("Distribution")) {
+                repCarbonDistribution->setCurrentText(carbonData["Distribution"].toString());
+            } else {
+                repCarbonDistribution->setCurrentText(QString("N/A"));
+            }
+            if (carbonData.contains("Theta_1")) {
+                repCarbonTheta1->setText(carbonData["Theta_1"].toString());
+            }
+        } else {
+
+            repCarbonUnit->setText("");
+            repCarbonMedian->setText("");
+            repCarbonDistribution->setCurrentText(QString("N/A"));
+            repCarbonTheta1->setText("");
+        }
+
+        if (lossData.contains("ReplacementEnergy")) {
+
+            QJsonObject energyData = lossData["ReplacementEnergy"].toObject();
+
+            if (energyData.contains("Unit")) {
+                repEnergyUnit->setText(energyData["Unit"].toString());
+            }
+            if (energyData.contains("Median")) {
+                repEnergyMedian->setText(energyData["Median"].toString());
+            }
+            if (energyData.contains("Distribution")) {
+                repEnergyDistribution->setCurrentText(energyData["Distribution"].toString());
+            } else {
+                repEnergyDistribution->setCurrentText(QString("N/A"));
+            }
+            if (energyData.contains("Theta_1")) {
+                repEnergyTheta1->setText(energyData["Theta_1"].toString());
+            }
+        } else {
+
+            repEnergyUnit->setText("");
+            repEnergyMedian->setText("");
+            repEnergyDistribution->setCurrentText(QString("N/A"));
+            repEnergyTheta1->setText("");
         }
 
         if (lossData.contains("ConsequenceDatabase")) {
