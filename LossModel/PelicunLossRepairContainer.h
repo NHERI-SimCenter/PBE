@@ -117,11 +117,19 @@ private:
     QLineEdit * repTimeUnit;
     QLineEdit * repTimeMedian;
     QLineEdit * repTimeTheta1;
+    QLineEdit * repCarbonUnit;
+    QLineEdit * repCarbonMedian;
+    QLineEdit * repCarbonTheta1;
+    QLineEdit * repEnergyUnit;
+    QLineEdit * repEnergyMedian;
+    QLineEdit * repEnergyTheta1;
     QLineEdit * consequenceDataBasePath;
     QLineEdit * mapPath;
 
     QComboBox * repCostDistribution;
     QComboBox * repTimeDistribution;
+    QComboBox * repCarbonDistribution;
+    QComboBox * repEnergyDistribution;
     QComboBox * databaseConseq;
     QComboBox * mapApproach;
 
