@@ -309,6 +309,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     selectDBLayout->addWidget(databaseCombo, 1);
 
+    // export db
     QPushButton *btnExportDataBase = new QPushButton();
     btnExportDataBase->setMinimumWidth(100);
     btnExportDataBase->setMaximumWidth(100);
@@ -683,7 +684,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     //compDetailsFormLayout->addRow(tr("Name: "), compName);
     */
 
-    // fragility info (temporary location)
+    // fragility info
 
     fragilityViz = new QWebEngineView();
     fragilityViz->setMinimumHeight(240);
@@ -901,9 +902,9 @@ PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
 
     QString output_path = workDir + "/resources/fragility_viz/";
 
-    this->statusMessage(python);
-    this->statusMessage(workDir);
-    this->statusMessage(output_path);
+    //this->statusMessage(python);
+    //this->statusMessage(workDir);
+    //this->statusMessage(output_path);
 
     QProcess proc;
     QStringList params;
@@ -1251,12 +1252,14 @@ int PelicunComponentContainer::updateAvailableComponents(){
                     QString line = stream.readLine();
                     QStringList line_list;
 
-                    this->parseCSVLine(line, line_list);
+                    //this->parseCSVLine(line, line_list);
+                    parseCSVLine(line, line_list, this);
 
                     QString compName = line_list[0];
 
                     if (compName == "ID") {
-                        this->parseCSVLine(line, header);
+                        //this->parseCSVLine(line, header);
+                        parseCSVLine(line, header, this);
                         continue;
                     } 
 
@@ -1536,6 +1539,7 @@ PelicunComponentContainer::exportComponentVulnerabilityDB(void) {
     this->statusMessage(QString("Successfully exported damage and loss database..."));
 }
 
+/*
 void
 PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
 {
@@ -1585,6 +1589,7 @@ PelicunComponentContainer::parseCSVLine(QString &line, QStringList &line_list)
         }
     }
 }
+*/
 
 void
 PelicunComponentContainer::deleteCompConfig(){
@@ -1666,7 +1671,8 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
             QString line = stream.readLine();
             QStringList line_list;
 
-            this->parseCSVLine(line, line_list);
+            //this->parseCSVLine(line, line_list);
+            parseCSVLine(line, line_list, this);
 
             QString compName = line_list[0];
             if (compName == "ID") {

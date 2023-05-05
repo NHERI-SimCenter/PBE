@@ -63,9 +63,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
-    this->setMaximumWidth(700);
+    this->setMaximumWidth(800);
 
-    int maxWidth = 350;
+    int maxWidth = 400;
 
     collConfig = new QVector<QMap<QString, QString>* >;
     truncConfig = new QVector<QMap<QString, QString>* >;

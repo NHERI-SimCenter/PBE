@@ -40,8 +40,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna, adamzs
 
 #include <QCheckBox>
+#include <QWebEngineView>
 
 #include "SimCenterAppWidget.h"
+#include "PelicunShared.h"
+
+#include <quazip.h>
+#include <quazipfile.h>
 
 class QCheckBox;
 class QComboBox;
@@ -52,6 +57,7 @@ class QHBoxLayout;
 class QRadioButton;
 class QGridLayout;
 class QPushButton;
+class QStringListModel;
 
 /*!
  * Widget for general loss assessment settings in PBE tool
@@ -92,24 +98,49 @@ public:
      */
     QString getPelicunLossRepairContainerName() const;
 
+    int setAdditionalComponentDB(QString additionalComponentDB);
+
 signals:
 
 public slots:
+    int updateAvailableComponents();
+
+    void updateComponentInfo(void);
+    void showSelectedComponent(void);
+    void showSelectedCType(void);
 
     void replacementCheckChanged(int newState);
+    void cTypeSetupChanged(int newState);
+
+    void addComponentCheckChanged(int newState);
 
     void chooseConsequenceDataBase(void);
     void exportConsequenceDB(void);
 
-    void DBSelectionChanged(const QString &arg1);
+    //void DBSelectionChanged(const QString &arg1);
 
     void MAPApproachSelectionChanged(const QString &arg1);
+
+    void updateComponentConsequenceDB();
 
     void chooseMAP(void);
 
 private:
 
+    void deleteCompDB();
+    void initPanel();
+    QString generateConsequenceInfo(QString comp_DB_path);
+
     QWidget * replacementSettings;
+    QWidget * repCostSettings;
+    QWidget * repTimeSettings;
+    QWidget * repCarbonSettings;
+    QWidget * repEnergySettings;
+
+    QString   cmpConsequenceDB;
+    QString   additionalComponentDB;
+    QString   cmpConsequenceDB_viz;
+    QString   additionalComponentDB_viz;
 
     QLineEdit * repCostUnit;
     QLineEdit * repCostMedian;
@@ -123,7 +154,7 @@ private:
     QLineEdit * repEnergyUnit;
     QLineEdit * repEnergyMedian;
     QLineEdit * repEnergyTheta1;
-    QLineEdit * consequenceDataBasePath;
+    QLineEdit * leAdditionalComponentDB;
     QLineEdit * mapPath;
 
     QComboBox * repCostDistribution;
@@ -132,13 +163,29 @@ private:
     QComboBox * repEnergyDistribution;
     QComboBox * databaseConseq;
     QComboBox * mapApproach;
+    QComboBox * selectedCompCombo;
+    QStringListModel *selectedCBModel;
+    QComboBox * selectedCType;
 
     QPushButton * btnChooseConsequence;
     QPushButton * btnChooseMAP;
 
     QCheckBox *replacementCheck;
+    QCheckBox *addComp;
+    QCheckBox *cbCTypeCost;
+    QCheckBox *cbCTypeTime;
+    QCheckBox *cbCTypeCarbon;
+    QCheckBox *cbCTypeEnergy;
+
+    QLabel *compInfo;
+
+    // component DL information
+    QMap<QString, QMap<QString, QString>* > *compDB;
 
     QGridLayout *gridLayout;
+
+    // Display consequence information
+    QWebEngineView *consequenceViz; 
 
 };
 

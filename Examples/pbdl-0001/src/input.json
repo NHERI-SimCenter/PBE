@@ -82,10 +82,16 @@
         "Losses": {
             "BldgRepair": {
                 "ConsequenceDatabase": "FEMA P-58",
+                "DecisionVariables": {
+                    "Carbon": true,
+                    "Cost": true,
+                    "Energy": true,
+                    "Time": true
+                },
                 "MapApproach": "Automatic",
                 "ReplacementCarbon": {
                     "Distribution": "normal",
-                    "Median": "10000000",
+                    "Median": "1e7",
                     "Theta_1": "0.3",
                     "Unit": "kg"
                 },
@@ -97,10 +103,10 @@
                 },
                 "ReplacementEnergy": {
                     "Distribution": "normal",
-                    "Median": "100000000",
+                    "Median": "1e9",
                     "Theta_1": "0.3",
                     "Unit": "MJ"
-                 },
+                },
                 "ReplacementTime": {
                     "Distribution": "lognormal",
                     "Median": "15000",
@@ -187,7 +193,6 @@
         "name": "",
         "planArea": 129600,
         "stories": 1,
-        "dampingRatio": 0.02,
         "units": {
             "force": "kips",
             "length": "in",
@@ -217,6 +222,7 @@
                 "weight": 144
             }
         ],
+        "dampingRatio": 0.02,
         "height": 144,
         "massX": 0,
         "massY": 0,
@@ -250,13 +256,12 @@
             "seed": 946
         },
         "saveWorkDir": true,
-        "uqEngine": "Dakota",
         "uqType": "Forward Propagation"
     },
-    "localAppDir": "C:/SimCenter/",
+    "localAppDir": "/Users/adamzs/SimCenter",
     "randomVariables": [
     ],
-    "remoteAppDir": "C:/SimCenter/",
+    "remoteAppDir": "/Users/adamzs/SimCenter",
     "runType": "runningLocal",
-    "workingDir": "C:/Workdir/PBE"
+    "workingDir": "/Users/adamzs/Documents/PBE/LocalWorkDir"
 }

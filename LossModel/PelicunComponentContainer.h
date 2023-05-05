@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterWidget.h>
 #include <SimCenterAppWidget.h>
+#include "PelicunShared.h"
 #include <QWebEngineView>
 
 #include <quazip.h>
@@ -92,7 +93,7 @@ public:
     void clearCompGroupWidget();
     void retrieveCompGroups();
 
-    void parseCSVLine(QString &line, QStringList &line_list);
+    //void parseCSVLine(QString &line, QStringList &line_list);
 
 public slots:
    int updateAvailableComponents();

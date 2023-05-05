@@ -58,7 +58,43 @@
         "Losses": {
             "BldgRepair": {
                 "ConsequenceDatabase": "Hazus Earthquake",
+                "DecisionVariables": {
+                    "Carbon": false,
+                    "Cost": true,
+                    "Energy": false,
+                    "Time": true
+                },
                 "MapApproach": "Automatic"
+            }
+        },
+        "Outputs": {
+            "Asset": {
+                "Sample": true,
+                "Statistics": true
+            },
+            "Damage": {
+                "GroupedSample": true,
+                "GroupedStatistics": true,
+                "Sample": true,
+                "Statistics": true
+            },
+            "Demand": {
+                "Sample": true,
+                "Statistics": true
+            },
+            "Format": {
+                "CSV": true,
+                "JSON": false
+            },
+            "Loss": {
+                "BldgRepair": {
+                    "AggregateSample": true,
+                    "AggregateStatistics": true,
+                    "GroupedSample": true,
+                    "GroupedStatistics": true,
+                    "Sample": true,
+                    "Statistics": true
+                }
             }
         }
     },
@@ -67,14 +103,14 @@
         "edpFiles": [
             "EDP.json"
         ],
-        "filenameBIM": "BIM.json",
-        "filenameDL": "BIM.json",
+        "filenameAIM": "AIM.json",
+        "filenameDL": "AIM.json",
         "filenameEDP": "EDP.json",
         "filenameEVENT": "EVENT.json",
         "filenameSAM": "SAM.json",
         "filenameSIM": "SIM.json",
         "rvFiles": [
-            "BIM.json",
+            "AIM.json",
             "SAM.json",
             "EVENT.json",
             "SIM.json"
@@ -98,6 +134,8 @@
     "GeneralInformation": {
         "NumberOfStories": 3,
         "PlanArea": 129600,
+        "StructureType": "RM1",
+        "YearBuilt": 1990,
         "depth": 360,
         "height": 144,
         "location": {
@@ -158,6 +196,7 @@
                 "weight": 144
             }
         ],
+        "dampingRatio": 0.02,
         "height": 48,
         "massX": 0,
         "massY": 0,
@@ -175,8 +214,6 @@
         "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
         "convergenceTest": "NormUnbalance 1.0e-2 10",
         "dampingModel": "Rayleigh Damping",
-        "dampingRatio": 0.02,
-        "dampingRatioModal": 0.02,
         "firstMode": 1,
         "integration": "Newmark 0.5 0.25",
         "modalRayleighTangentRatio": 0,
@@ -192,10 +229,13 @@
             "samples": 40,
             "seed": 867
         },
-        "uqEngine": "Dakota",
+        "saveWorkDir": true,
         "uqType": "Forward Propagation"
     },
-    "localAppDir": "C:/SimCenter/",
+    "correlationMatrix": [
+        1
+    ],
+    "localAppDir": "/Users/adamzs/SimCenter",
     "randomVariables": [
         {
             "distribution": "Normal",
@@ -208,7 +248,7 @@
             "variableClass": "Uncertain"
         }
     ],
-    "remoteAppDir": "C:/SimCenter/",
+    "remoteAppDir": "/Users/adamzs/SimCenter",
     "runType": "runningLocal",
-    "workingDir": "C:/Workdir/PBE"
+    "workingDir": "/Users/adamzs/Documents/PBE/LocalWorkDir"
 }

@@ -58,7 +58,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
 
-    int maxWidth = 400;
+    int maxWidth = 800;
 
     this->setMaximumWidth(maxWidth);
 
@@ -67,7 +67,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // Global Vulnerability ---------------------------------------------------
 
     QGroupBox *GlobalVulGB = new QGroupBox("Global Vulnerabilities");
-    GlobalVulGB->setMaximumWidth(maxWidth);
+    GlobalVulGB->setMaximumWidth(500);
 
     QVBoxLayout *loGV = new QVBoxLayout(GlobalVulGB);
 
@@ -309,7 +309,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // Data Source ------------------------------------------------------------
 
     QGroupBox *DamageProcessGB = new QGroupBox("Damage Process");
-    DamageProcessGB->setMaximumWidth(maxWidth);
+    //DamageProcessGB->setMaximumWidth(maxWidth);
 
     QVBoxLayout *loDP = new QVBoxLayout(DamageProcessGB);
 
@@ -365,8 +365,9 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // assemble the widgets ---------------------------------------------------
 
     gridLayout->addWidget(GlobalVulGB,0,0);
-    gridLayout->addWidget(DamageProcessGB,1,0);
-    gridLayout->setRowStretch(1, 1);
+    gridLayout->addWidget(DamageProcessGB,0,1);
+    
+    gridLayout->setRowStretch(0, 1);
 
     this->setLayout(gridLayout);
 }
