@@ -636,13 +636,17 @@ int ResultsPelicun::processResults(QString &inputFileName,
     
     resultsToShow.insert("irreparable","Irreparable?");
 
+    resultsToShow.insert("repair_cost","Repair Cost");
     resultsToShow.insert("repair_cost-","Repair Cost");
 
     resultsToShow.insert("repair_time","Repair Time");
+    resultsToShow.insert("repair_time-","Repair Time");
     resultsToShow.insert("repair_time-sequential","Repair Time - sequential");
     resultsToShow.insert("repair_time-parallel","Repair Time - parallel");
     
+    resultsToShow.insert("repair_carbon","Embodied Carbon in Repairs");
     resultsToShow.insert("repair_carbon-","Embodied Carbon in Repairs");
+    resultsToShow.insert("repair_energy","Embodied Energy in Repairs");
     resultsToShow.insert("repair_energy-","Embodied Energy in Repairs");
 
     //resultsToShow.insert("injuries/sev1","injuries-1");
@@ -1215,9 +1219,9 @@ QWidget *
 ResultsPelicun::createSummaryItem2(QString &name, double mean, double stdDev, double logStdDev,
     double min, double p10, double p50, double p90, double max) {
 
-    QStringList probOnly = (QStringList() << "collapsed?" << "red tagged?" <<
-                            "irreparable?" << "excessive repair cost?" <<
-                            "excessive repair time?");
+    QStringList probOnly = (QStringList() << "Collapsed?" << "Red Tagged?" <<
+                            "Irreparable?" << "Excessive Repair Cost?" <<
+                            "Excessive Repair Time?");
 
     QWidget *item = new QWidget;
     QHBoxLayout *itemLayout = new QHBoxLayout();
