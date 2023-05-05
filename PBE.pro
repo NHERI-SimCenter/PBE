@@ -78,7 +78,8 @@ SOURCES += main.cpp \
     LossModel/LossModelSelection.cpp \
     LossModel/HazusGeneralSettingsContainer.cpp \
     LossModel/HazusLossModel.cpp \
-    LossModel/LossMethod.cpp
+    LossModel/LossMethod.cpp \
+    LossModel/PelicunShared.cpp
 
 
 
@@ -104,7 +105,8 @@ HEADERS  += \
     LossModel/LossModelSelection.h \
     LossModel/HazusLossModel.h \
     LossModel/HazusGeneralSettingsContainer.h \
-    LossModel/LossMethod.h
+    LossModel/LossMethod.h \
+    LossModel/PelicunShared.h
 
 RESOURCES += \
     images.qrc
