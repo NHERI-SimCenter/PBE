@@ -35,24 +35,28 @@ win32{
 }
 
 win32 {
-    RC_ICONS = icons/NHERI-PBE-Icon.ico
+RC_ICONS = icons/NHERI-PBE-Icon.ico
+LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib
 } else {
+
     mac {
       ICON = icons/NHERI-PBE-Icon.icns
       DEFINES += _GRAPHICS_Qt3D
       QMAKE_INFO_PLIST=$$PWD/Info.plist
+      LIBS += $$PWD/../quazip/build/quazip/libquazip1-qt5.1.4.dylib
     } else {
       LIBS += -lc
     }
 }
 
+INCLUDEPATH += $$PWD/../quazip/quazip
+                   
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
 include(../SimCenterCommon/RandomVariables/RandomVariables.pri)
 include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../EE-UQ/EarthquakeEvents.pri)
 include(../QS3hark/QS3hark.pri)
-include(../quazip/quazip.pri)
 
 INCLUDEPATH += "./Component"
 
