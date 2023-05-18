@@ -32,6 +32,22 @@
       },
       "tags": [
       ]
+    },
+    "pbdl-0003": {
+      "id": "pbdl-0003",
+      "title": "Seismic performance assessment for transportation network components using HAZUS methodology",
+      "base": "pbdl-0003",
+      "doc": [
+        "pbdl-0003/README.rst"
+      ],
+      "entry_point": "pbdl-0003/./input.json",
+      "summary": "This example performs seismic performance assessment calculations for a highway bridge, roadway segment, and tunnel structure using the Hazus damage and restoration functions.",
+      "published": "2023-05-18T00:00:00-08:00",
+      "categories": {
+        "Difficulty": "0"
+      },
+      "tags": [
+      ]
     }
   },
   "categories": {
