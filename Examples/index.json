@@ -35,7 +35,7 @@
     },
     "pbdl-0003": {
       "id": "pbdl-0003",
-      "title": "Seismic performance assessment for transportation network components using HAZUS methodology",
+      "title": "Seismic performance assessment for transportation network components using Hazus methodology",
       "base": "pbdl-0003",
       "doc": [
         "pbdl-0003/README.rst"

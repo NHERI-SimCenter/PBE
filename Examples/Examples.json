@@ -11,7 +11,7 @@
       "inputFile": "pbdl-0002/src/input.json"
     },
     {
-      "name": "E3: Seismic performance assessment for transportation network components using HAZUS methodology",
+      "name": "E3: Seismic performance assessment for transportation network components using Hazus methodology",
       "description": "This example performs seismic performance assessment calculations for a highway bridge, roadway segment, and tunnel structure using the Hazus damage and restoration functions.",
       "inputFile": "pbdl-0003/src/input.json"
     }
