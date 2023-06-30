@@ -57,9 +57,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
     QCoreApplication::setApplicationVersion("3.1.0");
-    // GoogleAnalytics::SetTrackingId("UA-126256136-1");
-    GoogleAnalytics::StartSession();
-    GoogleAnalytics::ReportStart();
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -106,6 +103,12 @@ int main(int argc, char *argv[])
    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
   QApplication a(argc, argv);
+
+   //Setting Google Analytics Tracking Information
+   GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
+   GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
+   GoogleAnalytics::CreateSessionId();
+   GoogleAnalytics::StartSession();
 
   //
   // create a remote interface

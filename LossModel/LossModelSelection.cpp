@@ -220,7 +220,7 @@ LossModelSelection::copyFiles(QString &destDir) {
     bool result = true;
 
     if (theCurrentMethod != 0) {
-       GoogleAnalytics::ReportAppUsage("DL-Pelicun");
+       GoogleAnalytics::ReportAppUsage("DL_Pelicun");
        return  theCurrentMethod->copyFiles(destDir);
     }
 
