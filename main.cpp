@@ -56,10 +56,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.0.8");
-    // GoogleAnalytics::SetTrackingId("UA-126256136-1");
-    GoogleAnalytics::StartSession();
-    GoogleAnalytics::ReportStart();
+    QCoreApplication::setApplicationVersion("3.1.0");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -107,6 +104,12 @@ int main(int argc, char *argv[])
 
   QApplication a(argc, argv);
 
+   //Setting Google Analytics Tracking Information
+   GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
+   GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
+   GoogleAnalytics::CreateSessionId();
+   GoogleAnalytics::StartSession();
+
   //
   // create a remote interface
   //
@@ -138,7 +141,8 @@ int main(int argc, char *argv[])
 
   mainWindow.setVersion(version);
 
-  QString citeText("1) Adam Zsarnoczay, Frank McKenna, Charles Wang, Wael Elhaddad, & Michael Gardner. (2022). NHERI-SimCenter/PBE: Version 3.0.0 (v3.0.0). Zenodo. https://doi.org/10.5281/zenodo.7131900  \n\n2) Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matt J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
+  QString citeText("1) Adam Zsarnoczay, Frank McKenna, Kuanshi Zhong, Charles Wang, Michael Gardner, & Wael Elhaddad. (2023). NHERI-SimCenter/PBE: Version 3.1.0 (v3.1.0). Zenodo. https://doi.org/10.5281/zenodo.7951709 \n\n2) Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matt J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
+
   mainWindow.setCite(citeText);
 
   QString manualURL("https://nheri-simcenter.github.io/PBE-Documentation/");
