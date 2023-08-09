@@ -175,7 +175,7 @@ ComponentGroup::ComponentGroup(QWidget *parent, QMap<QString, QString> *CG_data_
     //mainLayout->addWidget(button);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
 
     this->setLayout(mainLayout);
 }

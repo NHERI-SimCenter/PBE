@@ -88,7 +88,7 @@ ResidualParam::ResidualParam(QWidget *parent, QMap<QString, QString> *RP_data_in
     mainLayout->addWidget(rpYieldDrift);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);;
 
     this->setLayout(mainLayout);
 }

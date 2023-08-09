@@ -71,7 +71,7 @@ PelicunOutputsContainer::PelicunOutputsContainer(QWidget *parent)
     // Output Format
 
     QHBoxLayout *outputFormatLayout = new QHBoxLayout();
-    outputFormatLayout->setMargin(0);
+    outputFormatLayout->setContentsMargins(0,0,0,0);;
 
     QLabel *lblOutputFormat = new QLabel();
     lblOutputFormat->setText("Format:");

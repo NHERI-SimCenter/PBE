@@ -293,7 +293,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     // Replacement
 
     QHBoxLayout *replacementLayout = new QHBoxLayout();
-    replacementLayout->setMargin(0);
+    replacementLayout->setContentsMargins(0,0,0,0);;
 
     replacementCheck = new QCheckBox();
     replacementCheck->setText("");
@@ -314,11 +314,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     replacementSettings = new QWidget();
     QVBoxLayout * loRepSetV = new QVBoxLayout(replacementSettings);
-    loRepSetV->setMargin(0);
+    loRepSetV->setContentsMargins(0,0,0,0);;
 
     // - - - -
     QHBoxLayout * loReplacementHeader = new QHBoxLayout();
-    loReplacementHeader->setMargin(0);
+    loReplacementHeader->setContentsMargins(0,0,0,0);;
 
     QLabel *lblPlaceholder = new QLabel();
     lblPlaceholder->setText("");
@@ -363,7 +363,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     repCostSettings = new QWidget();
     QHBoxLayout * loReplacementCostValues = new QHBoxLayout(repCostSettings);
-    loReplacementCostValues->setMargin(0);
+    loReplacementCostValues->setContentsMargins(0,0,0,0);;
 
     QLabel *lblCost = new QLabel();
     lblCost->setText("Cost: ");
@@ -427,7 +427,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     repTimeSettings = new QWidget();
     QHBoxLayout * loReplacementTimeValues = new QHBoxLayout(repTimeSettings);
-    loReplacementTimeValues->setMargin(0);
+    loReplacementTimeValues->setContentsMargins(0,0,0,0);;
 
     QLabel *lblTime = new QLabel();
     lblTime->setText("Time: ");
@@ -491,7 +491,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     repCarbonSettings = new QWidget();
     QHBoxLayout * loReplacementCarbonValues = new QHBoxLayout(repCarbonSettings);
-    loReplacementCarbonValues->setMargin(0);
+    loReplacementCarbonValues->setContentsMargins(0,0,0,0);;
 
     QLabel *lblCarbon = new QLabel();
     lblCarbon->setText("Carbon: ");
@@ -554,7 +554,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
 
     repEnergySettings = new QWidget();
     QHBoxLayout * loReplacementEnergyValues = new QHBoxLayout(repEnergySettings);
-    loReplacementEnergyValues->setMargin(0);
+    loReplacementEnergyValues->setContentsMargins(0,0,0,0);;
 
     QLabel *lblEnergy = new QLabel();
     lblEnergy->setText("Energy: ");
@@ -1241,7 +1241,7 @@ PelicunLossRepairContainer::exportConsequenceDB(void) {
     qDebug() << QString("Exporting consequence database...");
 
     // copy the db file(s) to the desired location
-    QFileInfo fi = leAdditionalComponentDB->text();
+    QFileInfo fi = QFileInfo(leAdditionalComponentDB->text());
 
     // get the filenames
     QString csvFileName = fi.fileName();

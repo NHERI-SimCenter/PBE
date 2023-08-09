@@ -1,5 +1,5 @@
 /* *****************************************************************************
-Copyright (c) 2016-2023, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,59 +34,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: adamzs
+// Written: Stevan Gavrilovic
 
-#include "PelicunShared.h"
 
-void
-parseCSVLine(QString &line, QStringList &line_list, 
-   SimCenterAppWidget *parent)
+
+#include "NoneWidget.h"
+#include "REDiWidget.h"
+#include "PerformanceMethodSelection.h"
+
+PerformanceMethodSelection::PerformanceMethodSelection(QWidget *parent)
+    : SimCenterAppSelection(QString("PRF Application"), QString("Performance"), parent)
 {
-    // parse the line considering "" and , and \n
-    bool in_commented_block = false;
-    bool save_element = false;
-    int c_0 = 0;
+    // The none widget
+    theNoneWidget = new NoneWidget();
 
-    for (int c=0; c<line.length(); c++) {
-        if (line[c] == '"') {
-            if (in_commented_block) {
-                save_element = true;
-                in_commented_block = false;
-            } else {
-                in_commented_block = true;
-                c_0 = c+1;
-            }
-        } else if (line[c] == ',') {
-            if (c_0 == c){
-                line_list.append("");
-                c_0++;
-            } else if (in_commented_block == false) {
-                save_element = true;
-            }
-        } else if (c == line.length()-1) {
-            save_element = true;
-            c++;
-        }
+    // The REDi widget
+    theREDiWidget = new REDiWidget();
 
-        if (save_element) {
-            QString element = line.mid(c_0, c-c_0);
+    this->addComponent(QString("None"), QString("None"), theNoneWidget);
+    this->addComponent(QString("REDi"), QString("REDi"), theREDiWidget);
 
-            c_0 = c+1;
-            line_list.append(element);
-            save_element = false;
 
-            if (c_0 < line.length()-1) {
-                if (line[c_0-1] == '"') {
-                    if (line[c_0] != ',') {
-                        if (parent != nullptr){
-                           parent->statusMessage("Error while parsing CSV file at the following line: " + line);   
-                        }
-                    } else {
-                        c_0 ++;
-                        c++;
-                    }
-                }
-            }
-        }
-    }
 }
+
+PerformanceMethodSelection::~PerformanceMethodSelection()
+{
+
+}
+
+
+

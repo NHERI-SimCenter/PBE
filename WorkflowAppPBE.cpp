@@ -75,6 +75,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
 #include <LossModel/LossModelSelection.h>
+#include <PerformanceMethodSelection.h>
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <ResultsPelicun.h>
@@ -120,6 +121,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theAnalysisSelection = new FEA_Selection();
     theUQ_Selection = new UQ_EngineSelection(ForwardOnly);
     theDLModelSelection = new LossModelSelection();
+    thePrfMethodSelection = new PerformanceMethodSelection();
     theResults = new ResultsPelicun();
 
     localApp = new LocalApplication("sWHALE.py");
@@ -187,7 +189,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     this->setLayout(horizontalLayout);
     this->setContentsMargins(0,5,0,5);
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0,0,0,0);
 
     theComponentSelection = new SimCenterComponentSelection();
     horizontalLayout->addWidget(theComponentSelection);
@@ -199,6 +201,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theComponentSelection->addComponent(QString("FEM"), theAnalysisSelection);
     theComponentSelection->addComponent(QString("RV"),  theRVs);
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
+    theComponentSelection->addComponent(QString("PRF"),  thePrfMethodSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
 
     theComponentSelection->displayComponent("DL");
@@ -216,6 +219,12 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theDialog->appendBlankLine();
     theDialog->appendInfoMessage("Welcome to PBE<br>");
     //    theDialog->hideAfterElapsedTime(1);
+
+//    QString test = "inputFileName";
+//    QString test2 =  "/Users/stevan.gavrilovic/Documents/PBE/LocalWorkDir/tmp.SimCenter";
+
+//    theResults->processResults(test,test2);
+//    theResults->processREDiResults(test,test2);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()
@@ -310,7 +319,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
       qDebug() << "WorkflowAppPBE::outputToJSON - EVENT_Selection failed appData";            
         return result;
     }
-    
+
     result = theRunWidget->outputToJSON(jsonObjectTop);
     if (result == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - Run failed";      
@@ -324,6 +333,27 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     }
     
     jsonObjectTop["DL"] = jsonLossModel;
+
+    QJsonObject appPrf;
+    if (thePrfMethodSelection->outputToJSON(appPrf) == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - PRF_Selection failed";
+      return false;
+    }
+
+
+    QJsonObject dataPrf;
+    result = thePrfMethodSelection->outputAppDataToJSON(dataPrf);
+    if (result == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - Prf Method Selection failed appData";
+      return result;
+    }
+
+    QJsonObject prfFinal = appPrf["Performance"].toObject();
+    jsonObjectTop["Performance"] = prfFinal;
+
+    prfFinal["ApplicationData"] = dataPrf["Performance"];
+    apps["Performance"] = prfFinal;
+
 
     QJsonObject appsDL;
     if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false) {
@@ -364,6 +394,8 @@ WorkflowAppPBE::processResults(QString &dirPath) {
 
   statusMessage("Backend Done. Processing Results ...");  
   theResults->processResults(loadedFile, dirPath);
+  theResults->processREDiResults(loadedFile, dirPath);
+
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");
   this->runComplete();
@@ -422,6 +454,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 	
         if (theAnalysisSelection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("EE_UQ: failed to read FEM application");
+
+        if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false)
+            this->errorMessage("PBE: failed to read PRF Method data");
+
 
     } else
         return false;

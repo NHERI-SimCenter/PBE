@@ -64,7 +64,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     nameLayout->addWidget(collapseModeLabel);
     nameLayout->addWidget(collapseModeName);
     nameLayout->setSpacing(1);
-    nameLayout->setMargin(0);
+    nameLayout->setContentsMargins(0,0,0,0);;
 
     // Vertical layout for collapse mode probability
     QVBoxLayout * probabilityLayout = new QVBoxLayout();
@@ -78,7 +78,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     probabilityLayout->addWidget(probabilityLabel);
     probabilityLayout->addWidget(collapseModeProbability);
     probabilityLayout->setSpacing(1);
-    probabilityLayout->setMargin(0);
+    probabilityLayout->setContentsMargins(0,0,0,0);;
 
     // Vertical layout to deal with the area affected by the collapse mode
     QVBoxLayout * affectedAreaLayout = new QVBoxLayout();
@@ -95,7 +95,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     affectedAreaLayout->addWidget(collapseModeAffectedAreaLabel);
     affectedAreaLayout->addWidget(collapseModeAffectedArea);
     affectedAreaLayout->setSpacing(1);
-    affectedAreaLayout->setMargin(0);
+    affectedAreaLayout->setContentsMargins(0,0,0,0);
 
     // Vertical layout to deal with collapse mode injuries
     QVBoxLayout * injuriesLayout = new QVBoxLayout();
@@ -110,7 +110,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     injuriesLayout->addWidget(collapseModeInjuriesLabel);
     injuriesLayout->addWidget(collapseModeInjuries);
     injuriesLayout->setSpacing(1);
-    injuriesLayout->setMargin(0);
+    injuriesLayout->setContentsMargins(0,0,0,0);
 
     button = new QRadioButton();
 
@@ -125,7 +125,7 @@ CollapseMode::CollapseMode(QWidget *parent)
     mainLayout->addLayout(injuriesLayout);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
 
     this->setLayout(mainLayout);
 }

@@ -74,7 +74,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // Excessive RID
 
     QHBoxLayout *residualDriftLayout = new QHBoxLayout();
-    residualDriftLayout->setMargin(0);
+    residualDriftLayout->setContentsMargins(0,0,0,0);;
 
     excessiveRID = new QCheckBox();
     excessiveRID->setText("");
@@ -94,12 +94,12 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
 
     irreparableSettings = new QWidget();
     QVBoxLayout * loIrrepV = new QVBoxLayout(irreparableSettings);
-    loIrrepV->setMargin(0);
+    loIrrepV->setContentsMargins(0,0,0,0);;
 
     // - - - -
 
     QHBoxLayout *loExcRIDHeader = new QHBoxLayout();
-    loExcRIDHeader->setMargin(0);
+    loExcRIDHeader->setContentsMargins(0,0,0,0);;
 
     QLabel *lblPlaceHolder = new QLabel();
     lblPlaceHolder->setText("");
@@ -128,7 +128,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout *loExcRIDValues = new QHBoxLayout();
-    loExcRIDValues->setMargin(0);
+    loExcRIDValues->setContentsMargins(0,0,0,0);;
 
     QLabel *lblRIDCapacity = new QLabel();
     lblRIDCapacity->setText("Drift Capacity: ");
@@ -177,7 +177,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // Collapse
 
     QHBoxLayout *collapseLayout = new QHBoxLayout();
-    collapseLayout->setMargin(0);
+    collapseLayout->setContentsMargins(0,0,0,0);;
 
     collapseCheck = new QCheckBox();
     collapseCheck->setText("");
@@ -197,12 +197,12 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
 
     collapseSettings = new QWidget();
     QVBoxLayout * loColSetV = new QVBoxLayout(collapseSettings);
-    loColSetV->setMargin(0);
+    loColSetV->setContentsMargins(0,0,0,0);;
 
     // - - - -
 
     QHBoxLayout *loCollapseHeader = new QHBoxLayout();
-    loCollapseHeader->setMargin(0);
+    loCollapseHeader->setContentsMargins(0,0,0,0);;
 
     QLabel *lblCollapseDemand = new QLabel();
     lblCollapseDemand->setText("Demand");
@@ -237,7 +237,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     // - - - -
 
     QHBoxLayout *loCollapseValues = new QHBoxLayout();
-    loCollapseValues->setMargin(0);
+    loCollapseValues->setContentsMargins(0,0,0,0);;
 
     colDemand = new QLineEdit();
     colDemand->setToolTip(

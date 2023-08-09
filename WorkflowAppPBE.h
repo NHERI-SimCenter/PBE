@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <WorkflowAppWidget.h>
 
 class LossModelSelection;
+class PerformanceMethodSelection;
 class RandomVariablesContainer;
 class InputWidgetUQ;
 
@@ -119,6 +120,7 @@ private:
     EarthquakeEventSelection *theEventSelection;
     FEA_Selection *theAnalysisSelection;
     LossModelSelection *theDLModelSelection;
+    PerformanceMethodSelection * thePrfMethodSelection;
     ResultsPelicun *theResults;
     QString loadedFile;
   

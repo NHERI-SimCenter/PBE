@@ -72,7 +72,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 #include <QXYSeries>
@@ -495,7 +494,7 @@ int ResultsPelicun::processResults(QString &inputFileName,
     //
 
     QWidget *summaryWidget = new QWidget();
-    QVBoxLayout *summaryLayout = new QVBoxLayout();
+    summaryLayout = new QVBoxLayout();
     summaryWidget->setLayout(summaryLayout);
 
     //
@@ -836,6 +835,88 @@ int ResultsPelicun::processResults(QString &inputFileName,
     return 0;
 }
 
+
+
+int ResultsPelicun::processREDiResults(QString &inputFileName,
+                                   QString &resultsDirName) {
+
+    if(summaryLayout == nullptr)
+      return 0;
+
+    QDir rDir(resultsDirName);
+    QFile inputFile(inputFileName);
+
+    inputFile.open(QFile::ReadOnly | QFile::Text);
+
+    QString val;
+    val=inputFile.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject inputData = doc.object();
+    inputFile.close();
+
+    auto redi_res_path = resultsDirName + QDir::separator() + "REDi_output" + QDir::separator() + "redi_summary_stats.json";
+
+    QFile resultsSummaryFile(redi_res_path);
+
+    if(!resultsSummaryFile.exists())
+      return 0;
+
+    resultsSummaryFile.open(QFile::ReadOnly | QFile::Text);
+
+    QString val2;
+    val2=resultsSummaryFile.readAll();
+    QJsonDocument res_doc = QJsonDocument::fromJson(val2.toUtf8());
+    QJsonObject resData = res_doc.object();
+    resultsSummaryFile.close();
+
+
+    if(resData.isEmpty())
+      this->errorMessage("Error, the REDi results file "+redi_res_path+" is empty or failed to load as json");
+
+
+    summaryLayout->addWidget(new QLabel("<b>REDi Recovery</b>"), 0, Qt::AlignCenter);
+
+    // add a separator line after the row
+    QFrame *sepLine = new QFrame;
+    sepLine->setFrameShape(QFrame::HLine);
+    sepLine->setFrameShadow(QFrame::Raised);
+    summaryLayout->addWidget(sepLine);
+
+
+    QJsonObject::const_iterator it;
+    for (it = resData.constBegin(); it != resData.constEnd(); ++it) {
+      QString key = it.key();
+      QJsonValue value = it.value().toObject();
+
+      auto DV_DisplayName = key;
+
+      double DV_min = value["min"].toDouble();
+      double DV_10 = value["0.10%"].toDouble();
+      double DV_50 = value["50%"].toDouble();
+      double DV_90 = value["90%"].toDouble();
+      double DV_max = value["max"].toDouble();
+
+      double DV_mean = value["mean"].toDouble();
+      double DV_stdDev = value["std"].toDouble();
+      double DV_logStdDev = value["log_std"].toDouble();
+
+      QWidget *theWidget = this->createSummaryItem2(DV_DisplayName,
+                                                    DV_mean, DV_stdDev, DV_logStdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
+      summaryLayout->addWidget(theWidget);
+
+      // add a separator line after the row
+      QFrame *sepLine = new QFrame;
+      sepLine->setFrameShape(QFrame::HLine);
+      sepLine->setFrameShadow(QFrame::Sunken);
+      summaryLayout->addWidget(sepLine);
+
+
+    }
+
+    return 0;
+}
+
+
 void
 ResultsPelicun::getColData(QVector<double> &data, int numRow, int col) {
     bool ok;
@@ -1094,7 +1175,7 @@ ResultsPelicun::onSpreadsheetCellClicked(int row, int col)
             QLineSeries *series= new QLineSeries;
 
             // cumulative distributionn
-            qSort(dataValues);
+            std::sort(dataValues.begin(),dataValues.end());
 
             for (int i=0; i<rowCount; i++) {
                 series->append(dataValues[i], 1.0*i/totalSampleCount);
@@ -1132,7 +1213,7 @@ static QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit
     theLayout->addWidget(theLabel);
     theLayout->addWidget(theEdit);
     theLayout->setSpacing(0);
-    theLayout->setMargin(0);
+    theLayout->setContentsMargins(0,0,0,0);
 
     QWidget *theWidget = new QWidget();
     theWidget->setLayout(theLayout);
