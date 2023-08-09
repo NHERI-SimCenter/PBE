@@ -95,7 +95,7 @@ TruncationLimit::TruncationLimit(QWidget *parent, QMap<QString, QString> *TL_dat
     mainLayout->addWidget(tlUpperLimit);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);;
 
     this->setLayout(mainLayout);
 }

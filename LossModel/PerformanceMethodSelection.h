@@ -1,5 +1,8 @@
+#ifndef PERFORMANCE_METHOD_SELECTION_H
+#define PERFORMANCE_METHOD_SELECTION_H
+
 /* *****************************************************************************
-Copyright (c) 2016-2023, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,59 +37,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: adamzs
+// Written: fmckenna, adamzs
 
-#include "PelicunShared.h"
+#include <SimCenterAppWidget.h>
+#include "LossMethod.h"
+#include "PelicunLossModel.h"
+#include <QGroupBox>
 
-void
-parseCSVLine(QString &line, QStringList &line_list, 
-   SimCenterAppWidget *parent)
+class QComboBox;
+class QStackedWidget;
+class QVBoxLayout;
+
+class RandomVariablesContainer;
+
+class PerformanceMethodSelection : public SimCenterAppWidget
 {
-    // parse the line considering "" and , and \n
-    bool in_commented_block = false;
-    bool save_element = false;
-    int c_0 = 0;
+    Q_OBJECT
+public:
 
-    for (int c=0; c<line.length(); c++) {
-        if (line[c] == '"') {
-            if (in_commented_block) {
-                save_element = true;
-                in_commented_block = false;
-            } else {
-                in_commented_block = true;
-                c_0 = c+1;
-            }
-        } else if (line[c] == ',') {
-            if (c_0 == c){
-                line_list.append("");
-                c_0++;
-            } else if (in_commented_block == false) {
-                save_element = true;
-            }
-        } else if (c == line.length()-1) {
-            save_element = true;
-            c++;
-        }
+    explicit PerformanceMethodSelection(QWidget *parent = 0);
 
-        if (save_element) {
-            QString element = line.mid(c_0, c-c_0);
+    ~PerformanceMethodSelection();
 
-            c_0 = c+1;
-            line_list.append(element);
-            save_element = false;
+    QString getFragilityFolder();
+    QString getPopulationFile();
 
-            if (c_0 < line.length()-1) {
-                if (line[c_0-1] == '"') {
-                    if (line[c_0] != ',') {
-                        if (parent != nullptr){
-                           parent->statusMessage("Error while parsing CSV file at the following line: " + line);   
-                        }
-                    } else {
-                        c_0 ++;
-                        c++;
-                    }
-                }
-            }
-        }
-    }
-}
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject, QJsonObject &lossModelObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &destDir);
+
+public slots:
+    void clear(void);
+    void dlSelectionChanged(const QString &arg1);
+
+signals:
+    void dlWidgetChanged(void);
+
+private:
+    QStackedWidget *theStackedWidget;
+    QComboBox   *dlSelection;
+
+    RandomVariablesContainer *theRandVariableIW;
+
+    LossMethod *theCurrentMethod;
+    PelicunLossModel *thePelicunWidget;
+
+    bool selectionChangeOK;
+};
+
+#endif // PERFORMANCE_METHOD_SELECTION_H

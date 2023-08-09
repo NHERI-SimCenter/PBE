@@ -214,7 +214,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loTLimit_header->addStretch();
     loTLimit_header->setSpacing(10);
-    loTLimit_header->setMargin(0);
+    loTLimit_header->setContentsMargins(0,0,0,0);;
 
     loTRV->addLayout(loTLimit_header);
 
@@ -226,7 +226,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loTruncLimRemove->addSpacing(2);
     loTruncLimRemove->setSpacing(5);
-    loTruncLimRemove->setMargin(0);
+    loTruncLimRemove->setContentsMargins(0,0,0,0);;
 
     smRemoveTL = new QSignalMapper(this);
     connect(smRemoveTL, SIGNAL(mapped(QWidget*)), this,
@@ -245,7 +245,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loTLList = new QVBoxLayout();
     loTLList->setAlignment(Qt::AlignTop);
     loTLList->setSpacing(5);
-    loTLList->setMargin(0);
+    loTLList->setContentsMargins(0,0,0,0);;
     TLWidget->setLayout(loTLList);
     saTruncLimits->setWidget(TLWidget);
 
@@ -355,7 +355,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loCLimit_header->addStretch();
     loCLimit_header->setSpacing(10);
-    loCLimit_header->setMargin(0);
+    loCLimit_header->setContentsMargins(0,0,0,0);;
 
     loCollV->addLayout(loCLimit_header);
 
@@ -367,7 +367,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loCollLimRemove->addSpacing(2);
     loCollLimRemove->setSpacing(5);
-    loCollLimRemove->setMargin(0);
+    loCollLimRemove->setContentsMargins(0,0,0,0);;
 
     smRemoveCL = new QSignalMapper(this);
     connect(smRemoveCL, SIGNAL(mapped(QWidget*)), this,
@@ -383,7 +383,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     QWidget *CLWidget = new QWidget;
     loCLList = new QVBoxLayout();
     loCLList->setAlignment(Qt::AlignTop);
-    loCLList->setMargin(0);
+    loCLList->setContentsMargins(0,0,0,0);;
     loCLList->setSpacing(5);
     CLWidget->setLayout(loCLList);
     saCollapseLims->setWidget(CLWidget);
@@ -507,7 +507,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loRParam_header->addStretch();
     loRParam_header->setSpacing(10);
-    loRParam_header->setMargin(0);
+    loRParam_header->setContentsMargins(0,0,0,0);;
 
     loRDV->addLayout(loRParam_header);
 
@@ -519,7 +519,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
 
     loResidualPRemove->addSpacing(2);
     loResidualPRemove->setSpacing(5);
-    loResidualPRemove->setMargin(0);
+    loResidualPRemove->setContentsMargins(0,0,0,0);;
 
     smRemoveRP = new QSignalMapper(this);
     connect(smRemoveRP, SIGNAL(mapped(QWidget*)), this,
@@ -538,7 +538,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loRPList = new QVBoxLayout();
     loRPList->setAlignment(Qt::AlignTop);
     loRPList->setSpacing(5);
-    loRPList->setMargin(0);
+    loRPList->setContentsMargins(0,0,0,0);;
     YDWidget->setLayout(loRPList);
     saYieldDrift->setWidget(YDWidget);
 

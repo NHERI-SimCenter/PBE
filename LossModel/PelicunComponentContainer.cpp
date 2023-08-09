@@ -513,7 +513,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     loPGroup_header->addStretch();
     loPGroup_header->setSpacing(10);
-    loPGroup_header->setMargin(0);
+    loPGroup_header->setContentsMargins(0,0,0,0);;
 
     loPDetails->addLayout(loPGroup_header);
 
@@ -537,7 +537,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QWidget *PGWidget = new QWidget;
     loPGList = new QVBoxLayout();
     loPGList->addStretch();
-    loPGList->setMargin(0);
+    loPGList->setContentsMargins(0,0,0,0);;
     PGWidget->setLayout(loPGList);
     POPQuantityList->setWidget(PGWidget);
 
@@ -842,7 +842,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     loCGroup_header->addStretch();
     loCGroup_header->setSpacing(10);
-    loCGroup_header->setMargin(0);
+    loCGroup_header->setContentsMargins(0,0,0,0);;
 
     loCDetails->addLayout(loCGroup_header);
 
@@ -854,7 +854,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 
     loCQuantityRemove->addSpacing(2);
     loCQuantityRemove->setSpacing(5);
-    loCQuantityRemove->setMargin(0);
+    loCQuantityRemove->setContentsMargins(0,0,0,0);;
 
     smRemoveCG = new QSignalMapper(this);
     connect(smRemoveCG, SIGNAL(mapped(QWidget*)), this,
@@ -871,7 +871,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     loCGList = new QVBoxLayout();
     loCGList->setAlignment(Qt::AlignTop);
     loCGList->setSpacing(5);    
-    loCGList->setMargin(0);
+    loCGList->setContentsMargins(0,0,0,0);;
     CGWidget->setLayout(loCGList);
     saQuantityList->setWidget(CGWidget);
 
@@ -1462,7 +1462,7 @@ PelicunComponentContainer::exportComponentVulnerabilityDB(void) {
 
     // copy the db file(s) to the desired location
     //QFileInfo fi = leAdditionalComponentDB->text();
-    QFileInfo fi = cmpVulnerabilityDB;
+    QFileInfo fi = QFileInfo(cmpVulnerabilityDB);
     //QFileInfo fi = this->updateComponentVulnerabilityDB();
 
     // get the filenames
@@ -1733,7 +1733,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
                     CG_data -> insert("comment", line_list[6]);
                 }
             } else {
-                this->statusMessage("Error while parsing line " + QString(counter) + " in the config file");
+                this->statusMessage("Error while parsing line " + QString::number(counter) + " in the config file");
             }
         }
 
