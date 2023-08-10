@@ -1,0 +1,112 @@
+{
+	"repair": {
+		"repair_class_fragility": {
+			"theta": 0.05,
+			"distribution": "Lognormal",
+			"beta": 0.4
+		},
+		"nwork_perfloor_divider": [1000.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1000.0],
+		"nworkers_recommended_mean": [1000000, 2, 2, 3, 3, 2, 1000000],
+		"nworkers_recommended_mean_struct": 2.0,
+		"max_workers_by_sequence": [
+			[15, 15, 9, 9, 6, 6, 15],
+			[30, 30, 18, 18, 12, 12, 30],
+			[45, 45, 27, 27, 18, 18, 45]
+		],
+		"max_workers_per_building": {
+			"slope": 0.00028,
+			"minimum": 20.0,
+			"x_cutoff": 80.0,
+			"sigma": 9.083,
+			"mean": 28.0
+		},
+		"n_nonstruc_sequences": 7,
+		"n_repair_goals": 3,
+		"max_workers_per_struct_divider": 500.0,
+		"n_sequences": 8,
+		"workers_capacity": {
+			"distribution": "Lognormal",
+			"beta": 0.2
+		}
+	},
+	"impeding_factors": {
+		"inspection_delay": {
+			"theta": 1.0,
+			"distribution": "Lognormal",
+			"beta": 0.54
+		},
+		"financing_delay": {
+			"distribution": "Lognormal",
+			"default": {
+				"theta": 42.0,
+				"beta": 1.11
+			},
+			"private_loans": {
+				"theta": 105.0,
+				"beta": 0.68
+			}
+		},
+		"longlead": {
+			"threshold": 0.01,
+			"distribution": "Lognormal",
+			"beta": 0.18
+		},
+		"permit_delay_seismic": {
+			"rc3": {
+				"theta": 56.0,
+				"beta": 0.32
+			},
+			"distribution": "Lognormal",
+			"rc1": {
+				"theta": 7.0,
+				"beta": 0.86
+			}
+		},
+		"contractor_mobilization_delay_seismic": {
+			"rc23": {
+				"sigma_by_seq": [
+					50.4, 52.5, 118.29999999999998, 115.5, 23.8, 93.10000000000001,
+					113.39999999999999, 23.8
+				],
+				"theta_by_seq": [
+					150.5, 122.5, 145.6, 135.1, 79.10000000000001, 192.5,
+					121.10000000000001, 79.10000000000001
+				]
+			},
+			"distribution": "Normal",
+			"rc1": {
+				"sigma_by_seq": [
+					38.5, 17.5, 48.300000000000004, 39.9, 25.900000000000002, 72.8,
+					22.400000000000002, 22.400000000000002
+				],
+				"theta_by_seq": [
+					100.8, 50.4, 91.7, 85.39999999999999, 60.199999999999996, 130.9,
+					57.39999999999999, 57.39999999999999
+				]
+			}
+		},
+		"engineer_mobilization_delay_seismic": {
+			"distribution": "Lognormal",
+			"rc1": {
+				"theta": 42.0,
+				"beta": 0.4
+			},
+			"rc3": {
+				"theta": 84.0,
+				"beta": 0.4
+			},
+			"redesign": {
+				"theta": 350.0,
+				"beta": 0.32
+			}
+		}
+	},
+	"business": {
+		"essential_flag": false,
+		"finance_method": "insurance",
+		"insur_limit_ratio": 0.7,
+		"loss_thresh_ratio": 1,
+		"available_fund_ratio": 100.0,
+		"deductible_ratio": 0.02
+	}
+}

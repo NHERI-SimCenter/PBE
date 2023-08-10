@@ -34,6 +34,23 @@
       ]
     }
   },
+  "pbdl-0003": {
+      "title": "FEMA P-58 assessment using external demand data, including REDi recovery assessment",
+      "base": "pbdl-0003",
+      "doc": [
+        "pbdl-0003/README.rst"
+      ],
+      "entry_point": "pbdl-0003/./input.json",
+      "summary": "This example conducts a FEMA P-58 assessment of a 4-story office building with recovery performance assessment employing REDi by ARUP.",
+      "logo": "None",
+      "published": "2023-06-30T00:00:00-08:00",
+      "categories": {
+        "Difficulty": "1"
+      },
+      "tags": [
+      ]
+  }
+},
   "categories": {
     "Difficulty": {
       "0": "Beginner",
