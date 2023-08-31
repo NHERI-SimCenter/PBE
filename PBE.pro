@@ -27,7 +27,7 @@ TEMPLATE = app
 VERSION=3.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
-#include($$PWD/ConanHelper.pri)
+include($$PWD/ConanHelper.pri)
 
 win32{
     LIBS = $$replace(LIBS, .dll.lib, .dll)
@@ -35,16 +35,32 @@ win32{
     LIBS +=CRYPT32.lib
     LIBS +=Ws2_32.lib
     LIBS +=User32.lib
+    LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib        
     DEFINES += CURL_STATICLIB
+    RC_ICONS = icons/NHERI-PBE-Icon.ico
+} else {
+
+    mac {
+      ICON = icons/NHERI-PBE-Icon.icns
+      DEFINES += _GRAPHICS_Qt3D
+      QMAKE_INFO_PLIST=$$PWD/Info.plist
+      LIBS += $$PWD/../quazip/build/quazip/libquazip1-qt5.1.4.dylib
+    } else {
+      LIBS += -lc
+    }
 }
 
+INCLUDEPATH += $$PWD/../quazip/quazip
 
-LIBS += -L/opt/homebrew/Cellar/curl/8.0.1/lib/ -lcurl.4
-INCLUDEPATH += /opt/homebrew/Cellar/curl/8.1.2_1/include
-INCLUDEPATH += /opt/homebrew/Cellar/quazip/1.4/include/quazip
+#for stevan
+#macx: LIBS += -L/opt/homebrew/Cellar/quazip/1.4/lib/ -lquazip1-qt6.1.4
+#INCLUDEPATH += $$/opt/homebrew/Cellar/quazip/1.4/include
+#INCLUDEPATH += /opt/homebrew/Cellar/quazip/1.4/include/quazip
+#LIBS += -L/opt/homebrew/Cellar/curl/8.0.1/lib/ -lcurl.4
+#INCLUDEPATH += /opt/homebrew/Cellar/curl/8.1.2_1/include
 
-macx: LIBS += -L/opt/homebrew/Cellar/quazip/1.4/lib/ -lquazip1-qt6.1.4
-INCLUDEPATH += $$/opt/homebrew/Cellar/quazip/1.4/include
+
+
 
                    
 include(../SimCenterCommon/Common/Common.pri)
