@@ -8,9 +8,6 @@ QT += core gui charts concurrent network widgets
 QT += sql qml webenginewidgets
 QT += webchannel 3dcore 3drender 3dextras
 
-greaterThan(QT_MAJOR_VERSION, 6) {
-    QT += core5compat
-}
 
 #MOC_DIR = $$DESTDIR/.moc
 #UI_DIR = $$DESTDIR/.ui
