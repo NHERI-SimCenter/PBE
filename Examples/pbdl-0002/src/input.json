@@ -45,7 +45,7 @@
             "PlanArea": "129600"
         },
         "Damage": {
-            "DamageProcess": "Hazus Earthquake"
+            "DamageProcess": "Hazus Earthquake - Buildings"
         },
         "Demands": {
             "Calibration": {
@@ -57,7 +57,7 @@
         },
         "Losses": {
             "BldgRepair": {
-                "ConsequenceDatabase": "Hazus Earthquake",
+                "ConsequenceDatabase": "Hazus Earthquake - Buildings",
                 "DecisionVariables": {
                     "Carbon": false,
                     "Cost": true,
