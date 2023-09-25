@@ -298,12 +298,14 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     databaseCombo = new QComboBox();
     databaseCombo->setToolTip(tr("This database provides parameters for component vulnerability models to simulate damages."));
     databaseCombo->addItem("FEMA P-58",0);
-    databaseCombo->addItem("Hazus Earthquake",1);
-    databaseCombo->addItem("None",2);
+    databaseCombo->addItem("Hazus Earthquake - Buildings",1);
+    databaseCombo->addItem("Hazus Earthquake - Transportation",2);
+    databaseCombo->addItem("None",3);
 
     databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
-    databaseCombo->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
-    databaseCombo->setItemData(2, "None of the built-in databases will be used", Qt::ToolTipRole);
+    databaseCombo->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(3, "None of the built-in databases will be used", Qt::ToolTipRole);
 
     connect(databaseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentVulnerabilityDB()));
 
@@ -1355,12 +1357,17 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
     if (databaseCombo->currentText() == "FEMA P-58") {
 
         cmpVulnerabilityDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
+        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
 
-    } else if (databaseCombo->currentText() == "Hazus Earthquake") {
-
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
         cmpVulnerabilityDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
+        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
+
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
+        cmpVulnerabilityDB_tmp = appDir +
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
 
     } else {
 
@@ -1746,7 +1753,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
                 selectedCompCombo->addItem(compName);
             } else {
 	      
-                this->statusMessage("Component " + QString(compName) + "is not in the DL data folder!");
+                this->statusMessage("Component " + QString(compName) + "is not in the DL data library!");
             }
         }
 
@@ -2118,6 +2125,10 @@ PelicunComponentContainer::inputFromJSON(QJsonObject &jsonObject)
 
         if (in_componentDB == "User Defined") {
             in_componentDB = "None";
+        }
+
+        if (in_componentDB == "Hazus Earthquake") {
+            in_componentDB = "Hazus Earthquake - Buildings";
         }
         // ---
 
