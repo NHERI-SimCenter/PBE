@@ -40,10 +40,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
+
 #include <QtCharts/QChart>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 using namespace QtCharts;
+#endif
 
 class QTextEdit;
+class QVBoxLayout;
 class QTabWidget;
 class MyTableWidget;
 
@@ -58,6 +62,7 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
 
     int processResults(QString &inputFile, QString &resultsDir);
+    int processREDiResults(QString &inputFileName, QString &resultsDirName);
 
 signals:
 
@@ -91,6 +96,8 @@ private:
    QVector<double>theMeans;
    QVector<double>theStdDevs;
    int dataType; // min/max or mean/stdDev
+   QVBoxLayout *summaryLayout = nullptr;
+
 };
 
 #endif // RESULTS_PELICUN_H

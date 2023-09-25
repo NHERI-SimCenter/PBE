@@ -46,10 +46,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QScrollArea>
 
-#include "LossModelSelection.h"
+#include "PerformanceMethodSelection.h"
 #include <GoogleAnalytics.h>
 
-LossModelSelection::LossModelSelection(
+PerformanceMethodSelection::PerformanceMethodSelection(
 
     QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -113,18 +113,18 @@ LossModelSelection::LossModelSelection(
     //layout->setMargin(0);
 }
 
-LossModelSelection::~LossModelSelection()
+PerformanceMethodSelection::~PerformanceMethodSelection()
 {
 
 }
 
-void LossModelSelection::clear(void)
+void PerformanceMethodSelection::clear(void)
 {
 
 }
 
 bool
-LossModelSelection::outputToJSON(QJsonObject &jsonObject)
+PerformanceMethodSelection::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -134,7 +134,7 @@ LossModelSelection::outputToJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
+PerformanceMethodSelection::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
 
@@ -146,7 +146,7 @@ LossModelSelection::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
+PerformanceMethodSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lossModelObject) {
 
     //
     // per API, need to add name of application to be called in AppLication
@@ -163,7 +163,7 @@ LossModelSelection::outputAppDataToJSON(QJsonObject &jsonObject, QJsonObject &lo
 }
 
 bool
-LossModelSelection::inputAppDataFromJSON(QJsonObject &jsonObject) {
+PerformanceMethodSelection::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
     bool result = true;
 
@@ -193,7 +193,7 @@ LossModelSelection::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return result;
 }
 
-void LossModelSelection::dlSelectionChanged(const QString &arg1)
+void PerformanceMethodSelection::dlSelectionChanged(const QString &arg1)
 {
 
     //
@@ -215,12 +215,12 @@ void LossModelSelection::dlSelectionChanged(const QString &arg1)
 }
 
 bool
-LossModelSelection::copyFiles(QString &destDir) {
+PerformanceMethodSelection::copyFiles(QString &destDir) {
 
     bool result = true;
 
     if (theCurrentMethod != 0) {
-       GoogleAnalytics::ReportAppUsage("DL_Pelicun");
+       GoogleAnalytics::ReportAppUsage("DL-Pelicun");
        return  theCurrentMethod->copyFiles(destDir);
     }
 
@@ -229,11 +229,11 @@ LossModelSelection::copyFiles(QString &destDir) {
 
 
 QString
-LossModelSelection::getFragilityFolder(){
+PerformanceMethodSelection::getFragilityFolder(){
     return theCurrentMethod->getFragilityFolder();
 }
 
 QString
-LossModelSelection::getPopulationFile(){
+PerformanceMethodSelection::getPopulationFile(){
     return theCurrentMethod->getPopulationFile();
 }

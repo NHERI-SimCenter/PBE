@@ -97,7 +97,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     EDP_dataLayout->addWidget(EDPFilePath);
     EDP_dataLayout->addWidget(chooseEDP_data);
     EDP_dataLayout->setSpacing(1);
-    EDP_dataLayout->setMargin(0);
+    EDP_dataLayout->setContentsMargins(0,0,0,0);
     responseFormLayout->addRow(tr("    EDP data: "), EDP_dataLayout);
 
     // EDP distribution
@@ -443,7 +443,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     populationLayout->addWidget(populationFilePath);
     populationLayout->addWidget(choosePopulation);
     populationLayout->setSpacing(1);
-    populationLayout->setMargin(0);
+    populationLayout->setContentsMargins(0,0,0,0);
 
     lossFormLayout->addRow(tr("    Custom distribution: "),
                                 populationLayout);
@@ -464,7 +464,7 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     fragilityLayout->addWidget(fragilityFolderPath);
     fragilityLayout->addWidget(chooseFragility);
     fragilityLayout->setSpacing(1);
-    fragilityLayout->setMargin(0);
+    fragilityLayout->setContentsMargins(0,0,0,0);
 
     lossFormLayout->addRow(tr("Custom DL data: "),
                                 fragilityLayout);
@@ -486,24 +486,24 @@ HazusGeneralSettingsContainer::HazusGeneralSettingsContainer(QWidget *parent)
     mainV1Layout->addWidget(responseGroupBox);
     mainV1Layout->addStretch(1);
     mainV1Layout->setSpacing(10);
-    mainV1Layout->setMargin(0);
+    mainV1Layout->setContentsMargins(0,0,0,0);
 
     mainV2Layout->addWidget(damageGroupBox);
     mainV2Layout->addStretch(1);
     mainV2Layout->setSpacing(10);
-    mainV2Layout->setMargin(0);
+    mainV2Layout->setContentsMargins(0,0,0,0);
 
     mainV3Layout->addWidget(lossGroupBox);
     mainV3Layout->addStretch(1);
     mainV3Layout->setSpacing(10);
-    mainV3Layout->setMargin(0);
+    mainV3Layout->setContentsMargins(0,0,0,0);
 
     mainHLayout->addLayout(mainV1Layout, 1);
     mainHLayout->addLayout(mainV2Layout, 1);
     mainHLayout->addLayout(mainV3Layout, 1);
     mainHLayout->addStretch();
     mainHLayout->setSpacing(10);
-    mainHLayout->setMargin(0);
+    mainHLayout->setContentsMargins(0,0,0,0);
 
     mainLayout->addLayout(titleLayout);
     mainLayout->addLayout(mainHLayout, 0);

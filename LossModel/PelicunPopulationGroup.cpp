@@ -124,7 +124,7 @@ PopulationGroup::PopulationGroup(QWidget *parent, QMap<QString, QString> *PG_dat
     mainLayout->addWidget(pgComment, 1);
     mainLayout->addStretch();
     mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
 
     this->setLayout(mainLayout);
 }

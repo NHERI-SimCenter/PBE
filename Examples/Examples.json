@@ -9,6 +9,11 @@
       "name": "E2: Shear building simulation and Hazus assessment",
       "description": "This example conducts a Hazus assessment of a 3-story office building.",
       "inputFile": "pbdl-0002/src/input.json"
+    },
+    {
+      "name": "E3: FEMA P-58 assessment with REDi recovery assessment",
+      "description": "This example conducts a FEMA P-58 assessment of a 4-story office building with recovery estimation employing REDi by ARUP.",
+      "inputFile": "pbdl-0003/src/input.json"
     }
   ]
 }

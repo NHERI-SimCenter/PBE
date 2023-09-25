@@ -5,8 +5,9 @@
 #-------------------------------------------------
 
 QT += core gui charts concurrent network widgets
-QT += sql qml webenginewidgets uitools
-QT += webengine webchannel 3dcore 3drender 3dextras
+QT += sql qml webenginewidgets
+QT += webchannel 3dcore 3drender 3dextras
+
 
 #MOC_DIR = $$DESTDIR/.moc
 #UI_DIR = $$DESTDIR/.ui
@@ -31,12 +32,9 @@ win32{
     LIBS +=CRYPT32.lib
     LIBS +=Ws2_32.lib
     LIBS +=User32.lib
+    LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib        
     DEFINES += CURL_STATICLIB
-}
-
-win32 {
-RC_ICONS = icons/NHERI-PBE-Icon.ico
-LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib
+    RC_ICONS = icons/NHERI-PBE-Icon.ico
 } else {
 
     mac {
@@ -50,6 +48,17 @@ LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib
 }
 
 INCLUDEPATH += $$PWD/../quazip/quazip
+
+#for stevan
+#macx: LIBS += -L/opt/homebrew/Cellar/quazip/1.4/lib/ -lquazip1-qt6.1.4
+#INCLUDEPATH += $$/opt/homebrew/Cellar/quazip/1.4/include
+#INCLUDEPATH += /opt/homebrew/Cellar/quazip/1.4/include/quazip
+#LIBS += -L/opt/homebrew/Cellar/curl/8.0.1/lib/ -lcurl.4
+#INCLUDEPATH += /opt/homebrew/Cellar/curl/8.1.2_1/include
+
+
+
+
                    
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
@@ -58,7 +67,8 @@ include(../SimCenterCommon/InputSheetBM/InputSheetBM.pri)
 include(../EE-UQ/EarthquakeEvents.pri)
 include(../QS3hark/QS3hark.pri)
 
-INCLUDEPATH += "./Component"
+INCLUDEPATH += "./Component" \
+                PerformanceMethod
 
 SOURCES += main.cpp \
     WorkflowAppPBE.cpp \
@@ -83,7 +93,9 @@ SOURCES += main.cpp \
     LossModel/HazusGeneralSettingsContainer.cpp \
     LossModel/HazusLossModel.cpp \
     LossModel/LossMethod.cpp \
-    LossModel/PelicunShared.cpp
+    LossModel/PelicunShared.cpp \
+    PerformanceMethod/PerformanceMethodSelection.cpp \
+    PerformanceMethod/REDiWidget.cpp \
 
 
 
@@ -110,10 +122,11 @@ HEADERS  += \
     LossModel/HazusLossModel.h \
     LossModel/HazusGeneralSettingsContainer.h \
     LossModel/LossMethod.h \
-    LossModel/PelicunShared.h
+    LossModel/PelicunShared.h \
+    PerformanceMethod/PerformanceMethodSelection.h \
+    PerformanceMethod/REDiWidget.h \
 
 RESOURCES += \
     images.qrc
 
-OTHER_FILES += conanfile.py
-
+#OTHER_FILES += conanfile.py

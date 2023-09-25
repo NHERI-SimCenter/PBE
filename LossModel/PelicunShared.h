@@ -42,7 +42,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppWidget.h>
 
 class QString;
-class QStringList;
 
 void parseCSVLine(QString &line, QStringList &line_list, 
    SimCenterAppWidget *parent=nullptr);

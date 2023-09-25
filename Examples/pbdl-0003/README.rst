@@ -1,11 +1,11 @@
-.. _pbdl-0001:
+.. _pbdl-0003:
 
-FEMA P-58 Assessment Using External Demands
-===========================================
+FEMA P-58 Assessment Using External Demands and REDi Recovery
+=============================================================
 
-This example focuses on the seismic performance assessment of a steel moment frame structure using the FEMA P-58 method. We look at demand, damage, and loss modeling in and show the inputs provided to PBE to perform the simulations.
+This example is similar to **Example 1 FEMA P-58 Assessment Using External Demands**, with the addition of the REDi recovery step. 
 
-The file ``input.json`` contains all of the settings for this exercise. It can be opened (using File/Open) to automatically populate the fields in the user interface.
+The file ``input.json`` contains all of the settings for this Example. It can be opened (using File/Open) to automatically populate the fields in the user interface.
 
 The demands and the performance model for this example are based on the example building featured in FEMA P-58. More details are available in the following FEMA P-58 background documentation:
 
@@ -14,8 +14,15 @@ The demands and the performance model for this example are based on the example 
    :width: 400
    :figclass: align-center
 
+The recovery methodology in this example is based on the `REDi Recovery Engine <https://www.redi.arup.com>`_:
 
-In this example, we are going to import demand data from simulations that were run outside of the PBE tool. This feature allows researchers to use PBE only for the performance assessment part of the workflow and connect it with any other response estimation solution they prefer to use. Because we do not need the response estimation part of the workflow for this example, we only need to focus on the **DL** panel in PBE.
+.. figure:: figures/REDi_background_doc.png
+   :align: center
+   :width: 400
+   :figclass: align-center
+
+
+In this example, we are going to import demand data from simulations that were run outside of the PBE tool. This feature allows researchers to use PBE only for the performance assessment part of the workflow and connect it with any other response estimation solution they prefer to use. Because we do not need the response estimation part of the workflow for this example, we only need to focus on the **DL** and **PRF** panels in PBE.
 
 DL - Asset Model
 ~~~~~~~~~~~~~~~~
@@ -88,10 +95,22 @@ Consequence modeling is decoupled from damage modeling in Pelicun. The Loss Mode
 We use this panel to add a replacement consequence to the FEMA P-58 dataset. This defines a replacement cost and time and the automatic mapping links these consequences with the collapse and irreparable damage events. Note that the replacement consequences are defined using random variables in this example to capture the uncertainty in those numbers. The deterministic replacement values that FEMA P-58 uses can be reproduced in PBE by choosing N/A for the Distribution of Cost and Time.
 
 
+PRF - Recovery
+~~~~~~~~~~~~~~
+
+For the recovery performance assessment, the `REDi Recovery Engine <https://www.redi.arup.com>`_ is employed.
+
+.. figure:: figures/prf.png
+   :align: center
+   :figclass: align-center
+
+The only input is the **risk parameters** json file. The **risk parameters** file is a json file that contains the necessary inputs required by the REDi engine. Example **risk parameters** include impeding factors such as permit delay time. For a full list and an explanation of the required risk parameters, see the `Risk Parameters <https://sgavrilovicarup.github.io/REDi-docs/#risk-parameters>`_ section in the REDi documentation. 
+
+
 Analysis & Results
 ~~~~~~~~~~~~~~~~~~
 
-Once the performance assessment has been set up in the **DL** panel, click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. The **Summary** and **Data** tabs of the results panel are shown below.
+Once the performance assessment has been set up, click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. The **Summary** and **Data** tabs of the results panel are shown below. Since we are running the REDi recovery assessment in addition to the damage and loss, you will see the **REDi Recovery** section appear below the **DL** values. 
 
 .. figure:: figures/1_RES_summary.png
    :align: center

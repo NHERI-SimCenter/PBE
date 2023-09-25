@@ -1,5 +1,8 @@
+#ifndef PERFORMANCE_METHOD_SELECTION_H
+#define PERFORMANCE_METHOD_SELECTION_H
+
 /* *****************************************************************************
-Copyright (c) 2016-2023, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,59 +37,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: adamzs
+// Written: Stevan Gavrilovic
 
-#include "PelicunShared.h"
+#include <SimCenterAppSelection.h>
 
-void
-parseCSVLine(QString &line, QStringList &line_list, 
-   SimCenterAppWidget *parent)
+class REDiWidget;
+class NoneWidget;
+
+class PerformanceMethodSelection : public SimCenterAppSelection
 {
-    // parse the line considering "" and , and \n
-    bool in_commented_block = false;
-    bool save_element = false;
-    int c_0 = 0;
+    Q_OBJECT
+public:
 
-    for (int c=0; c<line.length(); c++) {
-        if (line[c] == '"') {
-            if (in_commented_block) {
-                save_element = true;
-                in_commented_block = false;
-            } else {
-                in_commented_block = true;
-                c_0 = c+1;
-            }
-        } else if (line[c] == ',') {
-            if (c_0 == c){
-                line_list.append("");
-                c_0++;
-            } else if (in_commented_block == false) {
-                save_element = true;
-            }
-        } else if (c == line.length()-1) {
-            save_element = true;
-            c++;
-        }
+    explicit PerformanceMethodSelection(QWidget *parent = 0);
+    ~PerformanceMethodSelection();
 
-        if (save_element) {
-            QString element = line.mid(c_0, c-c_0);
 
-            c_0 = c+1;
-            line_list.append(element);
-            save_element = false;
+private:
+    REDiWidget* theREDiWidget = nullptr;
+    NoneWidget* theNoneWidget = nullptr;
+};
 
-            if (c_0 < line.length()-1) {
-                if (line[c_0-1] == '"') {
-                    if (line[c_0] != ',') {
-                        if (parent != nullptr){
-                           parent->statusMessage("Error while parsing CSV file at the following line: " + line);   
-                        }
-                    } else {
-                        c_0 ++;
-                        c++;
-                    }
-                }
-            }
-        }
-    }
-}
+#endif // PERFORMANCE_METHOD_SELECTION_H
