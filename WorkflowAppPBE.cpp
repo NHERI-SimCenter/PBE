@@ -219,6 +219,12 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theDialog->appendBlankLine();
     theDialog->appendInfoMessage("Welcome to PBE<br>");
     //    theDialog->hideAfterElapsedTime(1);
+
+//    QString test = "inputFileName";
+//    QString test2 =  "/Users/stevan.gavrilovic/Documents/PBE/LocalWorkDir/tmp.SimCenter";
+
+//    theResults->processResults(test,test2);
+//    theResults->processREDiResults(test,test2);
 }
 
 WorkflowAppPBE::~WorkflowAppPBE()

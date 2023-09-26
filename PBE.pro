@@ -8,6 +8,7 @@ QT += core gui charts concurrent network widgets
 QT += sql qml webenginewidgets
 QT += webchannel 3dcore 3drender 3dextras
 
+
 #MOC_DIR = $$DESTDIR/.moc
 #UI_DIR = $$DESTDIR/.ui
 #OBJECTS_DIR = $$DESTDIR/.obj
@@ -31,11 +32,8 @@ win32{
     LIBS +=CRYPT32.lib
     LIBS +=Ws2_32.lib
     LIBS +=User32.lib
+    LIBS += $$PWD/../quazip/build/quazip/Release/quazip1-gt5.lib        
     DEFINES += CURL_STATICLIB
-}
-
-LIBS += $$PWD/../quazip/build/quazip/Debug/quazip1-qt5d.lib
-win32 {
     RC_ICONS = icons/NHERI-PBE-Icon.ico
 } else {
 
@@ -47,15 +45,20 @@ win32 {
     } else {
       LIBS += -lc
     }
-
-    LIBS += -L/opt/homebrew/Cellar/curl/8.0.1/lib/ -lcurl.4
-    INCLUDEPATH += /opt/homebrew/Cellar/curl/8.1.2_1/include
-    INCLUDEPATH += /opt/homebrew/Cellar/quazip/1.4/include/quazip
-
-    macx: LIBS += -L/opt/homebrew/Cellar/quazip/1.4/lib/ -lquazip1-qt6.1.4
-    INCLUDEPATH += $$/opt/homebrew/Cellar/quazip/1.4/include
-
 }
+
+INCLUDEPATH += $$PWD/../quazip/quazip
+
+#for stevan
+#macx: LIBS += -L/opt/homebrew/Cellar/quazip/1.4/lib/ -lquazip1-qt6.1.4
+#INCLUDEPATH += $$/opt/homebrew/Cellar/quazip/1.4/include
+#INCLUDEPATH += /opt/homebrew/Cellar/quazip/1.4/include/quazip
+#LIBS += -L/opt/homebrew/Cellar/curl/8.0.1/lib/ -lcurl.4
+#INCLUDEPATH += /opt/homebrew/Cellar/curl/8.1.2_1/include
+
+
+
+
                    
 include(../SimCenterCommon/Common/Common.pri)
 include(../SimCenterCommon/Workflow/Workflow.pri)
@@ -126,4 +129,4 @@ HEADERS  += \
 RESOURCES += \
     images.qrc
 
-OTHER_FILES += conanfile.py
+#OTHER_FILES += conanfile.py

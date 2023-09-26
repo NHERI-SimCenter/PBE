@@ -40,7 +40,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
+
 #include <QtCharts/QChart>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+using namespace QtCharts;
+#endif
 
 class QTextEdit;
 class QVBoxLayout;

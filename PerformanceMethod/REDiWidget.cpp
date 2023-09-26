@@ -58,10 +58,17 @@ REDiWidget::REDiWidget(QWidget *parent)
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-    auto infoTxt = tr("Resilience-based Engineering Design Initiative (REDi™) Seismic Building Recovery Methodology by ARUP");
+    QString linkText = "here";
+    QString url = "https://sgavrilovicarup.github.io/REDi-docs/#";
+    QString htmlLink = QString("<a href=\"%1\">%2</a>").arg(url, linkText);
+
+    auto infoTxt = QString("Resilience-based Engineering Design Initiative (REDi™) Seismic Building Recovery Methodology by ARUP. For more information see ")+htmlLink;
+
     setWindowTitle(infoTxt);
 
     auto redi_label = new QLabel(infoTxt);
+    redi_label->setOpenExternalLinks(true);
+
     layout->addWidget(redi_label,0,Qt::AlignCenter);
 
     auto rpTextLabel = new QLabel("Path to risk parameters file:");
