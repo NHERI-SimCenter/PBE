@@ -196,7 +196,7 @@
         "dampingRatio": 0.02,
         "units": {
             "force": "kips",
-            "length": "in",
+            "length": "ft",
             "temperature": "C",
             "time": "sec"
         },
