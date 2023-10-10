@@ -53,7 +53,7 @@
         "Damage": {
             "CollapseFragility": {
                 "CapacityDistribution": "lognormal",
-                "CapacityMedian": "521.219",
+                "CapacityMedian": "43.435",
                 "DemandType": "SA_1.13",
                 "Theta_1": "0.5"
             },
