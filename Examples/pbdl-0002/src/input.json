@@ -25,6 +25,13 @@
             "ApplicationData": {
             }
         },
+        "Performance": {
+            "Application": "None",
+            "ApplicationData": {
+                "ApplicationData": {
+                }
+            }
+        },	
         "Simulation": {
             "Application": "OpenSees-Simulation",
             "ApplicationData": {

@@ -26,8 +26,8 @@
             }
         },
         "Performance": {
+            "Application": "None",
             "ApplicationData": {
-                "Application": "None",
                 "ApplicationData": {
                 }
             }

@@ -1683,7 +1683,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
 
             QString compName = line_list[0];
             if (compName == "ID") {
-                qDebug() << line_list;
+	      // qDebug() << line_list;
 
                 //if (line_list[line_list.count()-1] == "Comment") {
                 //    hasComment = true;
@@ -1712,7 +1712,7 @@ PelicunComponentContainer::loadComponentAssignment(QString filePath) {
             QMap<QString, QString> *CG_data = new QMap<QString, QString>;
             vCG_data->append(CG_data);
 
-            qDebug() << line_list;
+            // qDebug() << line_list;
 
             if (line_list.count() >= 6) {
                 // fill the CG_data dict with the info from the given row in the file
