@@ -89,12 +89,14 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     databaseConseq = new QComboBox();
     databaseConseq->setToolTip(tr("This database defines the component repair consequence functions available for the analysis."));
     databaseConseq->addItem("FEMA P-58",0);
-    databaseConseq->addItem("Hazus Earthquake",1);
-    databaseConseq->addItem("None",2);
+    databaseConseq->addItem("Hazus Earthquake - Buildings",1);
+    databaseConseq->addItem("Hazus Earthquake - Transportation",2);
+    databaseConseq->addItem("None",3);
 
     databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
-    databaseConseq->setItemData(1, "Based on the Hazus MH 2.1 Earthquake Technical Manual", Qt::ToolTipRole);
-    databaseConseq->setItemData(2, "None of the built-in databases will be used", Qt::ToolTipRole);
+    databaseConseq->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseConseq->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseConseq->setItemData(3, "None of the built-in databases will be used", Qt::ToolTipRole);
 
     connect(databaseConseq,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentConsequenceDB()));
 
@@ -642,7 +644,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     mapApproach->addItem("Automatic",0);
     mapApproach->addItem("User Defined",1);
 
-    mapApproach->setItemData(0, "<p>Automatically prepare mapping based on the selected Component Vulnerability database. Only applicable for built-in databases, such as FEMA P-58 and Hazus data.</p>", Qt::ToolTipRole);
+    mapApproach->setItemData(0, "<p>Automatically prepare mapping based on the selected Component Vulnerability database. Only applicable for built-in databases for FEMA P-58 and Hazus EQ - Buildings.</p>", Qt::ToolTipRole);
     mapApproach->setItemData(1, "<p>Custom mapping provided in a CSV file.</p>", Qt::ToolTipRole);
 
     selectMAPLayout->addWidget(mapApproach, 0);
@@ -742,12 +744,17 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
     if (databaseConseq->currentText() == "FEMA P-58") {
 
         cmpConsequenceDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/bldg_repair_DB_FEMA_P58_2nd.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_FEMA_P58_2nd.csv";
 
-    } else if (databaseConseq->currentText() == "Hazus Earthquake") {
+    } else if (databaseConseq->currentText() == "Hazus Earthquake - Buildings") {
 
         cmpConsequenceDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/bldg_repair_DB_Hazus_EQ.csv";
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_bldg.csv";
+
+    } else if (databaseConseq->currentText() == "Hazus Earthquake - Transportation") {
+
+        cmpConsequenceDB_tmp = appDir +
+        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_trnsp.csv";
 
     } else {
 
@@ -1496,6 +1503,11 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
             if (in_componentDB == "User Defined") {
                 in_componentDB = "None";
             }
+
+            if (in_componentDB == "Hazus Earthquake") {
+                in_componentDB = "Hazus Earthquake - Buildings";
+            }
+
             // ---
 
             databaseConseq->setCurrentText(in_componentDB);

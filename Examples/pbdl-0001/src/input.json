@@ -25,6 +25,13 @@
             "ApplicationData": {
             }
         },
+        "Performance": {
+            "Application": "None",
+            "ApplicationData": {
+                "ApplicationData": {
+                }
+            }
+        },
         "Simulation": {
             "Application": "OpenSees-Simulation",
             "ApplicationData": {
@@ -42,12 +49,12 @@
             "ComponentDatabase": "FEMA P-58",
             "NumberOfStories": "4",
             "OccupancyType": "COM1",
-            "PlanArea": "15000"
+            "PlanArea": "21600"
         },
         "Damage": {
             "CollapseFragility": {
                 "CapacityDistribution": "lognormal",
-                "CapacityMedian": "521.219",
+                "CapacityMedian": "43.435",
                 "DemandType": "SA_1.13",
                 "Theta_1": "0.5"
             },
@@ -77,7 +84,7 @@
                 "2": "0.0075",
                 "method": "FEMA P-58"
             },
-            "SampleSize": "500"
+            "SampleSize": "5000"
         },
         "Losses": {
             "BldgRepair": {
@@ -91,26 +98,26 @@
                 "MapApproach": "Automatic",
                 "ReplacementCarbon": {
                     "Distribution": "normal",
-                    "Median": "1e7",
+                    "Median": "10000000",
                     "Theta_1": "0.3",
                     "Unit": "kg"
                 },
                 "ReplacementCost": {
                     "Distribution": "normal",
-                    "Median": "12500000",
+                    "Median": "21600000",
                     "Theta_1": "0.3",
                     "Unit": "USD_2011"
                 },
                 "ReplacementEnergy": {
                     "Distribution": "normal",
-                    "Median": "1e9",
+                    "Median": "100000000",
                     "Theta_1": "0.3",
                     "Unit": "MJ"
                 },
                 "ReplacementTime": {
                     "Distribution": "lognormal",
-                    "Median": "15000",
-                    "Theta_1": "0.4",
+                    "Median": "12500",
+                    "Theta_1": "0.2",
                     "Unit": "worker_day"
                 }
             }
@@ -180,26 +187,26 @@
         }
     ],
     "GeneralInformation": {
-        "NumberOfStories": 1,
-        "PlanArea": 129600,
+        "NumberOfStories": 4,
+        "PlanArea": 21600,
         "StructureType": "RM1",
         "YearBuilt": 1990,
-        "depth": 360,
-        "height": 144,
+        "depth": 150,
+        "height": 12,
         "location": {
             "latitude": 37.426,
             "longitude": -122.171
         },
         "name": "",
-        "planArea": 129600,
-        "stories": 1,
+        "planArea": 21600,
+        "stories": 4,
         "units": {
             "force": "kips",
-            "length": "in",
+            "length": "ft",
             "temperature": "C",
             "time": "sec"
         },
-        "width": 360
+        "width": 144
     },
     "Modeling": {
         "Bx": 0.1,
@@ -216,23 +223,58 @@
                 "Ktheta": 10000000000,
                 "bx": 0.1,
                 "by": 0.1,
-                "height": 144,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
                 "kx": 100,
                 "ky": 100,
                 "weight": 144
             }
         ],
         "dampingRatio": 0.02,
-        "height": 144,
+        "height": 3,
         "massX": 0,
         "massY": 0,
-        "numStories": 1,
+        "numStories": 4,
         "randomVar": [
         ],
         "responseX": 0,
         "responseY": 0,
         "type": "MDOF_BuildingModel",
         "weight": 144
+    },
+    "Performance": {
     },
     "Simulation": {
         "Application": "OpenSees-Simulation",

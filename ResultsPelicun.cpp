@@ -898,7 +898,12 @@ int ResultsPelicun::processREDiResults(QString &inputFileName,
 
       double DV_mean = value["mean"].toDouble();
       double DV_stdDev = value["std"].toDouble();
-      double DV_logStdDev = value["log_std"].toDouble();
+      double DV_logStdDev;
+      if (value["log_std"] != "") {
+        DV_logStdDev = value["log_std"].toDouble();
+      } else {
+        DV_logStdDev = -1;
+      }
 
       QWidget *theWidget = this->createSummaryItem2(DV_DisplayName,
                                                     DV_mean, DV_stdDev, DV_logStdDev, DV_min, DV_10, DV_50, DV_90, DV_max);

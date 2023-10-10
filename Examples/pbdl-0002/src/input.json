@@ -25,6 +25,13 @@
             "ApplicationData": {
             }
         },
+        "Performance": {
+            "Application": "None",
+            "ApplicationData": {
+                "ApplicationData": {
+                }
+            }
+        },	
         "Simulation": {
             "Application": "OpenSees-Simulation",
             "ApplicationData": {
@@ -57,7 +64,7 @@
         },
         "Losses": {
             "BldgRepair": {
-                "ConsequenceDatabase": "Hazus Earthquake",
+                "ConsequenceDatabase": "Hazus Earthquake - Buildings",
                 "DecisionVariables": {
                     "Carbon": false,
                     "Cost": true,
