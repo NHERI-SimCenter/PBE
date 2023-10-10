@@ -445,19 +445,17 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
             return false;
         }
 
-
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("PBE: failed to read UQ application");
 
         if (theSIM_Selection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("EE_UQ: failed to read SIM application");
+            this->errorMessage("PBE: failed to read SIM application");
 	
         if (theAnalysisSelection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("EE_UQ: failed to read FEM application");
+            this->errorMessage("PBE: failed to read FEM application");
 
-        if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("PBE: failed to read PRF Method data");
-
+        if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false) 
+	  this->errorMessage("PBE: failed to read PRF application");
 
     } else
         return false;
@@ -479,6 +477,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     if (theAnalysisSelection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read FEM Method data");
 
+    if (thePrfMethodSelection->inputFromJSON(jsonObject) == false)
+      this->errorMessage("PBE: failed to read PRF Method data");
+    
     if (jsonObject.contains("DL")) {
         QJsonObject jsonObjLossModel = jsonObject["DL"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
