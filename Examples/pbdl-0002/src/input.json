@@ -52,7 +52,7 @@
             "PlanArea": "129600"
         },
         "Damage": {
-            "DamageProcess": "Hazus Earthquake - Buildings"
+            "DamageProcess": "Hazus Earthquake"
         },
         "Demands": {
             "Calibration": {
