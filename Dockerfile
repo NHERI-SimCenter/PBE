@@ -7,6 +7,7 @@ FROM ubuntu:bionic
 SHELL ["/bin/bash", "-c"]
 
 ARG versionPBE=d3.2.0
+ARG versionEE=d3.4.0
 ARG versionSimCenterCommon=v23.09
 ARG versionSimCenterBackend=v23.09
 ARG versionOpenSees=v3.5.0
@@ -34,16 +35,17 @@ RUN apt-get update \
 #
 
 RUN  source /opt/qt515/bin/qt515-env.sh \
-    && sudo apt-get install apt-transport-https ca-certificates gnupg software-properties-common wget \
+    && sudo apt-get install -y apt-transport-https ca-certificates gnupg software-properties-common wget \
     && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add - \
     && sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
     && sudo apt-get install -y cmake zlib1g-dev \
     && git clone -b v1.4 --single-branch https://github.com/stachenov/quazip.git \
     && cd quazip \
     && mkdir build; cd build; cmake ..; make; make install \
-    & cd ..\.. \
+    & cd ../.. \
     && git clone -b $versionSimCenterCommon --single-branch https://github.com/NHERI-SimCenter/SimCenterCommon.git \
-    && git clone https://github.com/NHERI-SimCenter/QS3hark.git \    
+    && git clone https://github.com/NHERI-SimCenter/QS3hark.git \
+    && git clone -b $versionEE --single-branch https://github.com/NHERI-SimCenter/EE-UQ.git \    
     && git clone -b $versionPBE --single-branch https://github.com/NHERI-SimCenter/PBE.git \
     && cd PBE \
     && mkdir build \
