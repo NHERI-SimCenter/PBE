@@ -27,6 +27,7 @@ static bool logToFile = false;
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+
     QHash<QtMsgType, QString> msgLevelHash({{QtDebugMsg, "Debug"}, {QtInfoMsg, "Info"}, {QtWarningMsg, "Warning"}, {QtCriticalMsg, "Critical"}, {QtFatalMsg, "Fatal"}});
     QByteArray localMsg = msg.toLocal8Bit();
     QTime time = QTime::currentTime();
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.2.0");
+    QCoreApplication::setApplicationVersion("3.3.0");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -193,19 +194,20 @@ int main(int argc, char *argv[])
   }
 
   //Setting Google Analytics Tracking Information
+  /* **************************************************************
   GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
   GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
   GoogleAnalytics::CreateSessionId();
   GoogleAnalytics::StartSession();
 
-  /******************** NOT Working!!!!
+
   // Opening a QWebEngineView and using github to get app geographic usage
   QWebEngineView view;
   view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
   view.resize(1024, 750);
   view.show();
   view.hide();
-  ******************************* */
+  ******************************************************************* */
 
 
   //
