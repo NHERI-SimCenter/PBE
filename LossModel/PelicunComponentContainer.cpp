@@ -1326,8 +1326,9 @@ int PelicunComponentContainer::updateAvailableComponents(){
                 csvFile.close();
 
             } else {
-                this->errorMessage("Cannot open CSV file.");
-                return 1;
+	      QString errMsg(QString("Cannot open CSV file: ") + componentDataBase);
+	      this->errorMessage(errMsg);
+	      return 1;
             }
 
             //this->statusMessage("Successfully parsed CSV file.");

@@ -201,7 +201,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theComponentSelection->addComponent(QString("FEM"), theAnalysisSelection);
     theComponentSelection->addComponent(QString("RV"),  theRVs);
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
-    theComponentSelection->addComponent(QString("PRF"),  thePrfMethodSelection);
+    theComponentSelection->addComponent(QString("PRF"), thePrfMethodSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
 
     theComponentSelection->displayComponent("DL");
@@ -356,7 +356,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
 
 
     QJsonObject appsDL;
-    if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false) {
+    if (theDLModelSelection->outputAppDataToJSON(appsDL) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
       return false;
     }
@@ -573,7 +573,6 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     theEventSelection->copyFiles(templateDirectory);
     theAnalysisSelection->copyFiles(templateDirectory);
     theUQ_Selection->copyFiles(templateDirectory);
-
 
     //
     // in new templatedir dir save the UI data into scInput.json file (same result as using saveAs)
