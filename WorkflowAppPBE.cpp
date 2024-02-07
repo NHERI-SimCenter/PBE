@@ -457,6 +457,9 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false) 
 	  this->errorMessage("PBE: failed to read PRF application");
 
+        if (theDLModelSelection->inputAppDataFromJSON(theApplicationObject) == false) 
+	  this->errorMessage("PBE: failed to read DL application");	
+
     } else
         return false;
 
@@ -479,7 +482,10 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
 
     if (thePrfMethodSelection->inputFromJSON(jsonObject) == false)
       this->errorMessage("PBE: failed to read PRF Method data");
-    
+
+    if (theDLModelSelection->inputFromJSON(jsonObject) == false)
+      this->errorMessage("PBE: failed to read PRF Method data");    
+    /*
     if (jsonObject.contains("DL")) {
         QJsonObject jsonObjLossModel = jsonObject["DL"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
@@ -488,6 +494,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         this->errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
+    */
     
     this->runComplete();
     

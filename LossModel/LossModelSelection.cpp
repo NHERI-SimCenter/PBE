@@ -44,10 +44,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 LossModelSelection::LossModelSelection(
 
     QWidget *parent)
-  : SimCenterAppSelection(QString("Loss Model"), QString("LossModel"),parent)
+  : SimCenterAppSelection(QString("Loss Model"), QString("DL"),parent)
 {
     thePelicunWidget = new PelicunLossModel();
-    this->addComponent(QString("Pelicun"), QString("Pelicun"), thePelicunWidget);
+    this->addComponent(QString("Pelicun3"), QString("Pelicun3"), thePelicunWidget, QString("Pelicun"));
 }
 
 LossModelSelection::~LossModelSelection()
