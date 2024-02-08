@@ -326,13 +326,15 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
         return result;
     }
     
-    QJsonObject jsonLossModel;
-    if (theDLModelSelection->outputToJSON(jsonLossModel) == false) {
+    if (theDLModelSelection->outputToJSON(jsonObjectTop) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed";
       return false;
     }
-    
-    jsonObjectTop["DL"] = jsonLossModel;
+
+    if (theDLModelSelection->outputAppDataToJSON(apps) == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
+      return false;
+    }
 
     QJsonObject appPrf;
     if (thePrfMethodSelection->outputToJSON(appPrf) == false) {
@@ -352,16 +354,7 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     jsonObjectTop["Performance"] = prfFinal;
 
     prfFinal["ApplicationData"] = dataPrf["Performance"];
-    apps["Performance"] = prfFinal;
-
-
-    QJsonObject appsDL;
-    if (theDLModelSelection->outputAppDataToJSON(appsDL) == false) {
-      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
-      return false;
-    }
-    
-    apps["DL"] = appsDL;
+    apps["Performance"] = prfFinal;  
 
     jsonObjectTop["Applications"]=apps;
 
