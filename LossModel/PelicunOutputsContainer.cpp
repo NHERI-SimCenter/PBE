@@ -313,14 +313,14 @@ bool PelicunOutputsContainer::outputToJSON(QJsonObject &outputObject) {
 
     QJsonObject lossData;
 
-    QJsonObject bldgRepairData;
-    bldgRepairData["Sample"] = repairOutSample->isChecked();
-    bldgRepairData["Statistics"] = repairOutStats->isChecked();
-    bldgRepairData["GroupedSample"] = repairOutGrpSample->isChecked();
-    bldgRepairData["GroupedStatistics"] = repairOutGrpStats->isChecked();
-    bldgRepairData["AggregateSample"] = repairOutAggSample->isChecked();
-    bldgRepairData["AggregateStatistics"] = repairOutAggStats->isChecked();
-    lossData["BldgRepair"] = bldgRepairData;
+    QJsonObject repairData;
+    repairData["Sample"] = repairOutSample->isChecked();
+    repairData["Statistics"] = repairOutStats->isChecked();
+    repairData["GroupedSample"] = repairOutGrpSample->isChecked();
+    repairData["GroupedStatistics"] = repairOutGrpStats->isChecked();
+    repairData["AggregateSample"] = repairOutAggSample->isChecked();
+    repairData["AggregateStatistics"] = repairOutAggStats->isChecked();
+    lossData["Repair"] = repairData;
 
     outputData["Loss"] = lossData;
 
@@ -390,32 +390,39 @@ bool PelicunOutputsContainer::inputFromJSON(QJsonObject & inputObject) {
     if (outputData.contains("Loss")) {
         QJsonObject lossData = outputData["Loss"].toObject();
 
-        if (lossData.contains("BldgRepair")) {
-            QJsonObject bldgRepairData = lossData["BldgRepair"].toObject();
+        if (lossData.contains("BldgRepair") || lossData.contains("Repair")) {
 
-            if (bldgRepairData.contains("Sample")){
+            QJsonObject repairData;
+            if (lossData.contains("BldgRepair")) {
+                // for the sake of backwards compatibility
+                repairData = lossData["BldgRepair"].toObject();
+            } else {
+                repairData = lossData["Repair"].toObject();
+            }
+
+            if (repairData.contains("Sample")){
                 repairOutSample->setChecked(
-                    bldgRepairData["Sample"].toBool());
+                    repairData["Sample"].toBool());
             }
-            if (bldgRepairData.contains("Statistics")){
+            if (repairData.contains("Statistics")){
                 repairOutStats->setChecked(
-                    bldgRepairData["Statistics"].toBool());
+                    repairData["Statistics"].toBool());
             }
-            if (bldgRepairData.contains("GroupedSample")){
+            if (repairData.contains("GroupedSample")){
                 repairOutGrpSample->setChecked(
-                    bldgRepairData["GroupedSample"].toBool());
+                    repairData["GroupedSample"].toBool());
             }
-            if (bldgRepairData.contains("GroupedStatistics")){
+            if (repairData.contains("GroupedStatistics")){
                 repairOutGrpStats->setChecked(
-                    bldgRepairData["GroupedStatistics"].toBool());
+                    repairData["GroupedStatistics"].toBool());
             }
-            if (bldgRepairData.contains("AggregateSample")){
+            if (repairData.contains("AggregateSample")){
                 repairOutAggSample->setChecked(
-                    bldgRepairData["AggregateSample"].toBool());
+                    repairData["AggregateSample"].toBool());
             }
-            if (bldgRepairData.contains("AggregateStatistics")){
+            if (repairData.contains("AggregateStatistics")){
                 repairOutAggStats->setChecked(
-                    bldgRepairData["AggregateStatistics"].toBool());
+                    repairData["AggregateStatistics"].toBool());
             }
         }
     }
