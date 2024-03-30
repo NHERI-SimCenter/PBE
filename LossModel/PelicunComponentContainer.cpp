@@ -895,6 +895,32 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 }
 
 QString
+PelicunComponentContainer::getDefaultDatabasePath()
+{
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    QString python = preferences->getPython();
+    QString workDir = preferences->getLocalWorkDir();
+    QString appDir = preferences->getAppDir();
+
+    QProcess proc;
+    QStringList params;
+
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+
+    proc.start(python, params);
+    proc.waitForFinished(-1);
+
+    QByteArray stdOut = proc.readAllStandardOutput();
+
+    //this->statusMessage(stdOut);
+    this->errorMessage(proc.readAllStandardError());
+
+    QString databasePath(stdOut);
+
+    return databasePath.trimmed();
+}
+
+QString
 PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
@@ -902,7 +928,10 @@ PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString output_path = workDir + "/resources/fragility_viz/";
+    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+    comp_DB_name.chop(4);
+
+    QString output_path = workDir + "/resources/fragility_viz/" + comp_DB_name + "/";
 
     //this->statusMessage(python);
     //this->statusMessage(workDir);
@@ -1350,25 +1379,24 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     bool cmpDataChanged = false;
 
+    QString databasePath = this->getDefaultDatabasePath();
+
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     QString cmpVulnerabilityDB_tmp;
 
     if (databaseCombo->currentText() == "FEMA P-58") {
-
-        cmpVulnerabilityDB_tmp = appDir +
-        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
+        cmpVulnerabilityDB_tmp = databasePath +        
+        "/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
-        cmpVulnerabilityDB_tmp = appDir +
-        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
+        cmpVulnerabilityDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
-        cmpVulnerabilityDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
+        cmpVulnerabilityDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
 
     } else {
 
@@ -1388,10 +1416,14 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
                                 QString(databaseCombo->currentText()) +
                                 " data from "+ cmpVulnerabilityDB);
 
+            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB);
+
             // load the visualization path too (assume that we have a zip file for every bundled DB)
+            /*
             cmpVulnerabilityDB_viz = cmpVulnerabilityDB;
             cmpVulnerabilityDB_viz.chop(4);
             cmpVulnerabilityDB_viz = cmpVulnerabilityDB_viz + QString(".zip");
+            */
 
         } else {
             this->statusMessage("Removing built-in component data from the list.");
