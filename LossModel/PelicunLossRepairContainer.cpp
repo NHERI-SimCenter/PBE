@@ -1442,7 +1442,7 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
         lossData["MapFilePath"] = mapPath->text();
     }
 
-    outputObject["BldgRepair"] = lossData;
+    outputObject["Repair"] = lossData;
 
     return 0;
 }
@@ -1492,8 +1492,15 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
     // initialize the panel
     this->initPanel();
 
-    if (inputObject.contains("BldgRepair")) {
-        QJsonObject lossData = inputObject["BldgRepair"].toObject();
+    if (inputObject.contains("BldgRepair") || inputObject.contains("Repair")) {
+
+        QJsonObject lossData;
+        if (inputObject.contains("BldgRepair")) {
+            // for the sake of backwards compatibility
+            lossData = inputObject["BldgRepair"].toObject();
+        } else {
+            lossData = inputObject["Repair"].toObject();
+        }
 
         if (lossData.contains("ConsequenceDatabase")) {
 
