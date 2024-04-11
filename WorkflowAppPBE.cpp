@@ -599,6 +599,14 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
+
+    QJsonObject citations;
+    QString citeFile = templateDirectory + QDir::separator() + tr("please_cite.json");    
+    // QString citeFile = destinationDirectory.filePath("plases_cite.json"); // file getting deleted
+    this->createCitation(citations, citeFile);
+    json.insert("citations",citations);    
+
+    
     // if the EDPs are loaded from an external file, then there is no need
     // to run the whole simulation
     QJsonObject DL_app_data;    
@@ -671,4 +679,49 @@ WorkflowAppPBE::loadFile(QString &fileName){
 int
 WorkflowAppPBE::getMaxNumParallelTasks() {
     return theUQ_Selection->getNumParallelTasks();
+}
+
+int
+WorkflowAppPBE::createCitation(QJsonObject &citation, QString citeFile) {
+
+  //
+  // put PBE citation in
+  // 
+  QString cit("{\"PBE\": { \"citations\": [{\"citation\": \"Adam Zsarnoczay, Frank McKenna, Charles Wang, Stevan Gavrilovic, Michael Gardner, Sang-ri Yi, Aakash Bangalore Satish, & Wael Elhaddad. (2024). NHERI-SimCenter/PBE: Version 3.4.0 (V3.4.0). Zenodo. https://doi.org/10.5281/zenodo.10902085\",\"description\": \"This is the overall tool reference used to indicate the version of the tool.\"},{\"citation\": \"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Mat J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706\",\"description\": \" This marker paper describes the SimCenter application framework, which was designed to simulate the impacts of natural hazards on the built environment.It  is a necessary attribute for publishing work resulting from the use of SimCenter tools, software, and datasets.\"}]}}");
+
+  QJsonDocument docC = QJsonDocument::fromJson(cit.toUtf8());
+  if(!docC.isNull()) {
+    if(docC.isObject()) {
+      citation = docC.object();        
+    }  else {
+      qDebug() << "WorkflowdAppEE_UQ citation text is not valid JSON: \n" << cit << endl;
+    }
+  }
+
+  theSIM_Selection->outputCitation(citation);
+  theEventSelection->outputCitation(citation);
+  theAnalysisSelection->outputCitation(citation);
+  theUQ_Selection->outputCitation(citation);
+  theDLModelSelection->outputCitation(citation);
+  thePrfMethodSelection->outputCitation(citation);
+
+  //
+  // write the citation to a file if name of one provided
+  //
+  
+  if (!citeFile.isEmpty()) {
+    
+    QFile file(citeFile);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+      errorMessage(QString("writeCitation - could not open file") + citeFile);
+      progressDialog->hideProgressBar();
+      return 0;
+    }
+
+    QJsonDocument doc(citation);
+    file.write(doc.toJson());
+    file.close();
+  }
+  
+  return 0;    
 }
