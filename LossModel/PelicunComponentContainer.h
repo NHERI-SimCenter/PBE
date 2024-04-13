@@ -67,6 +67,7 @@ class QGroupBox;
 class QPushButton;
 class QStringListModel;
 class QSignalMapper;
+class SC_TableEdit;
 
 class PelicunComponentContainer : public SimCenterAppWidget
 {
@@ -238,6 +239,7 @@ private:
     QWebEngineView *fragilityViz; 
     //QuaZip fragilityZip;
 
+    SC_TableEdit *adamsTable;
 };
 
 #endif // COMPONENT_CONTAINER_H
