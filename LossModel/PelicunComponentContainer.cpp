@@ -100,6 +100,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QVBoxLayout *generalFormLayout = new QVBoxLayout(generalGroupBox);
     //QFormLayout *generalFormLayout = new QFormLayout();
 
+    /*
     // adams table
     QHBoxLayout *adamsTableLayout = new QHBoxLayout();
     QStringList headings; headings << "Something" << "Else";
@@ -115,6 +116,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 	      adamsTable->show();
 	    });
     generalFormLayout->addLayout(adamsTableLayout);
+    */
     
     
     // stories
