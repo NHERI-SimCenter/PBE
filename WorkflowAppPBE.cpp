@@ -336,25 +336,15 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
       return false;
     }
 
-    QJsonObject appPrf;
-    if (thePrfMethodSelection->outputToJSON(appPrf) == false) {
+    if (thePrfMethodSelection->outputToJSON(jsonObjectTop) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - PRF_Selection failed";
       return false;
     }
 
-
-    QJsonObject dataPrf;
-    result = thePrfMethodSelection->outputAppDataToJSON(dataPrf);
-    if (result == false) {
+    if (thePrfMethodSelection->outputAppDataToJSON(apps) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - Prf Method Selection failed appData";
-      return result;
-    }
-
-    QJsonObject prfFinal = appPrf["Performance"].toObject();
-    jsonObjectTop["Performance"] = prfFinal;
-
-    prfFinal["ApplicationData"] = dataPrf["Performance"];
-    apps["Performance"] = prfFinal;  
+      return false;
+    } 
 
     jsonObjectTop["Applications"]=apps;
 
@@ -690,6 +680,7 @@ WorkflowAppPBE::createCitation(QJsonObject &citation, QString citeFile) {
   QString cit("{\"PBE\": { \"citations\": [{\"citation\": \"Adam Zsarnoczay, Frank McKenna, Charles Wang, Stevan Gavrilovic, Michael Gardner, Sang-ri Yi, Aakash Bangalore Satish, & Wael Elhaddad. (2024). NHERI-SimCenter/PBE: Version 3.4.0 (V3.4.0). Zenodo. https://doi.org/10.5281/zenodo.10902085\",\"description\": \"This is the overall tool reference used to indicate the version of the tool.\"},{\"citation\": \"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Mat J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706\",\"description\": \" This marker paper describes the SimCenter application framework, which was designed to simulate the impacts of natural hazards on the built environment.It  is a necessary attribute for publishing work resulting from the use of SimCenter tools, software, and datasets.\"}]}}");
 
   QJsonDocument docC = QJsonDocument::fromJson(cit.toUtf8());
+
   if(!docC.isNull()) {
     if(docC.isObject()) {
       citation = docC.object();        

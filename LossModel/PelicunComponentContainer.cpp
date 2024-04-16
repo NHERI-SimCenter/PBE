@@ -66,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSettings>
 #include <QSignalMapper>
 #include <QWebEngineView>
+#include <RunPythonInThread.h>
 
 #include <QScreen>
 #include <SC_TableEdit.h>
@@ -99,6 +100,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QVBoxLayout *generalFormLayout = new QVBoxLayout(generalGroupBox);
     //QFormLayout *generalFormLayout = new QFormLayout();
 
+    /*
     // adams table
     QHBoxLayout *adamsTableLayout = new QHBoxLayout();
     QStringList headings; headings << "Something" << "Else";
@@ -114,6 +116,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 	      adamsTable->show();
 	    });
     generalFormLayout->addLayout(adamsTableLayout);
+    */
     
     
     // stories
@@ -955,16 +958,27 @@ PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
     //this->statusMessage(workDir);
     //this->statusMessage(output_path);
 
-    QProcess proc;
-    QStringList params;
+    QString vizScript = appDir + QDir::separator() + "applications" + QDir::separator()
+    + "performDL" + QDir::separator() + "pelicun3" + QDir::separator() + "DL_visuals.py";
 
-    params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "fragility" << comp_DB_path << "--output_path" << output_path;
+    QStringList args; 
+    args << QString("fragility") << QString(comp_DB_path)
+         << QString("--output_path") << QString(output_path);
 
-    proc.start(python, params);
-    proc.waitForFinished(-1);
+    RunPythonInThread *vizThread = new RunPythonInThread(vizScript, args, workDir);
+    //connect(vizThread, &RunPythonInThread::processFinished, this, &PelicunComponentContainer::vizFilesCreated);
+    vizThread->runProcess();
 
-    this->statusMessage(proc.readAllStandardOutput());
-    this->errorMessage(proc.readAllStandardError());
+    //QProcess proc;
+    //QStringList params;
+
+    //params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "fragility" << comp_DB_path << "--output_path" << output_path;
+
+    //proc.start(python, params);
+    //proc.waitForFinished(-1);
+
+    //this->statusMessage(proc.readAllStandardOutput());
+    //this->errorMessage(proc.readAllStandardError());
 
     return output_path;
 }
