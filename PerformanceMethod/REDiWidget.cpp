@@ -112,8 +112,11 @@ bool REDiWidget::inputFromJSON(QJsonObject &jsonObject){
 
 bool REDiWidget::outputAppDataToJSON(QJsonObject &jsonObj){
 
+    jsonObj["Application"] = "REDi";
+    QJsonObject dataObj;
     auto riskParamPath = riskParamsLE->text().trimmed();
-    jsonObj["riskParametersPath"] = riskParamPath;
+    dataObj["riskParametersPath"] = riskParamPath;
+    jsonObj["ApplicationData"] = dataObj;
 
     return true;
 }
