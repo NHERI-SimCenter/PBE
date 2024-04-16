@@ -52,7 +52,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <SectionTitle.h>
 #include <QLineEdit>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QFileDialog>
 #include <QScrollArea>
@@ -68,6 +67,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSignalMapper>
 #include <QWebEngineView>
 #include <RunPythonInThread.h>
+
+#include <QScreen>
+#include <SC_TableEdit.h>
 
 PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -89,7 +91,6 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     additionalComponentDB = "";
     additionalComponentDB_viz = "";
 
-
     gridLayout = new QGridLayout();
 
     // general information ----------------------------------------------------
@@ -99,6 +100,23 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QVBoxLayout *generalFormLayout = new QVBoxLayout(generalGroupBox);
     //QFormLayout *generalFormLayout = new QFormLayout();
 
+    // adams table
+    QHBoxLayout *adamsTableLayout = new QHBoxLayout();
+    QStringList headings; headings << "Something" << "Else";
+    QStringList data; data << "Row1" << "1.0" << "Row2" << "2.0";
+    QStringList adamsStuff; adamsStuff << "Adams Table" << "Add Below Current" << "Delete Current";
+    adamsTable = new SC_TableEdit("adamsTable",headings, 2, data,&adamsStuff);
+    adamsTableLayout->addWidget(new QLabel("ADAMS TABLE"));
+    QPushButton *adamsTableButton = new QPushButton("PRESS TO SEE TABLE");
+    adamsTableLayout->addWidget(adamsTableButton);
+    connect(adamsTableButton, &QPushButton::clicked, this, [=](){
+              adamsTable->setWindowFlag(Qt::Window);
+              adamsTable->move(screen()->geometry().center() - frameGeometry().center());	      
+	      adamsTable->show();
+	    });
+    generalFormLayout->addLayout(adamsTableLayout);
+    
+    
     // stories
     QHBoxLayout *storyLayout = new QHBoxLayout();
 
