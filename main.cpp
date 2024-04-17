@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.4.0");
+    QCoreApplication::setApplicationVersion("3.4.1");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -125,8 +125,6 @@ int main(int argc, char *argv[])
   MainWindowWorkflowApp mainWindow(
     QString("PBE - Performance Based Engineering Application"),
     theInputApp, theRemoteService);
-
-// connect(theInputApp,SIGNAL(sendErrorMessage(QString)), *mainWindow, SLOT(errorM))
 
 
   QString aboutTitle = "About the SimCenter PBE Application"; // this is the title displayed in the on About dialog
