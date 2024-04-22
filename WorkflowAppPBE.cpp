@@ -594,7 +594,7 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     QString citeFile = templateDirectory + QDir::separator() + tr("please_cite.json");    
     // QString citeFile = destinationDirectory.filePath("plases_cite.json"); // file getting deleted
     this->createCitation(citations, citeFile);
-    json.insert("citations",citations);    
+    // json.insert("citations",citations);    
 
     
     // if the EDPs are loaded from an external file, then there is no need
