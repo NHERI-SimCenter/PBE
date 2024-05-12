@@ -388,6 +388,8 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
                                        QString &runDirName,
                                        QString &appDirName){
 
+  qDebug() << "after: " << resultsDirName << " \n runDirName: " << runDirName << " \nappDirNAme:" << appDirName;
+  
     // create the workdir and copy the two result files there
     if (!QDir(runDirName).exists()) {
         QDir().mkdir(runDirName);
@@ -437,9 +439,10 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
 #else
     // note the above not working under linux because basrc not being called so no env variables!!
 
+    qDebug() << "Python: " << python;
     QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
-        pySCRIPT + QString("\"loss_only\"") + inputFileName + QString(" ") +
-        registryFile;
+      pySCRIPT + QString("\"  \"loss_only\" \"") + inputFileName + QString("\"  \"") +
+      registryFile + QString("\"");
 
     qDebug() << "PYTHON COMMAND: " << command;
     proc->execute("bash", QStringList() << "-c" <<  command);
@@ -465,14 +468,19 @@ int ResultsPelicun::processResults(QString &inputFileName,
   QJsonObject inputData = doc.object();
   inputFile.close();
 
-    // If the runType is HPC, then we need to do additional operations
-    QString runType = inputData["runType"].toString();
-    if (runType == "HPC"){
+  // If the runType is HPC, then we need to do additional operations
+  QString runType = inputData["runType"].toString();
+
+  qDebug() << "inputFile: " << inputFileName;
+  qDebug() << "resultsDIR: " << resultsDirName;
+  qDebug() << "runTYPE: " << runType;
+  
+    if (runType == "HPC" || runType == "runningRemote"){
 
         qDebug() << "Loaded response data from HPC, running performance assessment locally.";
 
         QString runDirName = inputData["runDir"].toString();
-        QString appDirName = inputData["localAppDir"].toString();
+        QString appDirName = SimCenterPreferences::getInstance()->getAppDir();
 
         this->runPelicunAfterHPC(resultsDirName, runDirName, appDirName);
 
