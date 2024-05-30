@@ -1,28 +1,59 @@
 .. _pbdl-0003:
 
-FEMA P-58 Assessment Using External Demands and REDi Recovery
-=============================================================
+Seismic performance assessment for transportation network components using Hazus methodology
+============================================================================================
 
-This example is similar to **Example 1 FEMA P-58 Assessment Using External Demands**, with the addition of the REDi recovery step. 
+This example demonstrates the steps required to conduct seismic performance assessment of transportation network components using the HAZUS methodology and the PBE tool. In specific, the example concentrates on evaluating the seismic performance of three distinct components: 
 
-The file ``input.json`` contains all of the settings for this Example. It can be opened (using File/Open) to automatically populate the fields in the user interface.
+#. A conventionally reinforced (i.e., non-prestressed), single-span, reinforced concrete bridge, built before 1975 and located in CA. This bridge is non-retrofitted and hence has limited seismic resistance. For this reason, it is best represented by the Hazus archetype HWB3.
 
-The demands and the performance model for this example are based on the example building featured in FEMA P-58. More details are available in the following FEMA P-58 background documentation:
+#. A freeway segment that can be satisfactorily defined using the Hazus archetype HRD1
 
-.. figure:: figures/P58_background_doc.png
+#. A cut-and-cover railway tunnel that is characterized by the Hazus archetype HTU1.
+
+For brevity, the steps to calculate the seismic demands on all three of these structures are omitted, and only one type of Intensity Measure (IM) is assumed to determine the performance of each structure, namely Spectral Acceleration at 1 sec period, Permanent Ground Deformation, and Peak Ground Acceleration are the only IMs deemed to affect the bridge, roadway segment, and the tunnel respectively. As a result, similar to `Example 1 <https://github.com/NHERI-SimCenter/PBE/tree/master/Examples/pbdl-0001>`_, this example only focuses on the **DL** panel in PBE.  
+
+All files mentioned in the subsequent discussion are provided in the `pbdl-0003/src folder <https://github.com/NHERI-SimCenter/PBE/tree/master/Examples/pbdl-0003/src>`_ for ease in following the steps. Also included in this folder is the ``input.json`` file containing all the settings described in this example. One can simply jump to this example's Analysis and Results step by first opening ``input.json`` via File>Open to automatically populate all the required fields, then clicking the **Run** button on the bottom left corner of the PBE user interface.
+
+DL - Asset Model
+~~~~~~~~~~~~~~~~
+
+The **Asset** tab in the **DL** panel defines the the components that will be analyzed and the asset models that will be used to analyze them. 
+
+.. figure:: figures/3_asset_model.png
    :align: center
-   :width: 400
+   :alt: Screenshot of a 'Damage and Loss Assessment' interface from the Pelicun software. The screen is divided into sections with tabs for different functions like 'General Information', 'Component Assignment', and 'Component Vulnerability'. A graph labeled 'Permanent Ground Deformation' plots two curves representing limit state thresholds against ground deformation in inches. There's a data table labeled 'Component Vulnerability' with columns for Limit State, Damage State, Median Capacity, Capacity Distribution, and Capacity Dispersion. Additional details are provided for a specific type of asset describing demand type, block size, and additional info related to major roads and railway tracks.
    :figclass: align-center
 
-The recovery methodology in this example is based on the `REDi Recovery Engine <https://www.redi.arup.com>`_:
+**General Information** portion of this tab contains 
 
-.. figure:: figures/REDi_background_doc.png
+The asset model can consider uncertainties in the types of components assigned and in their quantities. This example does not introduce those uncertainties for the sake of simplicity. Consequently, for this example, the component types and their quantities are identical in all realizations.
+
+Pelicun provides a convenience method for defining the asset model. We can prepare a table (see the figure below) where each row identifies a component and assigns some quantity of it to a set of locations and directions. Such a table can be prepared in Excel or in a text editor and saved in a CSV file - like we did in this example, see CMP_QNT.csv. Such a file is automatically created by PBE when the asset model is set up using the user interface. It can also be manually saved or the settings can be loaded from a file using the Load and Save buttons under **Component Assignment** Storing these models in a CSV file facilitates sharing the basic inputs of an analysis with other researchers.
+
+.. figure:: figures/component_table.png
    :align: center
-   :width: 400
+   :figclass: align-center
+
+The tabular information in the csv file follows the information provided at the bottom of the Asset Model panel where the selected component is assigned to various locations and directions in the building.
+
+We selected the built-in FEMA P-58 Component Vulnerability Database for this analysis and set the General Information features and component characteristics following the referenced example problem.
+
+Analysis & Results
+~~~~~~~~~~~~~~~~~~
+
+Once the performance assessment has been set up in the **DL** panel, click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. The **Summary** and **Data** tabs of the results panel are shown below.
+
+.. figure:: figures/1_RES_summary.png
+   :align: center
    :figclass: align-center
 
 
-In this example, we are going to import demand data from simulations that were run outside of the PBE tool. This feature allows researchers to use PBE only for the performance assessment part of the workflow and connect it with any other response estimation solution they prefer to use. Because we do not need the response estimation part of the workflow for this example, we only need to focus on the **DL** and **PRF** panels in PBE.
+.. figure:: figures/1_RES_data.png
+   :align: center
+   :figclass: align-center
+
+In the **Data** tab of the **RES** panel, we are presented with both a graphical plot and a tabular listing of the data. By left- and right-clicking on the individual columns the plot axis changes (left mouse click controls vertical axis, right mouse click the horizontal axis). If a singular column of the tabular data is selected with both right and left mouse buttons, a frequency and CDF plot will be displayed.
 
 DL - Asset Model
 ~~~~~~~~~~~~~~~~
@@ -95,22 +126,10 @@ Consequence modeling is decoupled from damage modeling in Pelicun. The Loss Mode
 We use this panel to add a replacement consequence to the FEMA P-58 dataset. This defines a replacement cost and time and the automatic mapping links these consequences with the collapse and irreparable damage events. Note that the replacement consequences are defined using random variables in this example to capture the uncertainty in those numbers. The deterministic replacement values that FEMA P-58 uses can be reproduced in PBE by choosing N/A for the Distribution of Cost and Time.
 
 
-PRF - Recovery
-~~~~~~~~~~~~~~
-
-For the recovery performance assessment, the `REDi Recovery Engine <https://www.redi.arup.com>`_ is employed.
-
-.. figure:: figures/prf.png
-   :align: center
-   :figclass: align-center
-
-The only input is the **risk parameters** json file. The **risk parameters** file is a json file that contains the necessary inputs required by the REDi engine. Example **risk parameters** include impeding factors such as permit delay time. For a full list and an explanation of the required risk parameters, see the `Risk Parameters <https://sgavrilovicarup.github.io/REDi-docs/#risk-parameters>`_ section in the REDi documentation. 
-
-
 Analysis & Results
 ~~~~~~~~~~~~~~~~~~
 
-Once the performance assessment has been set up, click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. The **Summary** and **Data** tabs of the results panel are shown below. Since we are running the REDi recovery assessment in addition to the damage and loss, you will see the **REDi Recovery** section appear below the **DL** values. 
+Once the performance assessment has been set up in the **DL** panel, click on the **Run** button. When the analysis is complete the **RES** tab will be activated and the results will be displayed. The **Summary** and **Data** tabs of the results panel are shown below.
 
 .. figure:: figures/1_RES_summary.png
    :align: center
