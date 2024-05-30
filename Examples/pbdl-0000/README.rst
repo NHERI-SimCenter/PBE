@@ -18,6 +18,7 @@ For the moment frame and stick model, the columns of each story are provided a u
 
 .. figure:: figures/LA_3Story.png
    :align: center
+   :alt: "Technical architectural drawings and specifications for a 3-story building. Image includes three diagrams labeled as PLAN, ELEVATION, and MOMENT FRAMES. The Plan view shows a top-down layout with 6 bays at 30 feet by 4 bays at 30 feet, one section is shaded. The Elevation view details a side profile of a building with multiple floors and foundational supports. The Moment Frames diagram shows a grid with columns labeled A to E. Below the images, tables list structural components for the NS Moment Resisting Frame and NS Gravity Frames, specifying different sizes and types of columns, beams, and girder plates for various stories."
    :width: 400
    :figclass: align-center
 
