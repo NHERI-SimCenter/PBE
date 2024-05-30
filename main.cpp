@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.4.6");
+    QCoreApplication::setApplicationVersion("3.4.7");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
