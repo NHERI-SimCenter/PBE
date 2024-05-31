@@ -11,6 +11,7 @@ The demands and the performance model for this example are based on the example 
 
 .. figure:: figures/P58_background_doc.png
    :align: center
+   :alt: Cover page of a technical document titled "PACT Beta Test Example: Building B Reinforced Concrete Special Moment Frame Building." The top right corner has a sidebar titled "Background Document FEMA P-58/BD-3.7.15." The cover features two images showing books on seismic performance assessment of buildings, overlaid with the FEMA and ATC logos. The document is prepared by Curt Haselton and Travis Churpalo of California State University, Chico, and submitted to the Applied Technology Council and prepared for the Federal Emergency Management Agency. The address of FEMA in Washington, D.C. is provided at the bottom.
    :width: 400
    :figclass: align-center
 
@@ -24,6 +25,7 @@ The first tab in the **DL** panel defines the asset model. The asset model assig
 
 .. figure:: figures/asset_model.png
    :align: center
+   :alt: Screenshot of a software interface titled "Damage and Loss Assessment" from the Pelicun application. On the left, a vertical navigation bar with menu options: UQ, GI, SIM, EVT, FEM, RV, DL, and RES with 'DL' highlighted. The main area of the interface includes tabs for Asset, Demands, Damage, and Losses, with "General Information" including fields for "Number of Stories" and "Plan Area" as well as a drop-down for "Occupancy Type". Below is a "Component Assignment" section with Load and Save buttons, lists for available and assigned components, and buttons to add or remove these components. In the bottom pane, there's a detailed entry for a wall partition component, including type, quantity, blocks, and additional specifications.
    :figclass: align-center
 
 The asset model can consider uncertainties in the types of components assigned and in their quantities. This example does not introduce those uncertainties for the sake of simplicity. Consequently, for this example, the component types and their quantities are identical in all realizations.
@@ -32,6 +34,7 @@ Pelicun provides a convenience method for defining the asset model. We can prepa
 
 .. figure:: figures/component_table.png
    :align: center
+   :alt: A screenshot of an Excel spreadsheet filled with various data related to construction or engineering. The spreadsheet contains columns labeled ID, Units, Location, Direction, Theta_0, Blocks, Family, Theta_1, and Comment, with corresponding entries in rows beneath. The data includes references to architectural components, measurements, and types of installations like HVAC, piping, and fire sprinkler systems. The spreadsheet layout is standard with grid lines separating the cells, and some column headers are highlighted in gray.
    :figclass: align-center
 
 The tabular information in the csv file follows the information provided at the bottom of the Asset Model panel where the selected component is assigned to various locations and directions in the building.
@@ -45,12 +48,14 @@ The first tab defines the demand model.Under ``Data Source`` we specified that t
 
 .. figure:: figures/demand_model.png
    :align: center
+   :alt: Screenshot of a software interface titled "Damage and Loss Assessment" from a tool called "Pelican". The interface includes several panels with options for inputting data and configuring analysis parameters. The left panel has a vertical navigation bar with the selected option "DL". The main window is split into tabs labeled "Asset", "Demands", "Damage", and "Losses". The "Demands" tab is active, displaying sections for "Data Source", where a file can be chosen, "Stochastic Model" with drop-down options for distribution type, and configurable truncation and collapse limits. On the right, there is a "Sample" section for setting sample size and raw data usage, as well as "Residual Drifts" where drift ratios for two different directions can be inputted, referencing FEMA P-58 for inference. The design is clean with a color scheme of blues, grays, and white.
    :figclass: align-center
 
 Demand distribution data was extracted from the FEMA P-58 background documentation referenced in the Introduction. The nonlinear analysis results from Figures 1-14 – 1-21 provide the 10th percentile, median, and 90th percentile of EDPs in two directions on each floor at each intensity level. We used that information to fit a lognormal distribution and sample 50 realizations of EDPs that follow the data provided for stripe #4 in the original example. The EDP data is stored in the ``demands_s4.csv`` file:
 
 .. figure:: figures/demand_data.png
    :align: center
+   :alt: An Excel spreadsheet filled with numerical data across columns labeled from A to K and rows numbered from 1 to 23. Each cell contains a decimal value, with data organized in a systematic, tabular format. This appears to be some sort of dataset, possibly related to scientific or statistical research.
    :figclass: align-center
 
 The header of the table uses the standard SimCenter demand naming convention to identify the type, location, and direction of each EDP. Each row corresponds to one realization - such data typically would come from dynamic analysis.
@@ -66,6 +71,7 @@ We use the Damage Model tab to extend the above dataset with two Global Vulnerab
 
 .. figure:: figures/damage_model.png
    :align: center
+   :alt: Screenshot of a software interface for Damage and Loss Assessment with various tabs and parameters. The main section is titled "Pelican" with tabs for Asset, Demands, Damage, and Losses. Subsections titled "Global Vulnerabilities" list parameters such as 'Irreparable Damage' with median and log standard deviation sliders, and 'Collapse' with inputs for Demand, Capacity, Distribution, and Theta 1. "Damage Process" shows an approach dropdown menu with selection "FEMA P-58". On the left side, there's a vertical menu with options UQ, GI, SIM, EVT, FEM, RV, DL (highlighted), and RES.
    :figclass: align-center
 
 
@@ -83,6 +89,7 @@ Consequence modeling is decoupled from damage modeling in Pelicun. The Loss Mode
 
 .. figure:: figures/loss_model.png
    :align: center
+   :alt: Screenshot of a damage and loss assessment interface titled "Pelican" with various input sections for an asset's demands, damage, and losses. It includes fields for global consequences cost and time with editable parameters such as unit, median, distribution, and θ. The cost is set to "USD_2011" with a median value of "12500000" and a normal distribution, whereas the time is measured in "worker_day" with a median value of "15000" and a lognormal distribution. There are checkboxes for replacement, an export database button that says "Export DB," and dropdown menus for selecting consequence data and mapping approach. The sidebar contains vertical tabs labeled UQ, GI, SIM, EVT, FEM, RV, DL, and RES, with the DL tab highlighted.
    :figclass: align-center
 
 We use this panel to add a replacement consequence to the FEMA P-58 dataset. This defines a replacement cost and time and the automatic mapping links these consequences with the collapse and irreparable damage events. Note that the replacement consequences are defined using random variables in this example to capture the uncertainty in those numbers. The deterministic replacement values that FEMA P-58 uses can be reproduced in PBE by choosing N/A for the Distribution of Cost and Time.
@@ -95,11 +102,13 @@ Once the performance assessment has been set up in the **DL** panel, click on th
 
 .. figure:: figures/1_RES_summary.png
    :align: center
+   :alt: Screenshot of a data summary table with columns for Decision Variable, Probability, Mean, Standard Dev., and Log Standard Dev. Listed decision variables are 'repair cost,' 'repair time - parallel,' 'repair time - sequential,' 'collapsed?,' and 'irreparable?' with numerical values provided for mean and standard deviations for cost and repair times, and probability values for 'collapsed?' and 'irreparable?' options.
    :figclass: align-center
 
 
 .. figure:: figures/1_RES_data.png
    :align: center
+   :alt: A screenshot of a computer interface displaying a bar chart and a data table. The bar chart is labeled "Frequency %" on the y-axis and "repair cost" on the x-axis, with figures ranging from approximately 3.07 million to 22.26 million. Bars of various heights represent different frequencies, with the first and fourth bars being the tallest. Below the chart, there's a table with columns named "repair cost," "pair time - paral," "air time - sequer," "collapsed?" and "irreparable?" Rows with numeric data correspond to these columns. The interface includes tabs labeled "Summary" and "Data Values," with the "Data Values" tab currently selected.
    :figclass: align-center
 
 In the **Data** tab of the **RES** panel, we are presented with both a graphical plot and a tabular listing of the data. By left- and right-clicking on the individual columns the plot axis changes (left mouse click controls vertical axis, right mouse click the horizontal axis). If a singular column of the tabular data is selected with both right and left mouse buttons, a frequency and CDF plot will be displayed.
