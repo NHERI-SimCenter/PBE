@@ -7,7 +7,7 @@ This study explores a simple uncertainty propagation problem in the following th
 
 .. figure:: figures/model3.png
    :align: center
-   :alt: A diagram showing a simplified representation of a structure with three rigid beams connected by what appear to be pivots or joints, indicated by circles, aligned vertically. The uppermost joint is labeled "w/2," and the lower two are each labeled "w," suggesting a distribution of forces or weights. The base of the structure is attached to a surface indicated by shaded diagonal lines, which may represent it being fixed or anchored. The words "Rigid beams" are noted to the right side of the structure, emphasizing its construction. The background is solid black, and the diagram is depicted in white lines and text for contrast.
+   :alt: A diagram depicting a three storyone bay  structure with three horizontally aligned rigid beams. The first and second floors have a mass labeled "w". At the top floor, the mass is labeled "w/2". The columns at the based end by a symbol indicating a fixed support.
    :width: 400
    :figclass: align-center
 
