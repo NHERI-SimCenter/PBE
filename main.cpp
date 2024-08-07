@@ -7,17 +7,17 @@
 #include <QFile>
 #include <QThread>
 #include <QObject>
-
-#include <AgaveCurl.h>
-#include <WorkflowAppPBE.h>
-
 #include <QTime>
 #include <QTextStream>
-#include <GoogleAnalytics.h>
 #include <QDir>
 #include <QStandardPaths>
 #include <QProcessEnvironment>
 #include <QWebEngineView>
+
+#include <WorkflowAppPBE.h>
+#include <TapisV3.h>
+#include <GoogleAnalytics.h>
+
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -111,15 +111,17 @@ int main(int argc, char *argv[])
   //
 
   QString tenant("designsafe");
-  QString storage("agave://designsafe.storage.default/");
+  //QString storage("agave://designsafe.storage.default/");
+  QString storage("designsafe.storage.default/");  
   QString dirName("PBE");
 
-  AgaveCurl *theRemoteService = new AgaveCurl(tenant, storage, &dirName);
-
+  //AgaveCurl *theRemoteService = new AgaveCurl(tenant, storage, &dirName);
+  TapisV3 *theRemoteService = new TapisV3(tenant, storage, &dirName);  
 
   //
   // create the main window
   //
+  
   //WorkflowAppWidget *theInputApp = new WorkflowAppPBE(theRemoteService);
   WorkflowAppWidget *theInputApp = WorkflowAppPBE::getInstance(theRemoteService);
   MainWindowWorkflowApp mainWindow(
