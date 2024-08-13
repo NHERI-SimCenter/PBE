@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.5.0");
+    QCoreApplication::setApplicationVersion("4.0.0");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -144,7 +144,8 @@ int main(int argc, char *argv[])
   QString manualURL("https://nheri-simcenter.github.io/PBE-Documentation/");
   mainWindow.setDocumentationURL(manualURL);
 
-  QString messageBoardURL("https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0");
+  //QString messageBoardURL("https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0");
+  QString messageBoardURL("https://github.com/orgs/NHERI-SimCenter/discussions/categories/pbe");  
   mainWindow.setFeedbackURL(messageBoardURL);
 
   //
