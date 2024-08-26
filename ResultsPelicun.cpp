@@ -441,7 +441,7 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
-    QStringList argsCSV{createResponseCSV,"--input_file",inputFileName};
+    QStringList argsCSV{createResponseCSV,"--inputFile",inputFileName};
     proc->execute(python, argsCSV);    
     QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
     proc->execute(python, args);
