@@ -195,7 +195,8 @@ int main(int argc, char *argv[])
   }
 
   //Setting Google Analytics Tracking Information
-  /* **************************************************************
+#ifdef _SC_RELEASE
+
   GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
   GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
   GoogleAnalytics::CreateSessionId();
@@ -208,7 +209,8 @@ int main(int argc, char *argv[])
   view.resize(1024, 750);
   view.show();
   view.hide();
-  ******************************************************************* */
+
+#endif
 
 
   //
