@@ -43,7 +43,7 @@ win32{
       QMAKE_INFO_PLIST=$$PWD/Info.plist
       LIBS += $$PWD/../quazip/build/quazip/libquazip1-qt5.1.4.dylib
     } else {
-      LIBS += -L$$PWD/../quazip/build/quazip -lquazip1-qt5 -lc
+      LIBS += -L/simcenter/quazip/build/quazip -lquazip1-qt5 -Wl,-rpath/simcenter/quazip/build/quazip -lc
     }
 }
 
