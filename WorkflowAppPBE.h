@@ -86,6 +86,7 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
+    void setMainWindow(MainWindowWorkflowApp* window);
 
     //void setMainWindow(MainWindow* window);
     void onRunButtonClicked();

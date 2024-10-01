@@ -235,6 +235,96 @@ WorkflowAppPBE::~WorkflowAppPBE()
    //QWidget *newUQ = new QWidget();
    //theComponentSelection->swapComponent("RV",newUQ);
 }
+void
+WorkflowAppPBE::setMainWindow(MainWindowWorkflowApp* window) {
+
+  this->WorkflowAppWidget::setMainWindow(window);
+
+  //
+  // Add a Tool option to menu bar & add options to it
+  //
+  
+  auto menuBar = theMainWindow->menuBar();
+  
+  QMenu *toolsMenu = new QMenu(tr("&Tools"),menuBar);
+  SC_ToolDialog *theToolDialog = new SC_ToolDialog(this);
+
+  //
+  // Add Some Tools
+  //
+
+  // peer ground motion selection
+  PEER_NGA_Records *peerNGA = new PEER_NGA_Records(theGI);
+  theToolDialog->addTool(peerNGA, "PEER Ground Motion Records");
+  QAction *showPEER = toolsMenu->addAction("&PEER Ground Motion Records");
+  connect(showPEER, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = peerNGA] {
+    theDialog->showTool("PEER Ground Motion Records");
+  });
+  
+  // shaker maker
+  ShakerMaker *theShakerMaker = new ShakerMaker();
+  theToolDialog->addTool(theShakerMaker, "ShakerMaker");
+  QAction *showShakerMaker = toolsMenu->addAction("&ShakerMaker");
+  connect(showShakerMaker, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theShakerMaker] {
+    theDialog->showTool("ShakerMaker");
+  });
+
+    // DRM Model
+    DRM_Model *theDRM_Model = new DRM_Model();
+    theToolDialog->addTool(theDRM_Model, "Domain Reduction Method Analysis");
+    QAction *showDRM_Model = toolsMenu->addAction("&Domain Reduction Method Analysis");
+    connect(showDRM_Model, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theDRM_Model] {
+        theDialog->showTool("Domain Reduction Method Analysis");
+    });
+
+
+  // opensees@designsafe  
+  RemoteOpenSeesApp *theOpenSeesApp = new RemoteOpenSeesApp();
+
+  QString testAppName = "simcenter-opensees-frontera";
+  QString testAppVersion = "1.0.0";
+  TapisMachine *theMachine = new Stampede3Machine();
+  SC_RemoteAppTool *theOpenSeesTool = new SC_RemoteAppTool(testAppName,
+							   testAppVersion,
+							   theMachine,
+							   theRemoteService,
+							   theOpenSeesApp,
+							   theToolDialog);
+  QStringList filesToDownload; filesToDownload << "results.zip";
+  theOpenSeesTool->setFilesToDownload(filesToDownload, false);
+  
+				 
+  
+  theToolDialog->addTool(theOpenSeesTool, "OpenSees@DesignSafe");
+  QAction *showOpenSees = toolsMenu->addAction("&OpenSees@DesignSafe");
+  connect(showOpenSees, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theOpenSeesApp] {
+    theDialog->showTool("OpenSees@DesignSafe");
+  });
+  
+  
+  //
+  // Add Tools to menu bar
+  //
+  
+  QAction* menuAfter = nullptr;
+  foreach (QAction *action, menuBar->actions())
+  {
+    // First check for an examples menu and if that does not exist put it before the help menu
+    QString actionText = action->text();
+    if(actionText.compare("&Examples") == 0)
+    {
+        menuAfter = action;
+        break;
+    }
+    else if(actionText.compare("&Help") == 0)
+      {
+        menuAfter = action;
+        break;
+    }
+  }
+  menuBar->insertMenu(menuAfter, toolsMenu);
+  //menuBar->addMenu(toolsMenu);
+}
 
 bool
 WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
@@ -550,14 +640,20 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     QDir destinationDirectory(tmpDirectory);
 
     if(destinationDirectory.exists()) {
-      destinationDirectory.removeRecursively();
-    } else
-      destinationDirectory.mkpath(tmpDirectory);
+      if (SCUtils::isSafeToRemoveRecursivily(tmpDirectory))
+	destinationDirectory.removeRecursively();
+      else {
+	QString msg("The Program stopped, it was about to recursivily remove: ");
+	msg += tmpDirectory;
+	fatalMessage(msg);
+	return;	
+      }      
+    } 
+
+    destinationDirectory.mkpath(tmpDirectory);
 
     QString templateDirectory  = destinationDirectory.absoluteFilePath(subDir);
     destinationDirectory.mkpath(templateDirectory);
-
-    qDebug() << "templateDir: " << templateDirectory;
 
     theSIM_Selection->copyFiles(templateDirectory);
     theEventSelection->copyFiles(templateDirectory);
