@@ -39,6 +39,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "WorkflowAppPBE.h"
 #include "MainWindowWorkflowApp.h"
 #include "Utils/RelativePathResolver.h"
+#include <Stampede3Machine.h>
+#include <SC_ToolDialog.h>
+#include <SC_RemoteAppTool.h>
+#include <RemoteOpenSeesApp.h>
+#include <QList>
+#include <ShakerMaker.h>
+#include <DRM_Model.h>
+#include <peerNGA/PEER_NGA_Records.h>
+
 
 // Qt Widgets
 #include <QPushButton>
@@ -60,8 +69,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHostInfo>
 #include <QSettings>
 #include <StandardEarthquakeEDP.h>
+#include <QMenu>
+#include <QMenuBar>
+#include <QAction>
+
 
 // SimCenter Widgets
+#include <Utils/FileOperations.h>
 #include <SimCenterComponentSelection.h>
 #include <EarthquakeEventSelection.h>
 #include <RunLocalWidget.h>
