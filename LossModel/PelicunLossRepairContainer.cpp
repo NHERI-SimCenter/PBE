@@ -54,6 +54,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SectionTitle.h>
 #include <QStringListModel>
 
+#include <RunPythonInThread.h>
+
 #include "SimCenterPreferences.h"
 #include "PelicunLossRepairContainer.h"
 
@@ -736,6 +738,8 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 
     bool cmpDataChanged = false;
 
+    QString databasePath = this->getDefaultDatabasePath();
+
     // check the component consequence database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
@@ -743,18 +747,18 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 
     if (databaseConseq->currentText() == "FEMA P-58") {
 
-        cmpConsequenceDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_FEMA_P58_2nd.csv";
+        cmpConsequenceDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/loss_repair_DB_FEMA_P58_2nd.csv";
 
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Buildings") {
 
-        cmpConsequenceDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_bldg.csv";
+        cmpConsequenceDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_bldg.csv";
 
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Transportation") {
 
-        cmpConsequenceDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_trnsp.csv";
+        cmpConsequenceDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_trnsp.csv";
 
     } else {
 
@@ -776,9 +780,13 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 
             // load the visualization path too 
             // (assume that we have a zip file for every bundled DB)
+            cmpConsequenceDB_viz = generateConsequenceInfo(cmpConsequenceDB);
+            
+            /*
             cmpConsequenceDB_viz = cmpConsequenceDB;
             cmpConsequenceDB_viz.chop(4);
             cmpConsequenceDB_viz = cmpConsequenceDB_viz + QString(".zip");
+            */
 
         } else {
             this->statusMessage("Removing built-in component consequence data from the list.");
@@ -817,6 +825,32 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 }
 
 QString
+PelicunLossRepairContainer::getDefaultDatabasePath()
+{
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    QString python = preferences->getPython();
+    QString workDir = preferences->getLocalWorkDir();
+    QString appDir = preferences->getAppDir();
+
+    QProcess proc;
+    QStringList params;
+
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+
+    proc.start(python, params);
+    proc.waitForFinished(-1);
+
+    QByteArray stdOut = proc.readAllStandardOutput();
+
+    //this->statusMessage(stdOut);
+    this->errorMessage(proc.readAllStandardError());
+
+    QString databasePath(stdOut);
+
+    return databasePath.trimmed();
+}
+
+QString
 PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
 {
 
@@ -825,22 +859,36 @@ PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString output_path = workDir + "/resources/consequence_viz/";
+    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+    comp_DB_name.chop(4);
 
-    this->statusMessage(python);
-    this->statusMessage(workDir);
-    this->statusMessage(output_path);
+    QString output_path = workDir + "/resources/consequence_viz/" + comp_DB_name + "/";
 
-    QProcess proc;
-    QStringList params;
+    //this->statusMessage(python);
+    //this->statusMessage(workDir);
+    //this->statusMessage(output_path);
 
-    params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "repair" << comp_DB_path << "--output_path" << output_path;
+    QString vizScript = appDir + QDir::separator() + "applications" + QDir::separator()
+    + "performDL" + QDir::separator() + "pelicun3" + QDir::separator() + "DL_visuals.py";
 
-    proc.start(python, params);
-    proc.waitForFinished(-1);
+    QStringList args; 
+    args << QString("repair") << QString(comp_DB_path)
+         << QString("--output_path") << QString(output_path);
 
-    this->statusMessage(proc.readAllStandardOutput());
-    this->errorMessage(proc.readAllStandardError());
+    RunPythonInThread *vizThread = new RunPythonInThread(vizScript, args, workDir);
+    //connect(vizThread, &RunPythonInThread::processFinished, this, &PelicunLossRepairContainer::vizFilesCreated);
+    vizThread->runProcess();
+
+    //QProcess proc;
+    //QStringList params;
+
+    //params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "repair" << comp_DB_path << "--output_path" << output_path;
+
+    //proc.start(python, params);
+    //proc.waitForFinished(-1);
+
+    //this->statusMessage(proc.readAllStandardOutput());
+    //this->errorMessage(proc.readAllStandardError());
 
     return output_path;
 }
@@ -1007,8 +1055,9 @@ PelicunLossRepairContainer::updateAvailableComponents(){
                 csvFile.close();
 
             } else {
-                this->errorMessage("Cannot open CSV file.");
-                return 1;
+	      QString errMsg(QString("Cannot open CSV file: ") + componentDataBase + QString(".csv"));
+	      this->errorMessage(errMsg);		
+	      return 1;
             }
 
             //this->statusMessage("Successfully parsed CSV file.");
@@ -1441,7 +1490,7 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
         lossData["MapFilePath"] = mapPath->text();
     }
 
-    outputObject["BldgRepair"] = lossData;
+    outputObject["Repair"] = lossData;
 
     return 0;
 }
@@ -1491,8 +1540,15 @@ bool PelicunLossRepairContainer::inputFromJSON(QJsonObject & inputObject) {
     // initialize the panel
     this->initPanel();
 
-    if (inputObject.contains("BldgRepair")) {
-        QJsonObject lossData = inputObject["BldgRepair"].toObject();
+    if (inputObject.contains("BldgRepair") || inputObject.contains("Repair")) {
+
+        QJsonObject lossData;
+        if (inputObject.contains("BldgRepair")) {
+            // for the sake of backwards compatibility
+            lossData = inputObject["BldgRepair"].toObject();
+        } else {
+            lossData = inputObject["Repair"].toObject();
+        }
 
         if (lossData.contains("ConsequenceDatabase")) {
 

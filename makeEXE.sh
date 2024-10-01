@@ -6,6 +6,7 @@
 
 mkdir -p build
 cd build
+rm -fr *.app *dmg
 
 #
 # conan install

@@ -39,18 +39,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, adamzs
 
-#include <SimCenterAppWidget.h>
-#include "LossMethod.h"
-#include "PelicunLossModel.h"
-#include <QGroupBox>
+#include <SimCenterAppSelection.h>
 
-class QComboBox;
-class QStackedWidget;
-class QVBoxLayout;
+class PelicunLossModel;
 
-class RandomVariablesContainer;
-
-class LossModelSelection : public SimCenterAppWidget
+class LossModelSelection : public SimCenterAppSelection
 {
     Q_OBJECT
 public:
@@ -59,32 +52,15 @@ public:
 
     ~LossModelSelection();
 
-    QString getFragilityFolder();
-    QString getPopulationFile();
-
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject, QJsonObject &lossModelObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &destDir);
+  //QString getFragilityFolder();
+  //QString getPopulationFile();
 
 public slots:
-    void clear(void);
-    void dlSelectionChanged(const QString &arg1);
 
 signals:
-    void dlWidgetChanged(void);
 
 private:
-    QStackedWidget *theStackedWidget;
-    QComboBox   *dlSelection;
-
-    RandomVariablesContainer *theRandVariableIW;
-
-    LossMethod *theCurrentMethod;
     PelicunLossModel *thePelicunWidget;
-
-    bool selectionChangeOK;
 };
 
 #endif // LOSS_MODEL_SELECTION_H

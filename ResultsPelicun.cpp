@@ -388,32 +388,42 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
                                        QString &runDirName,
                                        QString &appDirName){
 
-    // create the workdir and copy the two result files there
+    //
+    // create workdir & copy dakotaTab.out & scInput there
+    //
+    
     if (!QDir(runDirName).exists()) {
         QDir().mkdir(runDirName);
     }
+    
     QDir runDir(runDirName);
     QDir resultsDir(resultsDirName);
+    QDir downloadDir(resultsDirName); downloadDir.cdUp(); // templateDir.cd("templatedir");
+
+    QString downloadedTemplateDir = downloadDir.absoluteFilePath("templatedir");
+    QString runTemplateDir = runDir.absoluteFilePath("templatedir");
+    QDir templateDir(runTemplateDir);
+    
+    runDir.rename(downloadedTemplateDir, runTemplateDir);
 
     QFile::copy(resultsDir.absoluteFilePath("dakotaTab.out"),
                 runDir.absoluteFilePath("dakotaTab.out"));
 
-    QString tmpDirName = runDir.absoluteFilePath("templatedir");
-    if (!QDir(tmpDirName).exists()) {
-        QDir().mkdir(tmpDirName);
-    }
-    QDir tmpDir(tmpDirName);
+    QDir tmpDir(runTemplateDir);
+    QFile::copy(templateDir.absoluteFilePath("scInput.json"),
+                runDir.absoluteFilePath("scInput.json"));
 
-    QFile::copy(resultsDir.absoluteFilePath("dakota.json"),
-                tmpDir.absoluteFilePath("dakota.json"));
-
+    //
     // run the loss assessment
+    //
+    
     QDir scriptDir(appDirName);
     scriptDir.cd("applications");
     scriptDir.cd("Workflow");
     QString pySCRIPT = scriptDir.absoluteFilePath("sWHALE.py");
+    QString createResponseCSV = scriptDir.absoluteFilePath("createResponseCSV.py");    
     QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
-    QString inputFileName = tmpDir.absoluteFilePath("dakota.json");
+    QString inputFileName = runDir.absoluteFilePath("scInput.json");    
 
     QProcess *proc = new QProcess();
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
@@ -431,15 +441,32 @@ int ResultsPelicun::runPelicunAfterHPC(QString &resultsDirName,
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
+    QStringList argsCSV{createResponseCSV,"--inputFile",inputFileName};
+    proc->execute(python, argsCSV);    
     QStringList args{pySCRIPT, "loss_only",inputFileName,registryFile};
     proc->execute(python, args);
 
 #else
+    
     // note the above not working under linux because basrc not being called so no env variables!!
-
-    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"") +
-        pySCRIPT + QString("\"loss_only\"") + inputFileName + QString(" ") +
-        registryFile;
+    QString sourceBash("");
+    QDir homeDir(QDir::homePath());    
+    if (homeDir.exists(".bash_profile")) {
+        sourceBash = QString("source $HOME/.bash_profile; \"");
+    } else if (homeDir.exists(".bashrc")) {
+        sourceBash = QString("source $HOME/.bashrc; \"");
+    } else if (homeDir.exists(".zprofile")) {
+        sourceBash = QString("source $HOME/.zprofile; \"");
+    } else if (homeDir.exists(".zshrc")) {
+        sourceBash = QString("source $HOME/.zshrc; \"");
+    } else
+        this->errorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
+    
+    QString command = sourceBash + python + QString("\" \"") +
+      createResponseCSV + QString("\" --inputFile \"") + inputFileName +
+      QString("\" > /Users/fmckenna/output.log 2>&1; \"") + python + QString("\" \"") +      
+      pySCRIPT + QString("\"  \"loss_only\" \"") + inputFileName + QString("\"  \"") +
+      registryFile + QString("\"");
 
     qDebug() << "PYTHON COMMAND: " << command;
     proc->execute("bash", QStringList() << "-c" <<  command);
@@ -465,14 +492,19 @@ int ResultsPelicun::processResults(QString &inputFileName,
   QJsonObject inputData = doc.object();
   inputFile.close();
 
-    // If the runType is HPC, then we need to do additional operations
-    QString runType = inputData["runType"].toString();
-    if (runType == "HPC"){
+  // If the runType is HPC, then we need to do additional operations
+  QString runType = inputData["runType"].toString();
+
+  qDebug() << "inputFile: " << inputFileName;
+  qDebug() << "resultsDIR: " << resultsDirName;
+  qDebug() << "runTYPE: " << runType;
+  
+    if (runType == "HPC" || runType == "runningRemote"){
 
         qDebug() << "Loaded response data from HPC, running performance assessment locally.";
 
         QString runDirName = inputData["runDir"].toString();
-        QString appDirName = inputData["localAppDir"].toString();
+        QString appDirName = SimCenterPreferences::getInstance()->getAppDir();
 
         this->runPelicunAfterHPC(resultsDirName, runDirName, appDirName);
 

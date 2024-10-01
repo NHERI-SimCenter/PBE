@@ -52,7 +52,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <SectionTitle.h>
 #include <QLineEdit>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QFileDialog>
 #include <QScrollArea>
@@ -67,6 +66,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSettings>
 #include <QSignalMapper>
 #include <QWebEngineView>
+#include <RunPythonInThread.h>
+
+#include <QScreen>
+#include <SC_TableEdit.h>
 
 PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -88,7 +91,6 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     additionalComponentDB = "";
     additionalComponentDB_viz = "";
 
-
     gridLayout = new QGridLayout();
 
     // general information ----------------------------------------------------
@@ -98,6 +100,25 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     QVBoxLayout *generalFormLayout = new QVBoxLayout(generalGroupBox);
     //QFormLayout *generalFormLayout = new QFormLayout();
 
+    /*
+    // adams table
+    QHBoxLayout *adamsTableLayout = new QHBoxLayout();
+    QStringList headings; headings << "Something" << "Else";
+    QStringList data; data << "Row1" << "1.0" << "Row2" << "2.0";
+    QStringList adamsStuff; adamsStuff << "Adams Table" << "Add Below Current" << "Delete Current";
+    adamsTable = new SC_TableEdit("adamsTable",headings, 2, data,&adamsStuff);
+    adamsTableLayout->addWidget(new QLabel("ADAMS TABLE"));
+    QPushButton *adamsTableButton = new QPushButton("PRESS TO SEE TABLE");
+    adamsTableLayout->addWidget(adamsTableButton);
+    connect(adamsTableButton, &QPushButton::clicked, this, [=](){
+              adamsTable->setWindowFlag(Qt::Window);
+              adamsTable->move(screen()->geometry().center() - frameGeometry().center());	      
+	      adamsTable->show();
+	    });
+    generalFormLayout->addLayout(adamsTableLayout);
+    */
+    
+    
     // stories
     QHBoxLayout *storyLayout = new QHBoxLayout();
 
@@ -895,6 +916,32 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
 }
 
 QString
+PelicunComponentContainer::getDefaultDatabasePath()
+{
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    QString python = preferences->getPython();
+    QString workDir = preferences->getLocalWorkDir();
+    QString appDir = preferences->getAppDir();
+
+    QProcess proc;
+    QStringList params;
+
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+
+    proc.start(python, params);
+    proc.waitForFinished(-1);
+
+    QByteArray stdOut = proc.readAllStandardOutput();
+
+    //this->statusMessage(stdOut);
+    this->errorMessage(proc.readAllStandardError());
+
+    QString databasePath(stdOut);
+
+    return databasePath.trimmed();
+}
+
+QString
 PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
@@ -902,22 +949,36 @@ PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString output_path = workDir + "/resources/fragility_viz/";
+    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+    comp_DB_name.chop(4);
+
+    QString output_path = workDir + "/resources/fragility_viz/" + comp_DB_name + "/";
 
     //this->statusMessage(python);
     //this->statusMessage(workDir);
     //this->statusMessage(output_path);
 
-    QProcess proc;
-    QStringList params;
+    QString vizScript = appDir + QDir::separator() + "applications" + QDir::separator()
+    + "performDL" + QDir::separator() + "pelicun3" + QDir::separator() + "DL_visuals.py";
 
-    params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "fragility" << comp_DB_path << "--output_path" << output_path;
+    QStringList args; 
+    args << QString("fragility") << QString(comp_DB_path)
+         << QString("--output_path") << QString(output_path);
 
-    proc.start(python, params);
-    proc.waitForFinished(-1);
+    RunPythonInThread *vizThread = new RunPythonInThread(vizScript, args, workDir);
+    //connect(vizThread, &RunPythonInThread::processFinished, this, &PelicunComponentContainer::vizFilesCreated);
+    vizThread->runProcess();
 
-    this->statusMessage(proc.readAllStandardOutput());
-    this->errorMessage(proc.readAllStandardError());
+    //QProcess proc;
+    //QStringList params;
+
+    //params << appDir + "/applications/performDL/pelicun3/" + "DL_visuals.py" << "fragility" << comp_DB_path << "--output_path" << output_path;
+
+    //proc.start(python, params);
+    //proc.waitForFinished(-1);
+
+    //this->statusMessage(proc.readAllStandardOutput());
+    //this->errorMessage(proc.readAllStandardError());
 
     return output_path;
 }
@@ -1326,8 +1387,9 @@ int PelicunComponentContainer::updateAvailableComponents(){
                 csvFile.close();
 
             } else {
-                this->errorMessage("Cannot open CSV file.");
-                return 1;
+	      QString errMsg(QString("Cannot open CSV file: ") + componentDataBase);
+	      this->errorMessage(errMsg);
+	      return 1;
             }
 
             //this->statusMessage("Successfully parsed CSV file.");
@@ -1349,25 +1411,24 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     bool cmpDataChanged = false;
 
+    QString databasePath = this->getDefaultDatabasePath();
+
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     QString cmpVulnerabilityDB_tmp;
 
     if (databaseCombo->currentText() == "FEMA P-58") {
-
-        cmpVulnerabilityDB_tmp = appDir +
-        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_FEMA_P58_2nd.csv";
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
+        cmpVulnerabilityDB_tmp = databasePath +        
+        "/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
-        cmpVulnerabilityDB_tmp = appDir +
-        //"/applications/performDL/pelicun3/pelicun/resources/fragility_DB_Hazus_EQ.csv";
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
+        cmpVulnerabilityDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
-        cmpVulnerabilityDB_tmp = appDir +
-        "/applications/performDL/pelicun3/pelicun/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
+        cmpVulnerabilityDB_tmp = databasePath +
+        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
 
     } else {
 
@@ -1387,10 +1448,14 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
                                 QString(databaseCombo->currentText()) +
                                 " data from "+ cmpVulnerabilityDB);
 
+            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB);
+
             // load the visualization path too (assume that we have a zip file for every bundled DB)
+            /*
             cmpVulnerabilityDB_viz = cmpVulnerabilityDB;
             cmpVulnerabilityDB_viz.chop(4);
             cmpVulnerabilityDB_viz = cmpVulnerabilityDB_viz + QString(".zip");
+            */
 
         } else {
             this->statusMessage("Removing built-in component data from the list.");

@@ -129,6 +129,7 @@ private:
 
     void deleteCompDB();
     void initPanel();
+    QString getDefaultDatabasePath();
     QString generateConsequenceInfo(QString comp_DB_path);
 
     QWidget * replacementSettings;

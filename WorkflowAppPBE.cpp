@@ -201,7 +201,7 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     theComponentSelection->addComponent(QString("FEM"), theAnalysisSelection);
     theComponentSelection->addComponent(QString("RV"),  theRVs);
     theComponentSelection->addComponent(QString("DL"),  theDLModelSelection);
-    theComponentSelection->addComponent(QString("PRF"),  thePrfMethodSelection);
+    theComponentSelection->addComponent(QString("PRF"), thePrfMethodSelection);
     theComponentSelection->addComponent(QString("RES"), theResults);
 
     theComponentSelection->displayComponent("DL");
@@ -326,42 +326,25 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
         return result;
     }
     
-    QJsonObject jsonLossModel;
-    if (theDLModelSelection->outputToJSON(jsonLossModel) == false) {
+    if (theDLModelSelection->outputToJSON(jsonObjectTop) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed";
       return false;
     }
-    
-    jsonObjectTop["DL"] = jsonLossModel;
 
-    QJsonObject appPrf;
-    if (thePrfMethodSelection->outputToJSON(appPrf) == false) {
+    if (theDLModelSelection->outputAppDataToJSON(apps) == false) {
+      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
+      return false;
+    }
+
+    if (thePrfMethodSelection->outputToJSON(jsonObjectTop) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - PRF_Selection failed";
       return false;
     }
 
-
-    QJsonObject dataPrf;
-    result = thePrfMethodSelection->outputAppDataToJSON(dataPrf);
-    if (result == false) {
+    if (thePrfMethodSelection->outputAppDataToJSON(apps) == false) {
       qDebug() << "WorkflowAppPBE::outputToJSON - Prf Method Selection failed appData";
-      return result;
-    }
-
-    QJsonObject prfFinal = appPrf["Performance"].toObject();
-    jsonObjectTop["Performance"] = prfFinal;
-
-    prfFinal["ApplicationData"] = dataPrf["Performance"];
-    apps["Performance"] = prfFinal;
-
-
-    QJsonObject appsDL;
-    if (theDLModelSelection->outputAppDataToJSON(appsDL, jsonLossModel) == false) {
-      qDebug() << "WorkflowAppPBE::outputToJSON - DL_Selection failed appData";
       return false;
-    }
-    
-    apps["DL"] = appsDL;
+    } 
 
     jsonObjectTop["Applications"]=apps;
 
@@ -445,19 +428,20 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
             return false;
         }
 
-
         if (theUQ_Selection->inputAppDataFromJSON(theApplicationObject) == false)
             this->errorMessage("PBE: failed to read UQ application");
 
         if (theSIM_Selection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("EE_UQ: failed to read SIM application");
+            this->errorMessage("PBE: failed to read SIM application");
 	
         if (theAnalysisSelection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("EE_UQ: failed to read FEM application");
+            this->errorMessage("PBE: failed to read FEM application");
 
-        if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false)
-            this->errorMessage("PBE: failed to read PRF Method data");
+        if (thePrfMethodSelection->inputAppDataFromJSON(theApplicationObject) == false) 
+	  this->errorMessage("PBE: failed to read PRF application");
 
+        if (theDLModelSelection->inputAppDataFromJSON(theApplicationObject) == false) 
+	  this->errorMessage("PBE: failed to read DL application");	
 
     } else
         return false;
@@ -479,6 +463,12 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
     if (theAnalysisSelection->inputFromJSON(jsonObject) == false)
         this->errorMessage("PBE: failed to read FEM Method data");
 
+    if (thePrfMethodSelection->inputFromJSON(jsonObject) == false)
+      this->errorMessage("PBE: failed to read PRF Method data");
+
+    if (theDLModelSelection->inputFromJSON(jsonObject) == false)
+      this->errorMessage("PBE: failed to read PRF Method data");    
+    /*
     if (jsonObject.contains("DL")) {
         QJsonObject jsonObjLossModel = jsonObject["DL"].toObject();
         if (theDLModelSelection->inputFromJSON(jsonObjLossModel) == false)
@@ -487,6 +477,7 @@ WorkflowAppPBE::inputFromJSON(QJsonObject &jsonObject)
         this->errorMessage("WARNING: failed to find Damage and Loss Model");
         return false;
     }
+    */
     
     this->runComplete();
     
@@ -573,7 +564,6 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     theAnalysisSelection->copyFiles(templateDirectory);
     theUQ_Selection->copyFiles(templateDirectory);
 
-
     //
     // in new templatedir dir save the UI data into scInput.json file (same result as using saveAs)
     // NOTE: we append object workingDir to this which points to template dir
@@ -599,6 +589,14 @@ WorkflowAppPBE::setUpForApplicationRun(QString &workingDir, QString &subDir) {
     json["runDir"]=tmpDirectory;
     json["WorkflowType"]="Building Simulation";
 
+
+    QJsonObject citations;
+    QString citeFile = templateDirectory + QDir::separator() + tr("please_cite.json");    
+    // QString citeFile = destinationDirectory.filePath("plases_cite.json"); // file getting deleted
+    this->createCitation(citations, citeFile);
+    // json.insert("citations",citations);    
+
+    
     // if the EDPs are loaded from an external file, then there is no need
     // to run the whole simulation
     QJsonObject DL_app_data;    
@@ -671,4 +669,81 @@ WorkflowAppPBE::loadFile(QString &fileName){
 int
 WorkflowAppPBE::getMaxNumParallelTasks() {
     return theUQ_Selection->getNumParallelTasks();
+}
+
+int
+WorkflowAppPBE::createCitation(QJsonObject &citation, QString citeFile) {
+
+  //
+  // put PBE citation in
+  // 
+
+  QJsonObject citationPBE;
+  citationPBE.insert("citation",
+		     "Adam Zsarnoczay, Frank McKenna, Kuanshi Zhong, Michael Gardner, Charles Wang, Sang-ri Yi, Aakash Bangalore Satish, Amin Pakzad, & Wael Elhaddad. (2024). NHERI-SimCenter/EE-UQ: Version 4.0.0 (v4.0.0). Zenodo. https://doi.org/10.5281/zenodo.13324153");
+  citationPBE.insert("description",
+		     "This is the overall tool reference used to indicate the version of the tool.");
+
+  QJsonObject citationSimCenterMarker;
+  citationSimCenterMarker.insert("citation",
+"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, \
+Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matthew J. Schoettler, and Sanjay Govindjee (2020) \
+A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural \
+Hazards on the Built Environment. \
+Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
+  citationSimCenterMarker.insert("description",
+"This marker paper describes the SimCenter application framework, which was designed \
+to simulate the impacts of natural hazards on the built environment. It is a \
+necessary attribute for publishing work resulting from the use of SimCenter tools, \
+software, and datasets.");
+
+  QJsonArray citationsArray;
+  citationsArray.push_back(citationPBE);
+  citationsArray.push_back(citationSimCenterMarker);
+
+  QJsonObject unnecessaryCitationsElement;
+  unnecessaryCitationsElement.insert("citations", citationsArray);
+
+  citation.insert("PBE",unnecessaryCitationsElement);
+
+  /*
+  QString cit("{\"PBE\": { \"citations\": [{\"citation\": \"Adam Zsarnoczay, Frank McKenna, Charles Wang, Stevan Gavrilovic, Michael Gardner, Sang-ri Yi, Aakash Bangalore Satish, & Wael Elhaddad. (2024). NHERI-SimCenter/PBE: Version 3.4.0 (V3.4.0). Zenodo. https://doi.org/10.5281/zenodo.10902085\",\"description\": \"This is the overall tool reference used to indicate the version of the tool.\"},{\"citation\": \"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Mat J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706\",\"description\": \" This marker paper describes the SimCenter application framework, which was designed to simulate the impacts of natural hazards on the built environment.It  is a necessary attribute for publishing work resulting from the use of SimCenter tools, software, and datasets.\"}]}}");
+
+  QJsonDocument docC = QJsonDocument::fromJson(cit.toUtf8());
+
+  if(!docC.isNull()) {
+    if(docC.isObject()) {
+      citation = docC.object();        
+    }  else {
+      qDebug() << "WorkflowdAppEE_UQ citation text is not valid JSON: \n" << cit << endl;
+    }
+  }
+  */
+
+  theSIM_Selection->outputCitation(citation);
+  theEventSelection->outputCitation(citation);
+  theAnalysisSelection->outputCitation(citation);
+  theUQ_Selection->outputCitation(citation);
+  theDLModelSelection->outputCitation(citation);
+  thePrfMethodSelection->outputCitation(citation);
+
+  //
+  // write the citation to a file if name of one provided
+  //
+  
+  if (!citeFile.isEmpty()) {
+    
+    QFile file(citeFile);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+      errorMessage(QString("writeCitation - could not open file") + citeFile);
+      progressDialog->hideProgressBar();
+      return 0;
+    }
+
+    QJsonDocument doc(citation);
+    file.write(doc.toJson());
+    file.close();
+  }
+  
+  return 0;    
 }

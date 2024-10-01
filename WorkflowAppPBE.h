@@ -94,6 +94,8 @@ public:
     void onExitButtonClicked();
     int getMaxNumParallelTasks();
 
+    int createCitation(QJsonObject &citationToAddTo, QString citeFile);
+  
     QString outputFilePath;
     
 signals:

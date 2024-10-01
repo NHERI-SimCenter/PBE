@@ -54,6 +54,7 @@ public:
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputAppDataToJSON(QJsonObject &jsonObj);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    bool outputCitation(QJsonObject &jsonObject);
 
     void clear(void);
 

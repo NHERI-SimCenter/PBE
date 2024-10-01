@@ -112,8 +112,11 @@ bool REDiWidget::inputFromJSON(QJsonObject &jsonObject){
 
 bool REDiWidget::outputAppDataToJSON(QJsonObject &jsonObj){
 
+    jsonObj["Application"] = "REDi";
+    QJsonObject dataObj;
     auto riskParamPath = riskParamsLE->text().trimmed();
-    jsonObj["riskParametersPath"] = riskParamPath;
+    dataObj["riskParametersPath"] = riskParamPath;
+    jsonObj["ApplicationData"] = dataObj;
 
     return true;
 }
@@ -136,6 +139,33 @@ bool REDiWidget::inputAppDataFromJSON(QJsonObject &jsonObject){
     }
 
     return false;
+}
+
+bool
+REDiWidget::outputCitation(QJsonObject &jsonObject)
+{
+  QJsonObject citationREDi;
+  citationREDi.insert("citation",
+"ARUP, pyREDi version 0.1.0, \
+https://github.com/arup-group/REDi, 2023");
+  citationREDi.insert("description",
+"This reference indicates the version of the tool used for the simulation.");
+
+  QJsonObject citationREDiMarker;
+  citationREDiMarker.insert("citation",
+"Merrifield S. and Almufti I., \
+REDi Rating System: Downtime Assessment Methodology, ARUP, 2013");
+  citationREDiMarker.insert("description",
+"This document describes the REDi downtime assessment methodology. Please reference \
+it if your workflow in the SimCenter tools includes the REDi methodology.");
+
+  QJsonArray citationsArray;
+  citationsArray.push_back(citationREDi);
+  citationsArray.push_back(citationREDiMarker);
+
+  jsonObject.insert("citations", citationsArray);
+  
+  return true;
 }
 
 
