@@ -182,6 +182,10 @@ WorkflowAppPBE::WorkflowAppPBE(RemoteService *theService, QWidget *parent)
     
     connect(remoteApp,SIGNAL(successfullJobStart()), theRunWidget, SLOT(hide()));
 
+    // SY connect queryEVT and the reply
+    connect(theUQ_Selection, SIGNAL(queryEVT()), theEventSelection, SLOT(replyEventType()));
+    connect(theEventSelection, SIGNAL(typeEVT(QString)), theUQ_Selection, SLOT(setEventType(QString)));
+
     //
     // create layout, create component selction & add to layout & then add components to cmponentselection
     //
@@ -352,9 +356,15 @@ WorkflowAppPBE::outputToJSON(QJsonObject &jsonObjectTop) {
     if (result == false)
         return result;    
 
+
+    // sy - temporary solution..
     // built in EDP
     QJsonObject appsEDP;
-    appsEDP["Application"] = "StandardEarthquakeEDP";
+    if (theSIM_Selection->getCurrentSIM()=="SurrogateGPBuildingModel") {
+        appsEDP["Application"] = "SurrogateEDP";
+    } else {
+        appsEDP["Application"] = "StandardEarthquakeEDP";
+    }
     QJsonObject dataObj;
     appsEDP["ApplicationData"] = dataObj;
     apps["EDP"] = appsEDP;

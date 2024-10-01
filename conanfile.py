@@ -11,7 +11,7 @@ class PBE(ConanFile):
     generators = "qmake"
     requires = ["jansson/2.13.1",
                "libcurl/7.72.0",
-               "zlib/1.2.13",
+               "zlib/1.2.11",
                #'quazip/1.4',
                #"hdf5/1.12.0"
                ]

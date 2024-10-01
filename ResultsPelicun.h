@@ -50,7 +50,7 @@ class QTextEdit;
 class QVBoxLayout;
 class QTabWidget;
 class MyTableWidget;
-
+using namespace QtCharts;
 class ResultsPelicun : public SimCenterWidget
 {
     Q_OBJECT
