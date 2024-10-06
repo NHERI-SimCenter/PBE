@@ -1,21 +1,10 @@
-
-
 #
 # parse args
 #
 
 METHOD="new"
 
-while [[ "${1:0:1}" = "-" ]]; do
-    case $1 in
-	--old)
-	    METHOD="old"
-	    shift;;
-	--new)
-	    METHOD="new"
-	    shift;;	
-    esac
-done
+release=${1:-"NO_RELEASE"}
 
 #
 # Paramaters
@@ -29,15 +18,14 @@ QTDIR="/Users/fmckenna/Qt/5.15.2/clang_64/"
 
 pathToBackendApps="/Users/fmckenna/NHERI/SimCenterBackendApplications"
 pathToOpenSees="/Users/fmckenna/bin/OpenSees3.6.0"
-pathToDakota="/Users/fmckenna/dakota-6.12.0"
+pathToDakota="/Users/fmckenna/dakota/dakota-6.16.0"
 pathToQuaZip="/Users/fmckenna/NHERI/quazip/build/quazip"
-
 
 #
 # build it
 # 
 
-./makeEXE.sh
+./makeEXE.sh $version
 cd build
 
 #
@@ -49,13 +37,13 @@ if ! [ -x "$(command -v open $pathApp)" ]; then
 	exit 
 fi
 
-cp -fr $HOME/NHERI/s3hark/resources ./PBE.app/Contents/MacOS
+cp -fr $HOME/NHERI/QS3hark/resources ./PBE.app/Contents/MacOS
 
 #
 # macdeployqt it
 #
 
-macdeployqt ./PBE.app -qmldir=$HOME/NHERI/s3hark
+macdeployqt ./PBE.app -qmldir=$HOME/NHERI/QS3hark
 
 #
 # add missing files from macdeployqt (a known bug)
@@ -104,6 +92,18 @@ do
    echo "removing $app"
    rm -fr ./$APP_FILE/Contents/MacOS/applications/$app
 done
+
+
+#
+# remove redunadant files
+#
+
+find ./$APP_FILE -name __pycache__ -exec rm -rf {} +;
+find ./$APP_FILE -name *rst -exec rm -rf {} +;
+find ./$APP_FILE -name *png -exec rm -rf {} +;
+find ./$APP_FILE -name figures -exec rm -rf {} +;
+find ./$APP_FILE -name meta.yaml -exec rm -rf {} +;
+
 
 #
 # copy applications folder opensees, dakota and quazip
@@ -222,11 +222,10 @@ else
     
 fi
 
-echo "xcrun altool --notarize-app -u $appleID -p $appleAppPassword -f ./$DMG_FILENAME --primary-bundle-id altool --verbose"
+echo "xcrun notarytool submit ./$DMG_FILENAME --apple-id $appleID --team-id $appleCredential  --password $appleAppPAssword"
+echo "xcrun notarytool log ID --apple-id $appleID --team-id $appleCredential  --password $appleAppPAssword"
 echo ""
-echo "returns id: ID .. wait for email indicating success"
-echo "To check status"
-echo "xcrun altool --notarization-info ID  -u $appleID  -p $appleAppPassword"
+echo "NO MORE EMAILS .. have to check the log file"
 echo ""
 echo "Finally staple the dmg"
 echo "xcrun stapler staple \"$APP_NAME\" $DMG_FILENAME"

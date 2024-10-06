@@ -24,7 +24,14 @@ fi
 # qmake
 #
 
-qmake ../PBE.pro
+if [ -n "$release" ] && [ "$release" = "release" ]; then
+    echo "******** RELEASE BUILD *************"    
+    qmake QMAKE_CXXFLAGS+="-D_SC_RELEASE" ../PBE.pro
+else
+    echo "********* NON RELEASE BUILD ********"
+    qmake ../PBE.pro
+fi
+
 status=$?
 if [[ $status != 0 ]]
 then
@@ -36,7 +43,8 @@ fi
 # make
 #
 
-make
+touch ../WorkflowAppPBE.cpp
+make -j 4
 status=$?;
 if [[ $status != 0 ]]
 then
