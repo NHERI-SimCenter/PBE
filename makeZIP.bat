@@ -70,6 +70,14 @@ rmdir /s /q .\applications\createEVENT\windTunnelExperiment
 
 
 
+REM ## zip it up with 7zip
 
+set sevenzip_path="C:\Program Files\7-Zip\7z.exe"
+cd ..
+if exist .\PBE_Windows_Download.zip (
+    del .\PBE_Windows_Download.zip
+    echo File deleted.
+)
+%sevenzip_path% a -tzip .\PBE_Windows_Download.zip  .\PBE_Windows_Download
 
 
