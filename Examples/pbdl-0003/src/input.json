@@ -25,6 +25,12 @@
             "ApplicationData": {
             }
         },
+        "Performance": {
+            "Application": "REDi",
+            "ApplicationData": {
+                "riskParametersPath": "{Current_Dir}/risk_params.json"
+            }
+        },
         "Simulation": {
             "Application": "OpenSees-Simulation",
             "ApplicationData": {
@@ -33,12 +39,6 @@
         "UQ": {
             "Application": "Dakota-UQ",
             "ApplicationData": {
-            }
-        },
-        "Performance" : {
-            "Application": "REDi",
-            "ApplicationData": {
-                "riskParametersPath" : "{Current_Dir}/risk_params.json"
             }
         }
     },
@@ -86,7 +86,7 @@
             "SampleSize": "500"
         },
         "Losses": {
-            "BldgRepair": {
+            "Repair": {
                 "ConsequenceDatabase": "FEMA P-58",
                 "DecisionVariables": {
                     "Carbon": true,
@@ -141,7 +141,7 @@
                 "JSON": true
             },
             "Loss": {
-                "BldgRepair": {
+                "Repair": {
                     "AggregateSample": true,
                     "AggregateStatistics": true,
                     "GroupedSample": true,

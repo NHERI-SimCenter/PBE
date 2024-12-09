@@ -63,7 +63,7 @@
             "SampleSize": "500"
         },
         "Losses": {
-            "BldgRepair": {
+            "Repair": {
                 "ConsequenceDatabase": "Hazus Earthquake - Buildings",
                 "DecisionVariables": {
                     "Carbon": false,
@@ -94,7 +94,7 @@
                 "JSON": false
             },
             "Loss": {
-                "BldgRepair": {
+                "Repair": {
                     "AggregateSample": true,
                     "AggregateStatistics": true,
                     "GroupedSample": true,
