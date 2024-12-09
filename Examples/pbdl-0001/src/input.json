@@ -87,7 +87,7 @@
             "SampleSize": "5000"
         },
         "Losses": {
-            "BldgRepair": {
+            "Repair": {
                 "ConsequenceDatabase": "FEMA P-58",
                 "DecisionVariables": {
                     "Carbon": true,
@@ -142,7 +142,7 @@
                 "JSON": false
             },
             "Loss": {
-                "BldgRepair": {
+                "Repair": {
                     "AggregateSample": true,
                     "AggregateStatistics": true,
                     "GroupedSample": true,
