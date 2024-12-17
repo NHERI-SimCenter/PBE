@@ -15,7 +15,7 @@
                 "Application": "StochasticGroundMotion",
                 "ApplicationData": {
                     "modelName": "VlachosSiteSpecificEQ",
-                    "seed": 500
+                    "seed": "RV.StochasticSeed"
                 },
                 "EventClassification": "Earthquake"
             }
@@ -133,7 +133,7 @@
             "modelName": "Vlachos et al. (2018)",
             "momentMagnitude": 7,
             "ruptureDist": 40,
-            "seed": 500,
+            "seed": "RV.StochasticSeed",
             "type": "StochasticMotion",
             "vs30": "RV.vs"
         }
