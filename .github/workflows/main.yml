@@ -1,4 +1,4 @@
-name: Run quoFEM tests
+name: Run PBE tests
 
 on: push
   # workflow_dispatch:
@@ -9,7 +9,7 @@ jobs:
   setup_and_test:
     name: Setup and run tests
     runs-on: ubuntu-latest
-    environment: quoFEM
+    environment: PBE
 
     steps:
       - name: Checkout
