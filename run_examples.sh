@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin
+#export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin
 echo In folder $PWD
    
 # Clone the examples
