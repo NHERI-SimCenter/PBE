@@ -62,6 +62,5 @@ cmake --install .
 sudo mv ./lib/* /usr/local/lib 
 cd ../..
 
-
-echo 'export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin'
+export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin
 sudo sh ~/.profile
