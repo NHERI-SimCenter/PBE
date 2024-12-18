@@ -64,4 +64,4 @@ cd ../..
 
 
 echo 'export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin'
-source ~/.profile
+~/.profile
