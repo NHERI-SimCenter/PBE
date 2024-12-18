@@ -1,11 +1,7 @@
 #!/bin/bash
 
-echo 'export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin'
-sudo sh ~/.profile
-
-
 # Set Timezone (needed for python install)
-ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+sudo ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Updates the package lists for upgrades and new package installations
 apt-get update
@@ -68,4 +64,4 @@ cd ../..
 
 
 echo 'export PATH=$PATH:/usr/local/OpenSees/bin:/usr/local/Dakota/bin'
-~/.profile
+sudo sh ~/.profile
