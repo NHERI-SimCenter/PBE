@@ -44,7 +44,7 @@ mkdir build; cd build
 cmake .. 
 make -j 16
 cd ../.. 
-export PATH=/quoFEM/dakota-6.15.0/build/src:$PATH
+export PATH=/$PWD/dakota-6.15.0/build/src:$PATH
 alias python3=python3.9
 
 sudo apt-get install -y cmake liblapack-dev libomp-dev libssl-dev apt-transport-https ca-certificates wget         
