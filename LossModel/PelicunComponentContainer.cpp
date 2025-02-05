@@ -1138,6 +1138,11 @@ PelicunComponentContainer::showSelectedComponent(){
             infoString += ";\t INCOMPLETE DATA!";
         }
 
+        if (C_info->value("References") != "N/A"){
+            infoString += "\n";
+            infoString += C_info->value("References");
+        }
+
         compInfo->setText(infoString);
 
         this->clearCompGroupWidget();
@@ -1329,7 +1334,7 @@ int PelicunComponentContainer::updateAvailableComponents(){
                 QStringList header;
 
                 // open the JSON file to get the metadata
-                QJsonObject metaData;
+                QJsonObject metaData, referenceDict;
                 bool hasMeta = false;
                 if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
                     QString val = jsonFile.readAll();
@@ -1337,6 +1342,10 @@ int PelicunComponentContainer::updateAvailableComponents(){
                     metaData = doc.object();
                     jsonFile.close();
                     hasMeta = true;
+
+                    if (metaData.contains("References")) {
+                        referenceDict = metaData["References"].toObject();
+                    }
                 }
 
                 // start the CSV stream
@@ -1412,6 +1421,26 @@ int PelicunComponentContainer::updateAvailableComponents(){
                                 C_info -> insert("RoundToInt", roundToInt);
                             } else {
                                 C_info -> insert("RoundToInt", QString("N/A"));
+                            }
+
+                            // Reference
+                            if (compMetaData.contains("Reference")){
+                                QJsonArray compReferences = compMetaData["Reference"].toArray();
+
+                                QString referencesString = "\nReferences: \n\n";
+
+                                for (const QJsonValue &refValue : compReferences) {
+                                    QString refKey = refValue.toString();
+
+                                    if (referenceDict.contains(refKey)) {
+                                        referencesString += referenceDict[refKey].toString();
+                                        referencesString += "\n\n";
+                                    }                                        
+                                }
+
+                                C_info -> insert("References", referencesString);
+                            } else {
+                                C_info -> insert("References", QString("N/A"));
                             }
                         }
                     }
