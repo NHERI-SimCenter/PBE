@@ -321,15 +321,15 @@ bool PelicunOutputsContainer::outputToJSON(QJsonObject &outputObject) {
     repairData["AggregateSample"] = repairOutAggSample->isChecked();
     repairData["AggregateStatistics"] = repairOutAggStats->isChecked();
 
-    int no_repair = repairData["Sample"].toInt() + \
-                    repairData["Statistics"].toInt() + \
-                    repairData["GroupedSample"].toInt() + \
-                    repairData["GroupedStatistics"].toInt() + \
-                    repairData["AggregateSample"].toInt() + \
-                    repairData["AggregateStatistics"].toInt();
+    if ((repairData["Sample"] == false) && 
+        (repairData["Statistics"] == false) && 
+        (repairData["GroupedSample"] == false) && 
+        (repairData["GroupedStatistics"] == false) && 
+        (repairData["AggregateSample"] == false) &&
+        (repairData["AggregateStatistics"] == false)){
 
-    if (no_repair > 0){
-
+        // do nothing
+    } else {
         lossData["Repair"] = repairData;
 
         outputData["Loss"] = lossData;
