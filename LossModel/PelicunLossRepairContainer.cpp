@@ -1522,7 +1522,11 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
         lossData["MapFilePath"] = mapPath->text();
     }
 
-    outputObject["Repair"] = lossData;
+    if ((addComp->checkState() != 2) && (databaseConseq->currentText() == "None")){
+        // No loss calculation needed
+    } else {
+        outputObject["Repair"] = lossData;    
+    }
 
     return 0;
 }
