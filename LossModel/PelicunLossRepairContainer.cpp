@@ -936,7 +936,7 @@ PelicunLossRepairContainer::deleteCompDB(){
 int 
 PelicunLossRepairContainer::updateAvailableComponents(){
 
-    this->statusMessage("Updating list of available component consequences...");
+    this->statusMessage("Updating list of available component consequences. This might take a few minutes.");
 
     // initialize component combo
     selectedCompCombo->clear();

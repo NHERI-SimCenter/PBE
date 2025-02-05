@@ -1290,7 +1290,7 @@ PelicunComponentContainer::setPlanAreaUnit(QString unitName){
 
 int PelicunComponentContainer::updateAvailableComponents(){
 
-    this->statusMessage("Updating list of available components...");
+    this->statusMessage("Updating list of available components. This might take a few minutes.");
 
     availableCompCombo->clear();
 
