@@ -868,8 +868,31 @@ PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-    comp_DB_name.chop(4);
+    QString DLML_folder = "DamageAndLossModelLibrary";
+
+    int DLML_start = comp_DB_path.indexOf(DLML_folder);
+    
+    QString comp_DB_name;
+
+    // show an error message if the incoming path does not have DLML in it
+    if (DLML_start != -1) {
+
+        // Adjust the index to the beginning of the subfolders
+        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
+
+        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
+        comp_DB_name.chop(4); // to remove the .csv from the end
+        comp_DB_name = comp_DB_name.replace("/","_");
+        comp_DB_name = comp_DB_name.replace("\\","_");
+        comp_DB_name = comp_DB_name.replace(" ","_");
+
+    } else {
+
+        // If there is no DLML in the comp path, then assume that we are 
+        // dealing with a custom db file and use the filename as an ID
+        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+        comp_DB_name.chop(4);    
+    }
 
     QString output_path = workDir + "/resources/consequence_viz/" + comp_DB_name + "/";
 
