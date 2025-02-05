@@ -321,12 +321,22 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     databaseCombo->addItem("FEMA P-58",0);
     databaseCombo->addItem("Hazus Earthquake - Buildings",1);
     databaseCombo->addItem("Hazus Earthquake - Transportation",2);
-    databaseCombo->addItem("None",3);
+    databaseCombo->addItem("Hazus Earthquake - Potable Water",3);
+    databaseCombo->addItem("Hazus Earthquake - Electric Power",4);
+    databaseCombo->addItem("SimCenter Wind Component Library",5);
+    databaseCombo->addItem("Hazus Hurricane - Buildings - Coupled",6);
+    databaseCombo->addItem("Hazus Hurricane - Buildings - Original",7);
+    databaseCombo->addItem("None",8);
 
     databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseCombo->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
     databaseCombo->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
-    databaseCombo->setItemData(3, "None of the built-in databases will be used", Qt::ToolTipRole);
+    databaseCombo->setItemData(3, "Based on the Hazus MH Earthquake Technical Manual v6.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(4, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(5, "A collection of component-level wind damage models from the literature.", Qt::ToolTipRole);
+    databaseCombo->setItemData(6, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(7, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(8, "None of the built-in databases will be used", Qt::ToolTipRole);
 
     connect(databaseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentVulnerabilityDB()));
 
@@ -1412,6 +1422,7 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
     bool cmpDataChanged = false;
 
     QString databasePath = this->getDefaultDatabasePath();
+    databasePath += "/resources/DamageAndLossModelLibrary/";
 
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
@@ -1420,16 +1431,36 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     if (databaseCombo->currentText() == "FEMA P-58") {
         cmpVulnerabilityDB_tmp = databasePath +        
-        "/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
+        "seismic/building/component/FEMA P-58 2nd Edition/fragility.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
         cmpVulnerabilityDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
+        "seismic/building/portfolio/Hazus v5.1/fragility.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
         cmpVulnerabilityDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
+        "seismic/transportation_network/portfolio/Hazus v5.1/fragility.csv";      
 
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Potable Water") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "seismic/water_network/portfolio/Hazus v6.1/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Electric Power") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "seismic/power_network/portfolio/Hazus v5.1/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "SimCenter Wind Component Library") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/component/SimCenter Wind Component Library/fragility.csv";
+
+    } else if (databaseCombo->currentText() == "Hazus Hurricane - Buildings - Coupled") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "Hazus Hurricane - Buildings - Original") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/portfolio/Hazus v5.1 original/fragility.csv";
+    
     } else {
 
         cmpVulnerabilityDB_tmp = "";
