@@ -93,12 +93,15 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     databaseConseq->addItem("FEMA P-58",0);
     databaseConseq->addItem("Hazus Earthquake - Buildings",1);
     databaseConseq->addItem("Hazus Earthquake - Transportation",2);
-    databaseConseq->addItem("None",3);
+    databaseConseq->addItem("Hazus Hurricane - Buildings - Coupled",3);
+
+    databaseConseq->addItem("None",4);
 
     databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseConseq->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
     databaseConseq->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
-    databaseConseq->setItemData(3, "None of the built-in databases will be used", Qt::ToolTipRole);
+    databaseConseq->setItemData(3, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
+    databaseConseq->setItemData(4, "None of the built-in databases will be used", Qt::ToolTipRole);
 
     connect(databaseConseq,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentConsequenceDB()));
 
@@ -739,6 +742,7 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
     bool cmpDataChanged = false;
 
     QString databasePath = this->getDefaultDatabasePath();
+    databasePath += "/resources/DamageAndLossModelLibrary/";
 
     // check the component consequence database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
@@ -748,18 +752,23 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
     if (databaseConseq->currentText() == "FEMA P-58") {
 
         cmpConsequenceDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/loss_repair_DB_FEMA_P58_2nd.csv";
+        "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.csv";
 
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Buildings") {
 
         cmpConsequenceDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_bldg.csv";
+        "seismic/building/portfolio/Hazus v5.1/consequence_repair.csv";
 
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Transportation") {
 
         cmpConsequenceDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/loss_repair_DB_Hazus_EQ_trnsp.csv";
+        "seismic/transportation_network/portfolio/Hazus v5.1/consequence_repair.csv";
 
+    } else if (databaseConseq->currentText() == "Hazus Hurricane - Buildings - Coupled") {
+
+        cmpConsequenceDB_tmp = databasePath +
+        "hurricane/building/portfolio/Hazus v5.1 coupled/consequence_repair.csv";
+    
     } else {
 
         cmpConsequenceDB_tmp = "";
@@ -859,8 +868,31 @@ PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-    comp_DB_name.chop(4);
+    QString DLML_folder = "DamageAndLossModelLibrary";
+
+    int DLML_start = comp_DB_path.indexOf(DLML_folder);
+    
+    QString comp_DB_name;
+
+    // show an error message if the incoming path does not have DLML in it
+    if (DLML_start != -1) {
+
+        // Adjust the index to the beginning of the subfolders
+        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
+
+        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
+        comp_DB_name.chop(4); // to remove the .csv from the end
+        comp_DB_name = comp_DB_name.replace("/","_");
+        comp_DB_name = comp_DB_name.replace("\\","_");
+        comp_DB_name = comp_DB_name.replace(" ","_");
+
+    } else {
+
+        // If there is no DLML in the comp path, then assume that we are 
+        // dealing with a custom db file and use the filename as an ID
+        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+        comp_DB_name.chop(4);    
+    }
 
     QString output_path = workDir + "/resources/consequence_viz/" + comp_DB_name + "/";
 
@@ -904,7 +936,7 @@ PelicunLossRepairContainer::deleteCompDB(){
 int 
 PelicunLossRepairContainer::updateAvailableComponents(){
 
-    this->statusMessage("Updating list of available component consequences...");
+    this->statusMessage("Updating list of available component consequences. This might take a few minutes.");
 
     // initialize component combo
     selectedCompCombo->clear();
@@ -1490,7 +1522,11 @@ bool PelicunLossRepairContainer::outputToJSON(QJsonObject &outputObject) {
         lossData["MapFilePath"] = mapPath->text();
     }
 
-    outputObject["Repair"] = lossData;
+    if ((addComp->checkState() != 2) && (databaseConseq->currentText() == "None")){
+        // No loss calculation needed
+    } else {
+        outputObject["Repair"] = lossData;    
+    }
 
     return 0;
 }

@@ -321,12 +321,22 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     databaseCombo->addItem("FEMA P-58",0);
     databaseCombo->addItem("Hazus Earthquake - Buildings",1);
     databaseCombo->addItem("Hazus Earthquake - Transportation",2);
-    databaseCombo->addItem("None",3);
+    databaseCombo->addItem("Hazus Earthquake - Potable Water",3);
+    databaseCombo->addItem("Hazus Earthquake - Electric Power",4);
+    databaseCombo->addItem("SimCenter Wind Component Library",5);
+    databaseCombo->addItem("Hazus Hurricane - Buildings - Coupled",6);
+    databaseCombo->addItem("Hazus Hurricane - Buildings - Original",7);
+    databaseCombo->addItem("None",8);
 
     databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
     databaseCombo->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
     databaseCombo->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
-    databaseCombo->setItemData(3, "None of the built-in databases will be used", Qt::ToolTipRole);
+    databaseCombo->setItemData(3, "Based on the Hazus MH Earthquake Technical Manual v6.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(4, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(5, "A collection of component-level wind damage models from the literature.", Qt::ToolTipRole);
+    databaseCombo->setItemData(6, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(7, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(8, "None of the built-in databases will be used", Qt::ToolTipRole);
 
     connect(databaseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(updateComponentVulnerabilityDB()));
 
@@ -949,8 +959,32 @@ PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-    comp_DB_name.chop(4);
+    QString DLML_folder = "DamageAndLossModelLibrary";
+
+    int DLML_start = comp_DB_path.indexOf(DLML_folder);
+
+    QString comp_DB_name;
+    
+    // show an error message if the incoming path does not have DLML in it
+    if (DLML_start != -1) {
+
+        // Adjust the index to the beginning of the subfolders
+        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
+
+        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
+        comp_DB_name.chop(4); // to remove the .csv from the end
+        comp_DB_name = comp_DB_name.replace("/","_");
+        comp_DB_name = comp_DB_name.replace("\\","_");
+        comp_DB_name = comp_DB_name.replace(" ","_");
+
+    } else {
+
+        // If there is no DLML in the comp path, then assume that we are 
+        // dealing with a custom db file and use the filename as an ID
+        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
+        comp_DB_name.chop(4);    
+
+    }
 
     QString output_path = workDir + "/resources/fragility_viz/" + comp_DB_name + "/";
 
@@ -1104,6 +1138,11 @@ PelicunComponentContainer::showSelectedComponent(){
             infoString += ";\t INCOMPLETE DATA!";
         }
 
+        if (C_info->value("References") != "N/A"){
+            infoString += "\n";
+            infoString += C_info->value("References");
+        }
+
         compInfo->setText(infoString);
 
         this->clearCompGroupWidget();
@@ -1251,7 +1290,7 @@ PelicunComponentContainer::setPlanAreaUnit(QString unitName){
 
 int PelicunComponentContainer::updateAvailableComponents(){
 
-    this->statusMessage("Updating list of available components...");
+    this->statusMessage("Updating list of available components. This might take a few minutes.");
 
     availableCompCombo->clear();
 
@@ -1295,7 +1334,7 @@ int PelicunComponentContainer::updateAvailableComponents(){
                 QStringList header;
 
                 // open the JSON file to get the metadata
-                QJsonObject metaData;
+                QJsonObject metaData, referenceDict;
                 bool hasMeta = false;
                 if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
                     QString val = jsonFile.readAll();
@@ -1303,6 +1342,10 @@ int PelicunComponentContainer::updateAvailableComponents(){
                     metaData = doc.object();
                     jsonFile.close();
                     hasMeta = true;
+
+                    if (metaData.contains("References")) {
+                        referenceDict = metaData["References"].toObject();
+                    }
                 }
 
                 // start the CSV stream
@@ -1379,6 +1422,26 @@ int PelicunComponentContainer::updateAvailableComponents(){
                             } else {
                                 C_info -> insert("RoundToInt", QString("N/A"));
                             }
+
+                            // Reference
+                            if (compMetaData.contains("Reference")){
+                                QJsonArray compReferences = compMetaData["Reference"].toArray();
+
+                                QString referencesString = "\nReferences: \n\n";
+
+                                for (const QJsonValue &refValue : compReferences) {
+                                    QString refKey = refValue.toString();
+
+                                    if (referenceDict.contains(refKey)) {
+                                        referencesString += referenceDict[refKey].toString();
+                                        referencesString += "\n\n";
+                                    }                                        
+                                }
+
+                                C_info -> insert("References", referencesString);
+                            } else {
+                                C_info -> insert("References", QString("N/A"));
+                            }
                         }
                     }
 
@@ -1412,6 +1475,7 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
     bool cmpDataChanged = false;
 
     QString databasePath = this->getDefaultDatabasePath();
+    databasePath += "/resources/DamageAndLossModelLibrary/";
 
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
@@ -1420,16 +1484,36 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     if (databaseCombo->currentText() == "FEMA P-58") {
         cmpVulnerabilityDB_tmp = databasePath +        
-        "/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.csv";
+        "seismic/building/component/FEMA P-58 2nd Edition/fragility.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
         cmpVulnerabilityDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_bldg.csv";
+        "seismic/building/portfolio/Hazus v5.1/fragility.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
         cmpVulnerabilityDB_tmp = databasePath +
-        "/resources/SimCenterDBDL/damage_DB_Hazus_EQ_trnsp.csv";        
+        "seismic/transportation_network/portfolio/Hazus v5.1/fragility.csv";      
 
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Potable Water") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "seismic/water_network/portfolio/Hazus v6.1/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "Hazus Earthquake - Electric Power") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "seismic/power_network/portfolio/Hazus v5.1/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "SimCenter Wind Component Library") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/component/SimCenter Wind Component Library/fragility.csv";
+
+    } else if (databaseCombo->currentText() == "Hazus Hurricane - Buildings - Coupled") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv";
+    
+    } else if (databaseCombo->currentText() == "Hazus Hurricane - Buildings - Original") {
+        cmpVulnerabilityDB_tmp = databasePath +
+        "hurricane/building/portfolio/Hazus v5.1 original/fragility.csv";
+    
     } else {
 
         cmpVulnerabilityDB_tmp = "";
