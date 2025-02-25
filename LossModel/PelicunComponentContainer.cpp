@@ -329,7 +329,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     databaseCombo->addItem("None",8);
 
     databaseCombo->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
-    databaseCombo->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseCombo->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v6.1", Qt::ToolTipRole);
     databaseCombo->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
     databaseCombo->setItemData(3, "Based on the Hazus MH Earthquake Technical Manual v6.1", Qt::ToolTipRole);
     databaseCombo->setItemData(4, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
@@ -1488,7 +1488,7 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Buildings") {
         cmpVulnerabilityDB_tmp = databasePath +
-        "seismic/building/portfolio/Hazus v5.1/fragility.csv";
+        "seismic/building/portfolio/Hazus v6.1/fragility.csv";
 
     } else if (databaseCombo->currentText() == "Hazus Earthquake - Transportation") {
         cmpVulnerabilityDB_tmp = databasePath +
