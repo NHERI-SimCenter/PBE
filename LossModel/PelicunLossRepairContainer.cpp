@@ -98,7 +98,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     databaseConseq->addItem("None",4);
 
     databaseConseq->setItemData(0, "Based on the 2nd edition of FEMA P-58", Qt::ToolTipRole);
-    databaseConseq->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
+    databaseConseq->setItemData(1, "Based on the Hazus MH Earthquake Technical Manual v6.1", Qt::ToolTipRole);
     databaseConseq->setItemData(2, "Based on the Hazus MH Earthquake Technical Manual v5.1", Qt::ToolTipRole);
     databaseConseq->setItemData(3, "Based on the Hazus MH Hurricane Technical Manual v5.1", Qt::ToolTipRole);
     databaseConseq->setItemData(4, "None of the built-in databases will be used", Qt::ToolTipRole);
@@ -757,7 +757,7 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Buildings") {
 
         cmpConsequenceDB_tmp = databasePath +
-        "seismic/building/portfolio/Hazus v5.1/consequence_repair.csv";
+        "seismic/building/portfolio/Hazus v6.1/consequence_repair.csv";
 
     } else if (databaseConseq->currentText() == "Hazus Earthquake - Transportation") {
 
