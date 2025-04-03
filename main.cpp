@@ -17,7 +17,7 @@
 #include <WorkflowAppPBE.h>
 #include <TapisV3.h>
 #include <GoogleAnalytics.h>
-
+#include <Utils/FileOperations.h>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -66,27 +66,12 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
 
-  //
-  // set up logging of output messages for user debugging
-  //
+    //
+    // set up logging of output messages for user debugging
+    //
 
-    logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-      + QDir::separator() + QCoreApplication::applicationName();
-
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
-    QString workDir = env.value("SIMCENTER_WORKDIR","None");
-    if (workDir != "None") {
-      logFilePath = workDir;
-    }    
-    
-    // make sure tool dir exists in Documentss folder
-    QDir dirWork(logFilePath);
-    if (!dirWork.exists())
-      if (!dirWork.mkpath(logFilePath)) {
-	qDebug() << QString("Could not create Working Dir: ") << logFilePath;
-      }
-
-    // full path to debug.log file
+    // full path to debug.log file    
+    logFilePath = SCUtils::getAppWorkDir();
     logFilePath = logFilePath + QDir::separator() + QString("debug.log");
 
     // remove old log file
