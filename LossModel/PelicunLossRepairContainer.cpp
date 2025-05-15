@@ -93,7 +93,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     databaseConseq->addItem("FEMA P-58",0);
     databaseConseq->addItem("Hazus Earthquake - Buildings",1);
     databaseConseq->addItem("Hazus Earthquake - Transportation",2);
-    databaseConseq->addItem("Hazus Hurricane - Buildings - Coupled",3);
+    databaseConseq->addItem("Hazus Hurricane Wind - Buildings - Coupled",3);
 
     databaseConseq->addItem("None",4);
 
@@ -742,35 +742,28 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
     bool cmpDataChanged = false;
 
     QString databasePath = this->getDefaultDatabasePath();
-    databasePath += "/resources/DamageAndLossModelLibrary/";
+
+    QFile jsonFile(databasePath+"/resources/dlml_resource_paths.json");
 
     // check the component consequence database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
+    QJsonObject resourcePaths;
+    if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
+        QString val = jsonFile.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+        resourcePaths = doc.object();
+        jsonFile.close();
+    }
+
+    databasePath += "/resources/DamageAndLossModelLibrary/";
     QString cmpConsequenceDB_tmp;
 
-    if (databaseConseq->currentText() == "FEMA P-58") {
+    if (resourcePaths.contains(databaseConseq->currentText())) {
+        cmpConsequenceDB_tmp = databasePath + resourcePaths[databaseConseq->currentText()].toString() + "consequence_repair.csv";
 
-        cmpConsequenceDB_tmp = databasePath +
-        "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.csv";
-
-    } else if (databaseConseq->currentText() == "Hazus Earthquake - Buildings") {
-
-        cmpConsequenceDB_tmp = databasePath +
-        "seismic/building/portfolio/Hazus v6.1/consequence_repair.csv";
-
-    } else if (databaseConseq->currentText() == "Hazus Earthquake - Transportation") {
-
-        cmpConsequenceDB_tmp = databasePath +
-        "seismic/transportation_network/portfolio/Hazus v5.1/consequence_repair.csv";
-
-    } else if (databaseConseq->currentText() == "Hazus Hurricane - Buildings - Coupled") {
-
-        cmpConsequenceDB_tmp = databasePath +
-        "hurricane/building/portfolio/Hazus v5.1 coupled/consequence_repair.csv";
-    
     } else {
-
+        
         cmpConsequenceDB_tmp = "";
 
     }
