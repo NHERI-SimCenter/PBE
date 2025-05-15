@@ -325,14 +325,16 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     dpApproach = new QComboBox();
     dpApproach->setToolTip(tr("The Damage Process defines the dependencies between component and global damages"));
     dpApproach->addItem("FEMA P-58",0);
-    dpApproach->addItem("Hazus Earthquake",1);
-    dpApproach->addItem("User Defined",2);
-    dpApproach->addItem("None",3);
+    dpApproach->addItem("Hazus Earthquake - Buildings",1);
+    dpApproach->addItem("Hazus Earthquake - Lifeline Facilities",2);
+    dpApproach->addItem("User Defined",3);
+    dpApproach->addItem("None",4);
 
     dpApproach->setItemData(0, "<p>Collapse and irreparable damage, if applicable, is evaluated first; component damages are only returned for non-collapse cases.</p>", Qt::ToolTipRole);
-    dpApproach->setItemData(1, "<p>Collapse is triggered by the second mutually exclusive damage state in the highest limit state of structural components. When collapse is triggered, all components have their highest limit state assigned.</p>", Qt::ToolTipRole);
-    dpApproach->setItemData(2, "<p>Custom damage process provided in a JSON file</p>", Qt::ToolTipRole);
-    dpApproach->setItemData(3, "<p>No damage process applied; i.e., no relationship modeled between component damages.</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(1, "<p>Collapse is triggered by the second mutually exclusive damage state in the highest limit state of structural components. When collapse is triggered, all components have undefined damage state assigned.</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(2, "<p>Collapse is triggered by the second mutually exclusive damage state in the highest limit state of the lifeline facility component. When collapse is triggered, the lifeline facility component has undefined damage state assigned.</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(3, "<p>Custom damage process provided in a JSON file</p>", Qt::ToolTipRole);
+    dpApproach->setItemData(4, "<p>No damage process applied; i.e., no relationship modeled between component damages.</p>", Qt::ToolTipRole);
 
     selectDPLayout->addWidget(dpApproach, 1);
 
@@ -520,6 +522,12 @@ bool PelicunDamageContainer::inputFromJSON(QJsonObject & inputObject) {
     }
 
     if (damageData.contains("DamageProcess")) {
+
+        //backwards compatibility
+        if (damageData["DamageProcess"].toString() == "Hazus Earthquake"){
+            damageData["DamageProcess"] = "Hazus Earthquake - Buildings";
+        }
+
         dpApproach->setCurrentText(damageData["DamageProcess"].toString());
 
         if (dpApproach->currentText() == "User Defined"){
