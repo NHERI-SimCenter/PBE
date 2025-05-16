@@ -793,6 +793,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     lblInfo->setText("Additional info:");
     lblInfo->setMaximumWidth(CD_lbl_width);
     lblInfo->setMinimumWidth(CD_lbl_width);
+    lblInfo->setAlignment(Qt::AlignTop);
     loCDInfo->addWidget(lblInfo);
 
     compInfo = new QLabel();
