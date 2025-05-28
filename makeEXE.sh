@@ -28,10 +28,10 @@ fi
 
 if [ -n "$release" ] && [ "$release" = "release" ]; then
     echo "******** RELEASE BUILD *************"    
-    qmake QMAKE_CXXFLAGS+=-D_SC_RELEASE ../PBE.pro
+    qmake QMAKE_CXXFLAGS+=-D_SC_RELEASE QMAKE_CXXFLAGS+=-D_INCLUDE_USER_PASS ../PBE.pro
 else
     echo "********* NON RELEASE BUILD ********"
-    qmake ../PBE.pro
+    qmake ../PBE.pro QMAKE_CXXFLAGS+=-D_INCLUDE_USER_PASS
 fi
 
 cmd_status=$?
@@ -45,7 +45,7 @@ fi
 # make
 #
 
-touch ../WorkflowAppPBE.cpp
+touch ../main.cpp
 make -j 4
 cmd_status=$?;
 if [[ $cmd_status != 0 ]]
