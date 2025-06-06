@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+
+title: Performance Based Engineering (PBE) Application
+
+message: >-
+  If you use PBE in your research, please cite it using
+  the following metadata.
+
+type: software
+
+authors:
+  - given-names: Adam
+    family-names: Zsarnoczay
+  - given-names: Frank
+    family-names: McKenna
+  - given-names: Sang-ri 
+    family-names: Yi
+    orcid: 'https://orcid.org/0000-0001-7196-127X'
+  - given-names: Aakash Bangalore
+    family-names: Satish
+  - given-names: Michael 
+    family-names: Gardner
+  - given-names: Charles
+    family-names: Wang
+  - given-names: Amin
+    family-names: Pakzad    
+  - given-names: Barbaros
+    family-names: Cetiner
+    orcid: 'https://orcid.org/0000-0002-9726-8120'
+  - given-names: Wael
+    family-names: Elhaddad
+    
+repository-code: 'https://github.com/NHERI-SimCenter/PBE'
+
+url: 'https://simcenter.designsafe-ci.org/research-tools/pbe-application/'
+
+abstract: >-
+  The Performance Based Engineering Application (PBE) is an open-source desktop application designed to support the assessment of building performance under natural hazard events.
+  \n  This material is based upon work supported by the U.S. National Science Foundation under Grants No. 1612843 and No. 2131111. Any opinions, findings, conclusions, or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the U.S. National Science Foundation.
+
+keywords:
+  - performance based engineering
+  - earthquake engineering
+  - opensees
+  - natural hazards engineering
+  
+license: BSD-3-Clause
+
+version: 4.3.0
+
+date-released: '2025-05-16'
+doi: 10.5281/zenodo.15445666
