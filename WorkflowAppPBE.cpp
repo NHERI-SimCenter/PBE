@@ -801,7 +801,7 @@ WorkflowAppPBE::createCitation(QJsonObject &citation, QString citeFile) {
 
   QJsonObject citationPBE;
   citationPBE.insert("citation",
-		     "Adam Zsarnoczay, Frank McKenna, Sang-ri Yi, Aakash Bangalore Satish, Michael Gardner, Charles Wang, Amin Pakzad, Barbaros Cetiner, & Wael Elhaddad. (2025). NHERI-SimCenter/PBE: Version 4.3.0 (v4.3.0). Zenodo. https://doi.org/10.5281/zenodo.15445666");
+		     "Adam Zsarnoczay, Frank McKenna, Sang-ri Yi, Aakash Bangalore Satish, Michael Gardner, Charles Wang, Amin Pakzad, Barbaros Cetiner, & Wael Elhaddad. (2025). NHERI-SimCenter/PBE: Version 4.4.0 (v4.4.0). Zenodo. https://doi.org/10.5281/zenodo.17239569");
   citationPBE.insert("description",
 		     "This is the overall tool reference used to indicate the version of the tool.");
 
@@ -826,20 +826,6 @@ software, and datasets.");
   unnecessaryCitationsElement.insert("citations", citationsArray);
 
   citation.insert("PBE",unnecessaryCitationsElement);
-
-  /*
-  QString cit("{\"PBE\": { \"citations\": [{\"citation\": \"Adam Zsarnoczay, Frank McKenna, Charles Wang, Stevan Gavrilovic, Michael Gardner, Sang-ri Yi, Aakash Bangalore Satish, & Wael Elhaddad. (2024). NHERI-SimCenter/PBE: Version 3.4.0 (V3.4.0). Zenodo. https://doi.org/10.5281/zenodo.10902085\",\"description\": \"This is the overall tool reference used to indicate the version of the tool.\"},{\"citation\": \"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Mat J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706\",\"description\": \" This marker paper describes the SimCenter application framework, which was designed to simulate the impacts of natural hazards on the built environment.It  is a necessary attribute for publishing work resulting from the use of SimCenter tools, software, and datasets.\"}]}}");
-
-  QJsonDocument docC = QJsonDocument::fromJson(cit.toUtf8());
-
-  if(!docC.isNull()) {
-    if(docC.isObject()) {
-      citation = docC.object();        
-    }  else {
-      qDebug() << "WorkflowdAppEE_UQ citation text is not valid JSON: \n" << cit << endl;
-    }
-  }
-  */
 
   theSIM_Selection->outputCitation(citation);
   theEventSelection->outputCitation(citation);
