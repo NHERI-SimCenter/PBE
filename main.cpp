@@ -18,6 +18,7 @@
 #include <TapisV3.h>
 #include <GoogleAnalytics.h>
 #include <Utils/FileOperations.h>
+#include <Utils/SimCenterConfigFile.h>
 
  // customMessgaeOutput code from web:
  // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("4.4.0");
+    QCoreApplication::setApplicationVersion("4.4.1");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -180,32 +181,40 @@ int main(int argc, char *argv[])
   }
 
   //Setting Google Analytics Tracking Information
+  QString analyticsOption = getConfigOptionString("GoogleAnalytics");
+    
 #ifdef _SC_RELEASE
 
-  qDebug() << "Running a Release Version of PBE";  
-  GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
-  GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
-  GoogleAnalytics::CreateSessionId();
-  GoogleAnalytics::StartSession();
-
-
-  // Opening a QWebEngineView and using github to get app geographic usage
-  QWebEngineView view;
-  view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
-  view.resize(1024, 750);
-  view.show();
-  view.hide();
+  qDebug() << "Running a Release Version of PBE";
+  
+  if (analyticsOption != "No") {  
+    GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
+    GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
+    GoogleAnalytics::CreateSessionId();
+    GoogleAnalytics::StartSession();
+    
+    // Opening a QWebEngineView and using github to get app geographic usage
+    QWebEngineView view;
+    view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
+    view.resize(1024, 750);
+    view.show();
+    view.hide();
+    
+  } else
+    qDebug() << "Google Analytics: None";  
 
 #endif
 
 #ifdef _ANALYTICS
-
-  qDebug() << "compiled with: ANALYTICS";  
-  GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
-  GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
-  GoogleAnalytics::CreateSessionId();
-  GoogleAnalytics::StartSession();
-
+  
+  if (analyticsOption != "No") {  
+    qDebug() << "compiled with: ANALYTICS";  
+    GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
+    GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
+    GoogleAnalytics::CreateSessionId();
+    GoogleAnalytics::StartSession();
+  }
+  
 #endif  
 
 
@@ -217,14 +226,16 @@ int main(int argc, char *argv[])
 
 #ifdef _GA_AFTER
 
-  qDebug() << "compiled with: _GA_AFTER";
-  // Opening a QWebEngineView and using github to get app geographic usage
-  QWebEngineView view;
-  view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
-  view.resize(1024, 750);
-  view.show();
-  view.hide();
-
+  if (analyticsOption != "No") {  
+    qDebug() << "compiled with: _GA_AFTER";
+    // Opening a QWebEngineView and using github to get app geographic usage
+    QWebEngineView view;
+    view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
+    view.resize(1024, 750);
+    view.show();
+    view.hide();
+  }
+  
 #endif
   
   //
