@@ -954,6 +954,75 @@ int ResultsPelicun::processREDiResults(QString &inputFileName,
 }
 
 
+int ResultsPelicun::processATC138Results(QString &inputFileName,
+                                          QString &resultsDirName) {
+
+    if (summaryLayout == nullptr)
+        return 0;
+
+    auto atc138_res_path = resultsDirName + QDir::separator() +
+        "ATC138_output" + QDir::separator() + "summary.json";
+
+    QFile resultsSummaryFile(atc138_res_path);
+
+    if (!resultsSummaryFile.exists())
+        return 0;
+
+    resultsSummaryFile.open(QFile::ReadOnly | QFile::Text);
+
+    QString val;
+    val = resultsSummaryFile.readAll();
+    QJsonDocument res_doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject resData = res_doc.object();
+    resultsSummaryFile.close();
+
+    if (resData.isEmpty()) {
+        this->errorMessage("Error, the ATC-138 summary file " + atc138_res_path +
+                           " is empty or failed to load as json");
+        return -1;
+    }
+
+    summaryLayout->addWidget(new QLabel("<b>ATC-138 Functional Recovery</b>"),
+                             0, Qt::AlignCenter);
+
+    QFrame *sepLine = new QFrame;
+    sepLine->setFrameShape(QFrame::HLine);
+    sepLine->setFrameShadow(QFrame::Raised);
+    summaryLayout->addWidget(sepLine);
+
+    QJsonObject::const_iterator it;
+    for (it = resData.constBegin(); it != resData.constEnd(); ++it) {
+        QString key = it.key();
+        QJsonValue value = it.value().toObject();
+
+        auto DV_DisplayName = key;
+
+        double DV_min = value["min"].toDouble();
+        double DV_10 = value["0.10%"].toDouble();
+        double DV_50 = value["50%"].toDouble();
+        double DV_90 = value["90%"].toDouble();
+        double DV_max = value["max"].toDouble();
+
+        double DV_mean = value["mean"].toDouble();
+        double DV_stdDev = value["std"].toDouble();
+        double DV_logStdDev = -1;  // not applicable for recovery days
+
+        QWidget *theWidget = this->createSummaryItem2(DV_DisplayName,
+            DV_mean, DV_stdDev, DV_logStdDev, DV_min, DV_10, DV_50, DV_90, DV_max);
+        summaryLayout->addWidget(theWidget);
+
+        QFrame *sepLine = new QFrame;
+        sepLine->setFrameShape(QFrame::HLine);
+        sepLine->setFrameShadow(QFrame::Sunken);
+        summaryLayout->addWidget(sepLine);
+    }
+
+    Q_UNUSED(inputFileName);
+
+    return 0;
+}
+
+
 void
 ResultsPelicun::getColData(QVector<double> &data, int numRow, int col) {
     bool ok;
