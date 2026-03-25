@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "NoneWidget.h"
 #include "REDiWidget.h"
+#include "ATC138Widget.h"
 #include "PerformanceMethodSelection.h"
 
 PerformanceMethodSelection::PerformanceMethodSelection(QWidget *parent)
@@ -51,10 +52,12 @@ PerformanceMethodSelection::PerformanceMethodSelection(QWidget *parent)
     // The REDi widget
     theREDiWidget = new REDiWidget();
 
+    // The ATC-138 widget
+    theATC138Widget = new ATC138Widget();
+
     this->addComponent(QString("None"), QString("None"), theNoneWidget);
     this->addComponent(QString("REDi"), QString("REDi"), theREDiWidget);
-
-
+    this->addComponent(QString("ATC-138"), QString("ATC138"), theATC138Widget);
 }
 
 PerformanceMethodSelection::~PerformanceMethodSelection()

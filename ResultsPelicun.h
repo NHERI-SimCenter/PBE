@@ -63,6 +63,7 @@ public:
 
     int processResults(QString &inputFile, QString &resultsDir);
     int processREDiResults(QString &inputFileName, QString &resultsDirName);
+    int processATC138Results(QString &inputFileName, QString &resultsDirName);
 
 signals:
 

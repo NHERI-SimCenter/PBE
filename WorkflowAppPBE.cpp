@@ -493,6 +493,7 @@ WorkflowAppPBE::processResults(QString &dirPath) {
   statusMessage("Backend Done. Processing Results ...");  
   theResults->processResults(loadedFile, dirPath);
   theResults->processREDiResults(loadedFile, dirPath);
+  theResults->processATC138Results(loadedFile, dirPath);
 
   theRunWidget->hide();
   theComponentSelection->displayComponent("RES");

@@ -96,6 +96,7 @@ SOURCES += main.cpp \
     LossModel/PelicunShared.cpp \
     PerformanceMethod/PerformanceMethodSelection.cpp \
     PerformanceMethod/REDiWidget.cpp \
+    PerformanceMethod/ATC138Widget.cpp \
 
 
 
@@ -125,6 +126,7 @@ HEADERS  += \
     LossModel/PelicunShared.h \
     PerformanceMethod/PerformanceMethodSelection.h \
     PerformanceMethod/REDiWidget.h \
+    PerformanceMethod/ATC138Widget.h \
 
 RESOURCES += \
     images.qrc
