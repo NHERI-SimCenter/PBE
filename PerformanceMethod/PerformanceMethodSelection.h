@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppSelection.h>
 
 class REDiWidget;
+class ATC138Widget;
 class NoneWidget;
 
 class PerformanceMethodSelection : public SimCenterAppSelection
@@ -55,6 +56,7 @@ public:
 
 private:
     REDiWidget* theREDiWidget = nullptr;
+    ATC138Widget* theATC138Widget = nullptr;
     NoneWidget* theNoneWidget = nullptr;
 };
 

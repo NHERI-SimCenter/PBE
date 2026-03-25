@@ -1,0 +1,10 @@
+{
+    "engineering_cost_ratio": 0.1,
+    "length_side_1_ft": 144,
+    "length_side_2_ft": 150,
+    "num_elevators": 0,
+    "num_entry_doors": 2,
+    "peak_occ_rate": 0.0031,
+    "typ_story_ht_ft": 12.5,
+    "typ_struct_bay_area_ft": 169
+}

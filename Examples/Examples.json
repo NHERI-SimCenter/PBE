@@ -12,8 +12,13 @@
     },
     {
       "name": "E3: FEMA P-58 assessment with REDi recovery assessment",
-      "description": "This example conducts a FEMA P-58 assessment of a 4-story office building with recovery estimation employing REDi by ARUP.",
+      "description": "This example conducts a FEMA P-58 assessment of a 4-story office building with recovery simulation using REDi by ARUP.",
       "inputFile": "pbdl-0003/src/input.json"
+    },
+    {
+      "name": "E4: FEMA P-58 assessment with ATC138 functional recovery assessment",
+      "description": "This example conducts a FEMA P-58 assessment of a 4-story office building with functional recovery simulation using the ATC138 methodology by FEMA.",
+      "inputFile": "pbdl-0004/src/input.json"
     }
   ]
 }

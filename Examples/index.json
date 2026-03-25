@@ -49,8 +49,23 @@
       },
       "tags": [
       ]
-  }
-},
+  },
+  "pbdl-0004": {
+      "title": "FEMA P-58 assessment using external demand data, including ATC138 functional recovery simulation",
+      "base": "pbdl-0004",
+      "doc": [
+        "pbdl-0004/README.rst"
+      ],
+      "entry_point": "pbdl-0004/./input.json",
+      "summary": "This example conducts a FEMA P-58 assessment of a 4-story office building with functional recovery simulation using the ATC138 methodology by FEMA.",
+      "logo": "None",
+      "published": "2026-03-24T00:00:00-08:00",
+      "categories": {
+        "Difficulty": "1"
+      },
+      "tags": [
+      ]
+  },
   "categories": {
     "Difficulty": {
       "0": "Beginner",
