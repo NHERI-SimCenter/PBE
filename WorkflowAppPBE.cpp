@@ -90,7 +90,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RemoteApplication.h>
 #include <RemoteJobManager.h>
 #include <LossModel/LossModelSelection.h>
-#include <PerformanceMethodSelection.h>
+#include <PerformanceMethod/PerformanceMethodSelection.h>
 #include <RunWidget.h>
 #include <InputWidgetBIM.h>
 #include <ResultsPelicun.h>
