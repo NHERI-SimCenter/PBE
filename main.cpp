@@ -14,7 +14,7 @@
 #include <QProcessEnvironment>
 #include <QWebEngineView>
 
-#include <WorkflowAppPBE.h>
+#include "WorkflowAppPBE.h"
 #include <TapisV3.h>
 #include <GoogleAnalytics.h>
 #include <Utils/FileOperations.h>
