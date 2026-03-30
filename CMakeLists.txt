@@ -65,6 +65,7 @@ set(SOURCES main.cpp
     LossModel/LossMethod.cpp
     LossModel/PelicunShared.cpp
     PerformanceMethod/PerformanceMethodSelection.cpp
+    PerformanceMethod/ATC138Widget.cpp
     PerformanceMethod/REDiWidget.cpp
 )
 
@@ -93,6 +94,7 @@ set(HEADERS
     LossModel/LossMethod.h
     LossModel/PelicunShared.h
     PerformanceMethod/PerformanceMethodSelection.h
+    PerformanceMethod/ATC138Widget.h    
     PerformanceMethod/REDiWidget.h
 )
 
