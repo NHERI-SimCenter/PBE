@@ -56,3 +56,6 @@ applications/performDL/pelicunPBE/__pycache__/
 userID.sh
 build
 .DS_Store
+DEPS
+quazip
+CMakeUserPresets.json

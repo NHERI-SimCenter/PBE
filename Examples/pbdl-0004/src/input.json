@@ -75,7 +75,7 @@
             "CollapseLimits": {
                 "PID": "0.06"
             },
-            "DemandFilePath": "/Users/adamzs/Repos/PBE/PBE/build/PBE.app/Contents/MacOS/Examples/pbdl-0001/src/demands_s4.csv",
+            "DemandFilePath": "{Current_Dir}/demands_s4.csv",
             "InferResidualDrift": {
                 "1": "0.0075",
                 "2": "0.0075",
@@ -299,10 +299,6 @@
         "saveWorkDir": true,
         "uqType": "Forward Propagation"
     },
-    "localAppDir": "/Users/adamzs/SimCenter",
     "randomVariables": [
-    ],
-    "remoteAppDir": "/Users/adamzs/SimCenter",
-    "runType": "runningLocal",
-    "workingDir": "/Users/adamzs/Documents/PBE/LocalWorkDir"
+    ]
 }

@@ -14,7 +14,7 @@
 #include <QProcessEnvironment>
 #include <QWebEngineView>
 
-#include <WorkflowAppPBE.h>
+#include "WorkflowAppPBE.h"
 #include <TapisV3.h>
 #include <GoogleAnalytics.h>
 #include <Utils/FileOperations.h>
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("4.4.2");
+    QCoreApplication::setApplicationVersion("4.5.0.1");
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
