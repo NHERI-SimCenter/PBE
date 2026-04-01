@@ -59,9 +59,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "SimCenterPreferences.h"
 #include "PelicunLossRepairContainer.h"
 
+PelicunLossRepairContainer *PelicunLossRepairContainer::theInstance = nullptr;
+
 PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
+    theInstance = this;
     int maxWidth = 800;
     this->setMaximumWidth(maxWidth);
 
@@ -693,10 +696,31 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     this->setLayout(gridLayout);
 
     this-> updateComponentConsequenceDB();
+
+    connect(repCostMedian, &QLineEdit::textChanged,
+            this, &PelicunLossRepairContainer::replacementCostChanged);
 }
 
 PelicunLossRepairContainer::~PelicunLossRepairContainer()
 {}
+
+PelicunLossRepairContainer *
+PelicunLossRepairContainer::getInstance()
+{
+    return theInstance;
+}
+
+QString
+PelicunLossRepairContainer::getReplacementCostMedian() const
+{
+    return repCostMedian->text();
+}
+
+void
+PelicunLossRepairContainer::setReplacementCostMedian(const QString &value)
+{
+    repCostMedian->setText(value);
+}
 
 void
 PelicunLossRepairContainer::addComponentCheckChanged(int newState)
