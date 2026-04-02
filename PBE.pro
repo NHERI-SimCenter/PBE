@@ -68,6 +68,7 @@ include(../EE-UQ/EarthquakeEvents.pri)
 include(../QS3hark/QS3hark.pri)
 
 INCLUDEPATH += "./Component" \
+                LossModel \
                 PerformanceMethod
 
 SOURCES += main.cpp \

@@ -6,5 +6,8 @@
     "num_entry_doors": 2,
     "peak_occ_rate": 0.0031,
     "typ_story_ht_ft": 12.5,
-    "typ_struct_bay_area_ft": 169
+    "typ_struct_bay_length_ft": 30.0,
+    "number_of_stories": 4,
+    "replacement_cost_median": 21600000,
+    "plan_area_ft2": 21600
 }

@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "ATC138Widget.h"
 #include "GeneralInformationWidget.h"
+#include "PelicunLossRepairContainer.h"
 #include "MainWindowWorkflowApp.h"
 #include "SimCenterPreferences.h"
 
@@ -63,9 +64,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 ATC138Widget::ATC138Widget(QWidget *parent)
-    : SimCenterAppWidget(parent), updatingGI(false)
+    : SimCenterAppWidget(parent), updatingGI(false), updatingLossRepair(false)
 {
     theGI = GeneralInformationWidget::getInstance();
+    theLossRepair = PelicunLossRepairContainer::getInstance();
     currentLengthUnit = theGI->getLengthUnit();
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -100,6 +102,17 @@ ATC138Widget::ATC138Widget(QWidget *parent)
                                          "by number of stories."));
     formLayout->addRow("Typical Story Height (ft):", typStoryHtValueLabel);
 
+    planAreaValueLabel = new QLabel("--");
+    planAreaValueLabel->setToolTip(tr("Calculated as Length Side 1 x Length Side 2. \n"
+                                       "Updated automatically when side lengths change."));
+    formLayout->addRow("Plan Area (sq ft):", planAreaValueLabel);
+
+    replacementCostLE = new QLineEdit();
+    replacementCostLE->setToolTip(tr("Median replacement cost of the building. \n"
+                                      "Linked to the Replacement Cost under the \n"
+                                      "Loss tab in the DL panel."));
+    formLayout->addRow("Replacement Cost (Median):", replacementCostLE);
+
     // ATC138-specific fields
     numEntryDoorsSB = new QSpinBox();
     numEntryDoorsSB->setRange(1, 100);
@@ -108,14 +121,14 @@ ATC138Widget::ATC138Widget(QWidget *parent)
                                     "Used for egress assessment."));
     formLayout->addRow("Number of Entry Doors:", numEntryDoorsSB);
 
-    typStructBayAreaDSB = new QDoubleSpinBox();
-    typStructBayAreaDSB->setRange(1.0, 100000.0);
-    typStructBayAreaDSB->setDecimals(1);
-    typStructBayAreaDSB->setValue(169.0);
-    typStructBayAreaDSB->setToolTip(tr("Typical plan area of a structural bay in \n"
-                                        "square feet. Used for scaffolding and \n"
-                                        "repair crew allocation."));
-    formLayout->addRow("Typical Structural Bay Area (sq ft):", typStructBayAreaDSB);
+    typStructBayLengthDSB = new QDoubleSpinBox();
+    typStructBayLengthDSB->setRange(1.0, 10000.0);
+    typStructBayLengthDSB->setDecimals(1);
+    typStructBayLengthDSB->setValue(30.0);
+    typStructBayLengthDSB->setToolTip(tr("Typical length of a structural bay in \n"
+                                          "feet. Used for scaffolding and \n"
+                                          "repair crew allocation."));
+    formLayout->addRow("Typical Structural Bay Length (ft):", typStructBayLengthDSB);
 
     peakOccRateDSB = new QDoubleSpinBox();
     peakOccRateDSB->setRange(0.0, 1.0);
@@ -225,6 +238,7 @@ ATC138Widget::ATC138Widget(QWidget *parent)
     numStoriesLE->setText(QString::number(numFloors));
     heightLE->setText(QString::number(hFt, 'f', 1));
     recalcTypStoryHeight();
+    recalcPlanArea();
 
     // GI -> ATC138
     connect(theGI, SIGNAL(numStoriesOrHeightChanged(int, double)),
@@ -244,11 +258,29 @@ ATC138Widget::ATC138Widget(QWidget *parent)
     connect(heightLE, &QLineEdit::editingFinished,
             this, &ATC138Widget::updateGIStories);
 
-    // Recalc story height when stories or height change
+    // Recalc derived fields when inputs change
     connect(numStoriesLE, &QLineEdit::editingFinished,
             this, &ATC138Widget::recalcTypStoryHeight);
     connect(heightLE, &QLineEdit::editingFinished,
             this, &ATC138Widget::recalcTypStoryHeight);
+    connect(lengthSide1LE, &QLineEdit::editingFinished,
+            this, &ATC138Widget::recalcPlanArea);
+    connect(lengthSide2LE, &QLineEdit::editingFinished,
+            this, &ATC138Widget::recalcPlanArea);
+
+    // --- LossRepair signal/slot connections ---
+
+    if (theLossRepair) {
+        replacementCostLE->setText(theLossRepair->getReplacementCostMedian());
+
+        // LossRepair -> ATC138
+        connect(theLossRepair, &PelicunLossRepairContainer::replacementCostChanged,
+                this, &ATC138Widget::setReplacementCost);
+
+        // ATC138 -> LossRepair
+        connect(replacementCostLE, &QLineEdit::editingFinished,
+                this, &ATC138Widget::updateLossRepairReplacementCost);
+    }
 }
 
 
@@ -338,6 +370,7 @@ void ATC138Widget::setBuildingDimensions(double newWidth, double newDepth,
     double dFt = convertToFeet(newDepth, currentLengthUnit);
     lengthSide1LE->setText(QString::number(wFt, 'f', 1));
     lengthSide2LE->setText(QString::number(dFt, 'f', 1));
+    recalcPlanArea();
 }
 
 
@@ -358,6 +391,7 @@ void ATC138Widget::onUnitLengthChanged(QString unitName)
     lengthSide2LE->setText(QString::number(dFt, 'f', 1));
     heightLE->setText(QString::number(hFt, 'f', 1));
     recalcTypStoryHeight();
+    recalcPlanArea();
 }
 
 
@@ -406,6 +440,44 @@ void ATC138Widget::recalcTypStoryHeight()
 }
 
 
+void ATC138Widget::recalcPlanArea()
+{
+    double side1 = lengthSide1LE->text().toDouble();
+    double side2 = lengthSide2LE->text().toDouble();
+
+    if (side1 > 0 && side2 > 0) {
+        planAreaValueLabel->setText(QString::number(side1 * side2, 'f', 1));
+    } else {
+        planAreaValueLabel->setText("--");
+    }
+}
+
+
+// --- LossRepair sync slots ---
+
+void ATC138Widget::setReplacementCost(QString median)
+{
+    if (updatingLossRepair)
+        return;
+
+    updatingLossRepair = true;
+    replacementCostLE->setText(median);
+    updatingLossRepair = false;
+}
+
+
+void ATC138Widget::updateLossRepairReplacementCost()
+{
+    if (updatingLossRepair)
+        return;
+
+    updatingLossRepair = true;
+    if (theLossRepair)
+        theLossRepair->setReplacementCostMedian(replacementCostLE->text());
+    updatingLossRepair = false;
+}
+
+
 // --- JSON I/O ---
 
 bool ATC138Widget::outputToJSON(QJsonObject &jsonObj)
@@ -433,15 +505,21 @@ bool ATC138Widget::outputAppDataToJSON(QJsonObject &jsonObj)
     double hFt = heightLE->text().toDouble();
     double typStoryHt = (numStories > 0) ? hFt / numStories : 0.0;
 
+    double side1Ft = lengthSide1LE->text().toDouble();
+    double side2Ft = lengthSide2LE->text().toDouble();
+
     QJsonObject generalInputs;
     generalInputs["num_entry_doors"] = numEntryDoorsSB->value();
-    generalInputs["typ_struct_bay_area_ft"] = typStructBayAreaDSB->value();
+    generalInputs["typ_struct_bay_length_ft"] = typStructBayLengthDSB->value();
     generalInputs["typ_story_ht_ft"] = typStoryHt;
-    generalInputs["length_side_1_ft"] = lengthSide1LE->text().toDouble();
-    generalInputs["length_side_2_ft"] = lengthSide2LE->text().toDouble();
+    generalInputs["length_side_1_ft"] = side1Ft;
+    generalInputs["length_side_2_ft"] = side2Ft;
     generalInputs["peak_occ_rate"] = peakOccRateDSB->value();
     generalInputs["engineering_cost_ratio"] = engineeringCostRatioDSB->value();
     generalInputs["num_elevators"] = numElevatorsSB->value();
+    generalInputs["number_of_stories"] = numStories;
+    generalInputs["replacement_cost_median"] = replacementCostLE->text().toDouble();
+    generalInputs["plan_area_ft2"] = side1Ft * side2Ft;
 
     // Write general_inputs.json file
     QString filePath = getGeneralInputsFilePath();
@@ -492,8 +570,10 @@ bool ATC138Widget::inputAppDataFromJSON(QJsonObject &jsonObject)
 
             if (gi.contains("num_entry_doors"))
                 numEntryDoorsSB->setValue(gi["num_entry_doors"].toInt());
-            if (gi.contains("typ_struct_bay_area_ft"))
-                typStructBayAreaDSB->setValue(gi["typ_struct_bay_area_ft"].toDouble());
+            if (gi.contains("typ_struct_bay_length_ft"))
+                typStructBayLengthDSB->setValue(gi["typ_struct_bay_length_ft"].toDouble());
+            else if (gi.contains("typ_struct_bay_area_ft"))
+                typStructBayLengthDSB->setValue(gi["typ_struct_bay_area_ft"].toDouble());
             if (gi.contains("length_side_1_ft"))
                 lengthSide1LE->setText(QString::number(gi["length_side_1_ft"].toDouble(), 'f', 1));
             if (gi.contains("length_side_2_ft"))
@@ -564,9 +644,11 @@ void ATC138Widget::clear(void)
     numStoriesLE->clear();
     heightLE->clear();
     typStoryHtValueLabel->setText("--");
+    planAreaValueLabel->setText("--");
+    replacementCostLE->clear();
 
     numEntryDoorsSB->setValue(2);
-    typStructBayAreaDSB->setValue(169.0);
+    typStructBayLengthDSB->setValue(30.0);
     peakOccRateDSB->setValue(0.0031);
     engineeringCostRatioDSB->setValue(0.10);
     numElevatorsSB->setValue(0);
