@@ -169,7 +169,16 @@ ATC138Widget::ATC138Widget(QWidget *parent)
                                     "with one tenant unit per story. Each unit is \n"
                                     "assigned the full story area, a perimeter area \n"
                                     "based on the building edge lengths and story \n"
-                                    "height, and a default occupancy type (id=1)."));
+                                    "height, and a default occupancy type (id=1). \n"
+                                    "\n"
+                                    "Note: ATC-138 currently supports only a limited \n"
+                                    "set of occupancy_id values: \n"
+                                    "  0  - Non-Occupied Space \n"
+                                    "  1  - Commercial Office \n"
+                                    "  7  - Multi-Unit Residential \n"
+                                    "  11 - Single-Unit Residential \n"
+                                    "Using any other value will cause the assessment \n"
+                                    "to fail."));
     tenantLayout->addWidget(useTenantUnitCB);
 
     tenantUnitPathLE = new QLineEdit();
