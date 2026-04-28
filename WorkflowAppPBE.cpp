@@ -280,21 +280,27 @@ WorkflowAppPBE::setMainWindow(MainWindowWorkflowApp* window) {
     theDialog->showTool("PEER Ground Motion Records");
   });
   
-  // shaker maker
-  ShakerMaker *theShakerMaker = new ShakerMaker();
-  theToolDialog->addTool(theShakerMaker, "ShakerMaker");
-  QAction *showShakerMaker = toolsMenu->addAction("&ShakerMaker");
-  connect(showShakerMaker, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theShakerMaker] {
-    theDialog->showTool("ShakerMaker");
-  });
-
-    // DRM Model
-    DRM_Model *theDRM_Model = new DRM_Model();
-    theToolDialog->addTool(theDRM_Model, "Domain Reduction Method Analysis");
-    QAction *showDRM_Model = toolsMenu->addAction("&Domain Reduction Method Analysis");
-    connect(showDRM_Model, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theDRM_Model] {
-        theDialog->showTool("Domain Reduction Method Analysis");
-    });
+  // ShakerMaker and Domain Reduction Method Analysis are advanced tools
+  // intended for EE-UQ users. They are disabled in PBE because they bring
+  // additional Python dependencies (tapipy, geopandas, geopy, pyvista, pyproj
+  // for ShakerMaker; h5py, pyvista for DRM) that complicate PBE's runtime
+  // environment.
+  //
+  // // shaker maker
+  // ShakerMaker *theShakerMaker = new ShakerMaker();
+  // theToolDialog->addTool(theShakerMaker, "ShakerMaker");
+  // QAction *showShakerMaker = toolsMenu->addAction("&ShakerMaker");
+  // connect(showShakerMaker, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theShakerMaker] {
+  //   theDialog->showTool("ShakerMaker");
+  // });
+  //
+  // // DRM Model
+  // DRM_Model *theDRM_Model = new DRM_Model();
+  // theToolDialog->addTool(theDRM_Model, "Domain Reduction Method Analysis");
+  // QAction *showDRM_Model = toolsMenu->addAction("&Domain Reduction Method Analysis");
+  // connect(showDRM_Model, &QAction::triggered, this,[this, theDialog=theToolDialog, theEmp = theDRM_Model] {
+  //     theDialog->showTool("Domain Reduction Method Analysis");
+  // });
 
 
   // opensees@designsafe  
