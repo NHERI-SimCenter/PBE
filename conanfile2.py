@@ -1,10 +1,10 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps
 from conan.tools.files import copy
 import os
 
-class EEUQConan(ConanFile):
-    name = "EE_UQ"
+class PBEConan(ConanFile):
+    name = "PBE"
     license = "BSD-3-Clause"
     author = "NHERI SimCenter"
     url = "https://github.com/NHERI-SimCenter/EE-UQ"
@@ -17,9 +17,6 @@ class EEUQConan(ConanFile):
         if self.settings.os != "Linux":
             self.requires("libcurl/8.12.1")
             
-    def layout(self):
-        cmake_layout(self)
-
     def generate(self):
         # Generate toolchain + find_package config files        
         deps = CMakeDeps(self)
