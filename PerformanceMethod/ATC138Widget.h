@@ -47,6 +47,7 @@ class QDoubleSpinBox;
 class QCheckBox;
 class QPushButton;
 class GeneralInformationWidget;
+class PelicunLossRepairContainer;
 
 class ATC138Widget : public SimCenterAppWidget
 {
@@ -79,8 +80,15 @@ private slots:
     void updateGIDimensions();
     void updateGIStories();
 
-    // Recalculate typical story height
+    // LossRepair -> ATC138 sync
+    void setReplacementCost(QString median);
+
+    // ATC138 -> LossRepair sync
+    void updateLossRepairReplacementCost();
+
+    // Recalculate derived fields
     void recalcTypStoryHeight();
+    void recalcPlanArea();
 
 private:
     double convertToFeet(double value, const QString &fromUnit);
@@ -88,6 +96,7 @@ private:
     QString getGeneralInputsFilePath();
 
     GeneralInformationWidget *theGI;
+    PelicunLossRepairContainer *theLossRepair;
     QString currentLengthUnit;
 
     // GI-linked fields
@@ -96,10 +105,12 @@ private:
     QLineEdit *numStoriesLE;
     QLineEdit *heightLE;
     QLabel *typStoryHtValueLabel;
+    QLabel *planAreaValueLabel;
 
     // ATC138-specific fields
+    QLineEdit *replacementCostLE;
     QSpinBox *numEntryDoorsSB;
-    QDoubleSpinBox *typStructBayAreaDSB;
+    QDoubleSpinBox *typStructBayLengthDSB;
     QDoubleSpinBox *peakOccRateDSB;
     QDoubleSpinBox *engineeringCostRatioDSB;
     QSpinBox *numElevatorsSB;
@@ -115,6 +126,7 @@ private:
 
     // Guard against signal loops during GI sync
     bool updatingGI;
+    bool updatingLossRepair;
 };
 
 #endif // ATC138Widget_H

@@ -78,6 +78,8 @@ public:
      */
     virtual ~PelicunLossRepairContainer();
 
+    static PelicunLossRepairContainer *getInstance();
+
     /*!
      * Writes general settings contents to JSON
      * @param[in, out] outputObject Write contents of general settings to this object
@@ -98,9 +100,13 @@ public:
      */
     QString getPelicunLossRepairContainerName() const;
 
+    QString getReplacementCostMedian() const;
+    void setReplacementCostMedian(const QString &value);
+
     int setAdditionalComponentDB(QString additionalComponentDB);
 
 signals:
+    void replacementCostChanged(QString median);
 
 public slots:
     int updateAvailableComponents();
@@ -186,8 +192,9 @@ private:
     QGridLayout *gridLayout;
 
     // Display consequence information
-    QWebEngineView *consequenceViz; 
+    QWebEngineView *consequenceViz;
 
+    static PelicunLossRepairContainer *theInstance;
 };
 
 #endif // PelicunLOSS_REPAIR_CONTAINER_H
