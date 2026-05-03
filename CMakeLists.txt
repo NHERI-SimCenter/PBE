@@ -109,7 +109,12 @@ add_executable(${PROJECT_NAME}
     ${HEADERS}
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Component
+    ${CMAKE_CURRENT_SOURCE_DIR}/LossModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/PerformanceMethod
+)
 
 if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE CURL_STATICLIB USE_SIMCENTER_PYTHON)
