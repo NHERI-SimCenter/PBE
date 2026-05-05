@@ -59,7 +59,11 @@
                 "DemandType": "SA_1.13",
                 "Theta_1": "0.5"
             },
-            "DamageProcess": "FEMA P-58"
+            "DamageProcess": "FEMA P-58",
+            "IrreparableDamage": {
+                "DriftCapacityLogStd": "0.3",
+                "DriftCapacityMedian": "0.1"
+            }
         },
         "Demands": {
             "Calibration": {
@@ -75,7 +79,7 @@
             "CollapseLimits": {
                 "PID": "0.06"
             },
-            "DemandFilePath": "{Current_Dir}/demands_s4.csv",
+            "DemandFilePath": "{Current_Dir}/demands_s2.csv",
             "InferResidualDrift": {
                 "1": "0.0075",
                 "2": "0.0075",
