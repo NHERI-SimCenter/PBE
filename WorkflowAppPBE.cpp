@@ -808,7 +808,7 @@ WorkflowAppPBE::createCitation(QJsonObject &citation, QString citeFile) {
 
   QJsonObject citationPBE;
   citationPBE.insert("citation",
-		     "Adam Zsarnoczay, Frank McKenna, Sang-ri Yi, Aakash Bangalore Satish, Michael Gardner, Charles Wang, Amin Pakzad, Barbaros Cetiner, & Wael Elhaddad. (2025). NHERI-SimCenter/PBE: Version 4.4.0 (v4.4.0). Zenodo. https://doi.org/10.5281/zenodo.17239569");
+		     "Adam Zsarnoczay, Frank McKenna, Sang-ri Yi, Aakash Bangalore Satish, Michael Gardner, Charles Wang, Amin Pakzad, Barbaros Cetiner, & Wael Elhaddad. (2026). NHERI-SimCenter/PBE: Version 4.5.0 (v4.5.0). Zenodo. https://doi.org/10.5281/zenodo.20056803");
   citationPBE.insert("description",
 		     "This is the overall tool reference used to indicate the version of the tool.");
 
