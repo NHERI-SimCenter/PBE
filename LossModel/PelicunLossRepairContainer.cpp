@@ -676,7 +676,7 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     mapPath->setVisible(false);
     mapPath->setEnabled(false);
 
-    connect(mapApproach, SIGNAL(currentIndexChanged(QString)), this,
+    connect(mapApproach, SIGNAL(currentTextChanged(QString)), this,
                 SLOT(MAPApproachSelectionChanged(QString)));
 
     loMAP->addLayout(customMapLayout);

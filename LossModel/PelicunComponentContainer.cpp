@@ -463,7 +463,7 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     customPOPFolderLayout->addWidget(btnChoosePOPDB);
     btnChoosePOPDB->setVisible(false);
 
-    connect(databasePOPCombo, SIGNAL(currentIndexChanged(QString)), this,
+    connect(databasePOPCombo, SIGNAL(currentTextChanged(QString)), this,
                 SLOT(POPDBSelectionChanged(QString)));
 
     loCEns->addLayout(customPOPFolderLayout);

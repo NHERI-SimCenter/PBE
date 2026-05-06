@@ -118,7 +118,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     demandDataPath->setVisible(false);
     demandDataPath->setEnabled(false);
 
-    connect(databaseCombo, SIGNAL(currentIndexChanged(QString)), this,
+    connect(databaseCombo, SIGNAL(currentTextChanged(QString)), this,
                 SLOT(DemandDSSelectionChanged(QString)));
 
     loDS->addLayout(customSourceLayout);
@@ -255,7 +255,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loDM->addWidget(truncationSettings);
 
     connect(demandDistribution,
-            SIGNAL(currentIndexChanged(QString)), this,
+            SIGNAL(currentTextChanged(QString)), this,
             SLOT(DistributionSelectionChanged(QString)));
     this->DistributionSelectionChanged(demandDistribution->currentText());
 
@@ -548,7 +548,7 @@ PelicunDemandContainer::PelicunDemandContainer(QWidget *parent)
     loResidual->addWidget(residualDSettings);
 
     connect(inferenceCombo,
-            SIGNAL(currentIndexChanged(QString)), this,
+            SIGNAL(currentTextChanged(QString)), this,
             SLOT(ResidualDSelectionChanged(QString)));
     this->ResidualDSelectionChanged(inferenceCombo->currentText());
 

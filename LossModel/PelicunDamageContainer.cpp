@@ -357,7 +357,7 @@ PelicunDamageContainer::PelicunDamageContainer(QWidget *parent)
     dpDataPath->setVisible(false);
     dpDataPath->setEnabled(false);
 
-    connect(dpApproach, SIGNAL(currentIndexChanged(QString)), this,
+    connect(dpApproach, SIGNAL(currentTextChanged(QString)), this,
                 SLOT(DPApproachSelectionChanged(QString)));
 
     loDP->addLayout(customSourceLayout);
