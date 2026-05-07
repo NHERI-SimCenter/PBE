@@ -54,6 +54,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SectionTitle.h>
 #include <QStringListModel>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QtWebEngineCore/QWebEngineSettings>
+#endif
+
 #include <RunPythonInThread.h>
 
 #include "SimCenterPreferences.h"
@@ -286,6 +290,11 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     consequenceViz->setMaximumHeight(320);
     consequenceViz->page()->setBackgroundColor(Qt::transparent);
     //consequenceViz->page()->setBackgroundColor(Qt::red);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)    
+    consequenceViz->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
+#endif
+    
     consequenceViz->setHtml("");
     consequenceViz->setVisible(false);
     // sy - **NOTE** QWebEngineView display is VERY SLOW when the app is built in debug mode 
@@ -1306,9 +1315,8 @@ PelicunLossRepairContainer::updateComponentInfo(){
                 }
             }
 
-            consequenceViz->setHtml(htmlString,
-                QUrl::fromUserInput("/Users/"));                    
             // Zoom factor has a bug in Qt, below is a workaround
+            QObject::disconnect(consequenceViz, &QWebEngineView::loadFinished, nullptr, nullptr);
             QObject::connect(
                 consequenceViz, &QWebEngineView::loadFinished,
                 [=](bool arg) {
@@ -1316,6 +1324,11 @@ PelicunLossRepairContainer::updateComponentInfo(){
                     consequenceViz->show();
                     consequenceViz->setVisible(true);
                 });
+
+	    // 1. moving setHTML after connect, in case finishes before connection set up
+	    // 2. also using QUrl instead of /Users as needs to be valid path, also if
+	    //     script accessed assets in that dir it world still work
+            consequenceViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
 
             break; // so that we do not check the following databases for the same component
         }

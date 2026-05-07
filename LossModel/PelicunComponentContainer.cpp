@@ -66,6 +66,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSettings>
 #include <QSignalMapper>
 #include <QWebEngineView>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QtWebEngineCore/QWebEngineSettings>
+#endif
+
+#include <QRegularExpression>
 #include <RunPythonInThread.h>
 
 #include <QScreen>
@@ -726,6 +732,11 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     fragilityViz->setMaximumHeight(240);
     fragilityViz->page()->setBackgroundColor(Qt::transparent);
     //fragilityViz->page()->setBackgroundColor(Qt::red);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)    
+    fragilityViz->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
+#endif
+
     fragilityViz->setHtml("");
     fragilityViz->setVisible(false);
     // sy - **NOTE** QWebEngineView display is VERY SLOW when the app is built in debug mode 
@@ -1221,9 +1232,16 @@ PelicunComponentContainer::showSelectedComponent(){
                 }
             }
 
-            fragilityViz->setHtml(htmlString,
-                QUrl::fromUserInput("/Users/"));                    
-            // Zoom factor has a bug in Qt, below is a workaround
+	    /* Following is a Claude suggestion .. no effect for my testing  **************
+             // crossorigin="anonymous" + integrity forces a CORS request that sends Origin: null
+            // from a file:// page — CDN servers reject null even with Access-Control-Allow-Origin: *.
+            // Stripping them converts it to a plain (no-CORS) script load which works fine.
+            htmlString.replace(QRegularExpression(R"( crossorigin="[^"]*")"), "");
+            htmlString.replace(QRegularExpression(R"( integrity="[^"]*")"), "");
+	    ******************end Claude suggestion ***********************************/
+
+            // Disconnect before connect to prevent stacking multiple
+            QObject::disconnect(fragilityViz, &QWebEngineView::loadFinished, nullptr, nullptr);
             QObject::connect(
                 fragilityViz, &QWebEngineView::loadFinished,
                 [=](bool arg) {
@@ -1231,6 +1249,11 @@ PelicunComponentContainer::showSelectedComponent(){
                     fragilityViz->show();
                     fragilityViz->setVisible(true);
                 });
+
+	    // 1. moving setHTML after connect, in case finishes before connection set up
+	    // 2. also using QUrl instead of /Users as needs to be valid path, also if
+	    //     script accessed assets in that dir it world still work
+            fragilityViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
 
             break; // so that we do not check the following databases for the same component
         }
