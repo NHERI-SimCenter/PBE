@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Usage: makeMac.sh [--arch <x86_64 or arm64>] [--release]
+# Usage: makeMac.sh [--arch <x86_64 or arm64>] [--release] [--wipe]
 # Defaults: arch = ""
 
 PROJECT_NAME="PBE"
@@ -13,6 +13,7 @@ PREFIX="$(pwd)/DEPS"
 RELEASE="NO"
 RELEASE_FLAG="-DNO_RELEASE"
 APPLICATIONS_DIR=$(pwd)/../SimCenterBackendApplications/applications
+PYTHON_DIR="${HOME}/cpython"
 WIPE="FALSE"
 
 while [[ $# -gt 0 ]]; do
@@ -33,9 +34,11 @@ while [[ $# -gt 0 ]]; do
             if [[ "$ARCH" == "x86_64" ]]; then
 		pathToOpenSees="${HOME}/bin/OpenSeesLatest_x86_64"
 		pathToDakota="${HOME}/dakota/dakota-6.19.0"
+		PYTHON_DIR="${PYTHON_DIR}/python_x86_64"		
 	    else
 		pathToOpenSees="${HOME}/bin/OpenSeesLatest_arm64"
 		pathToDakota="${HOME}/dakota/dakota-6.22.0"
+		PYTHON_DIR="${PYTHON_DIR}/python_arm64"				
             fi	    
 	    
             shift 2
@@ -101,7 +104,7 @@ else
 fi
 
 #
-# remove old build dir
+# Remove old build dir
 #
 
 if [[ "$WIPE" == "TRUE" ]]; then
@@ -111,6 +114,10 @@ if [[ "$WIPE" == "TRUE" ]]; then
     fi
 fi
 
+#
+# Conan build dependencies
+#
+
 msg "Running conan install..."
  
 # copy conanfile2 to conanfile till i remove old qmake build
@@ -118,10 +125,16 @@ if [ -f "conanfile2.py" ]; then
     mv conanfile.py conanfile.old
     cp conanfile2.py conanfile.py
 fi
+
 conan install . --output-folder="${BUILD_DIR}" --build missing -s build_type=Release -pr "${CONAN_PROFILE}" || die "FAIL : Conan install failed."
+
 if [ -f "conanfile2.py" ]; then
     mv conanfile.old conanfile.py
 fi
+
+#
+# Configure CMake
+#
 
 CMAKE_ARCH_FLAG=""
 if [ -n "${ARCH}" ]; then
@@ -145,7 +158,7 @@ touch WorkflowAppPBE.cpp main.cpp
 rm -fr "${BUILD_DIR}/${PROJECT_NAME}.app"
 
 #
-# Now build
+# Now build With CMake
 #
 
 msg "Building with 8 cores..."
@@ -164,6 +177,11 @@ rm -fr "${APP_DIR}/Contents/MacOS/Examples/.aurore"
 rm -fr "${APP_DIR}/Contents/MacOS/Examples/.gitignore"
 
 if [[ "$RELEASE" != "YES" ]]; then
+
+    # Copy backend, don't bother cleanup unwanted as if arch specifdied, cannot set backend to it    
+    mkdir  -p "${APP_DIR}/Contents/MacOS/applications"
+    cp -fr "${APPLICATIONS_DIR}"/* "$APP_DIR/Contents/MacOS/applications"    
+    
     die "Build complete!"
 fi
 
@@ -195,6 +213,32 @@ mkdir  "${APP_DIR}/Contents/MacOS/applications/dakota"
 cp -fr "${APPLICATIONS_DIR}"/* "$APP_DIR/Contents/MacOS/applications"
 cp -fr "${pathToOpenSees}"/* "./${APP_DIR}/Contents/MacOS/applications/opensees"
 cp -fr "${pathToDakota}"/*   "./${APP_DIR}/Contents/MacOS/applications/dakota"
+
+
+#
+# Include python
+#
+
+INCLUDE_PYTHON="FALSE"
+
+if [ "${INCLUDE_PYTHON}" == "TRUE" ]; then
+    msg "PYTHON_DIR: $PYTHON_DIR"
+    if [ -d "$PYTHON_DIR" ]; then
+	
+	PYTHON_RELEASED="${APP_DIR}/Contents/MacOS/applications/python"
+	mkdir  "${PYTHON_RELEASED}"
+	cp -fr "${PYTHON_DIR}"/*   "${PYTHON_RELEASED}"
+	
+	if [[ "$ARCH" == "x86_64" ]]; then
+	    arch -x86_64 "${PYTHON_RELEASED}/bin/pip3" install "nheri-simcenter[pbe]"
+	else
+	    "${PYTHON_RELEASED}/bin/pip3" install "nheri-simcenter[pbe]"
+	fi
+	
+    else
+	msg "No Python INSTALLED"
+    fi
+fi
 
 #
 # remove unwanted applications from backend
@@ -240,8 +284,76 @@ fi
 # now codesign
 #
 
-msg "codesigning with: codesign --force --deep --verbose --timestamp --options=runtime --sign "$appleCredential" "$APP_DIR""
-codesign --force --deep --verbose --timestamp --options=runtime --sign "$appleCredential" "$APP_DIR" || die "FAIL: codesign failed."
+
+
+# Sign Qt frameworks as bundles (fastest and correct)
+
+if [ "${INCLUDE_PYTHON}" == "TRUE_GPT" ]; then
+
+    msg "chatGPPT codesigning ${APP_DIR} (inside-out)"
+
+    # codesign all exxecutables
+    find "${APP_DIR}" -type f -exec file {} \; \
+	| grep 'Mach-O' \
+	| cut -d: -f1 \
+	| while read f; do
+	    codesign --force --options runtime --timestamp \
+            --sign "$appleCredential" "$f"
+    done
+
+    # Now sign the app bundle (no --deep)
+    echo "Final codesign"
+    codesign --force --verbose --timestamp --options=runtime --sign "$appleCredential" "$APP_DIR" || die "FAIL: codesign failed."    
+
+elif [ "${INCLUDE_PYTHON}" == "TRUE_CLAUDE" ]; then
+
+    msg "claude: codesigning ${APP_DIR} (inside-out)"
+    find "${APP_DIR}/Contents/Frameworks" -name "*.framework" -maxdepth 1 \
+	 -exec codesign --force --timestamp --options=runtime --sign "$appleCredential" {} \;
+
+    # Sign dylibs and .so files outside of Frameworks
+    find "${APP_DIR}" -type f \( -name "*.dylib" -o -name "*.so" \) \
+	 ! -path "*/Frameworks/*.framework/*" \
+	 -exec codesign --force --timestamp --options=runtime --sign "$appleCredential" {} \;
+
+    # Sign Mach-O executables in applications/ (OpenSees, Dakota, backend, Python bin)
+    find "${APP_DIR}/Contents/MacOS/applications" -type f \
+	 -exec bash -c 'if file -b "$1" | grep -q "Mach-O"; then \
+	         codesign --force --timestamp --options=runtime --sign "$2" "$1"; fi' _ {} "$appleCredential" \;
+
+    # Sign all non-Mach-O files in Contents/MacOS/ — codesign requires everything there to be signed
+    # No --timestamp needed for non-binaries; Apple notarization only requires it on Mach-O
+    find "${APP_DIR}/Contents/MacOS" -type f \
+	 -exec bash -c 'if ! file -b "$1" | grep -q "Mach-O"; then \
+	         codesign --force --sign "$2" "$1"; fi' _ {} "$appleCredential" \;
+
+    # Pre-sign versioned Python dirs that codesign mistakes for nested bundles
+    find "${APP_DIR}/Contents/MacOS/applications/python/lib" -maxdepth 1 -mindepth 1 -type d | \
+	while read -r dir; do
+	    codesign --force --timestamp --sign "$appleCredential" "$dir" 2>&1 || true
+	done
+
+    # Now sign the app bundle (no --deep)
+    codesign --force --verbose --timestamp --options=runtime --sign "$appleCredential" "$APP_DIR" || die "FAIL: codesign failed."
+    
+else
+        
+    msg "codesigning ${APP_DIR} --deep"    
+    codesign --force --deep --verbose --timestamp --options=runtime --sign "$appleCredential" "$APP_DIR" || die "FAIL: codesign failed."
+    
+    #
+    # Sign QtWebEngineProcess with its bundled entitlements as --deep on APP overwrites this, making plots appear empty in notarized builds
+    #
+    
+    WEBENGINE_PROCESS="${APP_DIR}/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app"
+    msg "codesigning ${WEBENGINE_PROCESS}"
+    WEBENGINE_ENTITLEMENTS="${WEBENGINE_PROCESS}/Contents/Resources/QtWebEngineProcess.entitlements"
+    if [ -f "${WEBENGINE_ENTITLEMENTS}" ]; then
+        codesign --force --timestamp --options=runtime \
+            --entitlements "${WEBENGINE_ENTITLEMENTS}" \
+            --sign "$appleCredential" "${WEBENGINE_PROCESS}" || die "FAIL: QtWebEngineProcess codesign failed."
+    fi
+fi
 
 #
 # build dmg bundle
@@ -284,6 +396,7 @@ else
 
 fi
 
+
 #
 # now xcrun stuff to get it signed and stapled
 #
@@ -300,7 +413,7 @@ echo "xcrun notarytool info ID  --apple-id $appleID --password $appleAppPassword
 echo "xcrun notarytool log ID --apple-id $appleID --password $appleAppPassword --team-id $appleCredential"
 echo ""
 echo "Finally staple the dmg"
-echo "xcrun stapler staple  "${BUILD_DIR}/PBE_Mac_Download_${ARCH}.dmg""
+echo "xcrun stapler staple  ${BUILD_DIR}/PBE_Mac_Download_${ARCH}.dmg"
 
 
 echo "Release Build complete!"
