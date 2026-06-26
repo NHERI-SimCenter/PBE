@@ -33,7 +33,7 @@ while [[ $# -gt 0 ]]; do
 
             if [[ "$ARCH" == "x86_64" ]]; then
 		pathToOpenSees="${HOME}/bin/OpenSeesLatest_x86_64"
-		pathToDakota="${HOME}/dakota/dakota-6.19.0"
+		pathToDakota="${HOME}/dakota/dakota-6.24.0-x86"		
 		PYTHON_DIR="${PYTHON_DIR}/python_x86_64"		
 	    else
 		pathToOpenSees="${HOME}/bin/OpenSeesLatest_arm64"
@@ -45,7 +45,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 	--release|-r)
 	    RELEASE="YES"
-	    RELEASE_FLAG="-D_SC_RELEASE"	    
+	    RELEASE_FLAG="-DSC_RELEASE"	    
 	    shift 1
 	    ;;
 	--wipe|-w)
