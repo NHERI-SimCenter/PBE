@@ -11,10 +11,10 @@ setlocal enabledelayedexpansion
 ::   - For --release: OpenSees, Dakota, and a Python 3.12 embedded zip
 ::
 :: Usage:
-::   makeWin2.bat              -- dev build only
-::   makeWin2.bat --release    -- full deployable bundle + zip
-::   makeWin2.bat --wipe       -- delete build dir before building
-::   makeWin2.bat -r -w        -- wipe build folder then release build
+::   makeWin.bat              -- dev build only
+::   makeWin.bat --release    -- full deployable bundle + zip
+::   makeWin.bat --wipe       -- delete build dir before building
+::   makeWin.bat -r -w        -- wipe build folder then release build
 
 :: =====================================================================
 :: CONFIG -- adjust these paths for your machine
@@ -23,7 +23,7 @@ set "QT=C:\Qt6\6.10.2\msvc2022_64"
 set "SEVENZIP=C:\Program Files\7-Zip\7z.exe"
 set "VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 set "pathToOpenSees=%USERPROFILE%\bin\OpenSees3.8.0"
-set "pathToDakota=%USERPROFILE%\dakota\dakota-6.19"
+set "pathToDakota=%USERPROFILE%\dakota\dakota6.24"
 set "pathToPython=%USERPROFILE%\python_releases\python3.12.zip"
 set "APPLICATIONS_DIR=%CD%\..\SimCenterBackendApplications\applications"
 :: =====================================================================
@@ -182,6 +182,7 @@ cmake -B "%BUILD_DIR%" -S . ^
     -DCMAKE_TOOLCHAIN_FILE="%BUILD_DIR%\conan_toolchain.cmake" ^
     -DCMAKE_PREFIX_PATH="%PREFIX%;%QT%" ^
     -DCMAKE_CXX_FLAGS="%RELEASE_FLAG%" ^
+    -DCMAKE_DAKOTA_VERSION=624 ^
     -DCMAKE_BUILD_TYPE=Release
 
 if errorlevel 1 (
@@ -192,7 +193,7 @@ if errorlevel 1 (
 )
 
 :: Touch main entry points so the version string baked into them is always fresh
-copy /b WorkflowAppPBE.cpp +,, >nul 2>&1
+copy /b WorkflowApp_quoFEM.cpp +,, >nul 2>&1
 copy /b main.cpp +,, >nul 2>&1
 
 if exist "%BUILD_DIR%\%PROJECT_NAME%.exe" del /f /q "%BUILD_DIR%\%PROJECT_NAME%.exe"
@@ -283,7 +284,7 @@ if not exist "%PYTHON%" (
 
 "%PYTHON%" -m pip install pip --upgrade
 "%PYTHON%" -m pip install nheri-simcenter[pbe] --upgrade
-"%PYTHON%" -m pelicun.cli dlml update
+:: "%PYTHON%" -m pelicun.cli dlml update
 :: "%PYTHON%" -m pip install femora --upgrade
 
 :: ---- Remove unwanted applications ----
