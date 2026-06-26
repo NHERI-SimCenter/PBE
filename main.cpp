@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
   //Setting Google Analytics Tracking Information
   QString analyticsOption = getConfigOptionString("GoogleAnalytics");
     
-#ifdef SC_RELEASE
+#ifdef _SC_RELEASE
 
   qDebug() << "Running a Release Version of PBE";
   

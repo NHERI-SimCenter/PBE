@@ -51,7 +51,7 @@ exit /b 1
 
 :arg_release
 set "RELEASE=YES"
-set "RELEASE_FLAG=-DSC_RELEASE"
+set "RELEASE_FLAG=-D_SC_RELEASE"
 shift
 goto :parse_args
 

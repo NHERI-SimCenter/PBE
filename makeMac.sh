@@ -45,7 +45,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 	--release|-r)
 	    RELEASE="YES"
-	    RELEASE_FLAG="-DSC_RELEASE"	    
+	    RELEASE_FLAG="-D_SC_RELEASE"	    
 	    shift 1
 	    ;;
 	--wipe|-w)
