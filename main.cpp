@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("4.5.2");
+    QCoreApplication::setApplicationVersion("4.5.3");
 					    
 
 #ifdef Q_OS_WIN
@@ -201,8 +201,11 @@ int main(int argc, char *argv[])
     view.show();
     view.hide();
     
-  } else
-    qDebug() << "Google Analytics: None";  
+  } else {
+    
+    qDebug() << "Google Analytics: None";
+    
+  }
 
 #else
 
@@ -210,39 +213,12 @@ int main(int argc, char *argv[])
   
 #endif
 
-#ifdef _ANALYTICS
-  
-  if (analyticsOption != "No") {  
-    qDebug() << "compiled with: ANALYTICS";  
-    GoogleAnalytics::SetMeasurementId("G-JWNPJMZVTK");
-    GoogleAnalytics::SetAPISecret("CL5znZLfQv6N2Tk1RJVMWg");
-    GoogleAnalytics::CreateSessionId();
-    GoogleAnalytics::StartSession();
-  }
-  
-#endif  
-
-
   //
   // RUN the GUI
   //
   
   int res = a.exec();
 
-#ifdef _GA_AFTER
-
-  if (analyticsOption != "No") {  
-    qDebug() << "compiled with: _GA_AFTER";
-    // Opening a QWebEngineView and using github to get app geographic usage
-    QWebEngineView view;
-    view.setUrl(QUrl("https://nheri-simcenter.github.io/PBE/GA4.html"));
-    view.resize(1024, 750);
-    view.show();
-    view.hide();
-  }
-  
-#endif
-  
   //
   // on done with event loop, logout & stop the thread
   //
