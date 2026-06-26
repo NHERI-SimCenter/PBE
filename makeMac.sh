@@ -45,7 +45,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 	--release|-r)
 	    RELEASE="YES"
-	    RELEASE_FLAG="-DSC_RELEASE"	    
+	    RELEASE_FLAG="-D_SC_RELEASE"	    
 	    shift 1
 	    ;;
 	--wipe|-w)
@@ -54,7 +54,7 @@ while [[ $# -gt 0 ]]; do
 	    ;;
         *)	    
             echo "Unknown argument: $1"
-            echo "Usage: $0 --arch <arm64|x86_64>"
+            echo "Usage: $0 --arch <arm64|x86_64> <--release> <--wipe>"	    
             exit 1
             ;;
     esac

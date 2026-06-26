@@ -55,6 +55,7 @@ applications/performDL/pelicunPBE/__pycache__/
 *.bak
 userID.sh
 build*
+DEPS*
 .DS_Store
 DEPS
 quazip
