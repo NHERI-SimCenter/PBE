@@ -14,9 +14,15 @@ class PBEConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.3.1")
+        self.requires("bzip2/1.0.8")
         if self.settings.os != "Linux":
             self.requires("libcurl/8.12.1")
             
+    def configure(self):
+        if self.settings.os == "Windows":
+            self.options["bzip2"].shared = True
+            self.options["zlib"].shared = True
+
     def generate(self):
         # Generate toolchain + find_package config files        
         deps = CMakeDeps(self)
