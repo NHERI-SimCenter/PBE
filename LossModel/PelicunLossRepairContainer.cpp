@@ -288,8 +288,13 @@ PelicunLossRepairContainer::PelicunLossRepairContainer(QWidget *parent)
     consequenceViz = new QWebEngineView();
     consequenceViz->setMinimumHeight(320);
     consequenceViz->setMaximumHeight(320);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     consequenceViz->page()->setBackgroundColor(Qt::transparent);
-    //consequenceViz->page()->setBackgroundColor(Qt::red);
+#else
+    // Qt 5.15's WebEngine does not recognize a transparent page background;
+    // match the stylesheet's window background so the figures blend in.
+    consequenceViz->page()->setBackgroundColor(QColor(240, 240, 240));
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)    
     consequenceViz->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
@@ -1251,6 +1256,7 @@ PelicunLossRepairContainer::updateComponentInfo(){
             //this->statusMessage("Loading figure from "+vizDatabase);
 
             QString htmlString;
+            QUrl htmlFileUrl;
             if (vizDatabase.endsWith("zip")) {
 
                 QuaZip componentDBZip(vizDatabase);        
@@ -1283,21 +1289,16 @@ PelicunLossRepairContainer::updateComponentInfo(){
 
                 // we assume that in every other case the viz DB points to a directory
 
-                QFile inFile(vizDatabase + compID+"-"+cType + ".html");
+                QString htmlFilePath = vizDatabase + compID+"-"+cType + ".html";
 
-                if (!inFile.exists()){
+                if (!QFile::exists(htmlFilePath)){
                     continue;
                 }
 
-                if (!inFile.open(QIODevice::ReadOnly)) {
-                    this->errorMessage(QString(
-                        "Error while trying to open figure for component " + 
-                        compID+"-"+cType));
-                } else {
-                    QTextStream ts(&inFile);
-                    htmlString = ts.readAll();
-                    inFile.close();
-                }
+                // load the figure from the file itself; a page loaded through
+                // setHtml has a data-URL origin that is not allowed to access
+                // the local plotly.min.js next to the figure
+                htmlFileUrl = QUrl::fromLocalFile(htmlFilePath);
             }
 
             // Zoom factor has a bug in Qt, below is a workaround
@@ -1313,7 +1314,11 @@ PelicunLossRepairContainer::updateComponentInfo(){
 	    // 1. moving setHTML after connect, in case finishes before connection set up
 	    // 2. also using QUrl instead of /Users as needs to be valid path, also if
 	    //     script accessed assets in that dir it world still work
-            consequenceViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            if (htmlFileUrl.isEmpty()) {
+                consequenceViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            } else {
+                consequenceViz->load(htmlFileUrl);
+            }
 
             break; // so that we do not check the following databases for the same component
         }

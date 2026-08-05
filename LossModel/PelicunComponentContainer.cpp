@@ -730,8 +730,13 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     fragilityViz = new QWebEngineView();
     fragilityViz->setMinimumHeight(240);
     fragilityViz->setMaximumHeight(240);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     fragilityViz->page()->setBackgroundColor(Qt::transparent);
-    //fragilityViz->page()->setBackgroundColor(Qt::red);
+#else
+    // Qt 5.15's WebEngine does not composite a transparent page background;
+    // match the stylesheet's window background so the figures blend in.
+    fragilityViz->page()->setBackgroundColor(QColor(240, 240, 240));
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)    
     fragilityViz->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
@@ -1175,6 +1180,7 @@ PelicunComponentContainer::showSelectedComponent(){
             //this->statusMessage("Loading figure from "+vizDatabase);
 
             QString htmlString;
+            QUrl htmlFileUrl;
             if (vizDatabase.endsWith("zip")) {
 
                 QuaZip componentDBZip(vizDatabase);        
@@ -1207,30 +1213,17 @@ PelicunComponentContainer::showSelectedComponent(){
 
                 // we assume that in every other case the viz DB points to a directory
 
-                QFile inFile(vizDatabase + selectedCompCombo->currentText() + ".html");
+                QString htmlFilePath = vizDatabase + selectedCompCombo->currentText() + ".html";
 
-                if (!inFile.exists()){
+                if (!QFile::exists(htmlFilePath)){
                     continue;
                 }
 
-                if (!inFile.open(QIODevice::ReadOnly)) {
-                    this->errorMessage(QString(
-                        "Error while trying to open figure for component " + 
-                        selectedCompCombo->currentText()));
-                } else {
-                    QTextStream ts(&inFile);
-                    htmlString = ts.readAll();
-                    inFile.close();
-                }
+                // load the figure from the file itself; a page loaded through
+                // setHtml has a data-URL origin that is not allowed to access
+                // the local plotly.min.js next to the figure
+                htmlFileUrl = QUrl::fromLocalFile(htmlFilePath);
             }
-
-	    /* Following is a Claude suggestion .. no effect for my testing  **************
-             // crossorigin="anonymous" + integrity forces a CORS request that sends Origin: null
-            // from a file:// page — CDN servers reject null even with Access-Control-Allow-Origin: *.
-            // Stripping them converts it to a plain (no-CORS) script load which works fine.
-            htmlString.replace(QRegularExpression(R"( crossorigin="[^"]*")"), "");
-            htmlString.replace(QRegularExpression(R"( integrity="[^"]*")"), "");
-	    ******************end Claude suggestion ***********************************/
 
             // Disconnect before connect to prevent stacking multiple
             QObject::disconnect(fragilityViz, &QWebEngineView::loadFinished, nullptr, nullptr);
@@ -1245,7 +1238,11 @@ PelicunComponentContainer::showSelectedComponent(){
 	    // 1. moving setHTML after connect, in case finishes before connection set up
 	    // 2. also using QUrl instead of /Users as needs to be valid path, also if
 	    //     script accessed assets in that dir it world still work
-            fragilityViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            if (htmlFileUrl.isEmpty()) {
+                fragilityViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            } else {
+                fragilityViz->load(htmlFileUrl);
+            }
 
             break; // so that we do not check the following databases for the same component
         }
