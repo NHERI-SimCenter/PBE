@@ -939,18 +939,17 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     this-> updateComponentVulnerabilityDB();
 }
 
-QString
-PelicunComponentContainer::getDefaultDatabasePath()
+QJsonObject
+PelicunComponentContainer::getDefaultDatasetPaths()
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     QString python = preferences->getPython();
-    QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
     QProcess proc;
     QStringList params;
 
-    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "dataset_paths";
 
     proc.start(python, params);
     proc.waitForFinished(-1);
@@ -960,43 +959,36 @@ PelicunComponentContainer::getDefaultDatabasePath()
     //this->statusMessage(stdOut);
     this->errorMessage(proc.readAllStandardError());
 
-    QString databasePath(stdOut);
+    QJsonDocument doc = QJsonDocument::fromJson(stdOut.trimmed());
 
-    return databasePath.trimmed();
+    if (!doc.isObject())
+        return QJsonObject();
+
+    return doc.object();
 }
 
 QString
-PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
+PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path, QString comp_DB_id)
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     QString python = preferences->getPython();
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString DLML_folder = "DamageAndLossModelLibrary";
-
-    int DLML_start = comp_DB_path.indexOf(DLML_folder);
-
     QString comp_DB_name;
-    
-    // show an error message if the incoming path does not have DLML in it
-    if (DLML_start != -1) {
 
-        // Adjust the index to the beginning of the subfolders
-        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
+    if (comp_DB_id != "") {
 
-        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
-        comp_DB_name.chop(4); // to remove the .csv from the end
+        // built-in databases are identified by their dataset id
+        comp_DB_name = comp_DB_id;
         comp_DB_name = comp_DB_name.replace("/","_");
         comp_DB_name = comp_DB_name.replace("\\","_");
         comp_DB_name = comp_DB_name.replace(" ","_");
 
     } else {
 
-        // If there is no DLML in the comp path, then assume that we are 
-        // dealing with a custom db file and use the filename as an ID
-        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-        comp_DB_name.chop(4);    
+        // custom db files are identified by their filename
+        comp_DB_name = QFileInfo(comp_DB_path).completeBaseName();
 
     }
 
@@ -1500,29 +1492,22 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     bool cmpDataChanged = false;
 
-    QString databasePath = this->getDefaultDatabasePath();
-    
-    QFile jsonFile(databasePath+"/resources/dlml_resource_paths.json");
+    QJsonObject datasetPaths = this->getDefaultDatasetPaths();
 
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    QJsonObject resourcePaths;
-    if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
-        QString val = jsonFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        resourcePaths = doc.object();
-        jsonFile.close();
-    }
-
-    databasePath += "/resources/DamageAndLossModelLibrary/";
     QString cmpVulnerabilityDB_tmp;
+    QString cmpVulnerabilityDB_id;
 
-    if (resourcePaths.contains(databaseCombo->currentText())) {
-        cmpVulnerabilityDB_tmp = databasePath + resourcePaths[databaseCombo->currentText()].toString() + "fragility.csv";
+    if (datasetPaths.contains(databaseCombo->currentText())) {
+        QJsonObject datasetInfo = datasetPaths[databaseCombo->currentText()].toObject();
+
+        cmpVulnerabilityDB_tmp = datasetInfo["path"].toString() + "/fragility.csv";
+        cmpVulnerabilityDB_id = datasetInfo["id"].toString();
 
     } else {
-        
+
         cmpVulnerabilityDB_tmp = "";
 
     }
@@ -1539,7 +1524,7 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
                                 QString(databaseCombo->currentText()) +
                                 " data from "+ cmpVulnerabilityDB);
 
-            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB);
+            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB, cmpVulnerabilityDB_id);
 
             // load the visualization path too (assume that we have a zip file for every bundled DB)
             /*

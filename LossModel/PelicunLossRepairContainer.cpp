@@ -774,29 +774,22 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 
     bool cmpDataChanged = false;
 
-    QString databasePath = this->getDefaultDatabasePath();
-
-    QFile jsonFile(databasePath+"/resources/dlml_resource_paths.json");
+    QJsonObject datasetPaths = this->getDefaultDatasetPaths();
 
     // check the component consequence database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    QJsonObject resourcePaths;
-    if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
-        QString val = jsonFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        resourcePaths = doc.object();
-        jsonFile.close();
-    }
-
-    databasePath += "/resources/DamageAndLossModelLibrary/";
     QString cmpConsequenceDB_tmp;
+    QString cmpConsequenceDB_id;
 
-    if (resourcePaths.contains(databaseConseq->currentText())) {
-        cmpConsequenceDB_tmp = databasePath + resourcePaths[databaseConseq->currentText()].toString() + "consequence_repair.csv";
+    if (datasetPaths.contains(databaseConseq->currentText())) {
+        QJsonObject datasetInfo = datasetPaths[databaseConseq->currentText()].toObject();
+
+        cmpConsequenceDB_tmp = datasetInfo["path"].toString() + "/consequence_repair.csv";
+        cmpConsequenceDB_id = datasetInfo["id"].toString();
 
     } else {
-        
+
         cmpConsequenceDB_tmp = "";
 
     }
@@ -815,7 +808,7 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
 
             // load the visualization path too 
             // (assume that we have a zip file for every bundled DB)
-            cmpConsequenceDB_viz = generateConsequenceInfo(cmpConsequenceDB);
+            cmpConsequenceDB_viz = generateConsequenceInfo(cmpConsequenceDB, cmpConsequenceDB_id);
             
             /*
             cmpConsequenceDB_viz = cmpConsequenceDB;
@@ -859,18 +852,17 @@ PelicunLossRepairContainer::updateComponentConsequenceDB(){
         this->updateAvailableComponents();
 }
 
-QString
-PelicunLossRepairContainer::getDefaultDatabasePath()
+QJsonObject
+PelicunLossRepairContainer::getDefaultDatasetPaths()
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     QString python = preferences->getPython();
-    QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
     QProcess proc;
     QStringList params;
 
-    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "dataset_paths";
 
     proc.start(python, params);
     proc.waitForFinished(-1);
@@ -880,13 +872,16 @@ PelicunLossRepairContainer::getDefaultDatabasePath()
     //this->statusMessage(stdOut);
     this->errorMessage(proc.readAllStandardError());
 
-    QString databasePath(stdOut);
+    QJsonDocument doc = QJsonDocument::fromJson(stdOut.trimmed());
 
-    return databasePath.trimmed();
+    if (!doc.isObject())
+        return QJsonObject();
+
+    return doc.object();
 }
 
 QString
-PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
+PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path, QString comp_DB_id)
 {
 
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
@@ -894,30 +889,20 @@ PelicunLossRepairContainer::generateConsequenceInfo(QString comp_DB_path)
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString DLML_folder = "DamageAndLossModelLibrary";
-
-    int DLML_start = comp_DB_path.indexOf(DLML_folder);
-    
     QString comp_DB_name;
 
-    // show an error message if the incoming path does not have DLML in it
-    if (DLML_start != -1) {
+    if (comp_DB_id != "") {
 
-        // Adjust the index to the beginning of the subfolders
-        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
-
-        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
-        comp_DB_name.chop(4); // to remove the .csv from the end
+        // built-in databases are identified by their dataset id
+        comp_DB_name = comp_DB_id;
         comp_DB_name = comp_DB_name.replace("/","_");
         comp_DB_name = comp_DB_name.replace("\\","_");
         comp_DB_name = comp_DB_name.replace(" ","_");
 
     } else {
 
-        // If there is no DLML in the comp path, then assume that we are 
-        // dealing with a custom db file and use the filename as an ID
-        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-        comp_DB_name.chop(4);    
+        // custom db files are identified by their filename
+        comp_DB_name = QFileInfo(comp_DB_path).completeBaseName();
     }
 
     QString output_path = workDir + "/resources/consequence_viz/" + comp_DB_name + "/";

@@ -135,8 +135,8 @@ private:
 
     void deleteCompDB();
     void initPanel();
-    QString getDefaultDatabasePath();
-    QString generateConsequenceInfo(QString comp_DB_path);
+    QJsonObject getDefaultDatasetPaths();
+    QString generateConsequenceInfo(QString comp_DB_path, QString comp_DB_id = QString());
 
     QWidget * replacementSettings;
     QWidget * repCostSettings;
