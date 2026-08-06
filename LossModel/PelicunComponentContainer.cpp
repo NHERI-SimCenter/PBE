@@ -730,8 +730,13 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     fragilityViz = new QWebEngineView();
     fragilityViz->setMinimumHeight(240);
     fragilityViz->setMaximumHeight(240);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     fragilityViz->page()->setBackgroundColor(Qt::transparent);
-    //fragilityViz->page()->setBackgroundColor(Qt::red);
+#else
+    // Qt 5.15's WebEngine does not composite a transparent page background;
+    // match the stylesheet's window background so the figures blend in.
+    fragilityViz->page()->setBackgroundColor(QColor(240, 240, 240));
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)    
     fragilityViz->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
@@ -939,18 +944,17 @@ PelicunComponentContainer::PelicunComponentContainer(QWidget *parent)
     this-> updateComponentVulnerabilityDB();
 }
 
-QString
-PelicunComponentContainer::getDefaultDatabasePath()
+QJsonObject
+PelicunComponentContainer::getDefaultDatasetPaths()
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     QString python = preferences->getPython();
-    QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
     QProcess proc;
     QStringList params;
 
-    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "default_db";
+    params << appDir + "/applications/performDL/pelicun3/DL_visuals.py" << "query" << "dataset_paths";
 
     proc.start(python, params);
     proc.waitForFinished(-1);
@@ -960,43 +964,36 @@ PelicunComponentContainer::getDefaultDatabasePath()
     //this->statusMessage(stdOut);
     this->errorMessage(proc.readAllStandardError());
 
-    QString databasePath(stdOut);
+    QJsonDocument doc = QJsonDocument::fromJson(stdOut.trimmed());
 
-    return databasePath.trimmed();
+    if (!doc.isObject())
+        return QJsonObject();
+
+    return doc.object();
 }
 
 QString
-PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path)
+PelicunComponentContainer::generateFragilityInfo(QString comp_DB_path, QString comp_DB_id)
 {
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     QString python = preferences->getPython();
     QString workDir = preferences->getLocalWorkDir();
     QString appDir = preferences->getAppDir();
 
-    QString DLML_folder = "DamageAndLossModelLibrary";
-
-    int DLML_start = comp_DB_path.indexOf(DLML_folder);
-
     QString comp_DB_name;
-    
-    // show an error message if the incoming path does not have DLML in it
-    if (DLML_start != -1) {
 
-        // Adjust the index to the beginning of the subfolders
-        int comp_DB_name_start = DLML_start += DLML_folder.length()+1;
+    if (comp_DB_id != "") {
 
-        comp_DB_name = comp_DB_path.mid(comp_DB_name_start);
-        comp_DB_name.chop(4); // to remove the .csv from the end
+        // built-in databases are identified by their dataset id
+        comp_DB_name = comp_DB_id;
         comp_DB_name = comp_DB_name.replace("/","_");
         comp_DB_name = comp_DB_name.replace("\\","_");
         comp_DB_name = comp_DB_name.replace(" ","_");
 
     } else {
 
-        // If there is no DLML in the comp path, then assume that we are 
-        // dealing with a custom db file and use the filename as an ID
-        comp_DB_name = comp_DB_path.mid(comp_DB_path.lastIndexOf("/"));
-        comp_DB_name.chop(4);    
+        // custom db files are identified by their filename
+        comp_DB_name = QFileInfo(comp_DB_path).completeBaseName();
 
     }
 
@@ -1183,6 +1180,7 @@ PelicunComponentContainer::showSelectedComponent(){
             //this->statusMessage("Loading figure from "+vizDatabase);
 
             QString htmlString;
+            QUrl htmlFileUrl;
             if (vizDatabase.endsWith("zip")) {
 
                 QuaZip componentDBZip(vizDatabase);        
@@ -1215,30 +1213,17 @@ PelicunComponentContainer::showSelectedComponent(){
 
                 // we assume that in every other case the viz DB points to a directory
 
-                QFile inFile(vizDatabase + selectedCompCombo->currentText() + ".html");
+                QString htmlFilePath = vizDatabase + selectedCompCombo->currentText() + ".html";
 
-                if (!inFile.exists()){
+                if (!QFile::exists(htmlFilePath)){
                     continue;
                 }
 
-                if (!inFile.open(QIODevice::ReadOnly)) {
-                    this->errorMessage(QString(
-                        "Error while trying to open figure for component " + 
-                        selectedCompCombo->currentText()));
-                } else {
-                    QTextStream ts(&inFile);
-                    htmlString = ts.readAll();
-                    inFile.close();
-                }
+                // load the figure from the file itself; a page loaded through
+                // setHtml has a data-URL origin that is not allowed to access
+                // the local plotly.min.js next to the figure
+                htmlFileUrl = QUrl::fromLocalFile(htmlFilePath);
             }
-
-	    /* Following is a Claude suggestion .. no effect for my testing  **************
-             // crossorigin="anonymous" + integrity forces a CORS request that sends Origin: null
-            // from a file:// page — CDN servers reject null even with Access-Control-Allow-Origin: *.
-            // Stripping them converts it to a plain (no-CORS) script load which works fine.
-            htmlString.replace(QRegularExpression(R"( crossorigin="[^"]*")"), "");
-            htmlString.replace(QRegularExpression(R"( integrity="[^"]*")"), "");
-	    ******************end Claude suggestion ***********************************/
 
             // Disconnect before connect to prevent stacking multiple
             QObject::disconnect(fragilityViz, &QWebEngineView::loadFinished, nullptr, nullptr);
@@ -1253,7 +1238,11 @@ PelicunComponentContainer::showSelectedComponent(){
 	    // 1. moving setHTML after connect, in case finishes before connection set up
 	    // 2. also using QUrl instead of /Users as needs to be valid path, also if
 	    //     script accessed assets in that dir it world still work
-            fragilityViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            if (htmlFileUrl.isEmpty()) {
+                fragilityViz->setHtml(htmlString, QUrl::fromLocalFile(vizDatabase));
+            } else {
+                fragilityViz->load(htmlFileUrl);
+            }
 
             break; // so that we do not check the following databases for the same component
         }
@@ -1500,29 +1489,22 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
 
     bool cmpDataChanged = false;
 
-    QString databasePath = this->getDefaultDatabasePath();
-    
-    QFile jsonFile(databasePath+"/resources/dlml_resource_paths.json");
+    QJsonObject datasetPaths = this->getDefaultDatasetPaths();
 
     // check the component vulnerability database set in the combo box
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    QJsonObject resourcePaths;
-    if (jsonFile.open(QFile::ReadOnly | QFile::Text)){
-        QString val = jsonFile.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-        resourcePaths = doc.object();
-        jsonFile.close();
-    }
-
-    databasePath += "/resources/DamageAndLossModelLibrary/";
     QString cmpVulnerabilityDB_tmp;
+    QString cmpVulnerabilityDB_id;
 
-    if (resourcePaths.contains(databaseCombo->currentText())) {
-        cmpVulnerabilityDB_tmp = databasePath + resourcePaths[databaseCombo->currentText()].toString() + "fragility.csv";
+    if (datasetPaths.contains(databaseCombo->currentText())) {
+        QJsonObject datasetInfo = datasetPaths[databaseCombo->currentText()].toObject();
+
+        cmpVulnerabilityDB_tmp = datasetInfo["path"].toString() + "/fragility.csv";
+        cmpVulnerabilityDB_id = datasetInfo["id"].toString();
 
     } else {
-        
+
         cmpVulnerabilityDB_tmp = "";
 
     }
@@ -1539,7 +1521,7 @@ PelicunComponentContainer::updateComponentVulnerabilityDB(){
                                 QString(databaseCombo->currentText()) +
                                 " data from "+ cmpVulnerabilityDB);
 
-            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB);
+            cmpVulnerabilityDB_viz = generateFragilityInfo(cmpVulnerabilityDB, cmpVulnerabilityDB_id);
 
             // load the visualization path too (assume that we have a zip file for every bundled DB)
             /*
