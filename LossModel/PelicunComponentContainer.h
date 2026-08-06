@@ -149,8 +149,8 @@ private:
 
     void deleteCompDB();
     void deleteCompConfig();
-    QString getDefaultDatabasePath();
-    QString generateFragilityInfo(QString comp_DB_path);
+    QJsonObject getDefaultDatasetPaths();
+    QString generateFragilityInfo(QString comp_DB_path, QString comp_DB_id = QString());
 
     QString   cmpVulnerabilityDB;
     QString   additionalComponentDB;
