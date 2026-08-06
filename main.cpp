@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     //Setting Core Application Name, Organization and Version
     QCoreApplication::setApplicationName("PBE");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("4.5.3");
+    QCoreApplication::setApplicationVersion("4.5.4");
 					    
 
 #ifdef Q_OS_WIN
