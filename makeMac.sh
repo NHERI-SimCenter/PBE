@@ -120,17 +120,7 @@ fi
 
 msg "Running conan install..."
  
-# copy conanfile2 to conanfile till i remove old qmake build
-if [ -f "conanfile2.py" ]; then
-    mv conanfile.py conanfile.old
-    cp conanfile2.py conanfile.py
-fi
-
 conan install . --output-folder="${BUILD_DIR}" --build missing -s build_type=Release -pr "${CONAN_PROFILE}" || die "FAIL : Conan install failed."
-
-if [ -f "conanfile2.py" ]; then
-    mv conanfile.old conanfile.py
-fi
 
 #
 # Configure CMake

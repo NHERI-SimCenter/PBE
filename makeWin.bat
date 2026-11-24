@@ -1,4 +1,4 @@
-@echo off
+\@echo off
 setlocal enabledelayedexpansion
 
 :: makeWin.bat -- Build PBE for Windows using MSVC + Ninja + Conan
@@ -133,23 +133,13 @@ echo.
 echo Running conan install...
 echo.
 
-set "CONAN_FILE_SWAPPED=NO"
-if exist conanfile2.py (
-    move conanfile.py conanfile.old >nul
-    copy conanfile2.py conanfile.py >nul
-    set "CONAN_FILE_SWAPPED=YES"
-)
-
 conan install . --output-folder="%BUILD_DIR%" --build missing -s build_type=Release -pr "%CONAN_PROFILE%" -c tools.cmake.cmaketoolchain:generator=Ninja
 if errorlevel 1 (
-    if "%CONAN_FILE_SWAPPED%"=="YES" if exist conanfile.old move /y conanfile.old conanfile.py >nul
     echo.
     echo FAIL: Conan install failed.
     echo.
     exit /b 1
 )
-
-if "%CONAN_FILE_SWAPPED%"=="YES" if exist conanfile.old move /y conanfile.old conanfile.py >nul
 
 :: ---- Build QuaZip and other dependencies if needed ----
 
@@ -259,10 +249,6 @@ mkdir "%APP_DIR%\applications\opensees"
 mkdir "%APP_DIR%\applications\dakota"
 mkdir "%APP_DIR%\Examples"
 
-xcopy /s /e /Q    ".\Examples"          "%APP_DIR%\Examples"
-xcopy /s /e /i /q "%APPLICATIONS_DIR%"  "%APP_DIR%\applications\" >nul
-xcopy /s /e /i /q "%pathToOpenSees%"    "%APP_DIR%\applications\opensees\" >nul
-xcopy /s /e /i /q "%pathToDakota%"      "%APP_DIR%\applications\dakota\" >nul
 
 :: ---- Extract embedded Python and install SimCenter packages ----
 

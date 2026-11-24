@@ -1,61 +1,38 @@
-from conans import ConanFile
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps
+from conan.tools.files import copy
+import os
 
-class PBE(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    version = "2.2.3"
-    license = "BSD"
+class PBEConan(ConanFile):
+    name = "PBE"
+    license = "BSD-3-Clause"
     author = "NHERI SimCenter"
-    url = "https://github.com/NHERI-SimCenter/PBE"
-    description = "NHERI SimCenter Performance-Based Engineering Tool"
+    url = "https://github.com/NHERI-SimCenter/EE-UQ"
+    description = "NHERI SimCenter EE-UQ Tool"
+
     settings = "os", "compiler", "build_type", "arch"
-    generators = "qmake"
-    requires = ["jansson/2.13.1",
-               "libcurl/7.72.0",
-               "zlib/1.2.11",
-               #'quazip/1.4',
-               #"hdf5/1.12.0"
-               ]
 
-    build_policy = "missing"
-
-
+    def requirements(self):
+        self.requires("zlib/1.3.1")
+        self.requires("bzip2/1.0.8")
+        if self.settings.os != "Linux":
+            self.requires("libcurl/8.12.1")
+            
     def configure(self):
-        
-        self.output.success("CONFIGURE")
-        
         if self.settings.os == "Windows":
-            self.options["lapack"].visual_studio = True
-            self.options["lapack"].shared = True
+            self.options["bzip2"].shared = True
+            self.options["zlib"].shared = True
 
-    def imports(self):
-        
-        self.output.success("IMPORTS")
-        
+    def generate(self):
+        # Generate toolchain + find_package config files        
+        deps = CMakeDeps(self)
+        deps.generate()
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+        # The following solves the "DLL not found" error during local development
         if self.settings.os == "Windows":
-            output = './%s' % self.settings.build_type
-            self.copy("lib*.dll", dst=output, src="bin")
-
-        appsDestination = "./applications"
-        if self.settings.os == "Windows":
-            appsDestination = './%s/applications' % self.settings.build_type
-        elif self.settings.os == "Macos":
-            appsDestination = './PBE.app/Contents/MacOS'
-
-
-        appsSRC = "../../SimCenterBackendApplications/applications"
-        appsSRC = "bin"        
-        
-        self.output.success("CONFIGURE %s, %s" % (appsDestination, appsSRC))
-                                            
-        self.copy("createEVENT/multiple*", dst=appsDestination, src=appsSRC)
-        self.copy("createEVENT/siteRes*", dst=appsDestination, src=appsSRC)
-        self.copy("createEVENT/stochasticGr*", dst=appsDestination, src=appsSRC)
-
-        self.copy("createSAM/*", dst=appsDestination, src=appsSRC)
-        self.copy("createEDP/*", dst=appsDestination, src=appsSRC)
-        self.copy("performSIMULATION/*", dst=appsDestination, src=appsSRC)
-        self.copy("performUQ/*", dst=appsDestination, src=appsSRC)
-        self.copy("performDL/*", dst=appsDestination, src=appsSRC)
-        self.copy("Workflow/*", dst=appsDestination, src=appsSRC)
-        self.copy("*", dst="{}/opensees".format(appsDestination), src="opensees")
-        self.copy("*", dst="{}/dakota".format(appsDestination), src="dakota")
+            # For CMake, the binary usually ends up in build/Release or build/Debug
+            bindir = self.build_folder
+            for dep in self.dependencies.values():
+                copy(self, "*.dll", dep.cpp_info.bindirs[0], bindir)
