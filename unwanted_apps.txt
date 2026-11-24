@@ -35,10 +35,8 @@ createEVENT/EmptyDomainCFD
 createEVENT/IsolatedBuildingCFD
 createEVENT/TaichiEvent
 createEVENT/pointWindSpeed
-createSAM/MDOF-LU
 performREC
 performSIMULATION/surrogateRegionalPy
-performSIMULATION/IMasEDP
 performSIMULATION/extractPGA
 performSIMULATION/openSees_R
 systemPerformance

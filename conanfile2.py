@@ -33,6 +33,6 @@ class PBEConan(ConanFile):
         # The following solves the "DLL not found" error during local development
         if self.settings.os == "Windows":
             # For CMake, the binary usually ends up in build/Release or build/Debug
-            bindir = os.path.join(self.build_folder, str(self.settings.build_type))
+            bindir = self.build_folder
             for dep in self.dependencies.values():
                 copy(self, "*.dll", dep.cpp_info.bindirs[0], bindir)
