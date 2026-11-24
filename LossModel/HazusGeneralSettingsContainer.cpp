@@ -579,12 +579,7 @@ HazusGeneralSettingsContainer::exportFragilityDataBase(void) {
     QString dbFile = scriptDir.absoluteFilePath("HAZUS_MH_2.1_EQ.hdf");
 
     QProcess *proc = new QProcess();
-    QString python = QString("python");
-    QSettings settingsPy("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant  pythonLocationVariant = settingsPy.value("pythonExePath");
-    if (pythonLocationVariant.isValid()) {
-      python = pythonLocationVariant.toString();
-    }
+    QString python = SimCenterPreferences::getInstance()->getPython();
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
